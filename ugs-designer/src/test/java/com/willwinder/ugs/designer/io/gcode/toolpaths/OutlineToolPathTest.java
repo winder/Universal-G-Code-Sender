@@ -668,14 +668,11 @@ public class OutlineToolPathTest {
         Segment segment = segments.get(4);
         assertEquals(SegmentType.POINT, segment.type);
         assertEquals(0, segment.point.getZ(), 0.01);
+        assertSegment(segments.get(8), 0, 0, -0);
 
-        // Rapid down to the surface that the previous pass left before engaging the material
-        segment = segments.get(11);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertEquals(0, segment.point.getZ(), 0.01);
-
-        // Descend to the full depth of cut along the first edge of the rectangle
-        segment = segments.get(13);
+        // The pass after it descends to the full depth of cut along the first edge of the rectangle,
+        // straight from where the previous one left the tool
+        segment = segments.get(9);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(0, segment.point.getX(), 0.01);
         assertEquals(3.73, segment.point.getY(), 0.01);
@@ -683,18 +680,18 @@ public class OutlineToolPathTest {
         assertEquals(Integer.valueOf(2000), segment.getFeedSpeed());
 
         // Continue cutting the outline from where the ramp ended
-        assertSegment(segments.get(14), 0, 10, -1);
-        assertSegment(segments.get(15), 10, 10, -1);
-        assertSegment(segments.get(16), 10, 0, -1);
-        assertSegment(segments.get(17), 0, 0, -1);
+        assertSegment(segments.get(10), 0, 10, -1);
+        assertSegment(segments.get(11), 10, 10, -1);
+        assertSegment(segments.get(12), 10, 0, -1);
+        assertSegment(segments.get(13), 0, 0, -1);
 
         // And clear out the material that the ramp left behind
-        assertSegment(segments.get(18), 0, 3.73, -1);
+        assertSegment(segments.get(14), 0, 3.73, -1);
 
         // Retract to safe height
-        assertEquals(SegmentType.MOVE, segments.get(19).type);
-        assertEquals(10, segments.get(19).point.getZ(), 0.01);
-        assertEquals(20, segments.size());
+        assertEquals(SegmentType.MOVE, segments.get(15).type);
+        assertEquals(10, segments.get(15).point.getZ(), 0.01);
+        assertEquals(16, segments.size());
     }
 
     @Test
@@ -762,7 +759,7 @@ public class OutlineToolPathTest {
     }
 
     @Test
-    public void toGcodePath_shouldRetractToSafeHeightWhenTheNextPassStartsSomewhereElse() {
+    public void toGcodePath_shouldCarryOnFromWhereTheRampEndedWithoutRetracting() {
         Rectangle rectangle = new Rectangle(0, 0);
         rectangle.setSize(new Size(10, 10));
         rectangle.setPlungeType(PlungeType.LINEAR_RAMP);
@@ -774,16 +771,18 @@ public class OutlineToolPathTest {
         toolPath.setTargetDepth(3);
         List<Segment> segments = toolPath.toGcodePath().getSegments();
 
-        // The second pass starts where the first one ended, so the tool is only lifted in place
-        assertRetract(segments.get(9), 4);
+        // Every pass ends where the next one starts descending, so the only rapids left are the ones
+        // approaching the outline and the one retracting from it once it has been cut
+        List<Segment> rapids = segments.stream().filter(s -> s.type == SegmentType.MOVE).toList();
+        assertEquals(4, rapids.size());
+        assertRetract(rapids.get(0), 5);
+        assertRetract(rapids.get(2), 5);
+        assertRetract(rapids.get(3), 5);
+        assertEquals(segments.get(segments.size() - 1), rapids.get(3));
 
-        // The pass after that starts back where the ramp began, which takes the tool over material
-        // that has not been cut away yet, so it is lifted all the way to the safe height first
-        assertRetract(segments.get(19), 5);
-        assertEquals(SegmentType.MOVE, segments.get(20).type);
-        assertEquals(0, segments.get(20).point.getX(), 0.01);
-        assertEquals(0, segments.get(20).point.getY(), 0.01);
-        assertFalse(segments.get(20).point.hasZ());
+        // Each pass picks up a ramp length further along the outline than the previous one
+        assertSegment(segments.get(9), 0, 3.73, -1);
+        assertSegment(segments.get(15), 0, 7.46, -2);
     }
 
     @Test

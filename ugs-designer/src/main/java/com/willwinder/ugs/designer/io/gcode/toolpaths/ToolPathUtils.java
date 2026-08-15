@@ -53,7 +53,7 @@ public class ToolPathUtils {
     public static List<Geometry> toGeometryList(Geometry geometry) {
         List<Geometry> geometryList = new ArrayList<>();
         recursivlyCollectGeometries(geometry, geometryList);
-        geometryList.sort(new GeometryPositionComparator(geometry.getEnvelopeInternal()));
+        geometryList.sort(new HilbertPositionComparator(geometry.getEnvelopeInternal()));
         return geometryList;
     }
 

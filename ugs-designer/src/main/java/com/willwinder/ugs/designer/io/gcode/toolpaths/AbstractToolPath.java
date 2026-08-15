@@ -144,7 +144,7 @@ public abstract class AbstractToolPath implements PathGenerator {
 
         if (rampedPath.isPresent()) {
             RampedPath ramp = rampedPath.get();
-            addSafeHeightSegmentTo(gcodePath, ramp.entry(), isFirst);
+            ramp.entry().ifPresent(entry -> addSafeHeightSegmentTo(gcodePath, entry, isFirst));
             ramp.segments().forEach(gcodePath::addSegment);
             cutPath = ramp.cutPath();
         } else {
@@ -163,7 +163,7 @@ public abstract class AbstractToolPath implements PathGenerator {
         }
 
         double depth = -start.getZ();
-        return LinearRamp.create(coordinates, previousDepth(depth), depth, source.getFeedRate());
+        return LinearRamp.create(coordinates, lastPosition, previousDepth(depth), depth, source.getFeedRate());
     }
 
     /**
