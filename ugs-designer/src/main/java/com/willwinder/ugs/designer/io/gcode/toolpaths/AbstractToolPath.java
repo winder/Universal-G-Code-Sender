@@ -156,9 +156,17 @@ public abstract class AbstractToolPath implements PathGenerator {
         lastPosition = cutPath.get(cutPath.size() - 1);
     }
 
+    /**
+     * Whether the runs of this tool path are cut at a constant depth, which is what makes it
+     * possible to ramp down into them.
+     */
+    protected boolean supportsRamping() {
+        return true;
+    }
+
     private Optional<RampedPath> toRampedPath(List<PartialPosition> coordinates, Cuttable source) {
         PartialPosition start = coordinates.get(0);
-        if (source.getPlungeType() != PlungeType.LINEAR_RAMP || !start.hasZ()) {
+        if (!supportsRamping() || source.getPlungeType() != PlungeType.LINEAR_RAMP || !start.hasZ()) {
             return Optional.empty();
         }
 

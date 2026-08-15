@@ -253,7 +253,7 @@ public class Group extends EntityGroup implements Cuttable {
         return getCuttableStream()
                 .findFirst()
                 .map(Cuttable::getPlungeType)
-                .orElse(PlungeType.STRAIGHT);
+                .orElse(PlungeType.LINEAR_RAMP);
     }
 
     @Override

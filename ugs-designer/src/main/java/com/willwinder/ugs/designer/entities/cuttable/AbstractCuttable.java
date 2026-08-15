@@ -55,7 +55,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private boolean includeInExport = true;
     private double toolPathAngle;
     private Direction direction = Direction.CLIMB;
-    private PlungeType plungeType = PlungeType.STRAIGHT;
+    private PlungeType plungeType = PlungeType.LINEAR_RAMP;
     private ToolPathDirection toolPathDirection = ToolPathDirection.HORIZONTAL;
     private boolean finishingPass = false;
     private double stockToLeave = DEFAULT_STOCK_TO_LEAVE;

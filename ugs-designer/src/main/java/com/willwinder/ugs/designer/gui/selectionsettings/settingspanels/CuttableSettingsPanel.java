@@ -283,6 +283,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             try {
                 cutTypeComboBox.setItems(firstCuttable.getAvailableCutTypes());
                 cutTypeComboBox.setSelectedItem(firstCuttable.getCutType());
+                updateLabelsForCutType(firstCuttable.getCutType());
                 startDepthSpinner.setValue(firstCuttable.getStartDepth());
                 targetDepthSpinner.setValue(firstCuttable.getTargetDepth());
                 spindleSpeedSpinner.setValue(firstCuttable.getSpindleSpeed() / 100.0);
@@ -296,7 +297,6 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 roughingCheckBox.setSelected((Boolean) firstCuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.FALSE));
                 finishingPassCheckBox.setSelected(firstCuttable.isFinishingPass());
                 stockToLeaveSpinner.setValue(firstCuttable.getStockToLeave());
-                updateLabelsForCutType(firstCuttable.getCutType());
             } finally {
                 updating = false;
             }
@@ -306,8 +306,14 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     }
 
     private void updateLabelsForCutType(CutType cutType) {
-        directionCombo.setDirections(cutType.getDirections());
-        plungeTypeCombo.setPlungeTypes(cutType.getPlungeTypes());
+        boolean wasUpdating = updating;
+        updating = true;
+        try {
+            directionCombo.setDirections(cutType.getDirections());
+            plungeTypeCombo.setPlungeTypes(cutType.getPlungeTypes());
+        } finally {
+            updating = wasUpdating;
+        }
 
         for (Component comp : getComponents()) {
             if (comp instanceof JLabel label && ("Spindle Speed".equals(label.getText()) || "Power".equals(label.getText()))) {

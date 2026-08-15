@@ -36,6 +36,7 @@ public class PocketToolPathTest {
 
         Rectangle rectangle = new Rectangle();
         rectangle.setSize(new Size(geometrySize, geometrySize));
+        rectangle.setPlungeType(PlungeType.STRAIGHT);
 
         Settings settings = new Settings();
         settings.setSafeHeight(safeHeight);
@@ -171,7 +172,7 @@ public class PocketToolPathTest {
 
         Rectangle rectangle = new Rectangle();
         rectangle.setSize(new Size(geometrySize, geometrySize));
-
+        rectangle.setPlungeType(PlungeType.STRAIGHT);
 
         Settings settings = new Settings();
         settings.setToolDiameter(toolRadius * 2);
@@ -322,6 +323,7 @@ public class PocketToolPathTest {
         path.lineTo(60, 10);
         path.lineTo(60, 0);
         path.close();
+        path.setPlungeType(PlungeType.STRAIGHT);
 
         Settings settings = new Settings();
         settings.setToolDiameter(5);
@@ -388,6 +390,7 @@ public class PocketToolPathTest {
         square(path, 0, 0);
         square(path, 100, 0);
         square(path, 0, 20);
+        path.setPlungeType(PlungeType.STRAIGHT);
 
         Settings settings = new Settings();
         settings.setToolDiameter(3);
@@ -425,6 +428,7 @@ public class PocketToolPathTest {
         Rectangle rectangle = new Rectangle();
         rectangle.setSize(new Size(20, 20));
         rectangle.setDirection(Direction.CONVENTIONAL);
+        rectangle.setPlungeType(PlungeType.STRAIGHT);
 
         Settings settings = new Settings();
         settings.setToolDiameter(5);

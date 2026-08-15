@@ -361,6 +361,7 @@ public class OutlineToolPathTest {
     public void toGcodePathShouldGenerateGcodeFromNegativeStartDepth() {
         Rectangle rectangle = new Rectangle(0,0);
         rectangle.setSize(new Size(10, 10));
+        rectangle.setPlungeType(PlungeType.STRAIGHT);
         Settings settings = new Settings();
         settings.setSafeHeight(10);
         settings.setDepthPerPass(1);
@@ -798,6 +799,7 @@ public class OutlineToolPathTest {
         path.lineTo(60, 10);
         path.lineTo(60, 0);
         path.close();
+        path.setPlungeType(PlungeType.STRAIGHT);
 
         Settings settings = new Settings();
         settings.setSafeHeight(5);

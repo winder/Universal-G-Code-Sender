@@ -40,7 +40,7 @@ import java.util.Set;
 public class PlungeTypeCombo extends JComboBox<PlungeType> {
     public PlungeTypeCombo() {
         Arrays.stream(PlungeType.values()).forEach(this::addItem);
-        setSelectedItem(PlungeType.STRAIGHT);
+        setSelectedItem(PlungeType.LINEAR_RAMP);
         setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
