@@ -358,11 +358,14 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         copy.setCutType(getCutType());
         copy.setSpindleSpeed(getSpindleSpeed());
         copy.setPasses(getPasses());
+        copy.setFeedRate(getFeedRate());
+        copy.setLeadInPercent(getLeadInPercent());
         copy.setHidden(isHidden());
         copy.setIncludeInExport(getIncludeInExport());
         copy.setDirection(getDirection());
         copy.setPlungeType(getPlungeType());
         copy.setToolPathAngle(getToolPathAngle());
+        copy.setToolPathDirection(getToolPathDirection());
         copy.setFinishingPass(isFinishingPass());
         copy.setStockToLeave(getStockToLeave());
     }

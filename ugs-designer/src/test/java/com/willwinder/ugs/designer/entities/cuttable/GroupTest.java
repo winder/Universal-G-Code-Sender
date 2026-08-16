@@ -38,6 +38,24 @@ public class GroupTest {
     }
 
     @Test
+    public void copy_shouldRetainSettingsOnChildren() {
+        Rectangle rectangle = new Rectangle(1, 1);
+        rectangle.setFeedRate(1234);
+        rectangle.setLeadInPercent(40);
+        rectangle.setToolPathDirection(ToolPathDirection.VERTICAL);
+
+        Group group = new Group();
+        group.addChild(rectangle);
+
+        Group copy = (Group) group.copy();
+
+        Cuttable child = (Cuttable) copy.getChildren().get(0);
+        assertEquals(1234, child.getFeedRate());
+        assertEquals(40, child.getLeadInPercent());
+        assertEquals(ToolPathDirection.VERTICAL, child.getToolPathDirection());
+    }
+
+    @Test
     public void getSettingsShouldReturnACombinedListOfSettings() {
         Point point1 = new Point();
         Point point2 = new Point();
