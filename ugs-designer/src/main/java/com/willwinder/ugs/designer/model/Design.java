@@ -30,6 +30,7 @@ import java.util.List;
 public class Design {
     private List<Entity> entities = Collections.emptyList();
     private ToolDefinition toolSnapshot;
+    private Settings settings;
 
     public List<Entity> getEntities() {
         return entities;
@@ -45,5 +46,17 @@ public class Design {
 
     public void setToolSnapshot(ToolDefinition toolSnapshot) {
         this.toolSnapshot = toolSnapshot;
+    }
+
+    /**
+     * Returns the settings stored together with the design, or {@code null} for designs saved
+     * before settings were part of the file format.
+     */
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
     }
 }

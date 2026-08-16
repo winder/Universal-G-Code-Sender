@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.fx.component.ButtonBox;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
 import com.willwinder.universalgcodesender.fx.control.UnitTextField;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitValue;
 import javafx.collections.FXCollections;
@@ -39,6 +40,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+
+import java.util.Objects;
 
 /**
  * A basic tool settings dialog for the designer, mirroring the fields of the Swing
@@ -133,7 +136,7 @@ public class ToolSettingsStage extends Stage {
         root.setBottom(buttonBox);
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/styles/root.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/root.css")).toExternalForm());
         return scene;
     }
 
@@ -157,6 +160,9 @@ public class ToolSettingsStage extends Stage {
         ChangeToolSettingsAction action = new ChangeToolSettingsAction(controller, settings);
         action.actionPerformed(null);
         controller.getUndoManager().addAction(action);
+
+        // The settings are stored in the design file, so they need to be saved with it
+        WorkspaceManager.getInstance().markActiveWorkspaceDirty(true);
         close();
     }
 

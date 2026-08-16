@@ -15,6 +15,7 @@ public class DesignV1 extends UgsDesign implements Serializable {
 
     private List<EntityV1> entities = Collections.emptyList();
     private ToolDefinition tool;
+    private SettingsV1 settings;
 
     public DesignV1() {
         setVersion(DesignV1.VERSION);
@@ -36,6 +37,14 @@ public class DesignV1 extends UgsDesign implements Serializable {
         this.tool = tool;
     }
 
+    public SettingsV1 getSettings() {
+        return settings;
+    }
+
+    public void setSettings(SettingsV1 settings) {
+        this.settings = settings;
+    }
+
     @Override
     public Design toInternal() {
         Design design = new Design();
@@ -47,6 +56,9 @@ public class DesignV1 extends UgsDesign implements Serializable {
             design.setEntities(internalEntities);
         }
         design.setToolSnapshot(tool);
+        if (settings != null) {
+            design.setSettings(settings.toInternal());
+        }
         return design;
     }
 }

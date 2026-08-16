@@ -29,6 +29,7 @@ import com.willwinder.ugs.designer.io.ugsd.v1.EntityRectangleV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.EntityTextV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.EntityV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.PlungeTypeV1;
+import com.willwinder.ugs.designer.io.ugsd.v1.SettingsV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.ToolPathDirectionTypeV1;
 import com.willwinder.ugs.designer.logic.Controller;
 import org.apache.commons.io.IOUtils;
@@ -70,6 +71,7 @@ public class UgsDesignWriter implements DesignWriter {
             EntityGroup rootEntity = controller.getDrawing().getRootEntity();
             design.setEntities(rootEntity.getChildren().stream().map(this::convertToEntity).toList());
             design.setTool(controller.getSettings().getCurrentToolSnapshot());
+            design.setSettings(SettingsV1.fromInternal(controller.getSettings()));
             IOUtils.write(gson.toJson(design), outputStream, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new DesignWriterException("Could not write to file", e);
