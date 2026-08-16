@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
@@ -202,6 +203,40 @@ public class UgsDesignReaderTest {
         assertTrue(readGroupEntities.get(0) instanceof Point);
         assertEquals(point.getPosition().getX(), readGroupEntities.get(0).getPosition().getX(), 0.1);
         assertEquals(point.getPosition().getY(), readGroupEntities.get(0).getPosition().getY(), 0.1);
+    }
+
+    @Test
+    public void read_shouldNotReturnSettingsForDesignSavedWithoutSettings() {
+        String legacyDesign = "{\"version\":\"1\",\"entities\":[]}";
+
+        Design design = new UgsDesignReader()
+                .read(IOUtils.toInputStream(legacyDesign, Charset.defaultCharset()))
+                .orElseThrow();
+
+        assertNull("A design saved before settings were stored must not fabricate any",
+                design.getSettings());
+    }
+
+    @Test
+    public void read_shouldReturnSettingsStoredInDesign() {
+        String designFile = "{\"version\":\"1\",\"entities\":[],\"settings\":{\"depthPerPass\":3.5}}";
+
+        Design design = new UgsDesignReader()
+                .read(IOUtils.toInputStream(designFile, Charset.defaultCharset()))
+                .orElseThrow();
+
+        assertEquals(3.5, design.getSettings().getDepthPerPass(), 0.1);
+    }
+
+    @Test
+    public void read_shouldUseDefaultsForSettingsMissingFromDesign() {
+        String designFile = "{\"version\":\"1\",\"entities\":[],\"settings\":{\"depthPerPass\":3.5}}";
+
+        Design design = new UgsDesignReader()
+                .read(IOUtils.toInputStream(designFile, Charset.defaultCharset()))
+                .orElseThrow();
+
+        assertEquals(10.0, design.getSettings().getStockThickness(), 0.1);
     }
 
     private String convertEntityToString(Entity entity) {

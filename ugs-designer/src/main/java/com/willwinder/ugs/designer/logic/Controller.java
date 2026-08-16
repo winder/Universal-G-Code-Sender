@@ -119,6 +119,7 @@ public class Controller {
         getDrawing().insertEntities(design.getEntities());
         getDrawing().repaint();
         setTool(Tool.SELECT);
+        applyDesignSettings(design);
     }
 
     public void setCursor(Cursor cursor) {
@@ -129,29 +130,48 @@ public class Controller {
         UgsDesignReader reader = new UgsDesignReader();
         Design design = reader.read(file).orElse(new Design());
         setDesign(design);
-        reconcileToolOnLoad(design.getToolSnapshot());
     }
 
-    private void reconcileToolOnLoad(ToolDefinition projectTool) {
+    private void applyDesignSettings(Design design) {
+        Settings designSettings = design.getSettings();
+        if (designSettings != null) {
+            settings.applySettings(designSettings);
+        }
+        reconcileToolOnLoad(design.getToolSnapshot(), designSettings != null);
+    }
+
+    private void reconcileToolOnLoad(ToolDefinition projectTool, boolean hasDesignSettings) {
         if (projectTool == null) {
             return;
         }
         ToolLibraryService library = LookupService.lookupOptional(ToolLibraryService.class).orElse(null);
         if (library == null) {
             // Headless mode or no library — apply the project's tool as a raw snapshot.
-            applyToolSnapshot(projectTool);
+            applyResolvedTool(projectTool, projectTool, hasDesignSettings);
             return;
         }
         Window parent = SwingUtilities.getWindowAncestor(drawing);
         ToolLibrarySyncService sync = new ToolLibrarySyncService(library);
         ToolDefinition resolved = sync.resolveOnLoad(parent, projectTool);
         if (resolved != null) {
-            applyToolSnapshot(resolved);
+            applyResolvedTool(resolved, projectTool, hasDesignSettings);
         }
     }
 
-    private void applyToolSnapshot(ToolDefinition tool) {
-        settings.applySettings(tool.applyToSettings(settings));
+    /**
+     * The settings stored in the design already carry every value a tool would set, and they may
+     * deviate from the tool where a field was edited without rebinding the tool. Only a tool that
+     * the library reconciliation actually changed may overwrite them, otherwise nothing but the
+     * binding to the tool is restored.
+     */
+    private void applyResolvedTool(ToolDefinition resolved, ToolDefinition projectTool, boolean hasDesignSettings) {
+        if (!hasDesignSettings || !resolved.matchesValues(projectTool)) {
+            settings.applySettings(resolved.applyToSettings(settings));
+            return;
+        }
+
+        settings.setCurrentToolId(resolved.getId());
+        settings.setCurrentToolSnapshot(new ToolDefinition(resolved));
     }
 
     public void saveFile(File file) {
