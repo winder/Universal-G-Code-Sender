@@ -249,6 +249,23 @@ public class Group extends EntityGroup implements Cuttable {
     }
 
     @Override
+    public PlungeType getPlungeType() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::getPlungeType)
+                .orElse(PlungeType.LINEAR_RAMP);
+    }
+
+    @Override
+    public void setPlungeType(PlungeType plungeType) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setPlungeType(plungeType);
+            }
+        });
+    }
+
+    @Override
     public Optional<Object> getEntitySetting(EntitySetting entitySetting) {
         return entitySettings.getEntitySetting(entitySetting);
     }

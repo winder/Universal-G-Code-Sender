@@ -8,6 +8,7 @@ import com.willwinder.ugs.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.designer.entities.cuttable.Group;
 import com.willwinder.ugs.designer.entities.cuttable.Path;
+import com.willwinder.ugs.designer.entities.cuttable.PlungeType;
 import com.willwinder.ugs.designer.entities.cuttable.Point;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.gui.Drawing;
@@ -123,6 +124,7 @@ public class UgsDesignReaderTest {
         entity.setTargetDepth(12);
         entity.setCutType(CutType.POCKET);
         entity.setDirection(Direction.CONVENTIONAL);
+        entity.setPlungeType(PlungeType.LINEAR_RAMP);
         String data = convertEntityToString(entity);
 
         UgsDesignReader reader = new UgsDesignReader();
@@ -143,6 +145,7 @@ public class UgsDesignReaderTest {
         assertEquals(entity.getSize().getHeight(), readEntity.getSize().getHeight(), 0.1);
         assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
         assertEquals(entity.getDirection(), readEntity.getDirection());
+        assertEquals(entity.getPlungeType(), readEntity.getPlungeType());
     }
 
     @Test

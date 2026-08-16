@@ -28,6 +28,7 @@ import com.willwinder.ugs.designer.io.ugsd.v1.EntityRasterV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.EntityRectangleV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.EntityTextV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.EntityV1;
+import com.willwinder.ugs.designer.io.ugsd.v1.PlungeTypeV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.ToolPathDirectionTypeV1;
 import com.willwinder.ugs.designer.logic.Controller;
 import org.apache.commons.io.IOUtils;
@@ -118,6 +119,7 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setLeadInPercent(cuttable.getLeadInPercent());
             cuttableEntity.setToolPathAngle(cuttable.getToolPathAngle());
             cuttableEntity.setDirection(DirectionTypeV1.fromDirection(cuttable.getDirection()));
+            cuttableEntity.setPlungeType(PlungeTypeV1.fromPlungeType(cuttable.getPlungeType()));
             cuttableEntity.setToolPathDirection(ToolPathDirectionTypeV1.fromDirection(cuttable.getToolPathDirection()));
             cuttableEntity.setFinishingPass(cuttable.isFinishingPass());
             cuttableEntity.setStockToLeave(cuttable.getStockToLeave());

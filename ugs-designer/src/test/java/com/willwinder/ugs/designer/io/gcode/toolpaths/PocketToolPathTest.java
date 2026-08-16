@@ -4,6 +4,8 @@ import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
+import com.willwinder.ugs.designer.entities.cuttable.PlungeType;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
@@ -34,6 +36,7 @@ public class PocketToolPathTest {
 
         Rectangle rectangle = new Rectangle();
         rectangle.setSize(new Size(geometrySize, geometrySize));
+        rectangle.setPlungeType(PlungeType.STRAIGHT);
 
         Settings settings = new Settings();
         settings.setSafeHeight(safeHeight);
@@ -169,7 +172,7 @@ public class PocketToolPathTest {
 
         Rectangle rectangle = new Rectangle();
         rectangle.setSize(new Size(geometrySize, geometrySize));
-
+        rectangle.setPlungeType(PlungeType.STRAIGHT);
 
         Settings settings = new Settings();
         settings.setToolDiameter(toolRadius * 2);
@@ -263,6 +266,208 @@ public class PocketToolPathTest {
 
         assertTrue("A finer curve precision should keep more of the points describing the curve",
                 coarseSegments < pocketOfCircle(fineSettings).getSize());
+    }
+
+    @Test
+    public void toGcodePath_shouldRampIntoMaterialForEveryDepthOfCutWhenPlungeTypeIsLinearRamp() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setDirection(Direction.CLIMB);
+        rectangle.setPlungeType(PlungeType.LINEAR_RAMP);
+
+        Settings settings = new Settings();
+        settings.setToolStepOver(1);
+        settings.setToolDiameter(5);
+        settings.setDepthPerPass(1);
+
+        PocketToolPath pocket = new PocketToolPath(settings, rectangle);
+        pocket.setTargetDepth(2);
+        List<Segment> segments = pocket.toGcodePath().getSegments();
+
+        assertTrue("No pass should move straight down into the material",
+                segments.stream()
+                        .filter(segment -> segment.type == SegmentType.POINT)
+                        .allMatch(segment -> segment.point.getZ() == 0));
+
+        // The first pass removing material descends along the first edge of the pocket ring, which
+        // starts in the lower left corner and continues along the Y axis
+        assertRampsDownTo(segments, -1, 2.5, 6.23);
+
+        // The pass after it carries on from there, descending around the corner of the ring
+        assertRampsDownTo(segments, -2, 4.96, 7.5);
+    }
+
+    private static void assertRampsDownTo(List<Segment> segments, double depth, double x, double y) {
+        List<Segment> pass = segments.stream()
+                .filter(segment -> segment.type == SegmentType.LINE)
+                .filter(segment -> Math.abs(segment.point.getAxis(Axis.Z) - depth) < 0.01)
+                .toList();
+
+        // The descent ends at the ramp angle along the ring
+        assertSegmentAt(pass.get(0), x, y, depth);
+
+        // And the ring is cut from there and back over the ramp again to clear it out
+        assertSegmentAt(pass.get(pass.size() - 1), x, y, depth);
+    }
+
+    @Test
+    public void toGcodePath_shouldClearOneAreaAtATimeWhenThePocketIsBrokenUp() {
+        Path path = new Path();
+        path.moveTo(0, 0);
+        path.lineTo(0, 10);
+        path.lineTo(10, 10);
+        path.lineTo(10, 0);
+        path.close();
+        path.moveTo(50, 0);
+        path.lineTo(50, 10);
+        path.lineTo(60, 10);
+        path.lineTo(60, 0);
+        path.close();
+        path.setPlungeType(PlungeType.STRAIGHT);
+
+        Settings settings = new Settings();
+        settings.setToolDiameter(5);
+        settings.setToolStepOver(0.4);
+        settings.setDepthPerPass(1);
+
+        PocketToolPath pocket = new PocketToolPath(settings, path);
+        pocket.setTargetDepth(2);
+        List<Segment> segments = pocket.toGcodePath().getSegments();
+
+        // The first area is cleared all the way to the target depth before the tool moves over to the
+        // second one, rather than the tool travelling between the two of them at every depth
+        List<Segment> plunges = segments.stream()
+                .filter(segment -> segment.type == SegmentType.POINT)
+                .toList();
+
+        assertEquals(6, plunges.size());
+        assertPlungeAt(plunges.get(0), 4.5, 0);
+        assertPlungeAt(plunges.get(1), 4.5, -1);
+        assertPlungeAt(plunges.get(2), 4.5, -2);
+        assertPlungeAt(plunges.get(3), 54.5, 0);
+        assertPlungeAt(plunges.get(4), 54.5, -1);
+        assertPlungeAt(plunges.get(5), 54.5, -2);
+    }
+
+    @Test
+    public void toGcodePath_shouldRampInTheDirectionThatARingIsCutWhenThePocketHasSeveralRings() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(20, 20));
+        rectangle.setDirection(Direction.CLIMB);
+        rectangle.setPlungeType(PlungeType.LINEAR_RAMP);
+
+        Settings settings = new Settings();
+        settings.setToolDiameter(5);
+        settings.setToolStepOver(0.4);
+        settings.setDepthPerPass(1);
+        settings.setArcFitting(false);
+
+        PocketToolPath pocket = new PocketToolPath(settings, rectangle);
+        pocket.setTargetDepth(2);
+        List<Segment> segments = pocket.toGcodePath().getSegments();
+
+        // The first pass cuts the innermost ring clockwise, starting in its lower left corner
+        assertSegmentAt(segments.get(5), 8.5, 11.5, 0);
+
+        // The tool is moved a ramp length back along the ring before descending
+        assertEquals(SegmentType.MOVE, segments.get(25).type);
+        assertEquals(11.5, segments.get(25).point.getAxis(Axis.X), 0.01);
+        assertEquals(9.23, segments.get(25).point.getAxis(Axis.Y), 0.01);
+
+        // Descending follows the same direction the ring is cut in, ending where the ring starts
+        assertSegmentAt(segments.get(28), 11.5, 8.5, -0.2);
+        assertSegmentAt(segments.get(29), 8.5, 8.5, -1);
+        assertSegmentAt(segments.get(30), 8.5, 11.5, -1);
+
+        // And the ring is left to carry on to the next one the way it was laid out
+        assertSegmentAt(segments.get(34), 8.5, 8.5, -1);
+        assertSegmentAt(segments.get(35), 6.5, 6.5, -1);
+    }
+
+    @Test
+    public void toGcodePath_shouldClearAreasThatLieCloseTogetherAfterEachOther() {
+        Path path = new Path();
+        square(path, 0, 0);
+        square(path, 100, 0);
+        square(path, 0, 20);
+        path.setPlungeType(PlungeType.STRAIGHT);
+
+        Settings settings = new Settings();
+        settings.setToolDiameter(3);
+        settings.setDepthPerPass(1);
+
+        PocketToolPath pocket = new PocketToolPath(settings, path);
+        pocket.setTargetDepth(1);
+        List<Segment> segments = pocket.toGcodePath().getSegments();
+
+        List<Segment> plunges = segments.stream()
+                .filter(segment -> segment.type == SegmentType.POINT)
+                .toList();
+
+        // The area in the lower left corner is cleared first, then the one right above it, and only
+        // then the one on the far side of the design
+        assertEquals(6, plunges.size());
+        assertPlungeInSquare(plunges.get(0), 0, 0);
+        assertPlungeInSquare(plunges.get(1), 0, 0);
+        assertPlungeInSquare(plunges.get(2), 0, 20);
+        assertPlungeInSquare(plunges.get(3), 0, 20);
+        assertPlungeInSquare(plunges.get(4), 100, 0);
+        assertPlungeInSquare(plunges.get(5), 100, 0);
+    }
+
+    private static void square(Path path, double x, double y) {
+        path.moveTo(x, y);
+        path.lineTo(x, y + 10);
+        path.lineTo(x + 10, y + 10);
+        path.lineTo(x + 10, y);
+        path.close();
+    }
+
+    @Test
+    public void toGcodePath_shouldCutEveryDepthOfCutInTheSameDirection() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(20, 20));
+        rectangle.setDirection(Direction.CONVENTIONAL);
+        rectangle.setPlungeType(PlungeType.STRAIGHT);
+
+        Settings settings = new Settings();
+        settings.setToolDiameter(5);
+        settings.setToolStepOver(0.4);
+        settings.setDepthPerPass(1);
+        settings.setArcFitting(false);
+
+        PocketToolPath pocket = new PocketToolPath(settings, rectangle);
+        pocket.setTargetDepth(2);
+        List<Segment> segments = pocket.toGcodePath().getSegments();
+
+        // Every pass clears the same area, so they all cut the same positions in the same order
+        assertEquals(positionsAtDepth(segments, 0), positionsAtDepth(segments, -1));
+        assertEquals(positionsAtDepth(segments, 0), positionsAtDepth(segments, -2));
+    }
+
+    private static List<String> positionsAtDepth(List<Segment> segments, double depth) {
+        return segments.stream()
+                .filter(segment -> segment.point != null && segment.point.hasX() && segment.point.hasZ())
+                .filter(segment -> Math.abs(segment.point.getZ() - depth) < 0.001)
+                .map(segment -> Math.round(segment.point.getX() * 100) + "," + Math.round(segment.point.getY() * 100))
+                .toList();
+    }
+
+    private static void assertPlungeInSquare(Segment segment, double x, double y) {
+        assertEquals(x + 5, segment.point.getAxis(Axis.X), 5);
+        assertEquals(y + 5, segment.point.getAxis(Axis.Y), 5);
+    }
+
+    private static void assertPlungeAt(Segment segment, double x, double z) {
+        assertEquals(x, segment.point.getAxis(Axis.X), 0.01);
+        assertEquals(z, segment.point.getAxis(Axis.Z), 0.01);
+    }
+
+    private static void assertSegmentAt(Segment segment, double x, double y, double z) {
+        assertEquals(SegmentType.LINE, segment.type);
+        assertEquals(x, segment.point.getAxis(Axis.X), 0.01);
+        assertEquals(y, segment.point.getAxis(Axis.Y), 0.01);
+        assertEquals(z, segment.point.getAxis(Axis.Z), 0.01);
     }
 
     private static GcodePath pocketOfCircle(Settings settings) {

@@ -26,10 +26,12 @@ import com.willwinder.ugs.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.designer.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.cuttable.PlungeType;
 import com.willwinder.ugs.designer.entities.cuttable.ToolPathDirection;
 import com.willwinder.ugs.designer.entities.settings.CuttableSettingsManager;
 import com.willwinder.ugs.designer.gui.CutTypeCombo;
 import com.willwinder.ugs.designer.gui.DirectionCombo;
+import com.willwinder.ugs.designer.gui.PlungeTypeCombo;
 import com.willwinder.ugs.designer.gui.ToolPathDirectionCombo;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -76,6 +78,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     private JCheckBox includeInExport;
     private UnitSpinner toolPathAngleSpinner;
     private DirectionCombo directionCombo;
+    private PlungeTypeCombo plungeTypeCombo;
     private ToolPathDirectionCombo toolPathDirectionCombo;
     private JCheckBox roughingCheckBox;
     private JCheckBox finishingPassCheckBox;
@@ -105,6 +108,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         toolPathAngleSpinner = new UnitSpinner(0, Unit.DEGREE, 0d, 360d, 5d);
         toolPathDirectionCombo = new ToolPathDirectionCombo();
         directionCombo = new DirectionCombo();
+        plungeTypeCombo = new PlungeTypeCombo();
 
         includeInExport = new JCheckBox();
         includeInExport.setSelected(true);
@@ -131,6 +135,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
 
         addLabeledComponent(EntitySetting.CUT_TYPE, "Cut Type", cutTypeComboBox);
         addLabeledComponent(EntitySetting.DIRECTION, "Cut direction", directionCombo);
+        addLabeledComponent(EntitySetting.PLUNGE_TYPE, "Plunge type", plungeTypeCombo);
         addLabeledComponent(EntitySetting.START_DEPTH,"Start Depth", startDepthSpinner);
         addLabeledComponent(EntitySetting.TARGET_DEPTH, "Target Depth", targetDepthSpinner);
         addLabeledComponent(EntitySetting.SPINDLE_SPEED, "Spindle Speed", spindleSpeedSpinner);
@@ -185,6 +190,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         });
         stockToLeaveSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.STOCK_TO_LEAVE, stockToLeaveSpinner.getValue()));
         directionCombo.addActionListener(e -> firePropertyChange(EntitySetting.DIRECTION, directionCombo.getSelectedDirection()));
+        plungeTypeCombo.addActionListener(e -> firePropertyChange(EntitySetting.PLUNGE_TYPE, plungeTypeCombo.getSelectedPlungeType()));
         toolPathDirectionCombo.addActionListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_DIRECTION, toolPathDirectionCombo.getSelectedDirection()));
     }
 
@@ -277,6 +283,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             try {
                 cutTypeComboBox.setItems(firstCuttable.getAvailableCutTypes());
                 cutTypeComboBox.setSelectedItem(firstCuttable.getCutType());
+                updateLabelsForCutType(firstCuttable.getCutType());
                 startDepthSpinner.setValue(firstCuttable.getStartDepth());
                 targetDepthSpinner.setValue(firstCuttable.getTargetDepth());
                 spindleSpeedSpinner.setValue(firstCuttable.getSpindleSpeed() / 100.0);
@@ -285,11 +292,11 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 leadInPercentSlider.setValue(firstCuttable.getLeadInPercent());
                 toolPathAngleSpinner.setValue(firstCuttable.getToolPathAngle());
                 directionCombo.setSelectedItem(firstCuttable.getDirection());
+                plungeTypeCombo.setSelectedItem(firstCuttable.getPlungeType());
                 toolPathDirectionCombo.setSelectedItem(firstCuttable.getToolPathDirection());
                 roughingCheckBox.setSelected((Boolean) firstCuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.FALSE));
                 finishingPassCheckBox.setSelected(firstCuttable.isFinishingPass());
                 stockToLeaveSpinner.setValue(firstCuttable.getStockToLeave());
-                updateLabelsForCutType(firstCuttable.getCutType());
             } finally {
                 updating = false;
             }
@@ -299,7 +306,14 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     }
 
     private void updateLabelsForCutType(CutType cutType) {
-        directionCombo.setDirections(cutType.getDirections());
+        boolean wasUpdating = updating;
+        updating = true;
+        try {
+            directionCombo.setDirections(cutType.getDirections());
+            plungeTypeCombo.setPlungeTypes(cutType.getPlungeTypes());
+        } finally {
+            updating = wasUpdating;
+        }
 
         for (Component comp : getComponents()) {
             if (comp instanceof JLabel label && ("Spindle Speed".equals(label.getText()) || "Power".equals(label.getText()))) {
@@ -336,6 +350,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             cuttable.setToolPathAngle((Double) newValue);
         } else if (EntitySetting.DIRECTION.equals(setting)) {
             cuttable.setDirection((Direction) newValue);
+        } else if (EntitySetting.PLUNGE_TYPE.equals(setting)) {
+            cuttable.setPlungeType((PlungeType) newValue);
         } else if (EntitySetting.TOOL_PATH_DIRECTION.equals(setting)) {
             cuttable.setToolPathDirection((ToolPathDirection) newValue);
         } else if (EntitySetting.ROUGHING.equals(setting)) {

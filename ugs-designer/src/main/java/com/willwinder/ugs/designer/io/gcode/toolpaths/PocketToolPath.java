@@ -26,10 +26,12 @@ import static com.willwinder.ugs.designer.io.gcode.toolpaths.ToolPathUtils.buffe
 import static com.willwinder.ugs.designer.io.gcode.toolpaths.ToolPathUtils.convertAreaToGeometry;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.universalgcodesender.model.PartialPosition;
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 
 import java.awt.geom.Area;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -47,23 +49,67 @@ public class PocketToolPath extends AbstractToolPath {
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         boolean clockwise = source.getDirection() == Direction.CLIMB;
         double stepOver = Math.min(Math.max(0.01, Math.abs(settings.getToolStepOver())), 1.0);
-        Geometry geometryCollection = convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory(), settings.getFlatnessPrecision());
-        Geometry shell = geometryCollection.buffer(-settings.getToolDiameter() / 2d);
-        List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection, settings.getToolDiameter(), stepOver, settings.getFlatnessPrecision());
+        Geometry pocket = convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory(), settings.getFlatnessPrecision());
+
+        List<AreaPath> areas = new ArrayList<>();
+        for (int i = 0; i < pocket.getNumGeometries(); i++) {
+            AreaPath area = toAreaPath(pocket.getGeometryN(i), settings, stepOver, clockwise);
+            if (!area.isEmpty()) {
+                areas.add(area);
+            }
+        }
 
         List<List<PartialPosition>> coordinateList = new ArrayList<>();
-        addGeometriesToCoordinatesList(shell, geometries, coordinateList, getStartDepth(), clockwise);
+        inTravelOrder(areas, pocket.getEnvelopeInternal()).forEach(area -> coordinateList.addAll(area.runs()));
+
+        addToGcodePath(gcodePath, coordinateList, source);
+    }
+
+    /**
+     * The runs clearing one area of the pocket, one depth of cut at a time, so that the area is
+     * finished before the tool moves on to the next one.
+     */
+    private AreaPath toAreaPath(Geometry area, Settings settings, double stepOver, boolean clockwise) {
+        Geometry shell = area.buffer(-settings.getToolDiameter() / 2d);
+        List<Geometry> geometries = bufferAndCollectGeometries(area, settings.getToolDiameter(), stepOver, settings.getFlatnessPrecision());
+
+        List<List<PartialPosition>> runs = new ArrayList<>();
+        addGeometriesToCoordinatesList(shell, geometries, runs, getStartDepth(), clockwise);
 
         double currentDepth = getStartDepth();
         while (currentDepth < getTargetDepth()) {
-            currentDepth += settings.getDepthPerPass();
-            if (currentDepth > getTargetDepth()) {
-                currentDepth = getTargetDepth();
-            }
-
-            addGeometriesToCoordinatesList(shell, geometries, coordinateList, currentDepth, clockwise);
+            currentDepth = Math.min(getTargetDepth(), currentDepth + settings.getDepthPerPass());
+            addGeometriesToCoordinatesList(shell, geometries, runs, currentDepth, clockwise);
         }
 
-        addToGcodePath(gcodePath, coordinateList, source);
+        return new AreaPath(runs.stream().filter(run -> !run.isEmpty()).toList());
+    }
+
+    /**
+     * Orders the areas along a Hilbert curve, which keeps areas lying close to each other next to each
+     * other in the order and the rapid movements between them short.
+     */
+    private static List<AreaPath> inTravelOrder(List<AreaPath> areas, Envelope envelope) {
+        HilbertPositionComparator comparator = new HilbertPositionComparator(envelope);
+
+        List<AreaPath> ordered = new ArrayList<>(areas);
+        ordered.sort(Comparator.comparingLong(area -> comparator.index(area.entry().getX(), area.entry().getY())));
+        return ordered;
+    }
+
+    /**
+     * The runs clearing one of the areas that the pocket is made up of.
+     */
+    private record AreaPath(List<List<PartialPosition>> runs) {
+        boolean isEmpty() {
+            return runs.isEmpty();
+        }
+
+        /**
+         * Where the tool starts cutting the area
+         */
+        PartialPosition entry() {
+            return runs.get(0).get(0);
+        }
     }
 }

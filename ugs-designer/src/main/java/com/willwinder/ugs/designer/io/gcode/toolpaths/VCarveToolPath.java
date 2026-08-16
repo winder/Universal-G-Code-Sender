@@ -55,6 +55,11 @@ public class VCarveToolPath extends AbstractToolPath {
     }
 
     @Override
+    protected boolean supportsRamping() {
+        return false;
+    }
+
+    @Override
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         if (getTargetDepth() <= getStartDepth()) {
             return;

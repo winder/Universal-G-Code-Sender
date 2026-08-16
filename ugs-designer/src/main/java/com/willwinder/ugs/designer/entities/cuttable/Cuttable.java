@@ -198,6 +198,20 @@ public interface Cuttable extends Entity {
     Direction getDirection();
 
     /**
+     * Sets how the tool should engage the material when moving down to the next depth of cut.
+     *
+     * @param plungeType the plunge type to use
+     */
+    void setPlungeType(PlungeType plungeType);
+
+    /**
+     * Returns how the tool engages the material when moving down to the next depth of cut.
+     *
+     * @return the plunge type to use
+     */
+    PlungeType getPlungeType();
+
+    /**
      * Returns a list of available cut types for this entity
      *
      * @return a list of cut types

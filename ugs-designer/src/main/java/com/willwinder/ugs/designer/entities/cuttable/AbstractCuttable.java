@@ -55,6 +55,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private boolean includeInExport = true;
     private double toolPathAngle;
     private Direction direction = Direction.CLIMB;
+    private PlungeType plungeType = PlungeType.LINEAR_RAMP;
     private ToolPathDirection toolPathDirection = ToolPathDirection.HORIZONTAL;
     private boolean finishingPass = false;
     private double stockToLeave = DEFAULT_STOCK_TO_LEAVE;
@@ -321,6 +322,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
                 EntitySetting.LEAD_IN_PERCENT,
                 EntitySetting.TOOL_PATH_ANGLE,
                 EntitySetting.DIRECTION,
+                EntitySetting.PLUNGE_TYPE,
                 EntitySetting.INCLUDE_IN_EXPORT
         );
     }
@@ -359,6 +361,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         copy.setHidden(isHidden());
         copy.setIncludeInExport(getIncludeInExport());
         copy.setDirection(getDirection());
+        copy.setPlungeType(getPlungeType());
         copy.setToolPathAngle(getToolPathAngle());
         copy.setFinishingPass(isFinishingPass());
         copy.setStockToLeave(getStockToLeave());
@@ -404,6 +407,17 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public void setDirection(Direction direction) {
         this.direction = direction;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public PlungeType getPlungeType() {
+        return plungeType;
+    }
+
+    @Override
+    public void setPlungeType(PlungeType plungeType) {
+        this.plungeType = plungeType;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 

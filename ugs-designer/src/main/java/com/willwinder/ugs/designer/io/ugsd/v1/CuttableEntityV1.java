@@ -66,6 +66,9 @@ public class CuttableEntityV1 extends EntityV1 {
     private DirectionTypeV1 direction;
 
     @Expose
+    private PlungeTypeV1 plungeType = PlungeTypeV1.STRAIGHT;
+
+    @Expose
     private boolean finishingPass;
 
     @Expose
@@ -130,6 +133,10 @@ public class CuttableEntityV1 extends EntityV1 {
         this.direction = direction;
     }
 
+    public void setPlungeType(PlungeTypeV1 plungeType) {
+        this.plungeType = plungeType;
+    }
+
     public ToolPathDirectionTypeV1 getToolPathDirection() {
         return pathDirection;
     }
@@ -164,6 +171,7 @@ public class CuttableEntityV1 extends EntityV1 {
             cuttable.setLeadInPercent(leadInPercent);
             cuttable.setToolPathAngle(toolPathDirection);
             cuttable.setDirection(DirectionTypeV1.toDirection(direction));
+            cuttable.setPlungeType(PlungeTypeV1.toPlungeType(plungeType));
             cuttable.setToolPathDirection(ToolPathDirectionTypeV1.toDirection(pathDirection));
             cuttable.setFinishingPass(finishingPass);
             cuttable.setStockToLeave(stockToLeave);

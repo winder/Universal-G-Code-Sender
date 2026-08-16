@@ -26,6 +26,7 @@ public class CuttableEntitySettings {
             case TOOL_PATH_ANGLE -> Optional.of(cuttable.getToolPathAngle());
             case TOOL_PATH_DIRECTION -> Optional.of(cuttable.getToolPathDirection());
             case DIRECTION -> Optional.of(cuttable.getDirection());
+            case PLUNGE_TYPE -> Optional.of(cuttable.getPlungeType());
             case FINISHING_PASS -> Optional.of(cuttable.isFinishingPass());
             case STOCK_TO_LEAVE -> Optional.of(cuttable.getStockToLeave());
             default -> Optional.empty();
@@ -45,6 +46,7 @@ public class CuttableEntitySettings {
             case TOOL_PATH_ANGLE -> cuttable.setToolPathAngle((Double) value);
             case TOOL_PATH_DIRECTION -> cuttable.setToolPathDirection((ToolPathDirection) value);
             case DIRECTION -> cuttable.setDirection((Direction) value);
+            case PLUNGE_TYPE -> cuttable.setPlungeType((PlungeType) value);
             case FINISHING_PASS -> cuttable.setFinishingPass((Boolean) value);
             case STOCK_TO_LEAVE -> cuttable.setStockToLeave(((Number) value).doubleValue());
             default -> LOGGER.info("Do not know how to set " + entitySetting + " to " + value);

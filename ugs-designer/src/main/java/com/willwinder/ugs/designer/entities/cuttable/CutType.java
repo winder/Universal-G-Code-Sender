@@ -24,6 +24,7 @@ import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_HEIGHT_
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_LASER_FILL_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_LASER_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_POCKET_SETTINGS;
+import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_PROFILE_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_SURFACE_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_VCARVE_SETTINGS;
 
@@ -35,12 +36,12 @@ import java.util.List;
  */
 public enum CutType {
     NONE("None", List.of(EntitySetting.CUT_TYPE), Collections.emptyList()),
-    POCKET("Mill - Pocket", DEFAULT_POCKET_SETTINGS, List.of(Direction.CLIMB, Direction.CONVENTIONAL)),
+    POCKET("Mill - Pocket", DEFAULT_POCKET_SETTINGS, List.of(Direction.CLIMB, Direction.CONVENTIONAL), List.of(PlungeType.STRAIGHT, PlungeType.LINEAR_RAMP)),
     VCARVE("Mill - V-carve", DEFAULT_VCARVE_SETTINGS, List.of(Direction.CLIMB, Direction.CONVENTIONAL)),
     SURFACE("Mill - Surface", DEFAULT_SURFACE_SETTINGS, List.of(Direction.CLIMB, Direction.CONVENTIONAL, Direction.BOTH)),
-    ON_PATH("Mill - On path", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),
-    INSIDE_PATH("Mill - Inside path", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),
-    OUTSIDE_PATH("Mill - Outside path", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),
+    ON_PATH("Mill - On path", DEFAULT_PROFILE_SETTINGS, Collections.emptyList(), List.of(PlungeType.STRAIGHT, PlungeType.LINEAR_RAMP)),
+    INSIDE_PATH("Mill - Inside path", DEFAULT_PROFILE_SETTINGS, Collections.emptyList(), List.of(PlungeType.STRAIGHT, PlungeType.LINEAR_RAMP)),
+    OUTSIDE_PATH("Mill - Outside path", DEFAULT_PROFILE_SETTINGS, Collections.emptyList(), List.of(PlungeType.STRAIGHT, PlungeType.LINEAR_RAMP)),
     LASER_ON_PATH("Laser - On path", DEFAULT_LASER_SETTINGS, Collections.emptyList()),
     LASER_FILL("Laser - Fill", DEFAULT_LASER_FILL_SETTINGS, Collections.emptyList()),
     LASER_RASTER("Laser - Raster", DEFAULT_LASER_FILL_SETTINGS, Collections.emptyList()),
@@ -52,11 +53,17 @@ public enum CutType {
 
     private final List<EntitySetting> settings;
     private final List<Direction> directions;
+    private final List<PlungeType> plungeTypes;
 
     CutType(String name, List<EntitySetting> settings, List<Direction> directions) {
+        this(name, settings, directions, List.of(PlungeType.STRAIGHT));
+    }
+
+    CutType(String name, List<EntitySetting> settings, List<Direction> directions, List<PlungeType> plungeTypes) {
         this.name = name;
         this.settings = settings;
         this.directions = directions;
+        this.plungeTypes = plungeTypes;
     }
 
     public String getName() {
@@ -74,5 +81,14 @@ public enum CutType {
      */
     public List<Direction> getDirections() {
         return directions;
+    }
+
+    /**
+     * Get the supported ways for the tool to engage the material for this cut type
+     *
+     * @return a list of supported plunge types
+     */
+    public List<PlungeType> getPlungeTypes() {
+        return plungeTypes;
     }
 }
