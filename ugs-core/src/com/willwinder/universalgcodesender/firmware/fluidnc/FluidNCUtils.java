@@ -7,13 +7,12 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
-import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectHardLimitCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetBuildInfoCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
-import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.MessageType;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
@@ -24,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.text.ParseException;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -37,6 +35,7 @@ public class FluidNCUtils {
 
     private static final String MESSAGE_REGEX = "\\[MSG:.*]";
     private static final Pattern MESSAGE_PATTERN = Pattern.compile(MESSAGE_REGEX);
+    private static final Pattern ALARM_MESSAGE_PATTERN = Pattern.compile("\\[MSG:(?:[a-z]+:\\s*)?ALARM:\\s*(?<alarm>[^\\]]*)]", Pattern.CASE_INSENSITIVE);
     private static final String PROBE_REGEX = "\\[PRB:.*]";
     private static final Pattern PROBE_PATTERN = Pattern.compile(PROBE_REGEX);
     private static final String WELCOME_REGEX = "(?<protocolvendor>.*)\\s(?<protocolversion>[0-9a-z.]*)\\s\\[((?<fncvariant>[a-zA-Z]*)?\\s(v(?<fncversion>[0-9.]*))?)+.*]";
@@ -53,6 +52,29 @@ public class FluidNCUtils {
         }
 
         return Optional.of(response.substring(5, response.length() - 1));
+    }
+
+    /**
+     * FluidNC reports alarms either using the GRBL syntax "ALARM:1" or as a log message
+     * such as "[MSG:INFO: ALARM: Soft Limit]".
+     *
+     * @param response the response to check
+     * @return true if the response reports an alarm
+     */
+    public static boolean isAlarmResponse(String response) {
+        return GrblUtils.isAlarmResponse(response) || ALARM_MESSAGE_PATTERN.matcher(response).find();
+    }
+
+    public static Alarm parseAlarmResponse(String response) {
+        Matcher matcher = ALARM_MESSAGE_PATTERN.matcher(response);
+        if (!matcher.find()) {
+            return GrblUtils.parseAlarmResponse(response);
+        }
+
+        if (StringUtils.containsIgnoreCase(matcher.group("alarm"), "hard limit")) {
+            return Alarm.HARD_LIMIT;
+        }
+        return Alarm.UNKONWN;
     }
 
     public static boolean isProbeMessage(String response) {
@@ -189,7 +211,7 @@ public class FluidNCUtils {
         }
 
         // The controller is not up and running properly
-        if (statusCommand.getControllerStatus().getState() == ControllerState.SLEEP || statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.DOOR || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
+        if (statusCommand.getControllerStatus().getState() == ControllerState.SLEEP || statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.DOOR || statusCommand.getControllerStatus().getState() == ControllerState.ALARM || statusCommand.getControllerStatus().getState() == ControllerState.RUN) {
             try {
                 // Figure out if it is still responsive even if it is in HOLD or ALARM state
                 // We can do this
