@@ -60,6 +60,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.model.PartialPosition;
@@ -86,6 +87,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -105,6 +107,14 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private final StatusPollTimer positionPollTimer = new StatusPollTimer(this);
     private final ConnectionWatchTimer connectionWatchTimer = new ConnectionWatchTimer(this);
     private final StopWatch streamStopWatch = new StopWatch();
+    private final AtomicBoolean isStreaming = new AtomicBoolean(false);
+    private final AtomicBoolean isInitialized = new AtomicBoolean(false);
+
+    /**
+     * Claimed by {@link #initializeController()} and released by it, making sure that only one
+     * initialization can run at a time. It must not be modified from anywhere else.
+     */
+    private final AtomicBoolean isInitializing = new AtomicBoolean(false);
     private final IFileService fileService;
     private final ICommandCreator commandCreator;
     private final IOverrideManager overrideManager;
@@ -115,7 +125,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private IGcodeStreamReader streamCommands;
     private String distanceModeCode;
     private String unitsCode;
-    private boolean isInitialized = false;
     private final static int TIMEOUT_TIME = 6000;
     public FluidNCController() {
         this(new GrblCommunicator());
@@ -231,7 +240,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     @Override
     public void issueHardReset() throws Exception {
         messageService.dispatchMessage(MessageType.INFO, "*** Resetting controller\n");
-        isInitialized = false;
+        isInitialized.set(false);
         positionPollTimer.stop();
         setControllerState(ControllerState.CONNECTING);
         resetBuffers();
@@ -244,7 +253,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     @Override
     public void issueSoftReset() throws Exception {
         messageService.dispatchMessage(MessageType.INFO, "*** Resetting controller\n");
-        isInitialized = false;
+        isInitialized.set(false);
         positionPollTimer.stop();
         setControllerState(ControllerState.CONNECTING);
         resetBuffers();
@@ -344,7 +353,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
             throw new Exception("Communication port is already open.");
         }
 
-        isInitialized = false;
+        isInitialized.set(false);
         positionPollTimer.stop();
         setControllerState(ControllerState.CONNECTING);
         messageService.dispatchMessage(MessageType.INFO, "*** Connecting to " + connectionDriver.getProtocol() + port + ":" + portRate + "\n");
@@ -373,7 +382,8 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public Boolean closeCommPort() throws Exception {
-        isInitialized = false;
+        isInitialized.set(false);
+        isStreaming.set(false);
         positionPollTimer.stop();
         connectionWatchTimer.stop();
         if (!isCommOpen() && getControllerStatus().getState() == ControllerState.DISCONNECTED) {
@@ -403,7 +413,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public Boolean isStreaming() {
-        return controllerStatus.getState() == ControllerState.RUN && streamCommands != null;
+        return isStreaming.get();
     }
 
     @Override
@@ -458,6 +468,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         // Send all queued commands and streams then kick off the stream.
         try {
             if (streamCommands != null) {
+                isStreaming.set(true);
                 streamStopWatch.reset();
                 streamStopWatch.start();
                 setControllerState(ControllerState.RUN);
@@ -466,6 +477,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
                 communicator.streamCommands();
             }
         } catch (Exception e) {
+            isStreaming.set(false);
             this.streamStopWatch.reset();
             throw e;
         }
@@ -549,14 +561,24 @@ public class FluidNCController implements IController, ICommunicatorListener {
     
     
     private void initializeController() {
-        positionPollTimer.stop();
-        gcodeParser.reset();
-        resetBuffers();
+        if (!isInitializing.compareAndSet(false, true)) {
+            LOGGER.info("The controller is already being initialized, ignoring...");
+            return;
+        }
 
-        setControllerState(ControllerState.CONNECTING);
         try {
+            if (isInitialized.get()) {
+                LOGGER.info("The controller is already initialized, ignoring...");
+                return;
+            }
+
+            positionPollTimer.stop();
+            gcodeParser.reset();
+            resetBuffers();
+
+            setControllerState(ControllerState.CONNECTING);
             if (!FluidNCUtils.isControllerResponsive(this, messageService)) {
-                messageService.dispatchMessage(MessageType.INFO, "*** Device is in a holding or alarm state and needs to be reset\n");
+                messageService.dispatchMessage(MessageType.INFO, "*** Device is not in an idle state and needs to be reset\n");
                 Thread.sleep(200);
                 issueSoftReset();
              
@@ -574,7 +596,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
             requestStatusReport();
             
             positionPollTimer.start();
-            isInitialized = true;
+            isInitialized.set(true);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Could not initialize the connection", e);
             messageService.dispatchMessage(MessageType.INFO, "*** Could not establish connection with the controller\n");
@@ -583,6 +605,8 @@ public class FluidNCController implements IController, ICommunicatorListener {
             } catch (Exception ex) {
                 // Never mind...
             }
+        } finally {
+            isInitializing.set(false);
         }
     }
 
@@ -665,6 +689,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public void resetBuffers() {
+        isStreaming.set(false);
         activeCommands.clear();
         communicator.resetBuffers();
     }
@@ -763,6 +788,11 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public void rawResponseListener(String response) {
+        boolean isAlarmResponse = FluidNCUtils.isAlarmResponse(response);
+        if (isAlarmResponse) {
+            handleAlarmResponse(response);
+        }
+
         if (GrblUtils.isGrblStatusString(response)) {
             getActiveCommand().filter(command -> command instanceof GetStatusCommand || command.getCommandString().contains("?")).ifPresent(command -> {
                 activeCommands.removeFirst();
@@ -781,10 +811,15 @@ public class FluidNCController implements IController, ICommunicatorListener {
                 return;
             }
 
+            ControllerState previousState = controllerStatus.getState();
             controllerStatus = FluidNCUtils.getStatusFromStatusResponse(controllerStatus, response, getFirmwareSettings().getReportingUnits());
             setControllerState(controllerStatus.getState());
             listeners.forEach(l -> l.statusStringListener(controllerStatus));
             messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
+
+            if (previousState != ControllerState.ALARM && controllerStatus.getState() == ControllerState.ALARM) {
+                stopStreamingOnAlarm();
+            }
         } else if (getActiveCommand().isPresent()) {
             GcodeCommand command = getActiveCommand().get();
             if (command.isDone()) {
@@ -808,12 +843,14 @@ public class FluidNCController implements IController, ICommunicatorListener {
             checkStreamFinished();
         } else if (FluidNCUtils.isWelcomeResponse(response)) {
             messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
-            if (isInitialized) {
+            if (isInitialized.get()) {
                 LOGGER.info("We got a welcome string, but are already initialized, ignoring...");
                 return;
             }
 
             ThreadHelper.invokeLater(this::initializeController);
+        } else if (isAlarmResponse) {
+            messageService.dispatchMessage(MessageType.ERROR, response + "\n");
         } else if (FluidNCUtils.isMessageResponse(response)) {
             MessageType messageType = MessageType.INFO;
             if (controllerStatus.getState() == ControllerState.CONNECTING) {
@@ -830,6 +867,38 @@ public class FluidNCController implements IController, ICommunicatorListener {
         }
     }
 
+    private void handleAlarmResponse(String response) {
+        // The state is restored from the status reports once the connection has been established
+        if (controllerStatus.getState() == ControllerState.CONNECTING) {
+            return;
+        }
+
+        setControllerState(ControllerState.ALARM);
+        Alarm alarm = FluidNCUtils.parseAlarmResponse(response);
+        listeners.forEach(l -> l.receivedAlarm(alarm));
+        stopStreamingOnAlarm();
+    }
+
+    /**
+     * An alarm requires the controller to be reset before it will accept any more motion, so the
+     * remaining rows are dropped instead of paused. No realtime pause command is sent as that would
+     * leave the controller in a hold state that it can not be released from.
+     */
+    private void stopStreamingOnAlarm() {
+        if (!isStreaming()) {
+            return;
+        }
+
+        messageService.dispatchMessage(MessageType.ERROR, "*** An alarm was triggered, the stream has been stopped\n");
+        isStreaming.set(false);
+        streamCommands = null;
+        if (streamStopWatch.isStarted()) {
+            streamStopWatch.stop();
+        }
+        communicator.cancelSend();
+        listeners.forEach(ControllerListener::streamCanceled);
+    }
+
     private void checkStreamFinished() {
         if (streamCommands != null &&
                 !communicator.areActiveCommands() &&
@@ -839,6 +908,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     }
 
     private void fileStreamComplete() {
+        isStreaming.set(false);
         streamCommands = null;
         String duration = Utils.formattedMillis(getSendDuration());
         messageService.dispatchMessage(MessageType.INFO, String.format("%n**** Finished sending file in %s ****%n%n", duration));
@@ -869,6 +939,11 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public void communicatorPausedOnError() {
+        if (controllerStatus.getState() == ControllerState.ALARM) {
+            stopStreamingOnAlarm();
+            return;
+        }
+
         messageService.dispatchMessage(MessageType.INFO, "*** The communicator has been paused\n");
         try {
             // Synchronize the controller <> communicator state.

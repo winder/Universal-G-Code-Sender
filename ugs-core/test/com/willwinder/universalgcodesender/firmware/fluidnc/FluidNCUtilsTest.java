@@ -5,6 +5,7 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetBuildInfoCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.SemanticVersion;
@@ -28,6 +29,23 @@ public class FluidNCUtilsTest {
         assertTrue(FluidNCUtils.isMessageResponse("[MSG:INFO Test]"));
         assertFalse(FluidNCUtils.isMessageResponse("[GC: blapp]"));
         assertFalse(FluidNCUtils.isMessageResponse("[MSG:INFO Test"));
+    }
+
+    @Test
+    public void isAlarmResponse_shouldRecognizeBothGrblAndFluidNCSyntax() {
+        assertTrue(FluidNCUtils.isAlarmResponse("ALARM:1"));
+        assertTrue(FluidNCUtils.isAlarmResponse("[MSG:INFO: ALARM: Soft Limit]"));
+        assertTrue(FluidNCUtils.isAlarmResponse("[MSG:ERR: ALARM: Hard Limit]"));
+        assertTrue(FluidNCUtils.isAlarmResponse("[MSG:ALARM: Homing Fail Approach]"));
+        assertFalse(FluidNCUtils.isAlarmResponse("[MSG:INFO: Soft limit on X target:11.500]"));
+        assertFalse(FluidNCUtils.isAlarmResponse("ok"));
+    }
+
+    @Test
+    public void parseAlarmResponse_shouldReturnHardLimitForHardLimitAlarms() {
+        assertEquals(Alarm.HARD_LIMIT, FluidNCUtils.parseAlarmResponse("ALARM:1"));
+        assertEquals(Alarm.HARD_LIMIT, FluidNCUtils.parseAlarmResponse("[MSG:ERR: ALARM: Hard Limit]"));
+        assertEquals(Alarm.UNKONWN, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Soft Limit]"));
     }
 
     @Test
