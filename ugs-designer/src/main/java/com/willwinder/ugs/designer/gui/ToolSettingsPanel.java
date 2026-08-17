@@ -25,6 +25,7 @@ import com.willwinder.ugs.designer.gui.toollibrary.ToolLabels;
 import com.willwinder.ugs.designer.gui.toollibrary.ToolLibraryDialog;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ToolLibraryService;
+import com.willwinder.ugs.designer.model.CoolantMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
@@ -76,6 +77,7 @@ public class ToolSettingsPanel extends JPanel {
     private TextFieldWithUnit laserDiameter;
     private TextFieldWithUnit maxSpindleSpeed;
     private JComboBox<String> spindleDirection;
+    private JComboBox<CoolantMode> coolantMode;
     private TextFieldWithUnit flatnessPrecision;
     private JCheckBox arcFitting;
     private JCheckBox useToolChanges;
@@ -185,6 +187,12 @@ public class ToolSettingsPanel extends JPanel {
         spindleDirection = new JComboBox<>(new DefaultComboBoxModel<>(new String[]{"M3", "M4", "M5"}));
         spindleDirection.setSelectedItem(controller.getSettings().getSpindleDirection());
         add(spindleDirection, TOOL_FIELD_CONSTRAINT);
+
+        add(new JLabel("Coolant"));
+        coolantMode = new JComboBox<>(new DefaultComboBoxModel<>(CoolantMode.values()));
+        coolantMode.setSelectedItem(controller.getSettings().getCoolantMode());
+        coolantMode.setToolTipText("Turns the coolant on after the tool change and off at the end of the program.");
+        add(coolantMode, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Curve precision"));
         flatnessPrecision = new TextFieldWithUnit(Unit.MM, 3, controller.getSettings().getFlatnessPrecision());
@@ -445,6 +453,7 @@ public class ToolSettingsPanel extends JPanel {
         settings.setMaxSpindleSpeed((int) getMaxSpindleSpeed());
         settings.setDetectMaxSpindleSpeed(getDetectMaxSpindleSpeed());
         settings.setSpindleDirection(getSpindleDirection());
+        settings.setCoolantMode((CoolantMode) coolantMode.getSelectedItem());
         settings.setFlatnessPrecision(getFlatnessPrecision());
         settings.setArcFitting(arcFitting.isSelected());
         settings.setUseToolChanges(useToolChanges.isSelected());

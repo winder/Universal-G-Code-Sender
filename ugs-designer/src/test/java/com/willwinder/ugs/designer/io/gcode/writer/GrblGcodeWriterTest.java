@@ -20,6 +20,7 @@ package com.willwinder.ugs.designer.io.gcode.writer;
 
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.io.gcode.path.SegmentType;
+import com.willwinder.ugs.designer.model.CoolantMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
@@ -104,6 +105,75 @@ public class GrblGcodeWriterTest {
         writer.begin();
 
         assertFalse(result.toString().contains("M6"));
+    }
+
+    @Test
+    public void beginShouldStartFloodCoolant() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setCoolantMode(CoolantMode.FLOOD);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.begin();
+
+        assertTrue(result.toString().contains("M8 ; Coolant: "));
+    }
+
+    @Test
+    public void beginShouldStartMistCoolant() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setCoolantMode(CoolantMode.MIST);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.begin();
+
+        assertTrue(result.toString().contains("M7 ; Coolant: "));
+    }
+
+    @Test
+    public void beginShouldStartCoolantAfterTheToolChange() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setCoolantMode(CoolantMode.FLOOD);
+        settings.setUseToolChanges(true);
+        settings.setToolNumber(2);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.begin();
+
+        String written = result.toString();
+        assertTrue("The coolant must be opened once the tool has been selected",
+                written.indexOf("M6 T2") < written.indexOf("M8"));
+    }
+
+    @Test
+    public void endShouldStopCoolantAfterTheSpindle() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setCoolantMode(CoolantMode.FLOOD);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.end();
+
+        String written = result.toString();
+        assertTrue(written.contains("M9"));
+        assertTrue("The coolant must be closed after the spindle has stopped",
+                written.indexOf("M5") < written.indexOf("M9"));
+    }
+
+    @Test
+    public void shouldNotWriteAnyCoolantCodesByDefault() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.begin();
+        writer.end();
+
+        String written = result.toString();
+        assertFalse(written.contains("M7"));
+        assertFalse(written.contains("M8"));
+        assertFalse(written.contains("M9"));
     }
 
     @Test

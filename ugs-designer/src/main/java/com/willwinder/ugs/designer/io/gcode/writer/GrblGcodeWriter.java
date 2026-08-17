@@ -19,6 +19,7 @@
 package com.willwinder.ugs.designer.io.gcode.writer;
 
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
+import com.willwinder.ugs.designer.model.CoolantMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
 import com.willwinder.universalgcodesender.Utils;
@@ -71,6 +72,19 @@ public class GrblGcodeWriter implements GcodeWriter {
         writer.write("; Spindle start command: " + settings.getSpindleDirection() + "\n");
         writer.write("; Max spindle speed: " + settings.getMaxSpindleSpeed() + "\n");
         writeToolHeader();
+        writeCoolantStart();
+    }
+
+    /**
+     * Opens the coolant once the tool has been selected, so that it is already flowing when the
+     * first cut starts. A program that was posted without coolant writes nothing at all here.
+     */
+    private void writeCoolantStart() throws IOException {
+        CoolantMode coolantMode = settings.getCoolantMode();
+        if (!coolantMode.isEnabled()) {
+            return;
+        }
+        writer.write("\n" + coolantMode.getStartCode().name() + " ; Coolant: " + coolantMode.getDisplayName() + "\n");
     }
 
     /**
@@ -211,5 +225,12 @@ public class GrblGcodeWriter implements GcodeWriter {
         writer.write("\n; Turning off spindle\n");
         writer.write(Code.M5.name());
         writer.append("\n");
+
+        // The coolant is closed after the spindle has stopped, and only when the program opened it
+        if (settings.getCoolantMode().isEnabled()) {
+            writer.write("\n; Turning off coolant\n");
+            writer.write(Code.M9.name());
+            writer.append("\n");
+        }
     }
 }

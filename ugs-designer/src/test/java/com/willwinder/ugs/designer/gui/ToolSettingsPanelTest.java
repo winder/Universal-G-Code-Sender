@@ -23,6 +23,7 @@ import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.gui.toollibrary.EndmillShapeCombo;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ToolLibraryService;
+import com.willwinder.ugs.designer.model.CoolantMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.DefaultToolSeeds;
 import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
@@ -181,6 +182,20 @@ public class ToolSettingsPanelTest {
 
         assertEquals(EndmillShape.BALL, reopenedPanel.getEndmillShape());
         assertEquals(EndmillShape.BALL, reopenedPanel.getSettings().getToolShape());
+    }
+
+    @Test
+    public void initialCoolantModeShouldComeFromSettings() {
+        controller.getSettings().setCoolantMode(CoolantMode.FLOOD);
+
+        ToolSettingsPanel reopenedPanel = new ToolSettingsPanel(controller);
+
+        assertEquals(CoolantMode.FLOOD, reopenedPanel.getSettings().getCoolantMode());
+    }
+
+    @Test
+    public void coolantModeShouldDefaultToNone() {
+        assertEquals(CoolantMode.NONE, panel.getSettings().getCoolantMode());
     }
 
     @Test

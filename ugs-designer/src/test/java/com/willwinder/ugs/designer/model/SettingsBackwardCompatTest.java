@@ -61,6 +61,14 @@ public class SettingsBackwardCompatTest {
     }
 
     @Test
+    public void coolantIsOffByDefault() {
+        // Programs posted by a version that did not know about coolant must keep their exact
+        // output, which only holds while the default mode writes no M-code at all
+        Settings settings = new Settings();
+        assertEquals(CoolantMode.NONE, settings.getCoolantMode());
+    }
+
+    @Test
     public void applyingLegacyShapedSettingsPreservesNullLibraryBinding() {
         // A "legacy-shaped" Settings mirrors what an older in-memory instance would look like —
         // no currentToolId, no snapshot. Apply() must not spin up new library state.

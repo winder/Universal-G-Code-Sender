@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.fx.stage;
 
 import com.willwinder.ugs.designer.actions.ChangeToolSettingsAction;
 import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.model.CoolantMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.universalgcodesender.fx.component.ButtonBox;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
@@ -62,6 +63,7 @@ public class ToolSettingsStage extends Stage {
     private final UnitTextField maxSpindleSpeed;
     private final UnitTextField laserDiameter;
     private final ComboBox<String> spindleDirection;
+    private final ComboBox<CoolantMode> coolantMode;
     private final UnitTextField flatnessPrecision;
     private final SwitchButton arcFitting;
 
@@ -86,13 +88,16 @@ public class ToolSettingsStage extends Stage {
         spindleDirection = new ComboBox<>(FXCollections.observableArrayList("M3", "M4", "M5"));
         spindleDirection.setValue(settings.getSpindleDirection());
         spindleDirection.setMaxWidth(Double.MAX_VALUE);
+        coolantMode = new ComboBox<>(FXCollections.observableArrayList(CoolantMode.values()));
+        coolantMode.setValue(settings.getCoolantMode());
+        coolantMode.setMaxWidth(Double.MAX_VALUE);
         flatnessPrecision = numericField(Unit.MM, settings.getFlatnessPrecision());
         arcFitting = new SwitchButton();
         arcFitting.selectedProperty().set(settings.getArcFitting());
 
         setScene(createScene());
         setWidth(380);
-        setHeight(580);
+        setHeight(610);
         setResizable(true);
 
         setOnShowing(event -> centerOnOwner());
@@ -112,6 +117,7 @@ public class ToolSettingsStage extends Stage {
                 new SettingsRow("Detect max spindle speed", detectMaxSpindleSpeed),
                 new SettingsRow("Max spindle speed", maxSpindleSpeed),
                 new SettingsRow("Spindle start command", spindleDirection),
+                new SettingsRow("Coolant", coolantMode),
                 new Separator(),
                 new SettingsRow("Laser diameter", laserDiameter),
                 new SettingsRow("Curve precision", flatnessPrecision),
@@ -154,6 +160,7 @@ public class ToolSettingsStage extends Stage {
         settings.setMaxSpindleSpeed((int) Math.round(maxSpindleSpeed.getValue()));
         settings.setLaserDiameter(laserDiameter.getValue());
         settings.setSpindleDirection(spindleDirection.getValue());
+        settings.setCoolantMode(coolantMode.getValue());
         settings.setFlatnessPrecision(flatnessPrecision.getValue());
         settings.setArcFitting(arcFitting.selectedProperty().get());
 
