@@ -18,6 +18,7 @@ package com.willwinder.ugs.nbp.designer.platform;
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.willwinder.ugs.designer.model.CoolantMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import org.openide.util.NbPreferences;
@@ -42,6 +43,7 @@ public class SettingsAdapter {
     private static final String DEPTH_PER_PASS = "depthPerPass";
     private static final String STOCK_THICKNESS = "stockThickness";
     private static final String SPINDLE_DIRECTION = "spindleDirection";
+    private static final String COOLANT_MODE = "coolantMode";
     private static final String FLATNESS_PRECISION = "flatnessPrecision";
     private static final String ARC_FITTING = "arcFitting";
     private static final String USE_TOOL_CHANGES = "useToolChanges";
@@ -63,6 +65,7 @@ public class SettingsAdapter {
         settings.setVBitAngle(preferences.getDouble(V_BIT_ANGLE, 60d));
         settings.setStockThickness(preferences.getDouble(STOCK_THICKNESS, 10));
         settings.setSpindleDirection(preferences.get(SPINDLE_DIRECTION, "M3"));
+        settings.setCoolantMode(readCoolantMode());
         settings.setFlatnessPrecision(preferences.getDouble(FLATNESS_PRECISION, 0.02d));
         settings.setArcFitting(preferences.getBoolean(ARC_FITTING, false));
         settings.setUseToolChanges(preferences.getBoolean(USE_TOOL_CHANGES, false));
@@ -83,9 +86,19 @@ public class SettingsAdapter {
         preferences.putDouble(V_BIT_ANGLE, settings.getVBitAngle());
         preferences.putDouble(STOCK_THICKNESS, settings.getStockThickness());
         preferences.put(SPINDLE_DIRECTION, settings.getSpindleDirection());
+        preferences.put(COOLANT_MODE, settings.getCoolantMode().name());
         preferences.putDouble(FLATNESS_PRECISION, settings.getFlatnessPrecision());
         preferences.putBoolean(ARC_FITTING, settings.getArcFitting());
         preferences.putBoolean(USE_TOOL_CHANGES, settings.getUseToolChanges());
+    }
+
+    private static CoolantMode readCoolantMode() {
+        String stored = preferences.get(COOLANT_MODE, CoolantMode.NONE.name());
+        try {
+            return CoolantMode.valueOf(stored);
+        } catch (IllegalArgumentException e) {
+            return CoolantMode.NONE;
+        }
     }
 
     private static EndmillShape readToolShape() {

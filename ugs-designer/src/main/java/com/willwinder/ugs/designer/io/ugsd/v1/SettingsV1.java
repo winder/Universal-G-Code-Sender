@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.designer.io.ugsd.v1;
 
+import com.willwinder.ugs.designer.model.CoolantMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -46,6 +47,7 @@ public class SettingsV1 implements Serializable {
     private Integer maxSpindleSpeed;
     private Boolean detectMaxSpindleSpeed;
     private String spindleDirection;
+    private CoolantMode coolantMode;
     private Double flatnessPrecision;
     private Boolean arcFitting;
     private Boolean useToolChanges;
@@ -68,6 +70,7 @@ public class SettingsV1 implements Serializable {
         result.maxSpindleSpeed = settings.getMaxSpindleSpeed();
         result.detectMaxSpindleSpeed = settings.getDetectMaxSpindleSpeed();
         result.spindleDirection = settings.getSpindleDirection();
+        result.coolantMode = settings.getCoolantMode();
         result.flatnessPrecision = settings.getFlatnessPrecision();
         result.arcFitting = settings.getArcFitting();
         result.useToolChanges = settings.getUseToolChanges();
@@ -119,6 +122,9 @@ public class SettingsV1 implements Serializable {
         }
         if (spindleDirection != null) {
             settings.setSpindleDirection(spindleDirection);
+        }
+        if (coolantMode != null) {
+            settings.setCoolantMode(coolantMode);
         }
         if (flatnessPrecision != null) {
             settings.setFlatnessPrecision(flatnessPrecision);

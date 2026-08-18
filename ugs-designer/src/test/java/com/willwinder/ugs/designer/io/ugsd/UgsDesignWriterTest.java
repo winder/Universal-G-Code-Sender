@@ -22,6 +22,7 @@ import com.willwinder.ugs.designer.entities.EntityGroup;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.gui.Drawing;
 import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.model.CoolantMode;
 import com.willwinder.ugs.designer.model.Design;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
@@ -80,6 +81,7 @@ public class UgsDesignWriterTest {
         assertEquals(24000, writtenSettings.getMaxSpindleSpeed());
         assertFalse(writtenSettings.getDetectMaxSpindleSpeed());
         assertEquals("M4", writtenSettings.getSpindleDirection());
+        assertEquals(CoolantMode.MIST, writtenSettings.getCoolantMode());
         assertEquals(0.05, writtenSettings.getFlatnessPrecision(), 0.01);
         assertFalse(writtenSettings.getArcFitting());
         assertTrue(writtenSettings.getUseToolChanges());
@@ -132,6 +134,7 @@ public class UgsDesignWriterTest {
         settings.setMaxSpindleSpeed(24000);
         settings.setDetectMaxSpindleSpeed(false);
         settings.setSpindleDirection("M4");
+        settings.setCoolantMode(CoolantMode.MIST);
         settings.setFlatnessPrecision(0.05);
         settings.setArcFitting(false);
         settings.setUseToolChanges(true);

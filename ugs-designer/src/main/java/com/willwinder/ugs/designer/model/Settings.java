@@ -43,6 +43,7 @@ public class Settings {
     private int maxSpindleSpeed = 255;
     private boolean detectMaxSpindleSpeed = true;
     private String spindleDirection = "M3";
+    private CoolantMode coolantMode = CoolantMode.NONE;
     private double flatnessPrecision = 0.1;
     private boolean arcFitting = true;
     private boolean useToolChanges = false;
@@ -81,6 +82,20 @@ public class Settings {
 
     public void setSpindleDirection(String newSpindleDirection) {
         this.spindleDirection = newSpindleDirection;
+        notifyListeners();
+    }
+
+    /**
+     * Returns which coolant the generated program should turn on, if any
+     *
+     * @return the coolant mode, never null
+     */
+    public CoolantMode getCoolantMode() {
+        return coolantMode;
+    }
+
+    public void setCoolantMode(CoolantMode coolantMode) {
+        this.coolantMode = coolantMode == null ? CoolantMode.NONE : coolantMode;
         notifyListeners();
     }
 
@@ -246,6 +261,7 @@ public class Settings {
         setMaxSpindleSpeed(settings.getMaxSpindleSpeed());
         setDetectMaxSpindleSpeed(settings.getDetectMaxSpindleSpeed());
         setSpindleDirection(settings.getSpindleDirection());
+        setCoolantMode(settings.getCoolantMode());
         setFlatnessPrecision(settings.getFlatnessPrecision());
         setArcFitting(settings.getArcFitting());
         setUseToolChanges(settings.getUseToolChanges());
