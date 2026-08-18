@@ -709,12 +709,16 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
     public void checkStreamFinished() {
         ControllerState state = getControllerStatus().getState();
         if (this.isStreaming() &&
-                !this.comm.areActiveCommands() &&
-                this.comm.numActiveCommands() == 0 &&
-                rowsRemaining() <= 0 &&
+                allCommandsInStreamCompleted() &&
                 (state == ControllerState.CHECK || state == ControllerState.IDLE)) {
             this.fileStreamComplete();
         }
+    }
+
+    protected boolean allCommandsInStreamCompleted() {
+        return !comm.areActiveCommands() &&
+                comm.numActiveCommands() == 0 &&
+                rowsRemaining() <= 0;
     }
 
     @Override

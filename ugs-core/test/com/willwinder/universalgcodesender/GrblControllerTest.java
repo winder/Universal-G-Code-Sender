@@ -511,6 +511,47 @@ public class GrblControllerTest {
     }
 
     @Test
+    public void rawResponseHandler_shouldReportRunningWhenIdleDuringStream() throws Exception {
+        GrblController instance = initializeAndConnectController(VERSION_GRBL_1_1F);
+        instance.queueStream(new SimpleGcodeStreamReader("G4P2", "G0X1"));
+        instance.beginStreaming();
+
+        instance.rawResponseHandler("<Idle|MPos:1.000,2.000,3.000|FS:0,0>");
+
+        assertEquals(ControllerState.RUN, instance.getControllerStatus().getState());
+        assertEquals(COMM_SENDING, instance.getCommunicatorState());
+        assertTrue(instance.isStreaming());
+    }
+
+    @Test
+    public void rawResponseHandler_shouldReportIdleWhenStreamIsPaused() throws Exception {
+        GrblController instance = initializeAndConnectController(VERSION_GRBL_1_1F);
+        instance.queueStream(new SimpleGcodeStreamReader("G0X1", "G0X2"));
+        instance.beginStreaming();
+        instance.pauseStreaming();
+        mgc.paused = true;
+
+        instance.rawResponseHandler("<Idle|MPos:1.000,2.000,3.000|FS:0,0>");
+
+        assertEquals(ControllerState.IDLE, instance.getControllerStatus().getState());
+        assertTrue(instance.isStreaming());
+    }
+
+    @Test
+    public void rawResponseHandler_shouldReportIdleWhenStreamIsFinished() throws Exception {
+        GrblController instance = initializeAndConnectController(VERSION_GRBL_1_1F);
+        instance.queueStream(new SimpleGcodeStreamReader("G0X1"));
+        instance.beginStreaming();
+        instance.commandSent(instance.createCommand("G0X1"));
+        instance.rawResponseHandler("ok");
+
+        instance.rawResponseHandler("<Idle|MPos:1.000,2.000,3.000|FS:0,0>");
+
+        assertEquals(ControllerState.IDLE, instance.getControllerStatus().getState());
+        assertFalse(instance.isStreaming());
+    }
+
+    @Test
     public void pauseStreamingOnGrbl0_8cShouldSendRealTimeCommand() throws Exception {
         GrblController instance = initializeAndConnectController(VERSION_GRBL_0_8C);
         instance.pauseStreaming();

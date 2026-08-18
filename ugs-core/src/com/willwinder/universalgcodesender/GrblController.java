@@ -392,7 +392,7 @@ public class GrblController extends AbstractController {
     public void resetCoordinateToZero(final Axis axis) throws Exception {
         if (this.isCommOpen()) {
             String gcode = GrblUtils.getResetCoordToZeroCommand(axis, getCurrentGcodeState().getUnits(), initializer.getVersion().getVersionNumber(), initializer.getVersion().getVersionLetter());
-            if (!"".equals(gcode)) {
+            if (!gcode.isEmpty()) {
                 GcodeCommand command = createCommand(gcode);
                 this.sendCommandImmediately(command);
                 return;
@@ -557,6 +557,15 @@ public class GrblController extends AbstractController {
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getFirmwareSettings().getReportingUnits());
 
+        // While dwelling (G4) the controller reports itself as idle even though the program is still running,
+        // keep reporting it as running until every command in the stream has been completed.
+        if (isIdleWhileStreaming()) {
+            controllerStatus = ControllerStatusBuilder
+                    .newInstance(controllerStatus)
+                    .setState(ControllerState.RUN)
+                    .build();
+        }
+
         // Add extra axis capabilities if the status report contains ABC axes
         detectAxisCapabilityFromControllerStatus(Axis.A, CapabilitiesConstants.A_AXIS);
         detectAxisCapabilityFromControllerStatus(Axis.B, CapabilitiesConstants.B_AXIS);
@@ -602,6 +611,13 @@ public class GrblController extends AbstractController {
         }
 
         dispatchStatusString(controllerStatus);
+    }
+
+    private boolean isIdleWhileStreaming() {
+        return controllerStatus.getState() == ControllerState.IDLE &&
+                isStreaming() &&
+                !comm.isPaused() &&
+                !allCommandsInStreamCompleted();
     }
 
     /**
