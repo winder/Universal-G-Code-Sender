@@ -45,7 +45,8 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public ArrayList<Byte>   sentBytes = new ArrayList<>();
     public Boolean open = false;
     public Boolean areActiveCommands = false;
-    
+    public boolean paused = false;
+
     // Function calls.
     public int numOpenCommPortCalls;
     public int numCloseCommPortCalls;
@@ -65,7 +66,8 @@ public class MockGrblCommunicator extends GrblCommunicator {
         this.queuedStrings.clear();
         this.queuedString = "";
         this.open = false;
-        
+        this.paused = false;
+
         this.numOpenCommPortCalls = 0;
         this.numCloseCommPortCalls = 0;
         this.numQueueStringForCommCalls = 0;
@@ -149,6 +151,11 @@ public class MockGrblCommunicator extends GrblCommunicator {
     @Override
     public void resumeSend() {
         this.numResumeSendCalls++;
+    }
+
+    @Override
+    public boolean isPaused() {
+        return paused;
     }
 
     @Override

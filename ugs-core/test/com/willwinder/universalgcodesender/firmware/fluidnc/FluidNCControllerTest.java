@@ -58,7 +58,7 @@ public class FluidNCControllerTest {
     }
 
     @Test
-    public void executeReturnToHomeShouldAddSafetyHeightWhenBelow() throws Exception {
+    public void executeReturnToHomeShouldAddSafetyHeightWhenBelow() {
         when(target.isIdle()).thenReturn(true);
         mockGcodeState();
         mockControllerStatus(ControllerState.IDLE, new Position(0, 0, 5, UnitUtils.Units.MM));
@@ -76,7 +76,7 @@ public class FluidNCControllerTest {
     }
 
     @Test
-    public void executeReturnToHomeShouldNotAddSafetyHeightWhenOver() throws Exception {
+    public void executeReturnToHomeShouldNotAddSafetyHeightWhenOver() {
         when(target.isIdle()).thenReturn(true);
         mockGcodeState();
         mockControllerStatus(ControllerState.IDLE, new Position(0, 0, 11, UnitUtils.Units.MM));
@@ -317,6 +317,45 @@ public class FluidNCControllerTest {
         assertTrue(target.isStreaming());
         verify(communicator, times(1)).pauseSend();
         verify(communicator, never()).resumeSend();
+    }
+
+    @Test
+    public void rawResponseListener_shouldReportRunningWhenIdleDuringStream() {
+        target.queueStream(new SimpleGcodeStreamReader("G4P2", "G0 X1"));
+        target.beginStreaming();
+
+        target.rawResponseListener("<Idle>");
+
+        assertEquals(ControllerState.RUN, target.getControllerStatus().getState());
+        assertTrue(target.isStreaming());
+    }
+
+    @Test
+    public void rawResponseListener_shouldReportIdleWhenStreamIsPaused() {
+        target.queueStream(new SimpleGcodeStreamReader("G0 X1", "G0 X0"));
+        target.beginStreaming();
+        when(communicator.isPaused()).thenReturn(true);
+
+        target.rawResponseListener("<Idle>");
+
+        assertEquals(ControllerState.IDLE, target.getControllerStatus().getState());
+        assertTrue(target.isStreaming());
+    }
+
+    @Test
+    public void rawResponseListener_shouldReportIdleWhenStreamIsFinished() throws IOException {
+        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1");
+        target.queueStream(gcodeStream);
+        target.beginStreaming();
+        GcodeCommand command = gcodeStream.getNextCommand();
+        target.commandSent(command);
+        command.appendResponse("ok");
+        target.rawResponseListener("ok");
+
+        target.rawResponseListener("<Idle>");
+
+        assertEquals(ControllerState.IDLE, target.getControllerStatus().getState());
+        assertFalse(target.isStreaming());
     }
 
     @Test
