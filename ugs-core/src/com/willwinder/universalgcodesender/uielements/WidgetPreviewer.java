@@ -75,7 +75,7 @@ public class WidgetPreviewer {
         panel.add(dialogLauncherButton("ControllerProcessorSettingsPanel",
                 new UGSSettingsDialog(
                         "ControllerProcessorSettingsPanel",
-                        new ControllerProcessorSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles()),
+                        new ControllerProcessorSettingsPanel(backend, backend.getSettings(), FirmwareUtils.getConfigFiles()),
                         frame,
                         true)));
         panel.add(frameLauncherButton("MacroActionPanel", new MacroActionPanel(backend)));

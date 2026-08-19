@@ -61,6 +61,17 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void reloadGcodeFile() throws Exception;
 
     /**
+     * Reloads the gcode processors from the firmware configuration and reprocesses the currently
+     * loaded gcode file. Use this when the processor settings have been changed to make the changes
+     * visible directly.
+     * <p>
+     * Any processor added using {@link #applyCommandProcessor(CommandProcessor)} will be removed.
+     *
+     * @throws Exception
+     */
+    void reloadGcodeProcessors() throws Exception;
+
+    /**
      * Returns a list of files from the configured workspace directory
      *
      * @return a list of files in the workspace

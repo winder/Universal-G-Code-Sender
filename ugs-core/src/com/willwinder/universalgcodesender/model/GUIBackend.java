@@ -388,6 +388,16 @@ public class GUIBackend implements BackendAPI {
         processGcodeFile();
     }
 
+    @Override
+    public void reloadGcodeProcessors() throws Exception {
+        logger.log(Level.INFO, "Reloading gcode processors.");
+        initGcodeParser();
+
+        if (this.gcodeFile != null) {
+            reloadGcodeFile();
+        }
+    }
+
     private void processGcodeFile() throws Exception {
         this.processedGcodeFile = null;
 

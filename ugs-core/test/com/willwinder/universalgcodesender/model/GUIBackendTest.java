@@ -18,8 +18,10 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -29,6 +31,10 @@ import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.ControllerSettings;
+import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.apache.commons.io.FileUtils;
 import static org.junit.Assert.assertEquals;
@@ -38,6 +44,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -55,6 +62,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,6 +74,7 @@ import java.util.List;
 public class GUIBackendTest {
 
     private static final String FIRMWARE = "GRBL";
+    private static final String TEST_FIRMWARE = "Test firmware";
     private static final String PORT = "/dev/ttyS0";
     private static final int BAUD_RATE = 9600;
 
@@ -101,6 +110,11 @@ public class GUIBackendTest {
         // Add settings
         settings = new Settings();
         instance.applySettings(settings);
+    }
+
+    @After
+    public void tearDown() {
+        FirmwareUtils.getConfigFiles().remove(TEST_FIRMWARE);
     }
 
     @Test
@@ -488,6 +502,38 @@ public class GUIBackendTest {
     }
 
     @Test
+    public void reloadGcodeProcessorsShouldReprocessTheFileUsingTheChangedProcessorSettings() throws Exception {
+        // Given
+        ControllerSettings firmwareConfig = registerTestFirmware();
+        instance.connect(TEST_FIRMWARE, PORT, BAUD_RATE);
+        instance.setGcodeFile(createGcodeFile("G0 X0 Y0\n"));
+        assertEquals("G0X0Y0", readFirstProcessedCommand());
+
+        setProcessorEnabled(firmwareConfig, "WhitespaceProcessor", false);
+
+        // When
+        instance.reloadGcodeProcessors();
+
+        // Then
+        assertEquals("G0 X0 Y0", readFirstProcessedCommand());
+    }
+
+    @Test
+    public void reloadGcodeProcessorsWithoutLoadedFileShouldNotProcessAnyFile() throws Exception {
+        // Given
+        registerTestFirmware();
+        instance.connect(TEST_FIRMWARE, PORT, BAUD_RATE);
+        List<UGSEvent> previousEvents = new ArrayList<>(eventArgumentCaptor.getAllValues());
+
+        // When
+        instance.reloadGcodeProcessors();
+
+        // Then
+        assertEquals(previousEvents, eventArgumentCaptor.getAllValues());
+        assertNull(instance.getProcessedGcodeFile());
+    }
+
+    @Test
     public void unsetGcodeFileShouldUnloadFile() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
@@ -701,6 +747,45 @@ public class GUIBackendTest {
 
         // Then
         verify(controller, times(1)).setWorkPosition(new PartialPosition(25.0, 99.0, UnitUtils.Units.MM));
+    }
+
+    private File createGcodeFile(String gcode) throws IOException {
+        File tempFile = File.createTempFile("ugs-", ".gcode");
+        FileUtils.writeStringToFile(tempFile, gcode, StandardCharsets.UTF_8);
+        return tempFile;
+    }
+
+    private String readFirstProcessedCommand() throws Exception {
+        try (IGcodeStreamReader reader = new GcodeStreamReader(instance.getProcessedGcodeFile(), new DefaultCommandCreator())) {
+            return reader.getNextCommand().getCommandString();
+        }
+    }
+
+    /**
+     * Registers a firmware configuration that may be modified by the test without affecting the
+     * configuration files of the user.
+     */
+    private ControllerSettings registerTestFirmware() {
+        ControllerSettings firmwareConfig = new Gson().fromJson("""
+                {
+                    "Name": "%s",
+                    "Version": 1,
+                    "Controller": {"name": "GRBL", "args": null},
+                    "GcodeProcessors": {
+                        "Front": [{"name": "CommentProcessor", "enabled": true, "optional": false}],
+                        "Custom": [],
+                        "End": [{"name": "WhitespaceProcessor", "enabled": true, "optional": true}]
+                    }
+                }
+                """.formatted(TEST_FIRMWARE), ControllerSettings.class);
+        FirmwareUtils.getConfigFiles().put(TEST_FIRMWARE, new FirmwareUtils.ConfigTuple(firmwareConfig, new File(TEST_FIRMWARE + ".json")));
+        return firmwareConfig;
+    }
+
+    private void setProcessorEnabled(ControllerSettings firmwareConfig, String processorName, boolean enabled) {
+        firmwareConfig.getProcessorConfigs().End.stream()
+                .filter(processor -> processor.name.equals(processorName))
+                .forEach(processor -> processor.enabled = enabled);
     }
 
     private ControllerStatus createControllerStatus(ControllerState state) {

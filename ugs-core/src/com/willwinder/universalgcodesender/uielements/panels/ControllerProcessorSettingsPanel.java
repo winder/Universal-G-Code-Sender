@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.uielements.panels;
 import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.gcode.util.CommandProcessorLoader;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.components.ProcessorConfigCheckbox;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
@@ -37,7 +38,6 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Level;
@@ -49,16 +49,18 @@ import java.util.logging.Logger;
  * @author wwinder
  */
 public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
-    private static Logger logger = Logger.getLogger(ControllerProcessorSettingsPanel.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ControllerProcessorSettingsPanel.class.getName());
     private final JTable customRemoverTable;
     private final JButton add = new JButton(Localization.getString("settings.processors.add"));
     private final JButton remove = new JButton(Localization.getString("settings.processors.remove"));
     private final Map<String, ConfigTuple> configFiles;
     private final JComboBox<String> controllerConfigs;
+    private final BackendAPI backend;
     private boolean updatingCombo = false;
 
-    public ControllerProcessorSettingsPanel(Settings settings, IChanged changer, Map<String, ConfigTuple> configFiles) {
+    public ControllerProcessorSettingsPanel(BackendAPI backend, Settings settings, IChanged changer, Map<String, ConfigTuple> configFiles) {
         super(settings, changer);
+        this.backend = backend;
         this.configFiles = configFiles;
 
         controllerConfigs = new JComboBox<>(configFiles.keySet().toArray(new String[]{}));
@@ -74,8 +76,8 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
         remove.addActionListener(e -> this.removeSelectedPatternRemover());
     }
 
-    public ControllerProcessorSettingsPanel(Settings settings, Map<String, ConfigTuple> configFiles) {
-        this(settings, null, configFiles);
+    public ControllerProcessorSettingsPanel(BackendAPI backend, Settings settings, Map<String, ConfigTuple> configFiles) {
+        this(backend, settings, null, configFiles);
     }
 
     private void addNewPatternRemover() {
@@ -123,9 +125,10 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
 
         try {
             FirmwareUtils.save(ct.file, ct.loader);
-        } catch (IOException ex) {
+            backend.reloadGcodeProcessors();
+        } catch (Exception ex) {
             GUIHelpers.displayErrorDialog("Problem saving controller config: " + ex.getMessage());
-            logger.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
     }
 
@@ -142,6 +145,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
         controllerConfigs.setSelectedItem(selected);
         updatingCombo = false;
         updateComponentsInternal(settings);
+        backend.reloadGcodeProcessors();
     }
 
     @Override

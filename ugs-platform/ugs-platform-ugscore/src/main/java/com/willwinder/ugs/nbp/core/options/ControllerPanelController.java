@@ -19,6 +19,8 @@
 package com.willwinder.ugs.nbp.core.options;
 
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanelController;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
@@ -39,7 +41,7 @@ import org.netbeans.spi.options.OptionsPanelController;
 public class ControllerPanelController extends AbstractOptionsPanelController {
     @Override
     public AbstractUGSSettings initPanel() {
-        return new ControllerProcessorSettingsPanel(settings, this, FirmwareUtils.getConfigFiles());
+        return new ControllerProcessorSettingsPanel(LookupService.lookup(BackendAPI.class), settings, this, FirmwareUtils.getConfigFiles());
     }
     
 }
