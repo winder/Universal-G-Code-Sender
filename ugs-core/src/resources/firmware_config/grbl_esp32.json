@@ -1,6 +1,6 @@
 {
     "Name": "GRBL ESP32",
-    "Version": 8,
+    "Version": 9,
     "Deleted": true,
     "Controller": {
         "name": "GRBL ESP32",
@@ -37,6 +37,16 @@
         ],
         "End": [
             {
+                "name": "BacklashCompensator",
+                "enabled": false,
+                "optional": true,
+                "args": {
+                    "backlashXMM": 0,
+                    "backlashYMM": 0,
+                    "backlashZMM": 0,
+                    "arcSegmentLengthMM": 0.1
+                }
+            },{
                 "name": "DecimalProcessor",
                 "enabled": true,
                 "optional": true,

@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
+import com.willwinder.universalgcodesender.gcode.processors.BacklashCompensator;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
@@ -35,6 +36,8 @@ import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
 import com.willwinder.universalgcodesender.gcode.processors.SpindleOnDweller;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
 
 import java.util.ArrayList;
@@ -219,39 +222,57 @@ public class CommandProcessorLoader {
                         + ": " + Localization.getString(pc.name));
     }
 
-    private static Optional<CommandProcessor> getProcessor(ProcessorConfig pc) {
-        switch (pc.name) {
-            case "ArcExpander":
-                double length = pc.args.get("segmentLengthMM").getAsDouble();
-                return Optional.of(new ArcExpander(true, length));
-            case "CommandLengthProcessor":
-                int commandLength = pc.args.get("commandLength").getAsInt();
-                return Optional.of(new CommandLengthProcessor(commandLength));
-            case "CommentProcessor":
-                return Optional.of(new CommentProcessor());
-            case "DecimalProcessor":
-                int decimals = pc.args.get("decimals").getAsInt();
-                return Optional.of(new DecimalProcessor(decimals));
-            case "FeedOverrideProcessor":
-                double override = pc.args.get("speedOverridePercent").getAsDouble();
-                return Optional.of(new FeedOverrideProcessor(override));
-            case "M30Processor":
-                return Optional.of(new M30Processor());
-            case "PatternRemover":
-                String pattern = pc.args.get("pattern").getAsString();
-                return Optional.of(new PatternRemover(pattern));
-            case "WhitespaceProcessor":
-                return Optional.of(new WhitespaceProcessor());
-            case "SpindleOnDweller":
-                double duration = pc.args.get("duration").getAsDouble();
-                return Optional.of(new SpindleOnDweller(duration));
-            case "LineSplitter":
-                return Optional.of(new LineSplitter(pc.args.get("segmentLengthMM").getAsDouble()));
-            case "EmptyLineRemoverProcessor":
-                return Optional.of(new EmptyLineRemoverProcessor());
-            default:
-                LOGGER.severe("Unknown processor: " + pc.name);
-                return Optional.empty();
+    private static double getDouble(JsonObject args, String name, double defaultValue) {
+        if (args == null || !args.has(name) || args.get(name).isJsonNull()) {
+            return defaultValue;
         }
+        return args.get(name).getAsDouble();
+    }
+
+    private static Optional<CommandProcessor> getProcessor(ProcessorConfig pc) {
+        return switch (pc.name) {
+            case "ArcExpander" -> {
+                double length = pc.args.get("segmentLengthMM").getAsDouble();
+                yield Optional.of(new ArcExpander(true, length));
+            }
+            case "CommandLengthProcessor" -> {
+                int commandLength = pc.args.get("commandLength").getAsInt();
+                yield Optional.of(new CommandLengthProcessor(commandLength));
+            }
+            case "CommentProcessor" -> Optional.of(new CommentProcessor());
+            case "DecimalProcessor" -> {
+                int decimals = pc.args.get("decimals").getAsInt();
+                yield Optional.of(new DecimalProcessor(decimals));
+            }
+            case "FeedOverrideProcessor" -> {
+                double override = pc.args.get("speedOverridePercent").getAsDouble();
+                yield Optional.of(new FeedOverrideProcessor(override));
+            }
+            case "M30Processor" -> Optional.of(new M30Processor());
+            case "PatternRemover" -> {
+                String pattern = pc.args.get("pattern").getAsString();
+                yield Optional.of(new PatternRemover(pattern));
+            }
+            case "WhitespaceProcessor" -> Optional.of(new WhitespaceProcessor());
+            case "SpindleOnDweller" -> {
+                double duration = pc.args.get("duration").getAsDouble();
+                yield Optional.of(new SpindleOnDweller(duration));
+            }
+            case "LineSplitter" -> Optional.of(new LineSplitter(pc.args.get("segmentLengthMM").getAsDouble()));
+            case "BacklashCompensator" -> {
+                Position backlash = new Position(
+                        getDouble(pc.args, "backlashXMM", 0),
+                        getDouble(pc.args, "backlashYMM", 0),
+                        getDouble(pc.args, "backlashZMM", 0),
+                        UnitUtils.Units.MM);
+                yield Optional.of(new BacklashCompensator(backlash,
+                        getDouble(pc.args, "arcSegmentLengthMM", 0.1)));
+            }
+            case "EmptyLineRemoverProcessor" -> Optional.of(new EmptyLineRemoverProcessor());
+            default -> {
+                LOGGER.severe("Unknown processor: " + pc.name);
+                yield Optional.empty();
+            }
+        };
     }
 }
