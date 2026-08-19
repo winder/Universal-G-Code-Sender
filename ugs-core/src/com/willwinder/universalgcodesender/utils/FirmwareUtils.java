@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
@@ -29,7 +30,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.swing.JOptionPane;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,8 +62,6 @@ public class FirmwareUtils {
     private static final String FIRMWARE_CONFIG_DIRNAME = "firmware_config";
     private static final Logger logger = Logger.getLogger(FirmwareUtils.class.getName());
     private static final Map<String, ConfigTuple> configFiles = new HashMap<>();
-    private static boolean userNotified = false;
-    private static boolean overwriteOldFiles = false;
 
     static {
         initialize();
@@ -184,47 +182,12 @@ public class FirmwareUtils {
 
             Stream<Path> files = Files.walk(myPath, 1);
             for (Path path : (Iterable<Path>) files::iterator) {
-                logger.info(path.toString());
                 final String name = path.getFileName().toString();
-                File fwConfig = new File(firmwareConfigDirectory, name);
-                if (name.endsWith(".json")) {
-                    boolean copyFile = !fwConfig.exists();
-                    ControllerSettings jarSetting =
-                            getSettingsForStream(Files.newInputStream(path));
-
-                    // If the file is outdated... ask the user (once).
-                    if (fwConfig.exists()) {
-                        ControllerSettings current =
-                                getSettingsForStream(new FileInputStream(fwConfig));
-                        boolean outOfDate =
-                                current.getVersion() < jarSetting.getVersion();
-                        if (outOfDate && !userNotified && !overwriteOldFiles) {
-                            int result = NarrowOptionPane.showNarrowConfirmDialog(
-                                    200,
-                                    Localization.getString("settings.file.outOfDate.message"),
-                                    Localization.getString("settings.file.outOfDate.title"),
-                                    JOptionPane.YES_NO_OPTION,
-                                    JOptionPane.QUESTION_MESSAGE);
-                            overwriteOldFiles = result == JOptionPane.OK_OPTION;
-                            userNotified = true;
-                        }
-
-                        if (overwriteOldFiles) {
-                            copyFile = true;
-                            jarSetting.getProcessorConfigs().Custom
-                                    = current.getProcessorConfigs().Custom;
-                        }
-                    }
-
-                    // Copy file from jar to firmware_config directory.
-                    if (copyFile) {
-                        try {
-                            save(fwConfig, jarSetting);
-                        } catch (IOException ex) {
-                            logger.log(Level.SEVERE, null, ex);
-                        }
-                    }
+                if (!name.endsWith(".json")) {
+                    continue;
                 }
+
+                updateConfigFile(path, new File(firmwareConfigDirectory, name));
             }
         } catch (Exception ex) {
             String errorMessage = String.format("%s %s",
@@ -240,6 +203,42 @@ public class FirmwareUtils {
                     logger.log(Level.SEVERE, "Problem closing filesystem.", ex);
                 }
             }
+        }
+    }
+
+    /**
+     * Makes sure the users firmware configuration is up to date with the one bundled with this
+     * version of UGS. Any settings made by the user are transferred to the new configuration
+     */
+    private static void updateConfigFile(Path bundledConfigPath, File userConfigFile) {
+        try {
+            ControllerSettings bundledSettings = getSettingsForStream(Files.newInputStream(bundledConfigPath));
+            Optional<ControllerSettings> userSettings = readSettings(userConfigFile);
+            if (userSettings.isEmpty()) {
+                save(userConfigFile, bundledSettings);
+                return;
+            }
+
+            if (userSettings.get().getVersion() >= bundledSettings.getVersion()) {
+                return;
+            }
+
+            save(userConfigFile, ControllerSettingsReconciler.reconcile(bundledSettings, userSettings.get()));
+        } catch (IOException | JsonParseException ex) {
+            logger.log(Level.SEVERE, "Couldn't update the firmware configuration " + userConfigFile.getAbsolutePath(), ex);
+        }
+    }
+
+    private static Optional<ControllerSettings> readSettings(File configFile) {
+        if (!configFile.exists()) {
+            return Optional.empty();
+        }
+
+        try (InputStream inputStream = new FileInputStream(configFile)) {
+            return Optional.ofNullable(getSettingsForStream(inputStream));
+        } catch (IOException | JsonParseException ex) {
+            logger.log(Level.WARNING, "Couldn't read the firmware configuration " + configFile.getAbsolutePath() + ", it will be replaced with the default settings", ex);
+            return Optional.empty();
         }
     }
 

@@ -88,9 +88,9 @@ public class MainWindow extends JFrame implements UGSEventListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     private PendantUI pendantUI;
-    private Settings settings;
+    private final Settings settings;
 
-    private BackendAPI backend;
+    private final BackendAPI backend;
 
     // My Variables
     private javax.swing.JFileChooser fileChooser;
@@ -1442,7 +1442,7 @@ public class MainWindow extends JFrame implements UGSEventListener {
     private void gcodeProcessorSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gcodeProcessorSettingsActionPerformed
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("settings.processors.header"),
-                new ControllerProcessorSettingsPanel(settings, FirmwareUtils.getConfigFiles()),
+                new ControllerProcessorSettingsPanel(backend, settings, FirmwareUtils.getConfigFiles()),
                 this, true);
 
         gcsd.setVisible(true);

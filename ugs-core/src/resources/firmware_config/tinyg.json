@@ -1,6 +1,6 @@
 {
     "Name": "TinyG",
-    "Version": 7,
+    "Version": 8,
     "Controller": {
         "name": "TinyG",
         "args": null
@@ -36,6 +36,16 @@
         ],
         "End": [
             {
+                "name": "BacklashCompensator",
+                "enabled": false,
+                "optional": true,
+                "args": {
+                    "backlashXMM": 0,
+                    "backlashYMM": 0,
+                    "backlashZMM": 0,
+                    "arcSegmentLengthMM": 0.1
+                }
+            },{
                 "name": "DecimalProcessor",
                 "enabled": true,
                 "optional": true,

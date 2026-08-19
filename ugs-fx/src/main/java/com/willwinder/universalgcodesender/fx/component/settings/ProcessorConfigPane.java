@@ -25,6 +25,8 @@ import com.willwinder.universalgcodesender.fx.dialog.ProcessorConfigDialog;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.gcode.util.CommandProcessorLoader;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ControllerSettings;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -39,7 +41,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -144,7 +145,8 @@ public class ProcessorConfigPane extends VBox {
     private void save(FirmwareUtils.ConfigTuple configTuple) {
         try {
             FirmwareUtils.save(configTuple.file, configTuple.loader);
-        } catch (IOException ex) {
+            LookupService.lookup(BackendAPI.class).reloadGcodeProcessors();
+        } catch (Exception ex) {
             GUIHelpers.displayErrorDialog("Problem saving controller config: " + ex.getMessage());
             LOGGER.log(Level.SEVERE, null, ex);
         }
