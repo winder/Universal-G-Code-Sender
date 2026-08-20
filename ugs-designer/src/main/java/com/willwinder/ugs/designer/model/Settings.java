@@ -44,6 +44,13 @@ public class Settings {
     private boolean detectMaxSpindleSpeed = true;
     private String spindleDirection = "M3";
     private CoolantMode coolantMode = CoolantMode.NONE;
+    private PenMode penMode = PenMode.Z_AXIS;
+    private double penDownDepth = 0.5;
+    private int penDownSpindleSpeed = 1000;
+    private int penUpSpindleSpeed = 0;
+    private double penWidth = 0.5;
+    private String penDownCommand = "M3";
+    private String penUpCommand = "M5";
     private double flatnessPrecision = 0.1;
     private boolean arcFitting = true;
     private boolean useToolChanges = false;
@@ -96,6 +103,109 @@ public class Settings {
 
     public void setCoolantMode(CoolantMode coolantMode) {
         this.coolantMode = coolantMode == null ? CoolantMode.NONE : coolantMode;
+        notifyListeners();
+    }
+
+    /**
+     * Returns how a plotter is expected to put its pen down on the paper and lift it again
+     *
+     * @return the pen mode, never null
+     */
+    public PenMode getPenMode() {
+        return penMode == null ? PenMode.Z_AXIS : penMode;
+    }
+
+    public void setPenMode(PenMode penMode) {
+        this.penMode = penMode == null ? PenMode.Z_AXIS : penMode;
+        notifyListeners();
+    }
+
+    /**
+     * Returns the width of the line that the pen draws in millimeters. A fill is kept half of this
+     * inside the shape, so that the drawn line covers the outline instead of spilling over it.
+     *
+     * @return the pen width
+     */
+    public double getPenWidth() {
+        return penWidth;
+    }
+
+    public void setPenWidth(double penWidth) {
+        this.penWidth = Math.abs(penWidth);
+        notifyListeners();
+    }
+
+    /**
+     * Returns how far below zero the pen is lowered in millimeters when the Z axis carries it.
+     * A pen usually needs to be pressed slightly into the paper to draw evenly, so this is a
+     * depth rather than a height.
+     *
+     * @return the pen down depth
+     */
+    public double getPenDownDepth() {
+        return penDownDepth;
+    }
+
+    public void setPenDownDepth(double penDownDepth) {
+        this.penDownDepth = penDownDepth;
+        notifyListeners();
+    }
+
+    /**
+     * Returns the spindle speed that puts the pen down when it is driven from the spindle output
+     *
+     * @return the spindle speed
+     */
+    public int getPenDownSpindleSpeed() {
+        return penDownSpindleSpeed;
+    }
+
+    public void setPenDownSpindleSpeed(int penDownSpindleSpeed) {
+        this.penDownSpindleSpeed = Math.abs(penDownSpindleSpeed);
+        notifyListeners();
+    }
+
+    /**
+     * Returns the spindle speed that lifts the pen when it is driven from the spindle output
+     *
+     * @return the spindle speed
+     */
+    public int getPenUpSpindleSpeed() {
+        return penUpSpindleSpeed;
+    }
+
+    public void setPenUpSpindleSpeed(int penUpSpindleSpeed) {
+        this.penUpSpindleSpeed = Math.abs(penUpSpindleSpeed);
+        notifyListeners();
+    }
+
+    /**
+     * Returns the command that puts the pen down, used by machines that move their pen with
+     * something else than the Z axis or the spindle output.
+     *
+     * @return the command, or an empty string if nothing should be written
+     */
+    public String getPenDownCommand() {
+        return penDownCommand == null ? "" : penDownCommand;
+    }
+
+    public void setPenDownCommand(String penDownCommand) {
+        this.penDownCommand = penDownCommand == null ? "" : penDownCommand;
+        notifyListeners();
+    }
+
+    /**
+     * Returns the command that lifts the pen, used by machines that move their pen with something
+     * else than the Z axis or the spindle output.
+     *
+     * @return the command, or an empty string if nothing should be written
+     */
+    public String getPenUpCommand() {
+        return penUpCommand == null ? "" : penUpCommand;
+    }
+
+    public void setPenUpCommand(String penUpCommand) {
+        this.penUpCommand = penUpCommand == null ? "" : penUpCommand;
         notifyListeners();
     }
 
@@ -262,6 +372,13 @@ public class Settings {
         setDetectMaxSpindleSpeed(settings.getDetectMaxSpindleSpeed());
         setSpindleDirection(settings.getSpindleDirection());
         setCoolantMode(settings.getCoolantMode());
+        setPenMode(settings.getPenMode());
+        setPenWidth(settings.getPenWidth());
+        setPenDownDepth(settings.getPenDownDepth());
+        setPenDownSpindleSpeed(settings.getPenDownSpindleSpeed());
+        setPenUpSpindleSpeed(settings.getPenUpSpindleSpeed());
+        setPenDownCommand(settings.getPenDownCommand());
+        setPenUpCommand(settings.getPenUpCommand());
         setFlatnessPrecision(settings.getFlatnessPrecision());
         setArcFitting(settings.getArcFitting());
         setUseToolChanges(settings.getUseToolChanges());

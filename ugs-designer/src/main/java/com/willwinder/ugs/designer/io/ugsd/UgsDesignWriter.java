@@ -125,6 +125,7 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setToolPathDirection(ToolPathDirectionTypeV1.fromDirection(cuttable.getToolPathDirection()));
             cuttableEntity.setFinishingPass(cuttable.isFinishingPass());
             cuttableEntity.setStockToLeave(cuttable.getStockToLeave());
+            cuttableEntity.setLineSpacing(cuttable.getLineSpacing());
         }
         return result;
     }

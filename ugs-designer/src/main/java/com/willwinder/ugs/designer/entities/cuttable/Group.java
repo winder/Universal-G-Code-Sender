@@ -411,4 +411,21 @@ public class Group extends EntityGroup implements Cuttable {
                 .map(Cuttable::getStockToLeave)
                 .orElse(DEFAULT_STOCK_TO_LEAVE);
     }
+
+    @Override
+    public void setLineSpacing(double lineSpacing) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setLineSpacing(lineSpacing);
+            }
+        });
+    }
+
+    @Override
+    public double getLineSpacing() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::getLineSpacing)
+                .orElse(DEFAULT_LINE_SPACING);
+    }
 }

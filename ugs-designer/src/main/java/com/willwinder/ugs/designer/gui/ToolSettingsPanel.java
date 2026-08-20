@@ -26,6 +26,7 @@ import com.willwinder.ugs.designer.gui.toollibrary.ToolLibraryDialog;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ToolLibraryService;
 import com.willwinder.ugs.designer.model.CoolantMode;
+import com.willwinder.ugs.designer.model.PenMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
@@ -46,6 +47,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.text.ParseException;
 import java.util.Optional;
@@ -78,6 +80,18 @@ public class ToolSettingsPanel extends JPanel {
     private TextFieldWithUnit maxSpindleSpeed;
     private JComboBox<String> spindleDirection;
     private JComboBox<CoolantMode> coolantMode;
+    private TextFieldWithUnit penWidth;
+    private JComboBox<PenMode> penMode;
+    private JLabel penDownDepthLabel;
+    private TextFieldWithUnit penDownDepth;
+    private JLabel penDownSpindleSpeedLabel;
+    private TextFieldWithUnit penDownSpindleSpeed;
+    private JLabel penUpSpindleSpeedLabel;
+    private TextFieldWithUnit penUpSpindleSpeed;
+    private JLabel penDownCommandLabel;
+    private JTextField penDownCommand;
+    private JLabel penUpCommandLabel;
+    private JTextField penUpCommand;
     private TextFieldWithUnit flatnessPrecision;
     private JCheckBox arcFitting;
     private JCheckBox useToolChanges;
@@ -88,8 +102,8 @@ public class ToolSettingsPanel extends JPanel {
         this.controller = controller;
         this.libraryService = LookupService.lookupOptional(ToolLibraryService.class).orElse(null);
         initComponents();
-        setMinimumSize(new Dimension(360, 500));
-        setPreferredSize(new Dimension(360, 500));
+        setMinimumSize(new Dimension(360, 590));
+        setPreferredSize(new Dimension(360, 590));
         restoreLibraryBinding();
         attachDeviationHighlighters();
     }
@@ -194,6 +208,52 @@ public class ToolSettingsPanel extends JPanel {
         coolantMode.setToolTipText("Turns the coolant on after the tool change and off at the end of the program.");
         add(coolantMode, TOOL_FIELD_CONSTRAINT);
 
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2");
+
+        add(new JLabel("Pen width"));
+        penWidth = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getPenWidth());
+        penWidth.setToolTipText("The width of the line the pen draws. Fills are kept half of this inside the shape.");
+        add(penWidth, TOOL_FIELD_CONSTRAINT);
+
+        add(new JLabel("Pen up/down"));
+        penMode = new JComboBox<>(new DefaultComboBoxModel<>(PenMode.values()));
+        penMode.setSelectedItem(controller.getSettings().getPenMode());
+        penMode.setToolTipText("How a plotter puts its pen down on the paper and lifts it again.");
+        penMode.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                updatePenFieldVisibility();
+            }
+        });
+        add(penMode, TOOL_FIELD_CONSTRAINT);
+
+        penDownDepthLabel = new JLabel("Pen down depth");
+        add(penDownDepthLabel);
+        penDownDepth = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getPenDownDepth());
+        add(penDownDepth, TOOL_FIELD_CONSTRAINT);
+
+        penDownSpindleSpeedLabel = new JLabel("Pen down speed");
+        add(penDownSpindleSpeedLabel);
+        penDownSpindleSpeed = new TextFieldWithUnit(Unit.REVOLUTIONS_PER_MINUTE, 0, controller.getSettings().getPenDownSpindleSpeed());
+        add(penDownSpindleSpeed, TOOL_FIELD_CONSTRAINT);
+
+        penUpSpindleSpeedLabel = new JLabel("Pen up speed");
+        add(penUpSpindleSpeedLabel);
+        penUpSpindleSpeed = new TextFieldWithUnit(Unit.REVOLUTIONS_PER_MINUTE, 0, controller.getSettings().getPenUpSpindleSpeed());
+        add(penUpSpindleSpeed, TOOL_FIELD_CONSTRAINT);
+
+        penDownCommandLabel = new JLabel("Pen down command");
+        add(penDownCommandLabel);
+        penDownCommand = new JTextField(controller.getSettings().getPenDownCommand());
+        add(penDownCommand, TOOL_FIELD_CONSTRAINT);
+
+        penUpCommandLabel = new JLabel("Pen up command");
+        add(penUpCommandLabel);
+        penUpCommand = new JTextField(controller.getSettings().getPenUpCommand());
+        add(penUpCommand, TOOL_FIELD_CONSTRAINT);
+        updatePenFieldVisibility();
+
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2");
+
         add(new JLabel("Curve precision"));
         flatnessPrecision = new TextFieldWithUnit(Unit.MM, 3, controller.getSettings().getFlatnessPrecision());
         add(flatnessPrecision, TOOL_FIELD_CONSTRAINT);
@@ -201,6 +261,26 @@ public class ToolSettingsPanel extends JPanel {
         add(new JLabel("Generate arcs"));
         arcFitting = new JCheckBox("", controller.getSettings().getArcFitting());
         add(arcFitting, TOOL_FIELD_CONSTRAINT);
+    }
+
+    /**
+     * Only the fields that the selected way of moving the pen actually uses are shown. The values
+     * of the other ways are kept in the hidden fields, so switching back and forth does not lose
+     * a machine setup that has already been dialed in.
+     */
+    private void updatePenFieldVisibility() {
+        PenMode selected = (PenMode) penMode.getSelectedItem();
+        setPenFieldVisible(selected == PenMode.Z_AXIS, penDownDepthLabel, penDownDepth);
+        setPenFieldVisible(selected == PenMode.SPINDLE_SPEED, penDownSpindleSpeedLabel, penDownSpindleSpeed, penUpSpindleSpeedLabel, penUpSpindleSpeed);
+        setPenFieldVisible(selected == PenMode.CUSTOM_COMMAND, penDownCommandLabel, penDownCommand, penUpCommandLabel, penUpCommand);
+        revalidate();
+        repaint();
+    }
+
+    private void setPenFieldVisible(boolean visible, Component... components) {
+        for (Component component : components) {
+            component.setVisible(visible);
+        }
     }
 
     /**
@@ -454,6 +534,13 @@ public class ToolSettingsPanel extends JPanel {
         settings.setDetectMaxSpindleSpeed(getDetectMaxSpindleSpeed());
         settings.setSpindleDirection(getSpindleDirection());
         settings.setCoolantMode((CoolantMode) coolantMode.getSelectedItem());
+        settings.setPenWidth(penWidth.getDoubleValue());
+        settings.setPenMode((PenMode) penMode.getSelectedItem());
+        settings.setPenDownDepth(penDownDepth.getDoubleValue());
+        settings.setPenDownSpindleSpeed((int) Math.round(penDownSpindleSpeed.getDoubleValue()));
+        settings.setPenUpSpindleSpeed((int) Math.round(penUpSpindleSpeed.getDoubleValue()));
+        settings.setPenDownCommand(penDownCommand.getText());
+        settings.setPenUpCommand(penUpCommand.getText());
         settings.setFlatnessPrecision(getFlatnessPrecision());
         settings.setArcFitting(arcFitting.isSelected());
         settings.setUseToolChanges(useToolChanges.isSelected());

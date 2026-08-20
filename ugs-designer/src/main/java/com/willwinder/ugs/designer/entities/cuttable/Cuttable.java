@@ -36,6 +36,11 @@ public interface Cuttable extends Entity {
     double DEFAULT_STOCK_TO_LEAVE = 0.2;
 
     /**
+     * The default distance in millimeters between the lines filling a shape
+     */
+    double DEFAULT_LINE_SPACING = 1.0;
+
+    /**
      * Returns the desired cut operation use to cut the entity.
      *
      * @return the cut type to use.
@@ -249,6 +254,21 @@ public interface Cuttable extends Entity {
      * @return the number of millimeters to leave
      */
     double getStockToLeave();
+
+    /**
+     * Sets how far apart the lines filling a shape should be. Values that are too small to draw
+     * are raised to the smallest spacing that still moves the tool path forward.
+     *
+     * @param lineSpacing the distance between the lines in millimeters
+     */
+    void setLineSpacing(double lineSpacing);
+
+    /**
+     * Returns how far apart the lines filling a shape are in millimeters.
+     *
+     * @return the distance between the lines
+     */
+    double getLineSpacing();
 
     /**
      * Some tool paths allow setting a direction. This differs from the tool path angle which can be set arbitrarily.

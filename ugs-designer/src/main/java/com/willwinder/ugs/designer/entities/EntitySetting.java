@@ -46,6 +46,7 @@ public enum EntitySetting {
     LEAD_IN_PERCENT("Lead in percent"),
     INCLUDE_IN_EXPORT("Include in export"),
     TOOL_PATH_ANGLE("Tool path angle"),
+    LINE_SPACING("Line spacing"),
     TOOL_PATH_DIRECTION("Tool path direction"),
     DIRECTION("Tool path direction"),
     PLUNGE_TYPE("Plunge type"),
@@ -128,6 +129,27 @@ public enum EntitySetting {
             EntitySetting.CUT_TYPE,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.PASSES,
+            EntitySetting.FEED_RATE,
+            EntitySetting.INCLUDE_IN_EXPORT);
+
+    /**
+     * A plotter draws with a pen that is either down or up, so it has neither a depth nor a
+     * spindle speed to set on the shape itself. How the pen is moved is a property of the machine
+     * and is configured in the tool settings instead.
+     */
+    public static final List<EntitySetting> DEFAULT_PLOTTER_SETTINGS = List.of(
+            EntitySetting.CUT_TYPE,
+            EntitySetting.FEED_RATE,
+            EntitySetting.INCLUDE_IN_EXPORT);
+
+    /**
+     * The settings for filling a shape with a plotter, where the lines drawn are what covers the
+     * shape and how far apart they are is up to the pen and the look that is wanted.
+     */
+    public static final List<EntitySetting> DEFAULT_PLOTTER_FILL_SETTINGS = List.of(
+            EntitySetting.CUT_TYPE,
+            EntitySetting.TOOL_PATH_ANGLE,
+            EntitySetting.LINE_SPACING,
             EntitySetting.FEED_RATE,
             EntitySetting.INCLUDE_IN_EXPORT);
 

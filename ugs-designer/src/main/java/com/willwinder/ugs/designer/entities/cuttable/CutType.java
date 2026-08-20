@@ -23,6 +23,8 @@ import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_ENDMILL
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_HEIGHT_MAP_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_LASER_FILL_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_LASER_SETTINGS;
+import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_PLOTTER_FILL_SETTINGS;
+import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_PLOTTER_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_POCKET_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_PROFILE_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_SURFACE_SETTINGS;
@@ -45,6 +47,8 @@ public enum CutType {
     LASER_ON_PATH("Laser - On path", DEFAULT_LASER_SETTINGS, Collections.emptyList()),
     LASER_FILL("Laser - Fill", DEFAULT_LASER_FILL_SETTINGS, Collections.emptyList()),
     LASER_RASTER("Laser - Raster", DEFAULT_LASER_FILL_SETTINGS, Collections.emptyList()),
+    PLOTTER_ON_PATH("Plotter - On path", DEFAULT_PLOTTER_SETTINGS, Collections.emptyList()),
+    PLOTTER_FILL("Plotter - Fill", DEFAULT_PLOTTER_FILL_SETTINGS, Collections.emptyList()),
     HEIGHT_MAP("Mill - Height map", DEFAULT_HEIGHT_MAP_SETTINGS, Collections.emptyList()),
     CENTER_DRILL("Center drill", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),
     ;

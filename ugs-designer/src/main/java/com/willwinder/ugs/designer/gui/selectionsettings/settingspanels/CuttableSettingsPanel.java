@@ -77,6 +77,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     private JSlider leadInPercentSlider;
     private JCheckBox includeInExport;
     private UnitSpinner toolPathAngleSpinner;
+    private UnitSpinner lineSpacingSpinner;
     private DirectionCombo directionCombo;
     private PlungeTypeCombo plungeTypeCombo;
     private ToolPathDirectionCombo toolPathDirectionCombo;
@@ -118,6 +119,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         finishingPassCheckBox = new JCheckBox();
         finishingPassCheckBox.setSelected(false);
         stockToLeaveSpinner = new UnitSpinner(Cuttable.DEFAULT_STOCK_TO_LEAVE, Unit.MM, 0d, 10000d, 0.1d);
+        lineSpacingSpinner = new UnitSpinner(Cuttable.DEFAULT_LINE_SPACING, Unit.MM, 0.01d, 10000d, 0.1d);
     }
 
     private JSlider createSlider(int min, int max, int value, int minorTick, int majorTick) {
@@ -143,6 +145,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         addLabeledSlider(EntitySetting.PASSES, "Passes", passesSlider);
         addLabeledSlider(EntitySetting.LEAD_IN_PERCENT, "Lead In/Out %", leadInPercentSlider);
         addLabeledComponent(EntitySetting.TOOL_PATH_ANGLE, "Tool Path Angle", toolPathAngleSpinner);
+        addLabeledComponent(EntitySetting.LINE_SPACING, "Line Spacing", lineSpacingSpinner);
         addLabeledComponent(EntitySetting.TOOL_PATH_DIRECTION, "Tool Path Direction", toolPathDirectionCombo);
         addLabeledComponent(EntitySetting.ROUGHING, "Roughing", roughingCheckBox);
         addLabeledComponent(EntitySetting.FINISHING_PASS, "Finishing Pass", finishingPassCheckBox);
@@ -189,6 +192,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             setEnabled(isEnabled());
         });
         stockToLeaveSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.STOCK_TO_LEAVE, stockToLeaveSpinner.getValue()));
+        lineSpacingSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.LINE_SPACING, lineSpacingSpinner.getValue()));
         directionCombo.addActionListener(e -> firePropertyChange(EntitySetting.DIRECTION, directionCombo.getSelectedDirection()));
         plungeTypeCombo.addActionListener(e -> firePropertyChange(EntitySetting.PLUNGE_TYPE, plungeTypeCombo.getSelectedPlungeType()));
         toolPathDirectionCombo.addActionListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_DIRECTION, toolPathDirectionCombo.getSelectedDirection()));
@@ -297,6 +301,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 roughingCheckBox.setSelected((Boolean) firstCuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.FALSE));
                 finishingPassCheckBox.setSelected(firstCuttable.isFinishingPass());
                 stockToLeaveSpinner.setValue(firstCuttable.getStockToLeave());
+                lineSpacingSpinner.setValue(firstCuttable.getLineSpacing());
             } finally {
                 updating = false;
             }
@@ -360,6 +365,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             cuttable.setFinishingPass((Boolean) newValue);
         } else if (EntitySetting.STOCK_TO_LEAVE.equals(setting)) {
             cuttable.setStockToLeave(((Number) newValue).doubleValue());
+        } else if (EntitySetting.LINE_SPACING.equals(setting)) {
+            cuttable.setLineSpacing(((Number) newValue).doubleValue());
         }
     }
 

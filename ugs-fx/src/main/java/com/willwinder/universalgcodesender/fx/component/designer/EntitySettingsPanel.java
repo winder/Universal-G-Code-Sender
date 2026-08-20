@@ -408,6 +408,8 @@ public class EntitySettingsPanel extends VBox {
                     leftAligned(controls.switchControl(Cuttable::isFinishingPass, Cuttable::setFinishingPass, entities));
             case STOCK_TO_LEAVE ->
                     controls.doubleField(Cuttable::getStockToLeave, Cuttable::setStockToLeave, entities, Unit.MM);
+            case LINE_SPACING ->
+                    controls.doubleField(Cuttable::getLineSpacing, Cuttable::setLineSpacing, entities, Unit.MM);
             case INCLUDE_IN_EXPORT ->
                     leftAligned(controls.switchControl(Cuttable::getIncludeInExport, Cuttable::setIncludeInExport, entities));
             default -> null;

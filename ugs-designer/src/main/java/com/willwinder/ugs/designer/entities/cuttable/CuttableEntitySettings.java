@@ -29,6 +29,7 @@ public class CuttableEntitySettings {
             case PLUNGE_TYPE -> Optional.of(cuttable.getPlungeType());
             case FINISHING_PASS -> Optional.of(cuttable.isFinishingPass());
             case STOCK_TO_LEAVE -> Optional.of(cuttable.getStockToLeave());
+            case LINE_SPACING -> Optional.of(cuttable.getLineSpacing());
             default -> Optional.empty();
         };
     }
@@ -49,6 +50,7 @@ public class CuttableEntitySettings {
             case PLUNGE_TYPE -> cuttable.setPlungeType((PlungeType) value);
             case FINISHING_PASS -> cuttable.setFinishingPass((Boolean) value);
             case STOCK_TO_LEAVE -> cuttable.setStockToLeave(((Number) value).doubleValue());
+            case LINE_SPACING -> cuttable.setLineSpacing(((Number) value).doubleValue());
             default -> LOGGER.info("Do not know how to set " + entitySetting + " to " + value);
         }
     }

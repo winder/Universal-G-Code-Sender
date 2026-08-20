@@ -19,6 +19,7 @@
 package com.willwinder.ugs.designer.io.ugsd.v1;
 
 import com.willwinder.ugs.designer.model.CoolantMode;
+import com.willwinder.ugs.designer.model.PenMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -48,6 +49,13 @@ public class SettingsV1 implements Serializable {
     private Boolean detectMaxSpindleSpeed;
     private String spindleDirection;
     private CoolantMode coolantMode;
+    private PenMode penMode;
+    private Double penWidth;
+    private Double penDownDepth;
+    private Integer penDownSpindleSpeed;
+    private Integer penUpSpindleSpeed;
+    private String penDownCommand;
+    private String penUpCommand;
     private Double flatnessPrecision;
     private Boolean arcFitting;
     private Boolean useToolChanges;
@@ -71,6 +79,13 @@ public class SettingsV1 implements Serializable {
         result.detectMaxSpindleSpeed = settings.getDetectMaxSpindleSpeed();
         result.spindleDirection = settings.getSpindleDirection();
         result.coolantMode = settings.getCoolantMode();
+        result.penMode = settings.getPenMode();
+        result.penWidth = settings.getPenWidth();
+        result.penDownDepth = settings.getPenDownDepth();
+        result.penDownSpindleSpeed = settings.getPenDownSpindleSpeed();
+        result.penUpSpindleSpeed = settings.getPenUpSpindleSpeed();
+        result.penDownCommand = settings.getPenDownCommand();
+        result.penUpCommand = settings.getPenUpCommand();
         result.flatnessPrecision = settings.getFlatnessPrecision();
         result.arcFitting = settings.getArcFitting();
         result.useToolChanges = settings.getUseToolChanges();
@@ -125,6 +140,27 @@ public class SettingsV1 implements Serializable {
         }
         if (coolantMode != null) {
             settings.setCoolantMode(coolantMode);
+        }
+        if (penMode != null) {
+            settings.setPenMode(penMode);
+        }
+        if (penWidth != null) {
+            settings.setPenWidth(penWidth);
+        }
+        if (penDownDepth != null) {
+            settings.setPenDownDepth(penDownDepth);
+        }
+        if (penDownSpindleSpeed != null) {
+            settings.setPenDownSpindleSpeed(penDownSpindleSpeed);
+        }
+        if (penUpSpindleSpeed != null) {
+            settings.setPenUpSpindleSpeed(penUpSpindleSpeed);
+        }
+        if (penDownCommand != null) {
+            settings.setPenDownCommand(penDownCommand);
+        }
+        if (penUpCommand != null) {
+            settings.setPenUpCommand(penUpCommand);
         }
         if (flatnessPrecision != null) {
             settings.setFlatnessPrecision(flatnessPrecision);

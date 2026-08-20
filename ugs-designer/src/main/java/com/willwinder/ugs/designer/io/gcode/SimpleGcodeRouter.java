@@ -25,6 +25,8 @@ import com.willwinder.ugs.designer.io.gcode.toolpaths.LaserFillToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.LaserOutlineToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.LaserRasterToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.OutlineToolPath;
+import com.willwinder.ugs.designer.io.gcode.toolpaths.PlotterFillToolPath;
+import com.willwinder.ugs.designer.io.gcode.toolpaths.PlotterToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.SurfaceToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.ToolPathStats;
@@ -123,6 +125,14 @@ public class SimpleGcodeRouter {
                     case LASER_RASTER:
                         LaserRasterToolPath laserRasterToolPath = new LaserRasterToolPath(settings, cuttable);
                         laserRasterToolPath.appendGcodePath(gcodePath, settings);
+                        break;
+                    case PLOTTER_ON_PATH:
+                        PlotterToolPath plotterToolPath = new PlotterToolPath(settings, cuttable);
+                        plotterToolPath.appendGcodePath(gcodePath, settings);
+                        break;
+                    case PLOTTER_FILL:
+                        PlotterFillToolPath plotterFillToolPath = new PlotterFillToolPath(settings, cuttable);
+                        plotterFillToolPath.appendGcodePath(gcodePath, settings);
                         break;
                     case HEIGHT_MAP:
                         HeightMapToolPath heightMapToolPath = new HeightMapToolPath(settings, cuttable);

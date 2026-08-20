@@ -82,6 +82,7 @@ public class CuttableSettingsManager implements EntitySettingsManager {
             case ROUGHING -> cuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.FALSE);
             case FINISHING_PASS -> cuttable.isFinishingPass();
             case STOCK_TO_LEAVE -> cuttable.getStockToLeave();
+            case LINE_SPACING -> cuttable.getLineSpacing();
             default -> null;
         };
     }
@@ -168,6 +169,11 @@ public class CuttableSettingsManager implements EntitySettingsManager {
                     cuttable.setStockToLeave(stockToLeave);
                 }
             }
+            case LINE_SPACING -> {
+                if (value instanceof Double lineSpacing) {
+                    cuttable.setLineSpacing(lineSpacing);
+                }
+            }
             default -> LOGGER.info("Do not know how to set " + setting + " to " + value);
         }
     }
@@ -194,6 +200,7 @@ public class CuttableSettingsManager implements EntitySettingsManager {
         settings.add(EntitySetting.ROUGHING);
         settings.add(EntitySetting.FINISHING_PASS);
         settings.add(EntitySetting.STOCK_TO_LEAVE);
+        settings.add(EntitySetting.LINE_SPACING);
         return settings;
     }
 }
