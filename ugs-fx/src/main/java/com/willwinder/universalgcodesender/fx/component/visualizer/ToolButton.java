@@ -74,13 +74,20 @@ public class ToolButton extends Button {
                     .filter(Cuttable.class::isInstance)
                     .map(Cuttable.class::cast)
                     .anyMatch(ToolButton::isMillOperation);
+            boolean hasPlotter = controller.getDrawing().getEntities().stream()
+                    .filter(Cuttable.class::isInstance)
+                    .map(Cuttable.class::cast)
+                    .anyMatch(ToolButton::isPlotterOperation);
 
-            if (hasLaser && hasMill) {
+            if ((hasLaser ? 1 : 0) + (hasMill ? 1 : 0) + (hasPlotter ? 1 : 0) > 1) {
                 setText("Mixed");
                 setGraphic(loadIcon("icons/tool.svg"));
             } else if (hasLaser) {
                 setText("Laser");
                 setGraphic(loadIcon("icons/laser.svg"));
+            } else if (hasPlotter) {
+                setText("Pen");
+                setGraphic(loadIcon("icons/tool.svg"));
             } else {
                 setText(getMillToolDescription());
                 setGraphic(loadIcon("icons/tool.svg"));
@@ -107,6 +114,10 @@ public class ToolButton extends Button {
     private static boolean isLaserOperation(Cuttable c) {
         return c.getCutType() == CutType.LASER_FILL || c.getCutType() == CutType.LASER_ON_PATH
                 || c.getCutType() == CutType.LASER_RASTER;
+    }
+
+    private static boolean isPlotterOperation(Cuttable c) {
+        return c.getCutType() == CutType.PLOTTER_ON_PATH || c.getCutType() == CutType.PLOTTER_FILL;
     }
 
     private void bindDesignVisibility() {

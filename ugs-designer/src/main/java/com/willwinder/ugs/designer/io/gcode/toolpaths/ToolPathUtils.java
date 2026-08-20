@@ -185,9 +185,12 @@ public class ToolPathUtils {
         double totalRapidLength = 0;
         double totalFeedLength = 0;
         for (Segment segment : gcodePath.getSegments()) {
-            if (segment.getType() == SegmentType.SEAM) {
-                // Do nothing
-            } else if (segment.getType() == SegmentType.MOVE) {
+            // Seam and pen segments carry no position, so they can not move the tool anywhere
+            if (segment.point == null) {
+                continue;
+            }
+
+            if (segment.getType() == SegmentType.MOVE) {
                 totalRapidLength += distanceBetween(position, segment.getPoint());
             } else {
                 totalFeedLength += distanceBetween(position, segment.getPoint());

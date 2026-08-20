@@ -35,6 +35,8 @@ public enum CutTypeV1 {
     LASER_ON_PATH,
     LASER_FILL,
     LASER_RASTER,
+    PLOTTER_ON_PATH,
+    PLOTTER_FILL,
     HEIGHT_MAP;
 
     public static CutTypeV1 fromCutType(CutType cutType) {
@@ -49,6 +51,8 @@ public enum CutTypeV1 {
             case LASER_ON_PATH -> LASER_ON_PATH;
             case LASER_FILL -> LASER_FILL;
             case LASER_RASTER -> LASER_RASTER;
+            case PLOTTER_ON_PATH -> PLOTTER_ON_PATH;
+            case PLOTTER_FILL -> PLOTTER_FILL;
             case HEIGHT_MAP -> HEIGHT_MAP;
             case CENTER_DRILL -> CENTER_DRILL;
         };
@@ -67,6 +71,8 @@ public enum CutTypeV1 {
             case LASER_ON_PATH -> CutType.LASER_ON_PATH;
             case LASER_FILL ->CutType.LASER_FILL;
             case LASER_RASTER -> CutType.LASER_RASTER;
+            case PLOTTER_ON_PATH -> CutType.PLOTTER_ON_PATH;
+            case PLOTTER_FILL -> CutType.PLOTTER_FILL;
             case HEIGHT_MAP -> CutType.HEIGHT_MAP;
         };
     }

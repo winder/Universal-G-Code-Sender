@@ -43,6 +43,12 @@ import java.util.Optional;
  * @author Joacim Breiler
  */
 public abstract class AbstractCuttable extends AbstractEntity implements Cuttable {
+    /**
+     * Lines any closer together than this would take a very long time to draw without adding
+     * anything that can be seen
+     */
+    private static final double MINIMUM_LINE_SPACING = 0.01;
+
     private final CuttableEntitySettings entitySettings;
     private CutType cutType = CutType.NONE;
     private double targetDepth;
@@ -59,6 +65,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private ToolPathDirection toolPathDirection = ToolPathDirection.HORIZONTAL;
     private boolean finishingPass = false;
     private double stockToLeave = DEFAULT_STOCK_TO_LEAVE;
+    private double lineSpacing = DEFAULT_LINE_SPACING;
 
     protected AbstractCuttable() {
         this(0, 0);
@@ -204,6 +211,13 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             }
         } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH || getCutType() == CutType.HEIGHT_MAP) {
             drawShape(graphics, new BasicStroke(strokeWidth), getCutColor(), shape);
+        } else if (getCutType() == CutType.PLOTTER_ON_PATH) {
+            drawShape(graphics, new BasicStroke(strokeWidth), Colors.SHAPE_OUTLINE, shape);
+        } else if (getCutType() == CutType.PLOTTER_FILL) {
+            graphics.setStroke(new BasicStroke(strokeWidth));
+            graphics.setColor(Colors.SHAPE_OUTLINE);
+            graphics.fill(shape);
+            graphics.draw(shape);
         } else if (getCutType() == CutType.LASER_ON_PATH) {
             drawShape(graphics, new BasicStroke(strokeWidth), getLaserCutColor(), shape);
         } else if (getCutType() == CutType.LASER_FILL) {
@@ -321,6 +335,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
                 EntitySetting.FEED_RATE,
                 EntitySetting.LEAD_IN_PERCENT,
                 EntitySetting.TOOL_PATH_ANGLE,
+                EntitySetting.LINE_SPACING,
                 EntitySetting.DIRECTION,
                 EntitySetting.PLUNGE_TYPE,
                 EntitySetting.INCLUDE_IN_EXPORT
@@ -368,6 +383,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         copy.setToolPathDirection(getToolPathDirection());
         copy.setFinishingPass(isFinishingPass());
         copy.setStockToLeave(getStockToLeave());
+        copy.setLineSpacing(getLineSpacing());
     }
 
     @Override
@@ -455,5 +471,16 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public double getStockToLeave() {
         return stockToLeave;
+    }
+
+    @Override
+    public void setLineSpacing(double lineSpacing) {
+        this.lineSpacing = Math.max(MINIMUM_LINE_SPACING, Math.abs(lineSpacing));
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public double getLineSpacing() {
+        return lineSpacing;
     }
 }

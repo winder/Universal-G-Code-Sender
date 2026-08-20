@@ -99,4 +99,35 @@ public class SettingsTest {
 
         assertTrue(target.getUseToolChanges());
     }
+
+    @Test
+    public void applySettings_shouldCopyThePenSettings() {
+        Settings source = new Settings();
+        source.setPenMode(PenMode.CUSTOM_COMMAND);
+        source.setPenWidth(0.3);
+        source.setPenDownDepth(0.8);
+        source.setPenDownSpindleSpeed(700);
+        source.setPenUpSpindleSpeed(20);
+        source.setPenDownCommand("M280 P0 S30");
+        source.setPenUpCommand("M280 P0 S90");
+
+        Settings copy = new Settings(source);
+
+        assertEquals(PenMode.CUSTOM_COMMAND, copy.getPenMode());
+        assertEquals(0.3, copy.getPenWidth(), 1e-9);
+        assertEquals(0.8, copy.getPenDownDepth(), 1e-9);
+        assertEquals(700, copy.getPenDownSpindleSpeed());
+        assertEquals(20, copy.getPenUpSpindleSpeed());
+        assertEquals("M280 P0 S30", copy.getPenDownCommand());
+        assertEquals("M280 P0 S90", copy.getPenUpCommand());
+    }
+
+    @Test
+    public void setPenMode_shouldFallBackToTheZAxisForNull() {
+        Settings settings = new Settings();
+
+        settings.setPenMode(null);
+
+        assertEquals(PenMode.Z_AXIS, settings.getPenMode());
+    }
 }

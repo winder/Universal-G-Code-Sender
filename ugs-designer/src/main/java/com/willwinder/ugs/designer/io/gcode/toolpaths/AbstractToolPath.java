@@ -187,7 +187,7 @@ public abstract class AbstractToolPath implements PathGenerator {
      * Converts the coordinates of a single run into the segments cutting it. The first coordinate is
      * left out, since it has already been reached by plunging down to it.
      */
-    private List<Segment> toMotionSegments(List<PartialPosition> coordinates, int feedRate) {
+    protected List<Segment> toMotionSegments(List<PartialPosition> coordinates, int feedRate) {
         if (settings.getArcFitting() && settings.getFlatnessPrecision() > 0) {
             // Arcs are held to the same precision the geometry was flattened with, so that a single
             // setting describes how far the tool path may stray from the design

@@ -19,6 +19,7 @@ package com.willwinder.ugs.nbp.designer.platform;
  */
 
 import com.willwinder.ugs.designer.model.CoolantMode;
+import com.willwinder.ugs.designer.model.PenMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import org.openide.util.NbPreferences;
@@ -47,6 +48,13 @@ public class SettingsAdapter {
     private static final String FLATNESS_PRECISION = "flatnessPrecision";
     private static final String ARC_FITTING = "arcFitting";
     private static final String USE_TOOL_CHANGES = "useToolChanges";
+    private static final String PEN_MODE = "penMode";
+    private static final String PEN_WIDTH = "penWidth";
+    private static final String PEN_DOWN_DEPTH = "penDownDepth";
+    private static final String PEN_DOWN_SPINDLE_SPEED = "penDownSpindleSpeed";
+    private static final String PEN_UP_SPINDLE_SPEED = "penUpSpindleSpeed";
+    private static final String PEN_DOWN_COMMAND = "penDownCommand";
+    private static final String PEN_UP_COMMAND = "penUpCommand";
 
     private SettingsAdapter() {}
 
@@ -69,6 +77,13 @@ public class SettingsAdapter {
         settings.setFlatnessPrecision(preferences.getDouble(FLATNESS_PRECISION, 0.02d));
         settings.setArcFitting(preferences.getBoolean(ARC_FITTING, false));
         settings.setUseToolChanges(preferences.getBoolean(USE_TOOL_CHANGES, false));
+        settings.setPenMode(readPenMode());
+        settings.setPenWidth(preferences.getDouble(PEN_WIDTH, 0.5d));
+        settings.setPenDownDepth(preferences.getDouble(PEN_DOWN_DEPTH, 0.5d));
+        settings.setPenDownSpindleSpeed(preferences.getInt(PEN_DOWN_SPINDLE_SPEED, 1000));
+        settings.setPenUpSpindleSpeed(preferences.getInt(PEN_UP_SPINDLE_SPEED, 0));
+        settings.setPenDownCommand(preferences.get(PEN_DOWN_COMMAND, "M3"));
+        settings.setPenUpCommand(preferences.get(PEN_UP_COMMAND, "M5"));
         return settings;
     }
 
@@ -90,6 +105,22 @@ public class SettingsAdapter {
         preferences.putDouble(FLATNESS_PRECISION, settings.getFlatnessPrecision());
         preferences.putBoolean(ARC_FITTING, settings.getArcFitting());
         preferences.putBoolean(USE_TOOL_CHANGES, settings.getUseToolChanges());
+        preferences.put(PEN_MODE, settings.getPenMode().name());
+        preferences.putDouble(PEN_WIDTH, settings.getPenWidth());
+        preferences.putDouble(PEN_DOWN_DEPTH, settings.getPenDownDepth());
+        preferences.putInt(PEN_DOWN_SPINDLE_SPEED, settings.getPenDownSpindleSpeed());
+        preferences.putInt(PEN_UP_SPINDLE_SPEED, settings.getPenUpSpindleSpeed());
+        preferences.put(PEN_DOWN_COMMAND, settings.getPenDownCommand());
+        preferences.put(PEN_UP_COMMAND, settings.getPenUpCommand());
+    }
+
+    private static PenMode readPenMode() {
+        String stored = preferences.get(PEN_MODE, PenMode.Z_AXIS.name());
+        try {
+            return PenMode.valueOf(stored);
+        } catch (IllegalArgumentException e) {
+            return PenMode.Z_AXIS;
+        }
     }
 
     private static CoolantMode readCoolantMode() {

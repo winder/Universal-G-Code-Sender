@@ -21,6 +21,7 @@ package com.willwinder.ugs.designer.io.gcode.writer;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.designer.model.CoolantMode;
+import com.willwinder.ugs.designer.model.PenMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
@@ -617,5 +618,93 @@ public class GrblGcodeWriterTest {
         assertEquals("G0 X15Y15", lines[3]);
         assertEquals("M3 S11000", lines[4]);
         assertEquals("G1 F1200 X20Y20", lines[5]);
+    }
+
+    @Test
+    public void penSegmentsShouldMoveTheZAxisWhenThePenIsCarriedByIt() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setPenMode(PenMode.Z_AXIS);
+        settings.setSafeHeight(4);
+        settings.setPenDownDepth(0.3);
+        settings.setPlungeSpeed(300);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.writeSegment(new Segment(SegmentType.PEN_UP, null));
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(1d, 2d)));
+        writer.writeSegment(new Segment(SegmentType.PEN_DOWN, null));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(3, lines.length);
+        assertEquals("G0 Z4", lines[0]);
+        assertEquals("G0 X1Y2", lines[1]);
+        assertEquals("G1 F300 Z-0.3", lines[2]);
+    }
+
+    @Test
+    public void penSegmentsShouldSetSpindleSpeedWhenThePenIsDrivenFromTheSpindleOutput() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setPenMode(PenMode.SPINDLE_SPEED);
+        settings.setPenDownSpindleSpeed(600);
+        settings.setPenUpSpindleSpeed(50);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.writeSegment(new Segment(SegmentType.PEN_UP, null));
+        writer.writeSegment(new Segment(SegmentType.PEN_DOWN, null));
+        writer.writeSegment(new Segment(SegmentType.PEN_UP, null));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(3, lines.length);
+        assertEquals("M3 S50", lines[0]);
+        assertEquals("M3 S600", lines[1]);
+        assertEquals("M3 S50", lines[2]);
+    }
+
+    @Test
+    public void penSegmentsShouldNotRepeatASpindleSpeedThatIsAlreadySet() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setPenMode(PenMode.SPINDLE_SPEED);
+        settings.setPenUpSpindleSpeed(50);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.writeSegment(new Segment(SegmentType.PEN_UP, null));
+        writer.writeSegment(new Segment(SegmentType.PEN_UP, null));
+
+        assertEquals("M3 S50\n", result.toString());
+    }
+
+    @Test
+    public void penSegmentsShouldWriteTheConfiguredCommands() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setPenMode(PenMode.CUSTOM_COMMAND);
+        settings.setPenDownCommand("M280 P0 S30");
+        settings.setPenUpCommand("M280 P0 S90");
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.writeSegment(new Segment(SegmentType.PEN_UP, null));
+        writer.writeSegment(new Segment(SegmentType.PEN_DOWN, null));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(2, lines.length);
+        assertEquals("M280 P0 S90", lines[0]);
+        assertEquals("M280 P0 S30", lines[1]);
+    }
+
+    @Test
+    public void penSegmentsShouldWriteNothingForAnEmptyCommand() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setPenMode(PenMode.CUSTOM_COMMAND);
+        settings.setPenDownCommand("");
+        settings.setPenUpCommand("");
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.writeSegment(new Segment(SegmentType.PEN_UP, null));
+        writer.writeSegment(new Segment(SegmentType.PEN_DOWN, null));
+
+        assertEquals("", result.toString());
     }
 }

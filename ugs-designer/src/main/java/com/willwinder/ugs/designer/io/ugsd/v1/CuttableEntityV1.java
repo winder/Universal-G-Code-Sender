@@ -75,6 +75,9 @@ public class CuttableEntityV1 extends EntityV1 {
     private double stockToLeave = Cuttable.DEFAULT_STOCK_TO_LEAVE;
 
     @Expose
+    private double lineSpacing = Cuttable.DEFAULT_LINE_SPACING;
+
+    @Expose
     private AffineTransform transform;
 
     public CuttableEntityV1(EntityTypeV1 type) {
@@ -153,6 +156,10 @@ public class CuttableEntityV1 extends EntityV1 {
         this.stockToLeave = stockToLeave;
     }
 
+    public void setLineSpacing(double lineSpacing) {
+        this.lineSpacing = lineSpacing;
+    }
+
     @Override
     protected void applyCommonAttributes(Entity entity) {
         super.applyCommonAttributes(entity);
@@ -175,6 +182,7 @@ public class CuttableEntityV1 extends EntityV1 {
             cuttable.setToolPathDirection(ToolPathDirectionTypeV1.toDirection(pathDirection));
             cuttable.setFinishingPass(finishingPass);
             cuttable.setStockToLeave(stockToLeave);
+            cuttable.setLineSpacing(lineSpacing);
         }
     }
 

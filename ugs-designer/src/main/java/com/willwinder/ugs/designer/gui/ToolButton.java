@@ -60,6 +60,10 @@ public class ToolButton extends PanelButton {
         return c.getCutType() == CutType.LASER_FILL || c.getCutType() == CutType.LASER_ON_PATH || c.getCutType() == CutType.LASER_RASTER;
     }
 
+    private static boolean isPlotterOperation(Cuttable c) {
+        return c.getCutType() == CutType.PLOTTER_ON_PATH || c.getCutType() == CutType.PLOTTER_FILL;
+    }
+
     private void updateText() {
         setTitle("Tool");
         boolean hasLaserOperations = controller.getDrawing().getEntities().stream()
@@ -72,8 +76,12 @@ public class ToolButton extends PanelButton {
                 .map(e -> (Cuttable) e)
                 .anyMatch(ToolButton::isMillOperation);
 
+        boolean hasPlotterOperations = controller.getDrawing().getEntities().stream()
+                .filter(Cuttable.class::isInstance)
+                .map(e -> (Cuttable) e)
+                .anyMatch(ToolButton::isPlotterOperation);
 
-        boolean hasMixedOperations = hasLaserOperations && hasMillOperations;
+        boolean hasMixedOperations = (hasLaserOperations ? 1 : 0) + (hasMillOperations ? 1 : 0) + (hasPlotterOperations ? 1 : 0) > 1;
 
         if (hasMixedOperations) {
             setText("Mixed");
@@ -81,6 +89,9 @@ public class ToolButton extends PanelButton {
         } else if (hasLaserOperations) {
             setText("Laser");
             setIcon(LASER_ICON);
+        } else if (hasPlotterOperations) {
+            setText("Pen");
+            setIcon(getMillIcon());
         } else {
             setText(getMillToolDescription());
             setIcon(getMillIcon());

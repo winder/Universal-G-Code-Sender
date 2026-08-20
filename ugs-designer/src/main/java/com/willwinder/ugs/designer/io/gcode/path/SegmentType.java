@@ -53,7 +53,19 @@ public enum SegmentType {
     /**
      * Rapid to location (usually through safe height)
      */
-    MOVE(Code.G0.name());
+    MOVE(Code.G0.name()),
+
+    /**
+     * Lift the pen of a plotter clear of the paper. What this is written as depends on the
+     * configured {@link com.willwinder.ugs.designer.model.PenMode}, which is why the segment
+     * carries no position of its own.
+     */
+    PEN_UP(Code.G0.name()),
+
+    /**
+     * Put the pen of a plotter down on the paper, see {@link #PEN_UP}
+     */
+    PEN_DOWN(Code.G1.name());
 
     public final String gcode;
 

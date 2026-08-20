@@ -47,6 +47,7 @@ public class CutTypeIcon extends ImageIcon {
                 break;
             case ON_PATH:
             case LASER_ON_PATH:
+            case PLOTTER_ON_PATH:
                 icon = SvgIconLoader.loadImageIcon("img/cutonpath.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;
@@ -57,6 +58,7 @@ public class CutTypeIcon extends ImageIcon {
             case SURFACE:
             case LASER_FILL:
             case LASER_RASTER:
+            case PLOTTER_FILL:
             case HEIGHT_MAP:
                 icon = SvgIconLoader.loadImageIcon("img/cutfill.svg", size.value).orElse(null);
                 setDescription(cutType.getName());

@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.fx.stage;
 import com.willwinder.ugs.designer.actions.ChangeToolSettingsAction;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.model.CoolantMode;
+import com.willwinder.ugs.designer.model.PenMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.universalgcodesender.fx.component.ButtonBox;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
@@ -35,6 +36,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -66,6 +68,18 @@ public class ToolSettingsStage extends Stage {
     private final ComboBox<CoolantMode> coolantMode;
     private final UnitTextField flatnessPrecision;
     private final SwitchButton arcFitting;
+    private final UnitTextField penWidth;
+    private final ComboBox<PenMode> penMode;
+    private final UnitTextField penDownDepth;
+    private final UnitTextField penDownSpindleSpeed;
+    private final UnitTextField penUpSpindleSpeed;
+    private final TextField penDownCommand;
+    private final TextField penUpCommand;
+    private final SettingsRow penDownDepthRow;
+    private final SettingsRow penDownSpindleSpeedRow;
+    private final SettingsRow penUpSpindleSpeedRow;
+    private final SettingsRow penDownCommandRow;
+    private final SettingsRow penUpCommandRow;
 
     public ToolSettingsStage(Window owner, Controller controller) {
         this.controller = controller;
@@ -94,10 +108,26 @@ public class ToolSettingsStage extends Stage {
         flatnessPrecision = numericField(Unit.MM, settings.getFlatnessPrecision());
         arcFitting = new SwitchButton();
         arcFitting.selectedProperty().set(settings.getArcFitting());
+        penWidth = numericField(Unit.MM, settings.getPenWidth());
+        penMode = new ComboBox<>(FXCollections.observableArrayList(PenMode.values()));
+        penMode.setValue(settings.getPenMode());
+        penMode.setMaxWidth(Double.MAX_VALUE);
+        penDownDepth = numericField(Unit.MM, settings.getPenDownDepth());
+        penDownSpindleSpeed = numericField(Unit.REVOLUTIONS_PER_MINUTE, settings.getPenDownSpindleSpeed());
+        penUpSpindleSpeed = numericField(Unit.REVOLUTIONS_PER_MINUTE, settings.getPenUpSpindleSpeed());
+        penDownCommand = new TextField(settings.getPenDownCommand());
+        penUpCommand = new TextField(settings.getPenUpCommand());
+        penDownDepthRow = new SettingsRow("Pen down depth", penDownDepth);
+        penDownSpindleSpeedRow = new SettingsRow("Pen down speed", penDownSpindleSpeed);
+        penUpSpindleSpeedRow = new SettingsRow("Pen up speed", penUpSpindleSpeed);
+        penDownCommandRow = new SettingsRow("Pen down command", penDownCommand);
+        penUpCommandRow = new SettingsRow("Pen up command", penUpCommand);
+        penMode.valueProperty().addListener((observable, oldValue, newValue) -> updatePenRowVisibility());
+        updatePenRowVisibility();
 
         setScene(createScene());
         setWidth(380);
-        setHeight(610);
+        setHeight(740);
         setResizable(true);
 
         setOnShowing(event -> centerOnOwner());
@@ -118,6 +148,14 @@ public class ToolSettingsStage extends Stage {
                 new SettingsRow("Max spindle speed", maxSpindleSpeed),
                 new SettingsRow("Spindle start command", spindleDirection),
                 new SettingsRow("Coolant", coolantMode),
+                new Separator(),
+                new SettingsRow("Pen width", "The width of the line the pen draws. Fills are kept half of this inside the shape.", penWidth),
+                new SettingsRow("Pen up/down", "How a plotter puts its pen down on the paper and lifts it again.", penMode),
+                penDownDepthRow,
+                penDownSpindleSpeedRow,
+                penUpSpindleSpeedRow,
+                penDownCommandRow,
+                penUpCommandRow,
                 new Separator(),
                 new SettingsRow("Laser diameter", laserDiameter),
                 new SettingsRow("Curve precision", flatnessPrecision),
@@ -161,6 +199,13 @@ public class ToolSettingsStage extends Stage {
         settings.setLaserDiameter(laserDiameter.getValue());
         settings.setSpindleDirection(spindleDirection.getValue());
         settings.setCoolantMode(coolantMode.getValue());
+        settings.setPenWidth(penWidth.getValue());
+        settings.setPenMode(penMode.getValue());
+        settings.setPenDownDepth(penDownDepth.getValue());
+        settings.setPenDownSpindleSpeed((int) Math.round(penDownSpindleSpeed.getValue()));
+        settings.setPenUpSpindleSpeed((int) Math.round(penUpSpindleSpeed.getValue()));
+        settings.setPenDownCommand(penDownCommand.getText());
+        settings.setPenUpCommand(penUpCommand.getText());
         settings.setFlatnessPrecision(flatnessPrecision.getValue());
         settings.setArcFitting(arcFitting.selectedProperty().get());
 
@@ -171,6 +216,25 @@ public class ToolSettingsStage extends Stage {
         // The settings are stored in the design file, so they need to be saved with it
         WorkspaceManager.getInstance().markActiveWorkspaceDirty(true);
         close();
+    }
+
+    /**
+     * Only the fields that the selected way of moving the pen actually uses are shown. The values
+     * of the other ways are kept in the hidden fields, so switching back and forth does not lose a
+     * machine setup that has already been dialed in.
+     */
+    private void updatePenRowVisibility() {
+        PenMode selected = penMode.getValue();
+        setRowVisible(penDownDepthRow, selected == PenMode.Z_AXIS);
+        setRowVisible(penDownSpindleSpeedRow, selected == PenMode.SPINDLE_SPEED);
+        setRowVisible(penUpSpindleSpeedRow, selected == PenMode.SPINDLE_SPEED);
+        setRowVisible(penDownCommandRow, selected == PenMode.CUSTOM_COMMAND);
+        setRowVisible(penUpCommandRow, selected == PenMode.CUSTOM_COMMAND);
+    }
+
+    private static void setRowVisible(SettingsRow row, boolean visible) {
+        row.setVisible(visible);
+        row.setManaged(visible);
     }
 
     private void centerOnOwner() {

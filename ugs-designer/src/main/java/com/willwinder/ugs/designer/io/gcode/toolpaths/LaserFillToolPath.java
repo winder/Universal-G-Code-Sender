@@ -7,6 +7,7 @@ import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.designer.model.Settings;
 import static com.willwinder.ugs.designer.utils.GeometryUtils.generateLineString;
+import static com.willwinder.ugs.designer.utils.GeometryUtils.getOffsetRange;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -14,7 +15,6 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiPoint;
 
 import java.awt.geom.Area;
-import java.util.Arrays;
 import java.util.List;
 
 public class LaserFillToolPath extends AbstractToolPath {
@@ -59,33 +59,6 @@ public class LaserFillToolPath extends AbstractToolPath {
                 }
             }
         });
-    }
-
-    /**
-     * Returns the range of offsets along the pass normal that covers the whole envelope for the given angle.
-     * The offset is measured from the envelope's minimum corner, matching {@link com.willwinder.ugs.designer.utils.GeometryUtils#generateLineString}.
-     */
-    private static double[] getOffsetRange(Envelope envelope, double angleInDegrees) {
-        double radians = Math.toRadians(-angleInDegrees);
-        double dx = Math.cos(radians);
-        double dy = Math.sin(radians);
-
-        double normalX = -dy;
-        double normalY = dx;
-
-        double width = envelope.getWidth();
-        double height = envelope.getHeight();
-
-        double[] projections = {
-                0,
-                width * normalX,
-                height * normalY,
-                width * normalX + height * normalY
-        };
-
-        double min = Arrays.stream(projections).min().orElse(0);
-        double max = Arrays.stream(projections).max().orElse(0);
-        return new double[]{min, max};
     }
 
     private static void addLineIntersectionSegments(GcodePath gcodePath, Geometry geometry, LineString lineString, boolean reverse) {

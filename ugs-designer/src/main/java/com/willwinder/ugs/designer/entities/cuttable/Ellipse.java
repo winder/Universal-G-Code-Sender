@@ -66,6 +66,6 @@ public class Ellipse extends AbstractCuttable {
 
     @Override
     public List<CutType> getAvailableCutTypes() {
-        return List.of(CutType.NONE, CutType.POCKET, CutType.VCARVE, CutType.SURFACE, CutType.ON_PATH, CutType.INSIDE_PATH, CutType.OUTSIDE_PATH, CutType.LASER_ON_PATH, CutType.LASER_FILL, CutType.CENTER_DRILL);
+        return List.of(CutType.NONE, CutType.POCKET, CutType.VCARVE, CutType.SURFACE, CutType.ON_PATH, CutType.INSIDE_PATH, CutType.OUTSIDE_PATH, CutType.LASER_ON_PATH, CutType.LASER_FILL, CutType.PLOTTER_ON_PATH, CutType.PLOTTER_FILL, CutType.CENTER_DRILL);
     }
 }

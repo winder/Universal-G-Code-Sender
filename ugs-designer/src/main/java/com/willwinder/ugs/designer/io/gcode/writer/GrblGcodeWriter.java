@@ -19,6 +19,7 @@
 package com.willwinder.ugs.designer.io.gcode.writer;
 
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
+import com.willwinder.ugs.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.designer.model.CoolantMode;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
@@ -26,6 +27,7 @@ import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
 import com.willwinder.universalgcodesender.utils.Version;
 import org.apache.commons.lang3.StringUtils;
@@ -153,6 +155,10 @@ public class GrblGcodeWriter implements GcodeWriter {
                 hasFeedRateSet = false;
             }
 
+            case PEN_UP -> writePenUp();
+
+            case PEN_DOWN -> writePenDown();
+
             case LINE, CWARC, CCWARC -> {
                 writer.write(segment.type.gcode + " ");
                 if (segment.getFeedSpeed() != null && (!hasFeedRateSet || !segment.getFeedSpeed().equals(currentFeed))) {
@@ -167,6 +173,56 @@ public class GrblGcodeWriter implements GcodeWriter {
                 writer.write(getPointFormattedGCode(segment, segment.type.isArc()) + arcOffsets + "\n");
             }
         }
+    }
+
+    private void writePenUp() throws IOException {
+        switch (settings.getPenMode()) {
+            case Z_AXIS -> writePenZMove(Code.G0.name(), settings.getSafeHeight(), null);
+            case SPINDLE_SPEED -> writePenSpindleSpeed(settings.getPenUpSpindleSpeed());
+            case CUSTOM_COMMAND -> writePenCommand(settings.getPenUpCommand());
+        }
+    }
+
+    private void writePenDown() throws IOException {
+        switch (settings.getPenMode()) {
+            case Z_AXIS -> writePenZMove(Code.G1.name(), -settings.getPenDownDepth(), settings.getPlungeSpeed());
+            case SPINDLE_SPEED -> writePenSpindleSpeed(settings.getPenDownSpindleSpeed());
+            case CUSTOM_COMMAND -> writePenCommand(settings.getPenDownCommand());
+        }
+    }
+
+    private void writePenZMove(String code, double height, Integer feedSpeed) throws IOException {
+        Segment segment = new Segment(SegmentType.MOVE, PartialPosition.from(Axis.Z, height, UnitUtils.Units.MM));
+        String point = getPointFormattedGCode(segment);
+        if (point.isEmpty()) {
+            return;
+        }
+
+        writer.write(code + " " + (feedSpeed == null ? "" : "F" + feedSpeed + " ") + point + "\n");
+        hasFeedRateSet = false;
+    }
+
+    /**
+     * Moves the pen by commanding a spindle speed, which is how a servo or solenoid wired to the
+     * spindle output is driven. The pen stays where it is when it is already there, so a drawing
+     * that ends one line where it starts the next does not flap the pen.
+     */
+    private void writePenSpindleSpeed(int spindleSpeed) throws IOException {
+        if (currentSpindle != null && currentSpindle == spindleSpeed) {
+            return;
+        }
+
+        writer.write(settings.getSpindleDirection() + " S" + spindleSpeed + "\n");
+        currentSpindle = spindleSpeed;
+        hasStartedSpindle = true;
+    }
+
+    private void writePenCommand(String command) throws IOException {
+        if (StringUtils.isBlank(command)) {
+            return;
+        }
+
+        writer.write(command.trim() + "\n");
     }
 
     private String getPointFormattedGCode(Segment segment) {

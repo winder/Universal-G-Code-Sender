@@ -9,6 +9,7 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 
 import java.awt.geom.Point2D;
+import java.util.Arrays;
 import java.awt.geom.Rectangle2D;
 
 public class GeometryUtils {
@@ -49,6 +50,38 @@ public class GeometryUtils {
 
         GeometryFactory gf = line.getFactory();
         return gf.createLineString(new Coordinate[]{start, end});
+    }
+
+    /**
+     * Returns the range of offsets along the pass normal that covers the whole envelope for the
+     * given angle. The offset is measured from the envelope's minimum corner, matching
+     * {@link #generateLineString(Envelope, double, double)}.
+     *
+     * @param envelope       the area that the passes should cover
+     * @param angleInDegrees the angle of the passes
+     * @return the smallest and the largest offset, in that order
+     */
+    public static double[] getOffsetRange(Envelope envelope, double angleInDegrees) {
+        double radians = Math.toRadians(-angleInDegrees);
+        double dx = Math.cos(radians);
+        double dy = Math.sin(radians);
+
+        double normalX = -dy;
+        double normalY = dx;
+
+        double width = envelope.getWidth();
+        double height = envelope.getHeight();
+
+        double[] projections = {
+                0,
+                width * normalX,
+                height * normalY,
+                width * normalX + height * normalY
+        };
+
+        double min = Arrays.stream(projections).min().orElse(0);
+        double max = Arrays.stream(projections).max().orElse(0);
+        return new double[]{min, max};
     }
 
     public static LineString generateLineString(Envelope envelope, double offsetAlongNormal, double angleInDegrees) {
