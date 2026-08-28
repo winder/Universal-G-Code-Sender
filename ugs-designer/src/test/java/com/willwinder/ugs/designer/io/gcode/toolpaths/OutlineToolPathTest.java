@@ -742,6 +742,73 @@ public class OutlineToolPathTest {
     }
 
     @Test
+    public void toGcodePath_shouldNotCutDeeperThanTheTabsWhereTheyAre() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setPlungeType(PlungeType.STRAIGHT);
+        rectangle.setTabs(true);
+        rectangle.setTabCount(4);
+        Settings settings = new Settings();
+        settings.setDepthPerPass(2);
+        settings.setTabHeight(1);
+        settings.setTabLength(4);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
+        toolPath.setTargetDepth(6);
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        List<Double> depths = segments.stream()
+                .filter(s -> s.point != null && s.point.hasZ())
+                .map(s -> s.point.getZ())
+                .distinct()
+                .sorted()
+                .toList();
+        assertEquals("The deepest cut anywhere is the target depth", -6, depths.get(0), 0.01);
+        assertTrue("The tabs are cut a tab height above the target depth", depths.contains(-5d));
+        assertFalse("Nothing is cut between the top of the tabs and the target depth",
+                depths.stream().anyMatch(depth -> depth > -6 && depth < -5));
+    }
+
+    @Test
+    public void toGcodePath_shouldCutTabsToTheStartDepthWhenTheCutIsShallowerThanTheTabHeight() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setPlungeType(PlungeType.STRAIGHT);
+        rectangle.setTabs(true);
+        Settings settings = new Settings();
+        settings.setTabHeight(3);
+        settings.setTabLength(4);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
+        toolPath.setTargetDepth(1);
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        assertTrue("A tab is never taller than the cut it holds",
+                segments.stream()
+                        .filter(s -> s.point != null && s.point.hasZ())
+                        .allMatch(s -> s.point.getZ() >= -1));
+    }
+
+    @Test
+    public void toGcodePath_shouldNotLeaveTabsWhenTheyAreTurnedOff() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setPlungeType(PlungeType.STRAIGHT);
+        Settings settings = new Settings();
+        settings.setDepthPerPass(2);
+        settings.setTabHeight(1);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
+        toolPath.setTargetDepth(6);
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        assertFalse("Nothing rises over a tab that was never asked for",
+                segments.stream()
+                        .filter(s -> s.type == SegmentType.LINE && s.point.hasZ())
+                        .anyMatch(s -> s.point.getZ() == -5));
+    }
+
+    @Test
     public void toGcodePath_shouldNotRapidIntoMaterialWhenDepthPerPassIsDeeperThanSafeHeight() {
         Ellipse ellipse = new Ellipse(0, 0);
         ellipse.setSize(new Size(23, 19.8));

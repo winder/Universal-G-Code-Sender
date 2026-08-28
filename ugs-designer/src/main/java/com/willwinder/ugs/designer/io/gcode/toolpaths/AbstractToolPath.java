@@ -164,9 +164,19 @@ public abstract class AbstractToolPath implements PathGenerator {
         return true;
     }
 
+    /**
+     * A run that changes depth along the way, the way a run rising over a tab does, has nowhere to
+     * put a ramp and is plunged into instead.
+     */
+    private static boolean isConstantDepth(List<PartialPosition> coordinates) {
+        double depth = coordinates.get(0).getZ();
+        return coordinates.stream().allMatch(coordinate -> coordinate.hasZ()
+                && Math.abs(coordinate.getZ() - depth) < POSITION_TOLERANCE);
+    }
+
     private Optional<RampedPath> toRampedPath(List<PartialPosition> coordinates, Cuttable source) {
         PartialPosition start = coordinates.get(0);
-        if (!supportsRamping() || source.getPlungeType() != PlungeType.LINEAR_RAMP || !start.hasZ()) {
+        if (!supportsRamping() || source.getPlungeType() != PlungeType.LINEAR_RAMP || !start.hasZ() || !isConstantDepth(coordinates)) {
             return Optional.empty();
         }
 

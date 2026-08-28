@@ -44,10 +44,34 @@ public class OutlineToolPath extends AbstractToolPath {
         this.source = source;
     }
 
-    private static void addGeometriesToCoordinateList(ArrayList<List<PartialPosition>> coordinateList, List<PartialPosition> geometryCoordinates, double depth) {
-        coordinateList.add(geometryCoordinates.stream()
-                .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).setZ(-depth).build())
+    /**
+     * Adds one pass of the tool path at the given depth. The stretches left as tabs are never cut
+     * deeper than the top of the tabs, so the tool rises over them and drops back down again on the
+     * other side, leaving the material that holds the shape in the stock.
+     */
+    private void addPassToCoordinateList(List<List<PartialPosition>> coordinateList, List<Tabs.Section> sections, double depth) {
+        double tabDepth = getTabDepth();
+        coordinateList.add(sections.stream()
+                .flatMap(section -> section.coordinates().stream()
+                        .map(coordinate -> PartialPosition.builder(coordinate)
+                                .setZ(-(section.tab() ? Math.min(depth, tabDepth) : depth))
+                                .build()))
                 .toList());
+    }
+
+    /**
+     * The depth that the top of the tabs sit at. A cut shallower than the tab height leaves tabs
+     * reaching all the way up to where the cut started rather than tabs taller than the cut itself.
+     */
+    private double getTabDepth() {
+        return Math.max(getStartDepth(), getTargetDepth() - settings.getTabHeight());
+    }
+
+    private List<Tabs.Section> toSections(List<PartialPosition> geometryCoordinates) {
+        if (!source.hasTabs()) {
+            return List.of(new Tabs.Section(geometryCoordinates, false));
+        }
+        return Tabs.split(geometryCoordinates, source.getTabCount(), settings.getTabLength());
     }
 
     public void setOffset(double offset) {
@@ -83,9 +107,9 @@ public class OutlineToolPath extends AbstractToolPath {
 
         ArrayList<List<PartialPosition>> coordinateList = new ArrayList<>();
         geometries.forEach(g -> {
-            List<PartialPosition> geometryCoordinates = ToolPathUtils.geometryToCoordinates(g);
+            List<Tabs.Section> sections = toSections(ToolPathUtils.geometryToCoordinates(g));
 
-            addGeometriesToCoordinateList(coordinateList, geometryCoordinates, getStartDepth());
+            addPassToCoordinateList(coordinateList, sections, getStartDepth());
 
             double currentDepth = getStartDepth();
             while (currentDepth < getTargetDepth()) {
@@ -94,7 +118,7 @@ public class OutlineToolPath extends AbstractToolPath {
                     currentDepth = getTargetDepth();
                 }
 
-                addGeometriesToCoordinateList(coordinateList, geometryCoordinates, currentDepth);
+                addPassToCoordinateList(coordinateList, sections, currentDepth);
             }
         });
 

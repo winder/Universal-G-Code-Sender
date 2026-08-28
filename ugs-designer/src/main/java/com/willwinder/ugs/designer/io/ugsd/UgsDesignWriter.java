@@ -126,6 +126,8 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setFinishingPass(cuttable.isFinishingPass());
             cuttableEntity.setStockToLeave(cuttable.getStockToLeave());
             cuttableEntity.setLineSpacing(cuttable.getLineSpacing());
+            cuttableEntity.setTabs(cuttable.hasTabs());
+            cuttableEntity.setTabCount(cuttable.getTabCount());
         }
         return result;
     }

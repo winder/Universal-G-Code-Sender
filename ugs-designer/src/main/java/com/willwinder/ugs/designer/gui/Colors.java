@@ -36,5 +36,6 @@ public class Colors {
     public static final Color CONTROL_HANDLE = Color.GRAY;
     public static final Color BACKGROUND = new Color(246, 246, 246);
     public static final Color CURSOR = new Color(246, 132, 38);
+    public static final Color TAB = new Color(122, 161, 228);
 
 }

@@ -97,4 +97,29 @@ public class LaserOutlinePathTest {
 
         assertEquals(7, segments.size());
     }
+
+    @Test
+    public void outlineToolPathWithTabsShouldLeaveGapsInTheCut() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setFeedRate(500);
+        rectangle.setSpindleSpeed(50);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setPasses(1);
+        rectangle.setTabs(true);
+        rectangle.setTabCount(4);
+
+        Settings settings = new Settings();
+        settings.setMaxSpindleSpeed(10000);
+        settings.setTabLength(4);
+
+        LaserOutlineToolPath toolPath = new LaserOutlineToolPath(settings, rectangle);
+        GcodePath gcodePath = toolPath.toGcodePath();
+
+        List<Segment> segments = gcodePath.getSegments();
+
+        // The cut is broken into the five stretches between the four tabs, each reached with a rapid
+        // that leaves the laser off while it crosses a tab
+        long rapids = segments.stream().filter(s -> s.type == SegmentType.MOVE).count();
+        assertEquals(5, rapids);
+    }
 }

@@ -428,4 +428,38 @@ public class Group extends EntityGroup implements Cuttable {
                 .map(Cuttable::getLineSpacing)
                 .orElse(DEFAULT_LINE_SPACING);
     }
+
+    @Override
+    public void setTabs(boolean tabs) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setTabs(tabs);
+            }
+        });
+    }
+
+    @Override
+    public boolean hasTabs() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::hasTabs)
+                .orElse(false);
+    }
+
+    @Override
+    public void setTabCount(int tabCount) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setTabCount(tabCount);
+            }
+        });
+    }
+
+    @Override
+    public int getTabCount() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::getTabCount)
+                .orElse(DEFAULT_TAB_COUNT);
+    }
 }

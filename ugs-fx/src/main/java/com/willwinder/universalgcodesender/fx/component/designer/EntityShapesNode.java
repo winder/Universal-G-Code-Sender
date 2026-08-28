@@ -1,8 +1,11 @@
 package com.willwinder.universalgcodesender.fx.component.designer;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.DepthLayers;
+import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.gui.TabShapes;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import javafx.scene.Group;
@@ -79,12 +82,38 @@ public class EntityShapesNode extends Group {
                 border.setUserData(handler);
                 borders.add(border);
             }
+
+            MeshView tabs = createTabs(controller, entity, handler);
+            if (tabs != null) {
+                borders.add(tabs);
+            }
         }
 
         fillCache.clear();
         fillCache.putAll(nextCache);
         fillsGroup.getChildren().setAll(fills);
         bordersGroup.getChildren().setAll(borders);
+    }
+
+    /**
+     * Marks the stretches that are left uncut in a color of their own, so that it is visible where
+     * the shape will stay attached to the stock.
+     */
+    private static MeshView createTabs(Controller controller, Entity entity, EntityClickHandler handler) {
+        if (!(entity instanceof Cuttable cuttable)) {
+            return null;
+        }
+
+        Shape tabShape = TabShapes.create(cuttable, controller.getSettings());
+        if (tabShape.getPathIterator(null).isDone()) {
+            return null;
+        }
+
+        MeshView tabs = EntityShapeFactory.createBorder(tabShape, Colors.ORANGE);
+        if (tabs != null) {
+            tabs.setUserData(handler);
+        }
+        return tabs;
     }
 
     /**

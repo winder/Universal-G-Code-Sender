@@ -36,16 +36,35 @@ public class LaserOutlineToolPath extends AbstractToolPath {
     }
 
     private void addGeometrySegments(Geometry geometry, GcodePath gcodePath) {
-        List<PartialPosition> geometryCoordinates = ToolPathUtils.geometryToCoordinates(geometry);
+        List<Tabs.Section> sections = toSections(ToolPathUtils.geometryToCoordinates(geometry));
 
         int currentPass = 0;
         while (currentPass < source.getPasses()) {
             currentPass++;
-            List<PartialPosition> partialPosition = geometryCoordinates.stream()
-                    .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).build()).toList();
+            String label = " Pass " + currentPass + " of " + source.getPasses();
+            for (Tabs.Section section : sections) {
+                if (section.tab()) {
+                    continue;
+                }
 
-            gcodePath.addSegment(SegmentType.MOVE, partialPosition.get(0), " Pass " + currentPass + " of " + source.getPasses());
-            partialPosition.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c));
+                List<PartialPosition> coordinates = section.coordinates().stream()
+                        .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).build()).toList();
+
+                gcodePath.addSegment(SegmentType.MOVE, coordinates.get(0), label);
+                coordinates.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c));
+                label = null;
+            }
         }
+    }
+
+    /**
+     * A laser has no depth to leave a tab at, so a tab is a stretch that is not burnt through at
+     * all. The laser is moved across it with a rapid, which leaves it off in laser mode.
+     */
+    private List<Tabs.Section> toSections(List<PartialPosition> geometryCoordinates) {
+        if (!source.hasTabs()) {
+            return List.of(new Tabs.Section(geometryCoordinates, false));
+        }
+        return Tabs.split(geometryCoordinates, source.getTabCount(), settings.getTabLength());
     }
 }

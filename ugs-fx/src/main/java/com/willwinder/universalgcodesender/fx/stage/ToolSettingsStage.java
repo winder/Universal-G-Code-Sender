@@ -61,6 +61,8 @@ public class ToolSettingsStage extends Stage {
     private final UnitTextField plungeSpeed;
     private final UnitTextField depthPerPass;
     private final UnitTextField safeHeight;
+    private final UnitTextField tabHeight;
+    private final UnitTextField tabLength;
     private final SwitchButton detectMaxSpindleSpeed;
     private final UnitTextField maxSpindleSpeed;
     private final UnitTextField laserDiameter;
@@ -95,6 +97,8 @@ public class ToolSettingsStage extends Stage {
         plungeSpeed = numericField(Unit.MM_PER_MINUTE, settings.getPlungeSpeed());
         depthPerPass = numericField(Unit.MM, settings.getDepthPerPass());
         safeHeight = numericField(Unit.MM, settings.getSafeHeight());
+        tabHeight = numericField(Unit.MM, settings.getTabHeight());
+        tabLength = numericField(Unit.MM, settings.getTabLength());
         detectMaxSpindleSpeed = new SwitchButton();
         detectMaxSpindleSpeed.selectedProperty().set(settings.getDetectMaxSpindleSpeed());
         maxSpindleSpeed = numericField(Unit.REVOLUTIONS_PER_MINUTE, settings.getMaxSpindleSpeed());
@@ -127,7 +131,7 @@ public class ToolSettingsStage extends Stage {
 
         setScene(createScene());
         setWidth(380);
-        setHeight(740);
+        setHeight(800);
         setResizable(true);
 
         setOnShowing(event -> centerOnOwner());
@@ -143,6 +147,9 @@ public class ToolSettingsStage extends Stage {
                 new SettingsRow("Plunge speed", plungeSpeed),
                 new SettingsRow("Depth per pass", depthPerPass),
                 new SettingsRow("Safe height", safeHeight),
+                new Separator(),
+                new SettingsRow("Tab height", "How much material a tab leaves below the bottom of the cut, holding the shape in the stock.", tabHeight),
+                new SettingsRow("Tab length", "How long a tab is along the tool path. Shapes too small for tabs this long get shorter ones.", tabLength),
                 new Separator(),
                 new SettingsRow("Detect max spindle speed", detectMaxSpindleSpeed),
                 new SettingsRow("Max spindle speed", maxSpindleSpeed),
@@ -194,6 +201,8 @@ public class ToolSettingsStage extends Stage {
         settings.setPlungeSpeed((int) Math.round(plungeSpeed.getValue()));
         settings.setDepthPerPass(depthPerPass.getValue());
         settings.setSafeHeight(safeHeight.getValue());
+        settings.setTabHeight(tabHeight.getValue());
+        settings.setTabLength(tabLength.getValue());
         settings.setDetectMaxSpindleSpeed(detectMaxSpindleSpeed.selectedProperty().get());
         settings.setMaxSpindleSpeed((int) Math.round(maxSpindleSpeed.getValue()));
         settings.setLaserDiameter(laserDiameter.getValue());

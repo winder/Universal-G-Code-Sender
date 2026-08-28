@@ -41,6 +41,11 @@ public interface Cuttable extends Entity {
     double DEFAULT_LINE_SPACING = 1.0;
 
     /**
+     * The default number of tabs to spread out along a shape that is cut free from the stock
+     */
+    int DEFAULT_TAB_COUNT = 4;
+
+    /**
      * Returns the desired cut operation use to cut the entity.
      *
      * @return the cut type to use.
@@ -284,4 +289,33 @@ public interface Cuttable extends Entity {
      * @return the tool path direction
      */
     ToolPathDirection getToolPathDirection();
+
+    /**
+     * Sets if small tabs should be left uncut so that the shape stays attached to the stock instead
+     * of coming loose as soon as the cut goes all the way through.
+     *
+     * @param tabs true if tabs should be left
+     */
+    void setTabs(boolean tabs);
+
+    /**
+     * Returns if small tabs should be left uncut, holding the shape in the stock.
+     *
+     * @return true if tabs should be left
+     */
+    boolean hasTabs();
+
+    /**
+     * Sets how many tabs to spread out evenly along the shape.
+     *
+     * @param tabCount a positive number of tabs
+     */
+    void setTabCount(int tabCount);
+
+    /**
+     * Returns how many tabs that are spread out evenly along the shape.
+     *
+     * @return the number of tabs
+     */
+    int getTabCount();
 }

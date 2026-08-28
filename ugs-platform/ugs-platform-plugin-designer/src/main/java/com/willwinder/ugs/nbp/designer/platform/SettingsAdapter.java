@@ -45,6 +45,8 @@ public class SettingsAdapter {
     private static final String STOCK_THICKNESS = "stockThickness";
     private static final String SPINDLE_DIRECTION = "spindleDirection";
     private static final String COOLANT_MODE = "coolantMode";
+    private static final String TAB_HEIGHT = "tabHeight";
+    private static final String TAB_LENGTH = "tabLength";
     private static final String FLATNESS_PRECISION = "flatnessPrecision";
     private static final String ARC_FITTING = "arcFitting";
     private static final String USE_TOOL_CHANGES = "useToolChanges";
@@ -74,6 +76,8 @@ public class SettingsAdapter {
         settings.setStockThickness(preferences.getDouble(STOCK_THICKNESS, 10));
         settings.setSpindleDirection(preferences.get(SPINDLE_DIRECTION, "M3"));
         settings.setCoolantMode(readCoolantMode());
+        settings.setTabHeight(preferences.getDouble(TAB_HEIGHT, 1d));
+        settings.setTabLength(preferences.getDouble(TAB_LENGTH, 6d));
         settings.setFlatnessPrecision(preferences.getDouble(FLATNESS_PRECISION, 0.02d));
         settings.setArcFitting(preferences.getBoolean(ARC_FITTING, false));
         settings.setUseToolChanges(preferences.getBoolean(USE_TOOL_CHANGES, false));
@@ -102,6 +106,8 @@ public class SettingsAdapter {
         preferences.putDouble(STOCK_THICKNESS, settings.getStockThickness());
         preferences.put(SPINDLE_DIRECTION, settings.getSpindleDirection());
         preferences.put(COOLANT_MODE, settings.getCoolantMode().name());
+        preferences.putDouble(TAB_HEIGHT, settings.getTabHeight());
+        preferences.putDouble(TAB_LENGTH, settings.getTabLength());
         preferences.putDouble(FLATNESS_PRECISION, settings.getFlatnessPrecision());
         preferences.putBoolean(ARC_FITTING, settings.getArcFitting());
         preferences.putBoolean(USE_TOOL_CHANGES, settings.getUseToolChanges());
