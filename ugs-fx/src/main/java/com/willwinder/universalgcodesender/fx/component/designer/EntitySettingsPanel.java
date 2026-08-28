@@ -36,6 +36,7 @@ import com.willwinder.universalgcodesender.fx.actions.DesignFlipHorizontalAction
 import com.willwinder.universalgcodesender.fx.actions.DesignFlipVerticalAction;
 import com.willwinder.universalgcodesender.fx.component.CollapsibleTitledPane;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
+import com.willwinder.universalgcodesender.fx.control.SwitchButton;
 import com.willwinder.universalgcodesender.fx.control.UnitTextField;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
@@ -92,6 +93,8 @@ public class EntitySettingsPanel extends VBox {
             EntitySetting.DIRECTION,
             EntitySetting.TOOL_PATH_DIRECTION,
             EntitySetting.PLUNGE_TYPE,
+            EntitySetting.TABS,
+            EntitySetting.TAB_COUNT,
             EntitySetting.INCLUDE_IN_EXPORT);
 
     // Pure transforms never change the set of controls, so they only need a cheap value refresh
@@ -172,6 +175,9 @@ public class EntitySettingsPanel extends VBox {
 
         Set<EntitySetting> cutSettings = new LinkedHashSet<>(common);
         cutSettings.retainAll(commonCutTypeSettings(cuttables));
+        if (cuttables.stream().noneMatch(Cuttable::hasTabs)) {
+            cutSettings.remove(EntitySetting.TAB_COUNT);
+        }
         VBox cutRows = buildRows(CUT_KEYS, cutSettings, cuttables, labelWidth);
         if (!cutRows.getChildren().isEmpty()) {
             getChildren().add(new CollapsibleTitledPane("Cut", cutRows));
@@ -410,6 +416,8 @@ public class EntitySettingsPanel extends VBox {
                     controls.doubleField(Cuttable::getStockToLeave, Cuttable::setStockToLeave, entities, Unit.MM);
             case LINE_SPACING ->
                     controls.doubleField(Cuttable::getLineSpacing, Cuttable::setLineSpacing, entities, Unit.MM);
+            case TABS -> tabsControl(entities);
+            case TAB_COUNT -> controls.intField(Cuttable::getTabCount, Cuttable::setTabCount, entities, Unit.TIMES);
             case INCLUDE_IN_EXPORT ->
                     leftAligned(controls.switchControl(Cuttable::getIncludeInExport, Cuttable::setIncludeInExport, entities));
             default -> null;
@@ -430,6 +438,16 @@ public class EntitySettingsPanel extends VBox {
         HBox box = new HBox(control);
         box.setAlignment(Pos.CENTER_LEFT);
         return box;
+    }
+
+    /**
+     * Turning the tabs off leaves nothing to spread out, so the number of tabs is only shown when
+     * they are on. That means the rows have to be rebuilt when the switch is flipped.
+     */
+    private Region tabsControl(List<Cuttable> entities) {
+        SwitchButton control = controls.switchControl(Cuttable::hasTabs, Cuttable::setTabs, entities);
+        control.selectedProperty().addListener((obs, wasSelected, isSelected) -> Platform.runLater(this::rebuild));
+        return leftAligned(control);
     }
 
     private ComboBox<CutType> cutTypeControl(List<Cuttable> entities) {

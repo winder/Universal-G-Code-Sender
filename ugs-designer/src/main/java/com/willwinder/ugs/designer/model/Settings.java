@@ -51,6 +51,8 @@ public class Settings {
     private double penWidth = 0.5;
     private String penDownCommand = "M3";
     private String penUpCommand = "M5";
+    private double tabHeight = 1;
+    private double tabLength = 6;
     private double flatnessPrecision = 0.1;
     private boolean arcFitting = true;
     private boolean useToolChanges = false;
@@ -339,6 +341,38 @@ public class Settings {
         return Utils.formatter.format(getStockThickness() * scale) + " " + getPreferredUnits().abbreviation;
     }
 
+    /**
+     * Returns how tall the tabs holding a cut out shape in the stock are allowed to be in
+     * millimeters. A cut that is shallower than this leaves a tab reaching all the way up to the
+     * surface instead of one taller than the cut itself.
+     *
+     * @return the tab height
+     */
+    public double getTabHeight() {
+        return tabHeight;
+    }
+
+    public void setTabHeight(double tabHeight) {
+        this.tabHeight = Math.abs(tabHeight);
+        notifyListeners();
+    }
+
+    /**
+     * Returns how long the tabs holding a cut out shape in the stock are allowed to be in
+     * millimeters, measured along the tool path. A shape too small to fit the requested tabs gets
+     * shorter ones, so that the tabs never grow into each other.
+     *
+     * @return the tab length
+     */
+    public double getTabLength() {
+        return tabLength;
+    }
+
+    public void setTabLength(double tabLength) {
+        this.tabLength = Math.abs(tabLength);
+        notifyListeners();
+    }
+
     public double getDepthPerPass() {
         return depthPerPass;
     }
@@ -379,6 +413,8 @@ public class Settings {
         setPenUpSpindleSpeed(settings.getPenUpSpindleSpeed());
         setPenDownCommand(settings.getPenDownCommand());
         setPenUpCommand(settings.getPenUpCommand());
+        setTabHeight(settings.getTabHeight());
+        setTabLength(settings.getTabLength());
         setFlatnessPrecision(settings.getFlatnessPrecision());
         setArcFitting(settings.getArcFitting());
         setUseToolChanges(settings.getUseToolChanges());

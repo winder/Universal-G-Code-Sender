@@ -84,6 +84,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     private JCheckBox roughingCheckBox;
     private JCheckBox finishingPassCheckBox;
     private UnitSpinner stockToLeaveSpinner;
+    private JCheckBox tabsCheckBox;
+    private JSlider tabCountSlider;
 
     private final Map<EntitySetting, List<JComponent>> settingToComponentMap = new EnumMap<>(EntitySetting.class);
 
@@ -120,6 +122,10 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         finishingPassCheckBox.setSelected(false);
         stockToLeaveSpinner = new UnitSpinner(Cuttable.DEFAULT_STOCK_TO_LEAVE, Unit.MM, 0d, 10000d, 0.1d);
         lineSpacingSpinner = new UnitSpinner(Cuttable.DEFAULT_LINE_SPACING, Unit.MM, 0.01d, 10000d, 0.1d);
+
+        tabsCheckBox = new JCheckBox();
+        tabsCheckBox.setSelected(false);
+        tabCountSlider = createSlider(1, 12, Cuttable.DEFAULT_TAB_COUNT, 1, 2);
     }
 
     private JSlider createSlider(int min, int max, int value, int minorTick, int majorTick) {
@@ -150,6 +156,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         addLabeledComponent(EntitySetting.ROUGHING, "Roughing", roughingCheckBox);
         addLabeledComponent(EntitySetting.FINISHING_PASS, "Finishing Pass", finishingPassCheckBox);
         addLabeledComponent(EntitySetting.STOCK_TO_LEAVE, "Stock to Leave", stockToLeaveSpinner);
+        addLabeledComponent(EntitySetting.TABS, "Tabs", tabsCheckBox);
+        addLabeledSlider(EntitySetting.TAB_COUNT, "Number of Tabs", tabCountSlider);
         addLabeledComponent(EntitySetting.INCLUDE_IN_EXPORT, "Include in Export", includeInExport);
     }
 
@@ -193,6 +201,12 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         });
         stockToLeaveSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.STOCK_TO_LEAVE, stockToLeaveSpinner.getValue()));
         lineSpacingSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.LINE_SPACING, lineSpacingSpinner.getValue()));
+        tabsCheckBox.addActionListener(e -> {
+            firePropertyChange(EntitySetting.TABS, tabsCheckBox.isSelected());
+            // Show or hide the number of tabs depending on whether tabs are used at all
+            setEnabled(isEnabled());
+        });
+        tabCountSlider.addChangeListener(e -> firePropertyChange(EntitySetting.TAB_COUNT, tabCountSlider.getValue()));
         directionCombo.addActionListener(e -> firePropertyChange(EntitySetting.DIRECTION, directionCombo.getSelectedDirection()));
         plungeTypeCombo.addActionListener(e -> firePropertyChange(EntitySetting.PLUNGE_TYPE, plungeTypeCombo.getSelectedPlungeType()));
         toolPathDirectionCombo.addActionListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_DIRECTION, toolPathDirectionCombo.getSelectedDirection()));
@@ -223,6 +237,10 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         // Add only the components that are relevant for the selected cut type
         selectedCutType.getSettings().forEach(setting -> {
             if (setting == EntitySetting.STOCK_TO_LEAVE && !isStockToLeaveVisible(selectedCutType)) {
+                return;
+            }
+
+            if (setting == EntitySetting.TAB_COUNT && !tabsCheckBox.isSelected()) {
                 return;
             }
 
@@ -302,10 +320,12 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 finishingPassCheckBox.setSelected(firstCuttable.isFinishingPass());
                 stockToLeaveSpinner.setValue(firstCuttable.getStockToLeave());
                 lineSpacingSpinner.setValue(firstCuttable.getLineSpacing());
+                tabsCheckBox.setSelected(firstCuttable.hasTabs());
+                tabCountSlider.setValue(firstCuttable.getTabCount());
             } finally {
                 updating = false;
             }
-            // Rebuild the layout so the stock to leave setting matches the loaded roughing state
+            // Rebuild the layout so the stock to leave and tab settings match the loaded state
             setEnabled(isEnabled());
         }
     }
@@ -367,6 +387,10 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             cuttable.setStockToLeave(((Number) newValue).doubleValue());
         } else if (EntitySetting.LINE_SPACING.equals(setting)) {
             cuttable.setLineSpacing(((Number) newValue).doubleValue());
+        } else if (EntitySetting.TABS.equals(setting)) {
+            cuttable.setTabs((Boolean) newValue);
+        } else if (EntitySetting.TAB_COUNT.equals(setting)) {
+            cuttable.setTabCount(((Number) newValue).intValue());
         }
     }
 

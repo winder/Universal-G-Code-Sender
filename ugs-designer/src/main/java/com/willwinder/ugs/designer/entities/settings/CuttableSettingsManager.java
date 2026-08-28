@@ -83,6 +83,8 @@ public class CuttableSettingsManager implements EntitySettingsManager {
             case FINISHING_PASS -> cuttable.isFinishingPass();
             case STOCK_TO_LEAVE -> cuttable.getStockToLeave();
             case LINE_SPACING -> cuttable.getLineSpacing();
+            case TABS -> cuttable.hasTabs();
+            case TAB_COUNT -> cuttable.getTabCount();
             default -> null;
         };
     }
@@ -174,6 +176,16 @@ public class CuttableSettingsManager implements EntitySettingsManager {
                     cuttable.setLineSpacing(lineSpacing);
                 }
             }
+            case TABS -> {
+                if (value instanceof Boolean tabs) {
+                    cuttable.setTabs(tabs);
+                }
+            }
+            case TAB_COUNT -> {
+                if (value instanceof Number tabCount) {
+                    cuttable.setTabCount(tabCount.intValue());
+                }
+            }
             default -> LOGGER.info("Do not know how to set " + setting + " to " + value);
         }
     }
@@ -201,6 +213,8 @@ public class CuttableSettingsManager implements EntitySettingsManager {
         settings.add(EntitySetting.FINISHING_PASS);
         settings.add(EntitySetting.STOCK_TO_LEAVE);
         settings.add(EntitySetting.LINE_SPACING);
+        settings.add(EntitySetting.TABS);
+        settings.add(EntitySetting.TAB_COUNT);
         return settings;
     }
 }

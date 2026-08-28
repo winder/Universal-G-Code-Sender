@@ -78,6 +78,12 @@ public class CuttableEntityV1 extends EntityV1 {
     private double lineSpacing = Cuttable.DEFAULT_LINE_SPACING;
 
     @Expose
+    private boolean tabs;
+
+    @Expose
+    private int tabCount = Cuttable.DEFAULT_TAB_COUNT;
+
+    @Expose
     private AffineTransform transform;
 
     public CuttableEntityV1(EntityTypeV1 type) {
@@ -160,6 +166,14 @@ public class CuttableEntityV1 extends EntityV1 {
         this.lineSpacing = lineSpacing;
     }
 
+    public void setTabs(boolean tabs) {
+        this.tabs = tabs;
+    }
+
+    public void setTabCount(int tabCount) {
+        this.tabCount = tabCount;
+    }
+
     @Override
     protected void applyCommonAttributes(Entity entity) {
         super.applyCommonAttributes(entity);
@@ -183,6 +197,8 @@ public class CuttableEntityV1 extends EntityV1 {
             cuttable.setFinishingPass(finishingPass);
             cuttable.setStockToLeave(stockToLeave);
             cuttable.setLineSpacing(lineSpacing);
+            cuttable.setTabs(tabs);
+            cuttable.setTabCount(tabCount);
         }
     }
 

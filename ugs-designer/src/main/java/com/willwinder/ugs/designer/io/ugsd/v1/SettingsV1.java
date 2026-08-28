@@ -56,6 +56,8 @@ public class SettingsV1 implements Serializable {
     private Integer penUpSpindleSpeed;
     private String penDownCommand;
     private String penUpCommand;
+    private Double tabHeight;
+    private Double tabLength;
     private Double flatnessPrecision;
     private Boolean arcFitting;
     private Boolean useToolChanges;
@@ -86,6 +88,8 @@ public class SettingsV1 implements Serializable {
         result.penUpSpindleSpeed = settings.getPenUpSpindleSpeed();
         result.penDownCommand = settings.getPenDownCommand();
         result.penUpCommand = settings.getPenUpCommand();
+        result.tabHeight = settings.getTabHeight();
+        result.tabLength = settings.getTabLength();
         result.flatnessPrecision = settings.getFlatnessPrecision();
         result.arcFitting = settings.getArcFitting();
         result.useToolChanges = settings.getUseToolChanges();
@@ -161,6 +165,12 @@ public class SettingsV1 implements Serializable {
         }
         if (penUpCommand != null) {
             settings.setPenUpCommand(penUpCommand);
+        }
+        if (tabHeight != null) {
+            settings.setTabHeight(tabHeight);
+        }
+        if (tabLength != null) {
+            settings.setTabLength(tabLength);
         }
         if (flatnessPrecision != null) {
             settings.setFlatnessPrecision(flatnessPrecision);

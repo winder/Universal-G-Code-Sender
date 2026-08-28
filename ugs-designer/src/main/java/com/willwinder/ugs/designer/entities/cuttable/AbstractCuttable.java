@@ -24,6 +24,7 @@ import com.willwinder.ugs.designer.entities.EntitySetting;
 import com.willwinder.ugs.designer.entities.EventType;
 import com.willwinder.ugs.designer.gui.Colors;
 import com.willwinder.ugs.designer.gui.Drawing;
+import com.willwinder.ugs.designer.gui.TabShapes;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 
@@ -66,6 +67,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private boolean finishingPass = false;
     private double stockToLeave = DEFAULT_STOCK_TO_LEAVE;
     private double lineSpacing = DEFAULT_LINE_SPACING;
+    private boolean tabs = false;
+    private int tabCount = DEFAULT_TAB_COUNT;
 
     protected AbstractCuttable() {
         this(0, 0);
@@ -235,6 +238,25 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         } else {
             drawShape(graphics, dashedStroke, Colors.SHAPE_OUTLINE, shape);
         }
+
+        drawTabs(graphics, drawing);
+    }
+
+    /**
+     * Draws the stretches that are left uncut on top of the shape, so that it is visible where the
+     * shape will stay attached to the stock. They are drawn thicker than the outline itself to stay
+     * readable at the width of a hairline.
+     */
+    private void drawTabs(Graphics2D graphics, Drawing drawing) {
+        Shape tabs = TabShapes.create(this, ControllerFactory.getController().getSettings());
+        if (tabs.getPathIterator(null).isDone()) {
+            return;
+        }
+
+        float strokeWidth = 4f / (float) drawing.getScale();
+        graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
+        graphics.setColor(Colors.TAB);
+        graphics.draw(tabs);
     }
 
     private void drawArrow(Drawing drawing, Graphics2D g, double cx, double cy, double angleDeg, double length) {
@@ -338,6 +360,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
                 EntitySetting.LINE_SPACING,
                 EntitySetting.DIRECTION,
                 EntitySetting.PLUNGE_TYPE,
+                EntitySetting.TABS,
+                EntitySetting.TAB_COUNT,
                 EntitySetting.INCLUDE_IN_EXPORT
         );
     }
@@ -384,6 +408,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         copy.setFinishingPass(isFinishingPass());
         copy.setStockToLeave(getStockToLeave());
         copy.setLineSpacing(getLineSpacing());
+        copy.setTabs(hasTabs());
+        copy.setTabCount(getTabCount());
     }
 
     @Override
@@ -482,5 +508,27 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public double getLineSpacing() {
         return lineSpacing;
+    }
+
+    @Override
+    public void setTabs(boolean tabs) {
+        this.tabs = tabs;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public boolean hasTabs() {
+        return tabs;
+    }
+
+    @Override
+    public void setTabCount(int tabCount) {
+        this.tabCount = Math.max(1, Math.abs(tabCount));
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public int getTabCount() {
+        return tabCount;
     }
 }

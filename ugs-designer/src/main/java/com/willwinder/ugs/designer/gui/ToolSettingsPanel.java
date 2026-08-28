@@ -75,6 +75,8 @@ public class ToolSettingsPanel extends JPanel {
     private JLabel vBitAngleLabel;
     private TextFieldWithUnit vBitAngle;
     private JTextField safeHeight;
+    private JTextField tabHeight;
+    private JTextField tabLength;
     private JCheckBox detectMaxSpindleSpeed;
     private TextFieldWithUnit laserDiameter;
     private TextFieldWithUnit maxSpindleSpeed;
@@ -178,6 +180,18 @@ public class ToolSettingsPanel extends JPanel {
         add(new JLabel("Safe height"));
         safeHeight = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getSafeHeight());
         add(safeHeight, TOOL_FIELD_CONSTRAINT);
+
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2");
+
+        add(new JLabel("Tab height"));
+        tabHeight = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getTabHeight());
+        tabHeight.setToolTipText("How much material a tab leaves below the bottom of the cut, holding the shape in the stock.");
+        add(tabHeight, TOOL_FIELD_CONSTRAINT);
+
+        add(new JLabel("Tab length"));
+        tabLength = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getTabLength());
+        tabLength.setToolTipText("How long a tab is along the tool path. Shapes too small for tabs this long get shorter ones.");
+        add(tabLength, TOOL_FIELD_CONSTRAINT);
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2");
 
@@ -482,6 +496,22 @@ public class ToolSettingsPanel extends JPanel {
         }
     }
 
+    private double getTabHeight() {
+        try {
+            return Utils.formatter.parse(tabHeight.getText()).doubleValue();
+        } catch (ParseException e) {
+            return controller.getSettings().getTabHeight();
+        }
+    }
+
+    private double getTabLength() {
+        try {
+            return Utils.formatter.parse(tabLength.getText()).doubleValue();
+        } catch (ParseException e) {
+            return controller.getSettings().getTabLength();
+        }
+    }
+
     private double getLaserDiameter() {
         try {
             return Utils.formatter.parse(laserDiameter.getText()).doubleValue();
@@ -522,6 +552,8 @@ public class ToolSettingsPanel extends JPanel {
         Settings settings = new Settings();
         settings.applySettings(controller.getSettings());
         settings.setSafeHeight(getSafeHeight());
+        settings.setTabHeight(getTabHeight());
+        settings.setTabLength(getTabLength());
         settings.setDepthPerPass(getDepthPerPass());
         settings.setFeedSpeed(getFeedSpeed());
         settings.setToolDiameter(getToolDiameter());
