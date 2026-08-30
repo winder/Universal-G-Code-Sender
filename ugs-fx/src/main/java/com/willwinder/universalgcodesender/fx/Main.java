@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
 import com.willwinder.universalgcodesender.fx.component.designer.InspectorPane;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
@@ -40,7 +41,6 @@ import com.willwinder.universalgcodesender.fx.service.WorkspaceFileLoader;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -73,10 +73,10 @@ public class Main extends Application {
 
     @Override
     public void init() throws Exception {
-        GUIBackend backend = new GUIBackend();
-        backend.applySettings(SettingsFactory.loadSettings());
-        LookupService.register(backend);
+        LookupService.initialize();
         LookupService.register(new WorkspaceFileLoader());
+
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         Localization.initialize(backend.getSettings().getLanguage());
 
         try {

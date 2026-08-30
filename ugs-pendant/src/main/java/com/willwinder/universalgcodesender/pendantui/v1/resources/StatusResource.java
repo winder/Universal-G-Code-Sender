@@ -22,6 +22,8 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.services.SendProgressService;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.pendantui.v1.model.Status;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,6 +39,8 @@ public class StatusResource {
 
     @Inject
     private BackendAPI backendAPI;
+
+    private final SendProgressService sendProgress = LookupService.lookup(SendProgressService.class);
 
     @GET
     @Path("getStatus")
@@ -59,16 +63,16 @@ public class StatusResource {
                 status.setState(ControllerState.UNKNOWN);
             }
 
-            status.setRowCount(backendAPI.getNumRows());
-            status.setCompletedRowCount(backendAPI.getNumCompletedRows());
-            status.setRemainingRowCount(backendAPI.getNumRemainingRows());
+            status.setRowCount(sendProgress.getNumRows());
+            status.setCompletedRowCount(sendProgress.getNumCompletedRows());
+            status.setRemainingRowCount(sendProgress.getNumRemainingRows());
             if (backendAPI.getGcodeFile() != null) {
                 status.setFileName(backendAPI.getGcodeFile().getName());
             } else {
                 status.setFileName("");
             }
-            status.setSendDuration(backendAPI.getSendDuration());
-            status.setSendRemainingDuration(backendAPI.getSendRemainingDuration());
+            status.setSendDuration(sendProgress.getDuration());
+            status.setSendRemainingDuration(sendProgress.getRemainingDuration());
         }
 
         return status;

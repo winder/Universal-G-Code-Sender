@@ -48,7 +48,6 @@ import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -79,9 +78,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
     // Added value
     private final AtomicBoolean isStreaming = new AtomicBoolean(false);
-
-    // For keeping track of the time spent streaming a file
-    private final StopWatch streamStopWatch = new StopWatch();
 
     // This metadata needs to be cached instead of looked up from queues and
     // streams, because those sources may be compromised during a cancel.
@@ -413,61 +409,26 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         return isStreaming.get();
     }
 
-    /**
-     * Send duration can be one of 3 things:
-     * 1. the current running time of a send.
-     * 2. the entire duration of the most recent send.
-     * 3. 0 if there has never been a send.
-     */
-    @Override
-    public long getSendDuration() {
-        return streamStopWatch.getTime();
-    }
-
     public MessageService getMessageService() {
         return messageService;
     }
 
-    private enum RowStat {
-        TOTAL_ROWS,
-        ROWS_SENT,
-        ROWS_COMPLETED,
-        ROWS_REMAINING
-    }
-
-    /**
-     * Get one of the row statistics, returns -1 if stat is unavailable.
-     * @param stat
-     * @return
+    /*
+     * The queued row counters are internal to the controller, they are used for knowing when a
+     * stream has run to its end. Use SendProgressService for reporting the progress of a send.
      */
-    public int getRowStat(RowStat stat) {
-        return switch (stat) {
-            case TOTAL_ROWS -> numCommands.get();
-            case ROWS_SENT -> numCommandsSent.get();
-            case ROWS_COMPLETED -> numCommandsCompleted.get() + numCommandsSkipped.get();
-            case ROWS_REMAINING ->
-                    numCommands.get() <= 0 ? 0 : numCommands.get() - (numCommandsCompleted.get() + numCommandsSkipped.get());
-        };
+
+    int rowsInSend() {
+        return numCommands.get();
     }
 
-    @Override
-    public int rowsInSend() {
-        return getRowStat(RowStat.TOTAL_ROWS);
+    int rowsSent() {
+        return numCommandsSent.get();
     }
 
-    @Override
-    public int rowsSent() {
-        return getRowStat(RowStat.ROWS_SENT);
-    }
-
-    @Override
-    public int rowsCompleted() {
-        return getRowStat(RowStat.ROWS_COMPLETED);
-    }
-
-    @Override
-    public int rowsRemaining() {
-        return getRowStat(RowStat.ROWS_REMAINING);
+    int rowsRemaining() {
+        int total = numCommands.get();
+        return total <= 0 ? 0 : total - (numCommandsCompleted.get() + numCommandsSkipped.get());
     }
 
     @Override
@@ -553,8 +514,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         }
 
         isStreaming.set(true);
-        streamStopWatch.reset();
-        streamStopWatch.start();
         numCommands.set(0);
         numCommandsSent.set(0);
         numCommandsSkipped.set(0);
@@ -571,7 +530,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
             comm.streamCommands();
         } catch(Exception e) {
             isStreaming.set(false);
-            this.streamStopWatch.reset();
             this.comm.cancelSend();
             throw e;
         }
@@ -584,10 +542,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         listeners.forEach(ControllerListener::streamPaused);
         this.comm.pauseSend();
         this.setCurrentState(COMM_SENDING_PAUSED);
-
-        if (streamStopWatch.isStarted() && !streamStopWatch.isSuspended()) {
-            this.streamStopWatch.suspend();
-        }
     }
 
     @Override
@@ -597,10 +551,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         listeners.forEach(ControllerListener::streamResumed);
         this.comm.resumeSend();
         this.setCurrentState(COMM_SENDING);
-
-        if (streamStopWatch.isSuspended()) {
-            this.streamStopWatch.resume();
-        }
     }
 
     @Override
@@ -641,9 +591,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
     public void cancelCommands() {
         comm.cancelSend();
         isStreaming.set(false);
-        if (streamStopWatch.isStarted()) {
-            streamStopWatch.stop();
-        }
     }
 
     @Override
@@ -669,11 +616,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
     // No longer a listener event
     protected void fileStreamComplete() {
-        String duration = Utils.formattedMillis(getSendDuration());
-        dispatchConsoleMessage(MessageType.INFO, "*** " + Localization.getString("controller.finished.send") + String.format(" %s", duration) + "\n");
-        if (streamStopWatch.isStarted()) {
-            streamStopWatch.stop();
-        }
         isStreaming.set(false);
         dispatchStreamComplete();
     }

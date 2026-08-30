@@ -21,6 +21,8 @@ package com.willwinder.ugs.cli;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.services.SendProgressService;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.CommandEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
@@ -39,6 +41,7 @@ import me.tongfei.progressbar.ProgressBarStyle;
 public class ProgressBarPrinter implements UGSEventListener {
     private ProgressBar pb;
     private final BackendAPI backend;
+    private final SendProgressService sendProgress = LookupService.lookup(SendProgressService.class);
 
     public ProgressBarPrinter(BackendAPI backend) {
         this.backend = backend;
@@ -57,8 +60,8 @@ public class ProgressBarPrinter implements UGSEventListener {
                         .build();
             } else if(fileStateEvent.getFileState() == FileState.FILE_STREAM_COMPLETE) {
                 if (pb != null) {
-                    pb.maxHint(backend.getNumRows());
-                    pb.stepTo(backend.getNumCompletedRows());
+                    pb.maxHint(sendProgress.getNumRows());
+                    pb.stepTo(sendProgress.getNumCompletedRows());
                     pb.close();
                     pb = null;
                 }
@@ -72,8 +75,8 @@ public class ProgressBarPrinter implements UGSEventListener {
             }
         } else if (event instanceof CommandEvent) {
             if (pb != null) {
-                pb.maxHint(backend.getNumRows());
-                pb.stepTo(backend.getNumCompletedRows());
+                pb.maxHint(sendProgress.getNumRows());
+                pb.stepTo(sendProgress.getNumCompletedRows());
             }
         }
     }

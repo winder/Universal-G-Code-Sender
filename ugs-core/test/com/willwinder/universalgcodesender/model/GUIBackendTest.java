@@ -240,23 +240,6 @@ public class GUIBackendTest {
     }
 
     @Test
-    public void getSendRemainingDuration() throws Exception {
-        // Given
-        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.RUN, Position.ZERO, Position.ZERO);
-        when(controller.getControllerStatus()).thenReturn(controllerStatus);
-        when(controller.rowsCompleted()).thenReturn(10);
-        when(controller.getSendDuration()).thenReturn(10L);
-        when(controller.rowsInSend()).thenReturn(1000);
-        instance.connect(FIRMWARE, PORT, BAUD_RATE);
-
-        // When
-        long remainingDuration = instance.getSendRemainingDuration();
-
-        // Then
-        assertEquals(990L, remainingDuration);
-    }
-
-    @Test
     public void offsetShouldBeOk() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
         instance.offsetTool("Z", 10, UnitUtils.Units.MM);
@@ -554,8 +537,6 @@ public class GUIBackendTest {
 
         assertNull(instance.getProcessedGcodeFile());
         assertNull(instance.getGcodeFile());
-        assertEquals(0, instance.getNumRemainingRows());
-        assertEquals(0, instance.getNumRows());
     }
 
     @Test(expected = IOException.class)
@@ -563,34 +544,6 @@ public class GUIBackendTest {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
         instance.setGcodeFile(new File("does_not_exist.gcode"));
-    }
-
-    @Test
-    public void getNumRowsShouldReturnNumberFromControllerWhenInStateRun() throws Exception {
-        // Given
-        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.RUN, Position.ZERO, Position.ZERO);
-        when(controller.getControllerStatus()).thenReturn(controllerStatus);
-        when(controller.rowsInSend()).thenReturn(42);
-        instance.connect(FIRMWARE, PORT, BAUD_RATE);
-
-        // When
-        long numRows = instance.getNumRows();
-
-        // Then
-        assertEquals(42, numRows);
-    }
-
-    @Test
-    public void getNumSentRowsShouldReturnNumberFromController() throws Exception {
-        // Given
-        when(controller.rowsSent()).thenReturn(21);
-        instance.connect(FIRMWARE, PORT, BAUD_RATE);
-
-        // When
-        long numRows = instance.getNumSentRows();
-
-        // Then
-        assertEquals(21, numRows);
     }
 
     @Test

@@ -222,6 +222,25 @@ public interface IFirmwareSettings {
     double getMaximumRate(Axis axis) throws FirmwareSettingsException;
 
     /**
+     * Returns the maximum acceleration for the given axis.
+     *
+     * @param axis the axis to get the acceleration for
+     * @return the acceleration in millimeters per second squared, or zero if the controller doesn't
+     * report it
+     * @throws FirmwareSettingsException if the setting couldn't be read
+     */
+    double getAcceleration(Axis axis) throws FirmwareSettingsException;
+
+    /**
+     * Returns the junction deviation, which decides how much the machine has to slow down in a
+     * corner between two movements. A larger value lets the machine take corners faster.
+     *
+     * @return the junction deviation in millimeters, or zero if the controller doesn't report it
+     * @throws FirmwareSettingsException if the setting couldn't be read
+     */
+    double getJunctionDeviation() throws FirmwareSettingsException;
+
+    /**
      * Returns the controller max spindle speed
      *
      * @return the max spindle speed

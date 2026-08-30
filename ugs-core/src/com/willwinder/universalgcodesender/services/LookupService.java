@@ -61,6 +61,7 @@ public class LookupService {
                 register(settings);
                 register(new JogService(backend));
                 register(new RunFromService(backend));
+                register(new SendProgressService(backend));
                 isInitialized = true;
             } catch (Exception ex) {
                 Logger.getLogger(LookupService.class.getName()).log(Level.SEVERE, null, ex);

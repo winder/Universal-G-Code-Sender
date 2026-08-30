@@ -160,11 +160,6 @@ public interface IController {
     Boolean isReadyToReceiveCommands() throws ControllerException;
     Boolean isReadyToStreamFile() throws Exception;
     Boolean isStreaming();
-    long getSendDuration();
-    int rowsInSend();
-    int rowsSent();
-    int rowsCompleted();
-    int rowsRemaining();
     Optional<GcodeCommand> getActiveCommand();
     GcodeState getCurrentGcodeState();
     

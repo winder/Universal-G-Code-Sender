@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.pendantui.v1.resources;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.SendProgressService;
 import com.willwinder.universalgcodesender.pendantui.v1.model.FileStatus;
 import com.willwinder.universalgcodesender.pendantui.v1.model.WorkspaceFileList;
 import com.willwinder.universalgcodesender.services.BackendFileLoader;
@@ -49,6 +50,8 @@ public class FilesResource {
 
     @Inject
     private BackendAPI backendAPI;
+
+    private final SendProgressService sendProgress = LookupService.lookup(SendProgressService.class);
 
     @POST
     @Path("uploadAndOpen")
@@ -116,10 +119,10 @@ public class FilesResource {
     @Produces(MediaType.APPLICATION_JSON)
     public FileStatus getFileStatus() {
         return new FileStatus(Optional.ofNullable(backendAPI.getGcodeFile()).map(File::getAbsolutePath).orElse(""),
-                backendAPI.getNumRows(),
-                backendAPI.getNumCompletedRows(),
-                backendAPI.getNumRemainingRows(),
-                backendAPI.getSendDuration(),
-                backendAPI.getSendRemainingDuration());
+                sendProgress.getNumRows(),
+                sendProgress.getNumCompletedRows(),
+                sendProgress.getNumRemainingRows(),
+                sendProgress.getDuration(),
+                sendProgress.getRemainingDuration());
     }
 }

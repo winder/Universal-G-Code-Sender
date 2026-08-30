@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.services.SendProgressService;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -64,6 +65,7 @@ public class JobControlsDrawer extends Drawer {
     private final ProgressBar progressBar = new ProgressBar(0);
     private final Label progressBarLabel = new Label();
     private final BackendAPI backendAPI;
+    private final SendProgressService sendProgress;
     private RefreshThread refreshThread;
 
     public JobControlsDrawer() {
@@ -75,6 +77,7 @@ public class JobControlsDrawer extends Drawer {
         );
 
         backendAPI = LookupService.lookup(BackendAPI.class);
+        sendProgress = LookupService.lookup(SendProgressService.class);
         backendAPI.addUGSEventListener(this::onEvent);
 
         vBox.getChildren().addAll(
@@ -146,10 +149,10 @@ public class JobControlsDrawer extends Drawer {
 
     private void onStreamRefresh() {
         Platform.runLater(() -> {
-            progressBar.setProgress((double) backendAPI.getNumSentRows() / backendAPI.getNumRows());
-            progressLabel.setText(Utils.formattedMillis(backendAPI.getSendDuration()));
-            timeLeftLabel.setText("Time left: " + Utils.formattedMillis(backendAPI.getSendRemainingDuration()));
-            progressBarLabel.setText(String.format("%d / %d (%d%%)", backendAPI.getNumCompletedRows(), backendAPI.getNumRows(), (int) (backendAPI.getNumCompletedRows() * 100 / backendAPI.getNumRows())));
+            progressBar.setProgress((double) sendProgress.getNumCompletedRows() / sendProgress.getNumRows());
+            progressLabel.setText(Utils.formattedMillis(sendProgress.getDuration()));
+            timeLeftLabel.setText("Time left: " + Utils.formattedMillis(sendProgress.getRemainingDuration()));
+            progressBarLabel.setText(String.format("%d / %d (%d%%)", sendProgress.getNumCompletedRows(), sendProgress.getNumRows(), (int) (sendProgress.getNumCompletedRows() * 100 / sendProgress.getNumRows())));
         });
     }
 
@@ -170,9 +173,9 @@ public class JobControlsDrawer extends Drawer {
             WorkspaceManager.getInstance().getActiveWorkspace()
                     .flatMap(WorkspaceContext::getBounds)
                     .ifPresentOrElse(
-                            bounds -> setFileInfo(backendAPI.getNumRows(),
+                            bounds -> setFileInfo(sendProgress.getNumRows(),
                                     bounds.maxX() - bounds.minX(), bounds.maxY() - bounds.minY()),
-                            () -> setFileInfo(backendAPI.getNumRows(), 0, 0));
+                            () -> setFileInfo(sendProgress.getNumRows(), 0, 0));
         } else if (event instanceof StreamEvent streamEvent) {
             StreamEventType streamEventType = streamEvent.getType();
             if (streamEventType == STREAM_STARTED) {

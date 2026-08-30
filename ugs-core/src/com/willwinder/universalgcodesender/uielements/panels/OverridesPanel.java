@@ -110,7 +110,7 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
             updateControls();
         } else if (evt instanceof ControllerStatusEvent controllerStatusEvent) {
             ControllerStatus status = controllerStatusEvent.getStatus();
-            if (status.getOverrides() != null) {
+            if (status.getOverrides() != null && overrideToggleButtons != null) {
                 IOverrideManager overrideManager = backend.getController().getOverrideManager();
                 speedSliders.keySet().forEach(type -> {
                     int speedTargetValue = overrideManager.getSliderTargetValue(type);

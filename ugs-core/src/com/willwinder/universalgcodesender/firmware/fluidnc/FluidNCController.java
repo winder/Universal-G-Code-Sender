@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.StatusPollTimer;
-import com.willwinder.universalgcodesender.Utils;
 import static com.willwinder.universalgcodesender.Utils.formatter;
 import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
@@ -79,7 +78,6 @@ import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.SemanticVersion;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -106,7 +104,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private final Capabilities capabilities = new Capabilities();
     private final StatusPollTimer positionPollTimer = new StatusPollTimer(this);
     private final ConnectionWatchTimer connectionWatchTimer = new ConnectionWatchTimer(this);
-    private final StopWatch streamStopWatch = new StopWatch();
     private final AtomicBoolean isStreaming = new AtomicBoolean(false);
     private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 
@@ -416,37 +413,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         return isStreaming.get();
     }
 
-    @Override
-    public long getSendDuration() {
-        return streamStopWatch.getTime();
-    }
-
-    @Override
-    public int rowsInSend() {
-        if (streamCommands == null) {
-            return 0;
-        }
-        return streamCommands.getNumRows();
-    }
-
-    @Override
-    public int rowsSent() {
-        if (streamCommands == null) {
-            return 0;
-        }
-        return streamCommands.getNumRows() - streamCommands.getNumRowsRemaining() - activeCommands.size();
-    }
-
-    @Override
-    public int rowsCompleted() {
-        if (streamCommands == null) {
-            return 0;
-        }
-        return streamCommands.getNumRows() - streamCommands.getNumRowsRemaining();
-    }
-
-    @Override
-    public int rowsRemaining() {
+    private int rowsRemaining() {
         if (streamCommands == null) {
             return 0;
         }
@@ -469,8 +436,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
         try {
             if (streamCommands != null) {
                 isStreaming.set(true);
-                streamStopWatch.reset();
-                streamStopWatch.start();
                 setControllerState(ControllerState.RUN);
                 listeners.forEach(ControllerListener::streamStarted);
                 communicator.queueStreamForComm(streamCommands);
@@ -478,7 +443,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
             }
         } catch (Exception e) {
             isStreaming.set(false);
-            this.streamStopWatch.reset();
             throw e;
         }
     }
@@ -488,10 +452,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
         listeners.forEach(ControllerListener::streamPaused);
         communicator.sendByteImmediately(GrblUtils.GRBL_PAUSE_COMMAND);
         communicator.pauseSend();
-
-        if (streamStopWatch.isStarted() && !streamStopWatch.isSuspended()) {
-            streamStopWatch.suspend();
-        }
     }
 
     @Override
@@ -499,10 +459,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
         listeners.forEach(ControllerListener::streamResumed);
         communicator.sendByteImmediately(GrblUtils.GRBL_RESUME_COMMAND);
         communicator.resumeSend();
-
-        if (streamStopWatch.isSuspended()) {
-            streamStopWatch.resume();
-        }
     }
 
     @Override
@@ -829,6 +785,8 @@ public class FluidNCController implements IController, ICommunicatorListener {
             if (previousState != ControllerState.ALARM && controllerStatus.getState() == ControllerState.ALARM) {
                 stopStreamingOnAlarm();
             }
+
+            checkStreamFinished();
         } else if (getActiveCommand().isPresent()) {
             GcodeCommand command = getActiveCommand().get();
             if (command.isDone()) {
@@ -901,15 +859,18 @@ public class FluidNCController implements IController, ICommunicatorListener {
         messageService.dispatchMessage(MessageType.ERROR, "*** An alarm was triggered, the stream has been stopped\n");
         isStreaming.set(false);
         streamCommands = null;
-        if (streamStopWatch.isStarted()) {
-            streamStopWatch.stop();
-        }
         communicator.cancelSend();
         listeners.forEach(ControllerListener::streamCanceled);
     }
 
+    // A controller acknowledges a command once it has been planned, so every command in the stream
+    // being completed only means that the controller has them all queued up. The program isn't
+    // finished until the controller reports that it has stopped moving.
     private void checkStreamFinished() {
-        if (streamCommands != null && allCommandsInStreamCompleted()) {
+        ControllerState state = controllerStatus.getState();
+        if (streamCommands != null
+                && allCommandsInStreamCompleted()
+                && (state == ControllerState.IDLE || state == ControllerState.CHECK)) {
             fileStreamComplete();
         }
     }
@@ -928,11 +889,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private void fileStreamComplete() {
         isStreaming.set(false);
         streamCommands = null;
-        String duration = Utils.formattedMillis(getSendDuration());
-        messageService.dispatchMessage(MessageType.INFO, String.format("%n**** Finished sending file in %s ****%n%n", duration));
-        if (streamStopWatch.isStarted()) {
-            streamStopWatch.stop();
-        }
         ThreadHelper.invokeLater(() ->
                 listeners.forEach(ControllerListener::streamComplete));
     }
