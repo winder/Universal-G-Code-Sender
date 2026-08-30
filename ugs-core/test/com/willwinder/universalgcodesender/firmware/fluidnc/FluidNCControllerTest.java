@@ -23,8 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.startsWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import static org.mockito.Mockito.doNothing;
@@ -160,6 +158,9 @@ public class FluidNCControllerTest {
         nextCommand.appendResponse("ok");
         target.rawResponseListener("ok");
 
+        // The machine reports that it has stopped moving
+        target.rawResponseListener("<Idle>");
+
         Thread.sleep(100);
 
         inOrder.verify(listener, times(1)).statusStringListener(any());
@@ -168,8 +169,51 @@ public class FluidNCControllerTest {
         inOrder.verify(listener, times(1)).commandComplete(any());
         inOrder.verify(listener, times(1)).commandSent(any());
         inOrder.verify(listener, times(1)).commandComplete(any());
+        inOrder.verify(listener, times(1)).statusStringListener(any());
         inOrder.verify(listener, times(1)).streamComplete();
         inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void streamCompleteShouldNotBeExecutedWhileTheMachineIsStillRunning() throws IOException, InterruptedException {
+        ControllerListener listener = mock(ControllerListener.class);
+        target.addListener(listener);
+
+        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1");
+        target.queueStream(gcodeStream);
+        target.beginStreaming();
+        GcodeCommand nextCommand = gcodeStream.getNextCommand();
+        target.commandSent(nextCommand);
+        nextCommand.appendResponse("ok");
+
+        // The controller has acknowledged every command but is still moving
+        target.rawResponseListener("ok");
+        target.rawResponseListener("<Run>");
+        Thread.sleep(100);
+
+        verify(listener, times(0)).streamComplete();
+        assertTrue(target.isStreaming());
+    }
+
+    @Test
+    public void streamCompleteShouldBeExecutedWhenTheMachineStopsAfterTheLastCommand() throws IOException, InterruptedException {
+        ControllerListener listener = mock(ControllerListener.class);
+        target.addListener(listener);
+
+        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1");
+        target.queueStream(gcodeStream);
+        target.beginStreaming();
+        GcodeCommand nextCommand = gcodeStream.getNextCommand();
+        target.commandSent(nextCommand);
+        nextCommand.appendResponse("ok");
+        target.rawResponseListener("ok");
+        target.rawResponseListener("<Run>");
+
+        target.rawResponseListener("<Idle>");
+        Thread.sleep(100);
+
+        verify(listener, times(1)).streamComplete();
+        assertFalse(target.isStreaming());
     }
 
     @Test
@@ -191,6 +235,7 @@ public class FluidNCControllerTest {
         target.commandSent(nextCommand);
 
         target.rawResponseListener("error:20");
+        target.rawResponseListener("<Idle>");
 
         Thread.sleep(100);
 
@@ -198,12 +243,13 @@ public class FluidNCControllerTest {
         inOrder.verify(listener, times(1)).streamStarted();
         inOrder.verify(listener, times(2)).commandSent(any());
         inOrder.verify(listener, times(1)).commandComplete(any());
+        inOrder.verify(listener, times(1)).statusStringListener(any());
         inOrder.verify(listener, times(1)).streamComplete();
         inOrder.verifyNoMoreInteractions();
 
         messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "> G0 X1\n");
         messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.ERROR, "An error was detected while sending 'G0 X1': error:20. Streaming has been paused.\n");
-        messagesInOrder.verify(messageService, times(1)).dispatchMessage(eq(MessageType.INFO), startsWith("\n**** Finished sending file in"));
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.VERBOSE, "<Idle>\n");
         messagesInOrder.verifyNoMoreInteractions();
     }
 
@@ -223,6 +269,7 @@ public class FluidNCControllerTest {
         target.commandSent(nextCommand);
 
         target.rawResponseListener("error:20");
+        target.rawResponseListener("<Idle>");
 
         Thread.sleep(100);
 
@@ -230,12 +277,13 @@ public class FluidNCControllerTest {
         inOrder.verify(listener, times(1)).streamStarted();
         inOrder.verify(listener, times(1)).commandSent(any());
         inOrder.verify(listener, times(1)).commandComplete(any());
+        inOrder.verify(listener, times(1)).statusStringListener(any());
         inOrder.verify(listener, times(1)).streamComplete();
         inOrder.verifyNoMoreInteractions();
 
         messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "> G0 X1\n");
         messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "error:20\n");
-        messagesInOrder.verify(messageService, times(1)).dispatchMessage(eq(MessageType.INFO), startsWith("\n**** Finished sending file in"));
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.VERBOSE, "<Idle>\n");
         messagesInOrder.verifyNoMoreInteractions();
     }
 

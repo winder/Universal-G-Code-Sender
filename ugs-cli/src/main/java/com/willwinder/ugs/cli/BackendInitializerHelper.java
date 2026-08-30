@@ -22,7 +22,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.connection.IConnectionDevice;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -53,6 +53,8 @@ public class BackendInitializerHelper {
     }
 
     public BackendAPI initialize(Configuration configuration) {
+        LookupService.initialize();
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         Settings backendSettings = SettingsFactory.loadSettings();
 
         String firmwareArgument = configuration.getOptionValue(OptionEnum.CONTROLLER_FIRMWARE);
@@ -64,9 +66,7 @@ public class BackendInitializerHelper {
         String baudRateArgument = configuration.getOptionValue(OptionEnum.BAUD);
         int baudRate = Integer.parseInt(StringUtils.defaultIfEmpty(baudRateArgument, backendSettings.getPortRate()));
 
-        BackendAPI backend = new GUIBackend();
         try {
-            backend.applySettings(backendSettings);
             backend.getSettings().setFirmwareVersion(firmware);
 
             // Only connect if port is available

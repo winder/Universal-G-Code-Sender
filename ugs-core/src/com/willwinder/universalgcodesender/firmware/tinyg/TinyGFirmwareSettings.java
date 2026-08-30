@@ -192,6 +192,16 @@ public class TinyGFirmwareSettings implements ICommunicatorListener, IFirmwareSe
     }
 
     @Override
+    public double getAcceleration(Axis axis) {
+        return 0;
+    }
+
+    @Override
+    public double getJunctionDeviation() {
+        return 0;
+    }
+
+    @Override
     public int getMaxSpindleSpeed() throws FirmwareSettingsException {
         throw new FirmwareSettingsException("Not implemented");
     }

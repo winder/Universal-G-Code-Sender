@@ -23,6 +23,8 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.SendProgressService;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 
 import javax.swing.*;
@@ -44,8 +46,10 @@ public class SendStatusLine extends JLabel implements UGSEventListener {
     private static final String SEND_FORMAT = SEND_PREFIX + "(%d/%d) %s / %s";
     private static final String COMPLETED_FORMAT = SEND_PREFIX + "completed after %s";
     private static final String ROWS_FORMAT = LOAD_PREFIX + "%d rows";
+    private static final String ROWS_WITH_DURATION_FORMAT = LOAD_PREFIX + "%d rows, estimated %s";
 
     private final transient BackendAPI backend;
+    private final transient SendProgressService sendProgress = LookupService.lookup(SendProgressService.class);
     private Timer timer;
 
     public SendStatusLine(BackendAPI b) {
@@ -86,10 +90,10 @@ public class SendStatusLine extends JLabel implements UGSEventListener {
     private void updateStatusText() {
         try {
             setText(String.format(SEND_FORMAT,
-                    backend.getNumCompletedRows(),
-                    backend.getNumRows(),
-                    Utils.formattedMillis(backend.getSendDuration()),
-                    Utils.formattedMillis(backend.getSendRemainingDuration())));
+                    sendProgress.getNumCompletedRows(),
+                    sendProgress.getNumRows(),
+                    Utils.formattedMillis(sendProgress.getDuration()),
+                    Utils.formattedMillis(sendProgress.getRemainingDuration())));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -98,17 +102,32 @@ public class SendStatusLine extends JLabel implements UGSEventListener {
     private void endSend() {
         if (isUpdateTimerRunning()) {
             timer.stop();
-            setText(String.format(COMPLETED_FORMAT, Utils.formattedMillis(backend.getSendDuration())));
+            setText(String.format(COMPLETED_FORMAT, Utils.formattedMillis(sendProgress.getDuration())));
         }
     }
 
     private void setRows() {
-        if (backend.getProcessedGcodeFile() != null) {
-            setText(String.format(ROWS_FORMAT, backend.getNumRows()));
-        } else {
-            setText(NO_FILE_LOADED);
+        setTextIfChanged(rowsText());
+    }
+
+    private String rowsText() {
+        if (backend.getProcessedGcodeFile() == null) {
+            return NO_FILE_LOADED;
         }
 
+        long totalDuration = sendProgress.getTotalDuration();
+        if (totalDuration < 0) {
+            return String.format(ROWS_FORMAT, sendProgress.getNumRows());
+        }
+        return String.format(ROWS_WITH_DURATION_FORMAT,
+                sendProgress.getNumRows(), Utils.formattedMillis(totalDuration));
+    }
+
+    // Status reports keep coming in while connected, so only repaint when there is something new
+    private void setTextIfChanged(String text) {
+        if (!text.equals(getText())) {
+            setText(text);
+        }
     }
 
     @Override
@@ -118,12 +137,14 @@ public class SendStatusLine extends JLabel implements UGSEventListener {
                 beginSend();
             } else if (isUpdateTimerRunning() && !backend.isSendingFile()) {
                 endSend();
+            } else if (!isUpdateTimerRunning()) {
+                // The estimate is recalculated when a machine reports what it is capable of
+                setRows();
             }
         }
 
         // Display the number of rows when a file is loaded.
-        if (evt instanceof FileStateEvent) {
-            FileStateEvent fileStateEvent = (FileStateEvent) evt;
+        if (evt instanceof FileStateEvent fileStateEvent) {
             if (fileStateEvent.getFileState() == FILE_LOADED || fileStateEvent.getFileState() == FILE_UNLOADED) {
                 setRows();
             } else if (fileStateEvent.getFileState() == FILE_STREAM_COMPLETE) {

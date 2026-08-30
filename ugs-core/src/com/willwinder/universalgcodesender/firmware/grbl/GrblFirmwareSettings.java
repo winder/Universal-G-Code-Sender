@@ -66,9 +66,13 @@ public class GrblFirmwareSettings implements IFirmwareSettings {
     private static final String KEY_SOFT_LIMIT_X = "$130";
     private static final String KEY_SOFT_LIMIT_Y = "$131";
     private static final String KEY_SOFT_LIMIT_Z = "$132";
+    private static final String KEY_JUNCTION_DEVIATION = "$11";
     private static final String KEY_MAXIMUM_RATE_X = "$110";
     private static final String KEY_MAXIMUM_RATE_Y = "$111";
     private static final String KEY_MAXIMUM_RATE_Z = "$112";
+    private static final String KEY_ACCELERATION_X = "$120";
+    private static final String KEY_ACCELERATION_Y = "$121";
+    private static final String KEY_ACCELERATION_Z = "$122";
 
     /**
      * A GRBL settings description lookups
@@ -362,6 +366,22 @@ public class GrblFirmwareSettings implements IFirmwareSettings {
             default ->
                     throw new FirmwareSettingsException("Couldn't get maximum rate setting for axis " + axis + ", it's not supported by the controller");
         };
+    }
+
+    @Override
+    public double getAcceleration(Axis axis) throws FirmwareSettingsException {
+        return switch (axis) {
+            case X -> getValueAsDouble(KEY_ACCELERATION_X);
+            case Y -> getValueAsDouble(KEY_ACCELERATION_Y);
+            case Z -> getValueAsDouble(KEY_ACCELERATION_Z);
+            default ->
+                    throw new FirmwareSettingsException("Couldn't get acceleration setting for axis " + axis + ", it's not supported by the controller");
+        };
+    }
+
+    @Override
+    public double getJunctionDeviation() throws FirmwareSettingsException {
+        return getValueAsDouble(KEY_JUNCTION_DEVIATION);
     }
 
     @Override

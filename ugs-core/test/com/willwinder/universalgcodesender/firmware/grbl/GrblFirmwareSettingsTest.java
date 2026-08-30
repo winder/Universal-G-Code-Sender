@@ -71,6 +71,41 @@ public class GrblFirmwareSettingsTest {
     }
 
     @Test
+    public void getAccelerationShouldReturnTheSettingForTheAxis() throws FirmwareSettingsException {
+        setFirmwareSetting("$120", "50.000");
+        setFirmwareSetting("$121", "40.000");
+        setFirmwareSetting("$122", "30.000");
+
+        assertEquals(50, target.getAcceleration(Axis.X), 0.001);
+        assertEquals(40, target.getAcceleration(Axis.Y), 0.001);
+        assertEquals(30, target.getAcceleration(Axis.Z), 0.001);
+    }
+
+    @Test
+    public void getAccelerationShouldThrowExceptionForUnsupportedAxis() {
+        setFirmwareSetting("$120", "50.000");
+
+        assertThrows(FirmwareSettingsException.class, () -> target.getAcceleration(Axis.A));
+    }
+
+    @Test
+    public void getAccelerationShouldThrowExceptionWhenTheSettingIsMissing() {
+        assertThrows(FirmwareSettingsException.class, () -> target.getAcceleration(Axis.X));
+    }
+
+    @Test
+    public void getJunctionDeviationShouldReturnTheSetting() throws FirmwareSettingsException {
+        setFirmwareSetting("$11", "0.010");
+
+        assertEquals(0.01, target.getJunctionDeviation(), 0.0001);
+    }
+
+    @Test
+    public void getJunctionDeviationShouldThrowExceptionWhenTheSettingIsMissing() {
+        assertThrows(FirmwareSettingsException.class, () -> target.getJunctionDeviation());
+    }
+
+    @Test
     public void isHomingEnabledShouldBeTrue() {
         // Emulate a settings-message from the controller
         setFirmwareSetting("$22", "1");

@@ -27,12 +27,13 @@ import com.willwinder.universalgcodesender.model.events.CommandEvent;
 import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.SendProgressService;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import static com.willwinder.universalgcodesender.model.events.FileState.FILE_LOADED;
@@ -46,6 +47,7 @@ import static com.willwinder.universalgcodesender.model.events.FileState.FILE_ST
 public class SendStatusPanel extends JPanel implements UGSEventListener {
     private static final String AL_RIGHT = "al right";
     private final BackendAPI backend;
+    private final SendProgressService sendProgress = LookupService.lookup(SendProgressService.class);
 
     private final JLabel rowsLabel = new JLabel(Localization.getString("mainWindow.swing.rowsLabel"));
     private final JLabel sentRowsLabel = new JLabel(Localization.getString("mainWindow.swing.sentRowsLabel"));
@@ -78,35 +80,27 @@ public class SendStatusPanel extends JPanel implements UGSEventListener {
     }
 
     private void update() {
-        durationValue.setText(Utils.formattedMillis(backend.getSendDuration()));
-        setRemainingTime(backend.getSendRemainingDuration());
-        sentRowsValue.setText("" + backend.getNumCompletedRows());
-        remainingRowsValue.setText("" + backend.getNumRemainingRows());
+        durationValue.setText(Utils.formattedMillis(sendProgress.getDuration()));
+        setRemainingTime(sendProgress.getRemainingDuration());
+        sentRowsValue.setText("" + sendProgress.getNumCompletedRows());
+        remainingRowsValue.setText("" + sendProgress.getNumRemainingRows());
     }
 
     private void beginSend() {
         // Timer for updating duration labels.
-        ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            update();
+        ActionListener actionListener = actionEvent -> java.awt.EventQueue.invokeLater(() -> {
+            try {
+                update();
 
-                            // Stop the timer if we no longer is sending a file
-                            if (!backend.isSendingFile() && timer != null && timer.isRunning()) {
-                                endSend();
-                                timer.stop();
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                // Stop the timer if we no longer are sending a file
+                if (!backend.isSendingFile() && timer != null && timer.isRunning()) {
+                    endSend();
+                    timer.stop();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        };
+        });
 
         this.resetTimerLabels();
 
@@ -129,24 +123,22 @@ public class SendStatusPanel extends JPanel implements UGSEventListener {
     private void endSend() {
         setRemainingTime(Utils.formattedMillis(0));
         remainingRowsValue.setText("0");
-        sentRowsValue.setText("" + backend.getNumCompletedRows());
+        sentRowsValue.setText("" + sendProgress.getNumCompletedRows());
     }
 
     private void resetTimerLabels() {
         // Reset labels
         this.durationValue.setText("00:00:00");
         if (this.backend != null && this.backend.isConnected()) {
-            setRemainingTime(backend.getSendDuration());
+            setRemainingTime(sendProgress.getDuration());
         } else {
-            setRemainingTime("--:--:--");
+            setRemainingTime(sendProgress.getTotalDuration());
         }
     }
 
     private void setRemainingTime(long millis) {
-        if (millis < 0) {
-            setRemainingTime("estimating...");
-        } else if (millis == 0) {
-            setRemainingTime("--:--:--");
+        if (millis <= 0) {
+            setRemainingTime(Utils.formattedMillis(sendProgress.getTotalDuration()));
         } else {
             setRemainingTime(Utils.formattedMillis(millis));
         }
@@ -161,7 +153,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener {
     }
 
     private void resetSentRowLabels() {
-        String numRows = String.valueOf(backend.getNumRows());
+        String numRows = String.valueOf(sendProgress.getNumRows());
 
         // Reset labels
         resetTimerLabels();

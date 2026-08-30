@@ -39,7 +39,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -401,6 +400,32 @@ public class FluidNCSettings implements IFirmwareSettings {
     @Override
     public double getMaximumRate(Axis axis) {
         return 0;
+    }
+
+    @Override
+    public double getAcceleration(Axis axis) {
+        return getSetting("axes/" + axis.name().toLowerCase() + "/acceleration_mm_per_sec2")
+                .map(s -> {
+                    try {
+                        return Utils.formatter.parse(s.getValue()).doubleValue();
+                    } catch (ParseException e) {
+                        return 0d;
+                    }
+                })
+                .orElse(0d);
+    }
+
+    @Override
+    public double getJunctionDeviation() {
+        return getSetting("junction_deviation_mm")
+                .map(s -> {
+                    try {
+                        return Utils.formatter.parse(s.getValue()).doubleValue();
+                    } catch (ParseException e) {
+                        return 0d;
+                    }
+                })
+                .orElse(0d);
     }
 
     private Optional<SpeedMap> getSpeedMap(String speedMapSetting) {

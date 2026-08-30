@@ -21,12 +21,14 @@ package com.willwinder.ugs.nbp.core.windows;
 import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.services.SendProgressService;
 import net.miginfocom.swing.MigLayout;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -91,9 +93,10 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
         this.labels.put("controller:isIdle", new JLabel(EMPTY_VALUE));
         this.labels.put("controller:isCommOpen", new JLabel(EMPTY_VALUE));
         this.labels.put("controller:isStreaming", new JLabel(EMPTY_VALUE));
-        this.labels.put("controller:rowsInSend", new JLabel(EMPTY_VALUE));
-        this.labels.put("controller:rowsSent", new JLabel(EMPTY_VALUE));
-        this.labels.put("controller:rowsRemaining", new JLabel(EMPTY_VALUE));
+        this.labels.put("sendProgress:numRows", new JLabel(EMPTY_VALUE));
+        this.labels.put("sendProgress:numSentRows", new JLabel(EMPTY_VALUE));
+        this.labels.put("sendProgress:numRemainingRows", new JLabel(EMPTY_VALUE));
+        this.labels.put("sendProgress:duration", new JLabel(EMPTY_VALUE));
         this.labels.put("controller:getSingleStepMode", new JLabel(EMPTY_VALUE));
         this.labels.put("controller:getStatusUpdatesEnabled", new JLabel(EMPTY_VALUE));
         this.labels.put("controller:getStatusUpdateRate", new JLabel(EMPTY_VALUE));
@@ -137,6 +140,12 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
             labels.get("backend:canCancel").setText(String.valueOf(backend.canCancel()));
             labels.get("backend:canSend").setText(String.valueOf(backend.canSend()));
             labels.get("backend:getControllerState").setText(String.valueOf(backend.getControllerState().toString()));
+
+            SendProgressService sendProgress = LookupService.lookup(SendProgressService.class);
+            labels.get("sendProgress:numRows").setText(String.valueOf(sendProgress.getNumRows()));
+            labels.get("sendProgress:numSentRows").setText(String.valueOf(sendProgress.getNumSentRows()));
+            labels.get("sendProgress:numRemainingRows").setText(String.valueOf(sendProgress.getNumRemainingRows()));
+            labels.get("sendProgress:duration").setText(Utils.formattedMillis(sendProgress.getDuration()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -148,9 +157,6 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
                 labels.get("controller:isIdle").setText(String.valueOf(controller.isIdle()));
                 labels.get("controller:isCommOpen").setText(String.valueOf(controller.isCommOpen()));
                 labels.get("controller:isStreaming").setText(String.valueOf(controller.isStreaming()));
-                labels.get("controller:rowsInSend").setText(String.valueOf(controller.rowsInSend()));
-                labels.get("controller:rowsSent").setText(String.valueOf(controller.rowsSent()));
-                labels.get("controller:rowsRemaining").setText(String.valueOf(controller.rowsRemaining()));
                 labels.get("controller:getSingleStepMode").setText(String.valueOf(controller.getSingleStepMode()));
                 labels.get("controller:getStatusUpdatesEnabled").setText(String.valueOf(controller.getStatusUpdatesEnabled()));
                 labels.get("controller:getStatusUpdateRate").setText(String.valueOf(controller.getStatusUpdateRate()));

@@ -78,14 +78,6 @@ public interface BackendAPIReadOnly {
     Position getMachinePosition();
     GcodeState getGcodeState();
 
-    // Send status
-    long getNumRows();
-    long getNumSentRows();
-    long getNumRemainingRows();
-    long getNumCompletedRows();
-
-    long getSendDuration();
-    long getSendRemainingDuration();
     String getPauseResumeText();
 
     // Shouldn't be needed often.

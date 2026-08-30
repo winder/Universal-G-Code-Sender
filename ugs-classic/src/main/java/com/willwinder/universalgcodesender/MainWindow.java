@@ -43,12 +43,13 @@ import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.Version;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.services.SendProgressService;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.GUIBackend;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 
 import java.awt.*;
@@ -91,6 +92,7 @@ public class MainWindow extends JFrame implements UGSEventListener {
     private final Settings settings;
 
     private final BackendAPI backend;
+    private final SendProgressService sendProgress = LookupService.lookup(SendProgressService.class);
 
     // My Variables
     private javax.swing.JFileChooser fileChooser;
@@ -214,7 +216,8 @@ public class MainWindow extends JFrame implements UGSEventListener {
         }
 
          /* Create the form */
-        GUIBackend backend = new GUIBackend();
+        LookupService.initialize();
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         final MainWindow mw = new MainWindow(backend);
 
         /* Apply the settings to the MainWindow bofore showing it */
@@ -1247,12 +1250,12 @@ public class MainWindow extends JFrame implements UGSEventListener {
                     @Override
                     public void run() {
                         try {
-                            durationValueLabel.setText(Utils.formattedMillis(backend.getSendDuration()));
-                            remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
+                            durationValueLabel.setText(Utils.formattedMillis(sendProgress.getDuration()));
+                            remainingTimeValueLabel.setText(Utils.formattedMillis(sendProgress.getRemainingDuration()));
 
                             //sentRowsValueLabel.setText(""+sentRows);
-                            sentRowsValueLabel.setText(""+backend.getNumCompletedRows());
-                            remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
+                            sentRowsValueLabel.setText(""+sendProgress.getNumCompletedRows());
+                            remainingRowsValueLabel.setText("" + sendProgress.getNumRemainingRows());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -1275,7 +1278,7 @@ public class MainWindow extends JFrame implements UGSEventListener {
                 commandTable.clear();
             }
             this.backend.send();
-            this.resetSentRowLabels(backend.getNumRows());
+            this.resetSentRowLabels(sendProgress.getNumRows());
             timer.start();
         } catch (Exception e) {
             timer.stop();
@@ -1585,12 +1588,12 @@ public class MainWindow extends JFrame implements UGSEventListener {
         // Reset labels
         this.durationValueLabel.setText("00:00:00");
         if (this.backend.isConnected()) {
-            if (this.backend.getSendDuration() < 0) {
+            if (this.sendProgress.getDuration() < 0) {
                 this.remainingTimeValueLabel.setText("estimating...");
-            } else if (this.backend.getSendDuration() == 0) {
+            } else if (this.sendProgress.getDuration() == 0) {
                 this.remainingTimeValueLabel.setText("--:--:--");
             } else {
-                this.remainingTimeValueLabel.setText(Utils.formattedMillis(this.backend.getSendDuration()));
+                this.remainingTimeValueLabel.setText(Utils.formattedMillis(this.sendProgress.getDuration()));
             }
         }
     }
@@ -1777,10 +1780,10 @@ public class MainWindow extends JFrame implements UGSEventListener {
                     break;
                 case FILE_STREAM_COMPLETE:
                     remainingTimeValueLabel.setText(Utils.formattedMillis(0));
-                    remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
+                    remainingRowsValueLabel.setText("" + sendProgress.getNumRemainingRows());
                     EventQueue.invokeLater(() -> {
                         JOptionPane.showMessageDialog(new JFrame(),
-                                Localization.getString("mainWindow.ui.jobComplete") + " " + Utils.formattedMillis(backend.getSendDuration()),
+                                Localization.getString("mainWindow.ui.jobComplete") + " " + Utils.formattedMillis(sendProgress.getDuration()),
                                 Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
                         try {
                             Thread.sleep(1000);

@@ -145,6 +145,16 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
+    public double getAcceleration(Axis axis) {
+        return 0;
+    }
+
+    @Override
+    public double getJunctionDeviation() {
+        return 0;
+    }
+
+    @Override
     public int getMaxSpindleSpeed() throws FirmwareSettingsException {
         return 0;
     }
