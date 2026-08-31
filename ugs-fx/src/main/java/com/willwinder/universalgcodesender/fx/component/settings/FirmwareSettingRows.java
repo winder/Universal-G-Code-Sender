@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2024 Will Winder
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,12 +16,22 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.listeners;
+package com.willwinder.universalgcodesender.fx.component.settings;
 
-public record EnabledPins(boolean x, boolean x0, boolean x1, 
-                          boolean y, boolean y0, boolean y1,
-                          boolean z, boolean z0, boolean z1,
-                          boolean a, boolean b, boolean c, boolean probe, boolean door,
-                          boolean hold, boolean softReset, boolean cycleStart, boolean eStop) {
-    public static final EnabledPins EMPTY_PINS = new EnabledPinsBuilder().createEnabledPins();
+import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
+import javafx.scene.control.TreeItem;
+
+/**
+ * The firmware settings are presented in a tree where the group headings are the only rows that have
+ * children.
+ */
+final class FirmwareSettingRows {
+
+    private FirmwareSettingRows() {
+        // Can not be instanced
+    }
+
+    static boolean isGroupHeading(TreeItem<FirmwareSetting> treeItem) {
+        return treeItem != null && !treeItem.getChildren().isEmpty();
+    }
 }

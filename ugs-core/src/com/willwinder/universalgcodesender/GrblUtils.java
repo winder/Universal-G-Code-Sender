@@ -516,6 +516,7 @@ public class GrblUtils {
                 .setHold(enabledUpper.contains("H"))
                 .setSoftReset(enabledUpper.contains("R"))
                 .setCycleStart(enabledUpper.contains("S"))
+                .setEStop(enabledUpper.contains("E"))
                 .createEnabledPins();
     }
 

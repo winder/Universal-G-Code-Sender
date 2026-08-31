@@ -99,6 +99,17 @@ public interface IFirmwareSettings {
     List<FirmwareSetting> getAllSettings();
 
     /**
+     * Returns the names of the setting groups in the order that the controller presents them. The
+     * names correspond to {@link FirmwareSetting#getGroupName()} and are used for presenting the
+     * settings in sections. Controllers that do not report any groups return an empty list.
+     *
+     * @return the group names in the controllers own order
+     */
+    default List<String> getGroupNames() {
+        return List.of();
+    }
+
+    /**
      * Returns if hard limit switches are enabled in the controller
      *
      * @return true if enabled

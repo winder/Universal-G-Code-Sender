@@ -10,3 +10,21 @@
     -fx-border-radius: 4;
     -fx-background-radius: 4;
 }
+
+.firmware-settings .tree-table-row-cell:group-heading {
+    -fx-background-color: rgb(238, 242, 245);
+    -fx-background-insets: 0;
+}
+
+.firmware-settings .tree-table-row-cell:group-heading .tree-table-cell {
+    -fx-font-weight: bold;
+    -fx-border-color: transparent;
+}
+
+.firmware-settings .tree-table-row-cell:group-heading:selected .tree-table-cell {
+    -fx-text-fill: black;
+}
+
+.firmware-settings .tree-table-row-cell:group-heading:selected .tree-disclosure-node .arrow {
+    -fx-background-color: black;
+}
