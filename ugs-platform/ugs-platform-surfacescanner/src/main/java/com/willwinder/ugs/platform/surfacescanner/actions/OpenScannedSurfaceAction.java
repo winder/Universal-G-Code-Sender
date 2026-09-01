@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.services.LookupService;
@@ -130,7 +131,7 @@ public class OpenScannedSurfaceAction extends AbstractAction implements UGSEvent
         autoLevelSettings.setMax(maxPosition);
 
         double stepResolution = positions.get(1).getY() - positions.get(0).getY();
-        autoLevelSettings.setStepResolution(stepResolution);
+        autoLevelSettings.setStepResolution(stepResolution * UnitUtils.scaleUnits(minPosition.getUnits(), UnitUtils.Units.MM));
 
         surfaceScanner.update(minPosition, maxPosition);
         surfaceScanner.reset();

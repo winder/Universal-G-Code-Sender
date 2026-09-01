@@ -58,8 +58,8 @@ public class SurfaceScanner {
     public SurfaceScanner(BackendAPI backend) {
         this.backend = backend;
         this.settings = backend.getSettings().getAutoLevelSettings();
-        Position minPosition = new Position(settings.getMinX(), settings.getMinY(), settings.getMinZ(), backend.getSettings().getPreferredUnits());
-        Position maxPosition = new Position(settings.getMaxX(), settings.getMaxY(), settings.getMaxZ(), backend.getSettings().getPreferredUnits());
+        Position minPosition = new Position(settings.getMinX(), settings.getMinY(), settings.getMinZ(), Units.MM);
+        Position maxPosition = new Position(settings.getMaxX(), settings.getMaxY(), settings.getMaxZ(), Units.MM);
         update(minPosition, maxPosition);
     }
 
@@ -71,15 +71,18 @@ public class SurfaceScanner {
             throw new IllegalArgumentException("Provide same unit for both measures.");
         }
 
-        double xMin = Math.min(corner1.x, corner2.x);
-        double xMax = Math.max(corner1.x, corner2.x);
-        double yMin = Math.min(corner1.y, corner2.y);
-        double yMax = Math.max(corner1.y, corner2.y);
-        double zMin = Math.min(corner1.z, corner2.z);
-        double zMax = Math.max(corner1.z, corner2.z);
+        Position first = corner1.getPositionIn(getPreferredUnits());
+        Position second = corner2.getPositionIn(getPreferredUnits());
 
-        Position newMin = new Position(xMin, yMin, zMin, corner1.getUnits());
-        Position newMax = new Position(xMax, yMax, zMax, corner1.getUnits());
+        double xMin = Math.min(first.x, second.x);
+        double xMax = Math.max(first.x, second.x);
+        double yMin = Math.min(first.y, second.y);
+        double yMax = Math.max(first.y, second.y);
+        double zMin = Math.min(first.z, second.z);
+        double zMax = Math.max(first.z, second.z);
+
+        Position newMin = new Position(xMin, yMin, zMin, getPreferredUnits());
+        Position newMax = new Position(xMax, yMax, zMax, getPreferredUnits());
 
         // If we're 0 in any dimension there is nothing we can do yet.
         if (newMin.getX() != newMax.getX() && newMin.getY() != newMax.getY() && newMin.getZ() != newMax.getZ()) {
@@ -107,7 +110,7 @@ public class SurfaceScanner {
 
         logger.log(Level.INFO, "Record ({0}, {1}, {2})",
                 new Object[]{probePosition.getX(), probePosition.getY(), probePosition.getZ()});
-        probeEvent(probePosition);
+        probeEvent(toMaterialPosition(probePosition));
 
         if (pendingPositions.isEmpty()) {
             // The probing is done!
@@ -118,13 +121,30 @@ public class SurfaceScanner {
         }
 }
 
+    /**
+     * Returns the thickness of the touch plate in the preferred units.
+     */
+    public double getTouchPlateThickness() {
+        return settings.getTouchPlateThickness() * UnitUtils.scaleUnits(Units.MM, getPreferredUnits());
+    }
+
+    private double toProbeZ(double materialZ) {
+        return materialZ + getTouchPlateThickness();
+    }
+
+    private Position toMaterialPosition(Position probePosition) {
+        Position materialPosition = new Position(probePosition);
+        materialPosition.setZ(probePosition.getZ() - getTouchPlateThickness());
+        return materialPosition;
+    }
+
     private Units getPreferredUnits() {
         return this.backend.getSettings().getPreferredUnits();
     }
 
     public void reset() {
         isScanning.set(false);
-        double resolution = settings.getStepResolution();
+        double resolution = getStepResolution();
 
         int xAxisPoints = (int) (Math.ceil((maxXYZ.getX() - minXYZ.getX()) / resolution)) + 1;
         int yAxisPoints = (int) (Math.ceil((maxXYZ.getY() - minXYZ.getY()) / resolution)) + 1;
@@ -183,13 +203,13 @@ public class SurfaceScanner {
         machineWorkOffset.z = work.z - machine.z;
 
         moveToSafeStartPoint(work);
-        probeNextPoint(maxXYZ.getZ());
+        probeNextPoint(toProbeZ(maxXYZ.getZ()));
     }
 
     private void moveToSafeStartPoint(Position currentPosition) {
         try {
             // Move up if below probe area
-            double safetyHeight = (UnitUtils.scaleUnits(Units.MM, maxXYZ.getUnits()) * backend.getSettings().getSafetyHeight()) + maxXYZ.getZ();
+            double safetyHeight = (UnitUtils.scaleUnits(Units.MM, maxXYZ.getUnits()) * backend.getSettings().getSafetyHeight()) + toProbeZ(maxXYZ.getZ());
             if (currentPosition.getPositionIn(maxXYZ.getUnits()).getZ() < safetyHeight) {
                 PartialPosition safeHeightPos = PartialPosition.builder(maxXYZ.getUnits()).setZ(safetyHeight).build();
                 String cmd = GcodeUtils.generateMoveCommand(
@@ -210,7 +230,7 @@ public class SurfaceScanner {
             backend.sendGcodeCommand(true, cmd);
 
             // Move to the Z start position
-            PartialPosition startHeight = PartialPosition.builder(maxXYZ.getUnits()).setZ(maxXYZ.getZ()).build();
+            PartialPosition startHeight = PartialPosition.builder(maxXYZ.getUnits()).setZ(toProbeZ(maxXYZ.getZ())).build();
             cmd = GcodeUtils.generateMoveCommand(
                     "G90G0", getProbeScanFeedRate(), startHeight);
             logger.log(Level.INFO, "Move to start height {0}", new Object[]{startHeight});
@@ -241,13 +261,17 @@ public class SurfaceScanner {
             backend.sendGcodeCommand(true, cmd);
 
             // Send probe command, probing down to zMin
-            double probeDistance = minXYZ.getZ() - zBackoff;
+            double probeDistance = toProbeZ(minXYZ.getZ()) - zBackoff;
             logger.log(Level.INFO, "Probe {0}", probeDistance);
             backend.probe("Z", getProbeSpeed(), probeDistance, getPreferredUnits());
         } catch (Exception e) {
             reset();
             throw new RuntimeException(e);
         }
+    }
+
+    private double getStepResolution() {
+        return settings.getStepResolution() * UnitUtils.scaleUnits(Units.MM, getPreferredUnits());
     }
 
     private double getProbeSpeed() {
@@ -265,7 +289,7 @@ public class SurfaceScanner {
         }
 
         // Start by backing off the current position
-        double zBackoff = Math.min(zLast + zRetract, maxXYZ.getZ());
+        double zBackoff = Math.min(zLast + zRetract, toProbeZ(maxXYZ.getZ()));
         PartialPosition safeZ = PartialPosition.builder(maxXYZ.getUnits()).setZ(zBackoff).build();
         String retractCommand = GcodeUtils.generateMoveCommand(
                 "G90G0",
@@ -299,7 +323,7 @@ public class SurfaceScanner {
 
     public ImmutableList<Position> getProbeStartPositions() {
         ImmutableList.Builder<Position> builder = ImmutableList.builder();
-        double z = maxXYZ.getZ();
+        double z = toProbeZ(maxXYZ.getZ());
         for (Position[] columns : probePositionGrid) {
             for (Position p : columns) {
                 Position zMaxPoint = new Position(p);
@@ -308,6 +332,13 @@ public class SurfaceScanner {
             }
         }
         return builder.build();
+    }
+
+    /**
+     * Returns the lowest Z position that the tool will travel to while probing, in the preferred units.
+     */
+    public double getProbeAreaMinZ() {
+        return toProbeZ(minXYZ.getZ());
     }
 
     public final Position[][] getProbePositionGrid() {

@@ -36,6 +36,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.util.prefs.PreferenceChangeEvent;
 
@@ -123,6 +124,10 @@ public class SettingsPanel extends JPanel {
     }
 
     private void onSettingsChanged(PreferenceChangeEvent e) {
+        SwingUtilities.invokeLater(() -> updateComponents(e));
+    }
+
+    private void updateComponents(PreferenceChangeEvent e) {
         switch (e.getKey()) {
             case ProbeSettings.SETTINGS_UNITS:
                 var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;

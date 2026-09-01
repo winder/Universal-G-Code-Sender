@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2023 Will Winder
+    Copyright 2017-2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,47 +20,32 @@ package com.willwinder.ugs.platform.surfacescanner.ui;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.IChanged;
+import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  *
  * @author wwinder
  */
 public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
-    private final Spinner zHeightSpinner = new Spinner(
-                Localization.getString("autoleveler.option.z-zero"),
-                new SpinnerNumberModel(0., null, null, 1.));
+    private final UnitSpinnerRow probeFeedRate = new UnitSpinnerRow(Localization.getString("probe.feed-rate"), 0d);
+    private final UnitSpinnerRow probeScanFeedRate = new UnitSpinnerRow(Localization.getString("probe.scan-rate"), 0d);
+    private final UnitSpinnerRow arcSegmentLength = new UnitSpinnerRow(Localization.getString("autoleveler.option.arc-segment-length"), 0.001d);
+    private final UnitSpinnerRow plateThickness = new UnitSpinnerRow(Localization.getString("probe.plate-thickness"), 0d);
+    private final UnitSpinnerRow xOffset = new UnitSpinnerRow(Localization.getString("autoleveler.option.offset-x"), null);
+    private final UnitSpinnerRow yOffset = new UnitSpinnerRow(Localization.getString("autoleveler.option.offset-y"), null);
+    private final UnitSpinnerRow zOffset = new UnitSpinnerRow(Localization.getString("autoleveler.option.offset-z"), null);
 
-    private final Spinner probeFeedRate = new Spinner(
-                Localization.getString("probe.feed-rate"),
-                new SpinnerNumberModel(1., 0.0, null, 1.));
-
-    private final Spinner probeScanFeedRate = new Spinner(
-            Localization.getString("probe.scan-rate"),
-            new SpinnerNumberModel(1., 0.0, null, 1.));
-
-    private final Spinner arcSegmentLengthSpinner = new Spinner(
-                Localization.getString("autoleveler.option.arc-segment-length"),
-                new SpinnerNumberModel(0.2, 0.001, null, 0.1));
-
-    private final Spinner xOffsetSpinner = new Spinner(
-                Localization.getString("autoleveler.option.offset-x"),
-                new SpinnerNumberModel(0., 0., null, 1.));
-
-    private final Spinner yOffsetSpinner = new Spinner(
-                Localization.getString("autoleveler.option.offset-y"),
-                new SpinnerNumberModel(0., 0., null, 1.));
-
-    private final Spinner zOffsetSpinner = new Spinner(
-                Localization.getString("autoleveler.option.offset-z"),
-                new SpinnerNumberModel(0., 0., null, 1.));
+    private boolean updatingComponents = false;
 
     public AutoLevelerSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
@@ -68,45 +53,62 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
 
     @Override
     protected void updateComponentsInternal(Settings s) {
-        this.removeAll();
+        updatingComponents = true;
+        try {
+            this.removeAll();
 
-        AutoLevelSettings autoLevelSettings = s.getAutoLevelSettings();
+            AutoLevelSettings autoLevelSettings = s.getAutoLevelSettings();
+            Units preferredUnits = s.getPreferredUnits();
+            Unit lengthUnit = preferredUnits == Units.MM ? Unit.MM : Unit.INCH;
+            Unit feedRateUnit = preferredUnits == Units.MM ? Unit.MM_PER_MINUTE : Unit.INCHES_PER_MINUTE;
 
-        setLayout(new MigLayout("wrap 1", "grow, fill"));
+            setLayout(new MigLayout("wrap 1", "grow, fill"));
 
-        this.zHeightSpinner.setValue(autoLevelSettings.getAutoLevelProbeZeroHeight());
-        add(this.zHeightSpinner);
+            probeFeedRate.setUnits(feedRateUnit);
+            probeFeedRate.setValue(autoLevelSettings.getProbeSpeed(), Unit.MM_PER_MINUTE);
+            add(probeFeedRate);
 
-        this.probeFeedRate.setValue(autoLevelSettings.getProbeSpeed());
-        add(this.probeFeedRate);
+            probeScanFeedRate.setUnits(feedRateUnit);
+            probeScanFeedRate.setValue(autoLevelSettings.getProbeScanFeedRate(), Unit.MM_PER_MINUTE);
+            add(probeScanFeedRate);
 
-        this.probeScanFeedRate.setValue(autoLevelSettings.getProbeScanFeedRate());
-        add(this.probeScanFeedRate);
+            arcSegmentLength.setUnits(lengthUnit);
+            arcSegmentLength.setValue(autoLevelSettings.getAutoLevelArcSliceLength(), Unit.MM);
+            add(arcSegmentLength);
 
-        this.arcSegmentLengthSpinner.setValue(autoLevelSettings.getAutoLevelArcSliceLength());
-        add(this.arcSegmentLengthSpinner);
+            plateThickness.setUnits(lengthUnit);
+            plateThickness.setValue(autoLevelSettings.getTouchPlateThickness(), Unit.MM);
+            add(plateThickness);
 
-        this.xOffsetSpinner.setValue(autoLevelSettings.getAutoLevelProbeOffset().x);
-        add(this.xOffsetSpinner);
+            Position probeOffset = autoLevelSettings.getAutoLevelProbeOffset();
 
-        this.yOffsetSpinner.setValue(autoLevelSettings.getAutoLevelProbeOffset().y);
-        add(this.yOffsetSpinner);
+            xOffset.setUnits(lengthUnit);
+            xOffset.setValue(probeOffset.getX(), Unit.MM);
+            add(xOffset);
 
-        this.zOffsetSpinner.setValue(autoLevelSettings.getAutoLevelProbeOffset().z);
-        add(this.zOffsetSpinner);
+            yOffset.setUnits(lengthUnit);
+            yOffset.setValue(probeOffset.getY(), Unit.MM);
+            add(yOffset);
+
+            zOffset.setUnits(lengthUnit);
+            zOffset.setValue(probeOffset.getZ(), Unit.MM);
+            add(zOffset);
+        } finally {
+            updatingComponents = false;
+        }
     }
 
     @Override
     public void save() {
         AutoLevelSettings values = new AutoLevelSettings(settings.getAutoLevelSettings());
-        values.setAutoLevelProbeZeroHeight((double) this.zHeightSpinner.getValue());
-        values.setProbeSpeed((double) this.probeFeedRate.getValue());
-        values.setProbeScanFeedRate( (double) this.probeScanFeedRate.getValue());
-        values.setAutoLevelArcSliceLength((double)this.arcSegmentLengthSpinner.getValue());
+        values.setProbeSpeed(probeFeedRate.getValue(Unit.MM_PER_MINUTE));
+        values.setProbeScanFeedRate(probeScanFeedRate.getValue(Unit.MM_PER_MINUTE));
+        values.setAutoLevelArcSliceLength(arcSegmentLength.getValue(Unit.MM));
+        values.setTouchPlateThickness(plateThickness.getValue(Unit.MM));
         values.setAutoLevelProbeOffset(new Position(
-                (double)this.xOffsetSpinner.getValue(),
-                (double)this.yOffsetSpinner.getValue(),
-                (double)this.zOffsetSpinner.getValue(),
+                xOffset.getValue(Unit.MM),
+                yOffset.getValue(Unit.MM),
+                zOffset.getValue(Unit.MM),
                 Units.MM));
         settings.getAutoLevelSettings().apply(values);
     }
@@ -117,6 +119,35 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
     }
 
     @Override
-    public void restoreDefaults() throws Exception {
+    public void restoreDefaults() {
+    }
+
+    private class UnitSpinnerRow extends JPanel {
+        private final UnitSpinner spinner;
+
+        private UnitSpinnerRow(String text, Double minimum) {
+            spinner = new UnitSpinner(minimum == null ? 0 : minimum, Unit.MM, minimum, null, 0.01d);
+            spinner.addChangeListener(e -> {
+                if (!updatingComponents) {
+                    change();
+                }
+            });
+
+            setLayout(new MigLayout("insets 0, wrap 2"));
+            add(spinner, "w 150");
+            add(new JLabel(text));
+        }
+
+        private void setUnits(Unit units) {
+            spinner.setUnits(units);
+        }
+
+        private void setValue(double value, Unit units) {
+            spinner.setValue(value, units);
+        }
+
+        private double getValue(Unit units) {
+            return spinner.getDoubleValue(units);
+        }
     }
 }

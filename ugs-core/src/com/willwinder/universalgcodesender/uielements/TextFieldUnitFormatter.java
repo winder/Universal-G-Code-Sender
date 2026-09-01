@@ -64,16 +64,27 @@ public class TextFieldUnitFormatter extends JFormattedTextField.AbstractFormatte
     }
 
     @Override
-    public String valueToString(Object text) throws ParseException {
-        double value = Utils.formatter.parse(text.toString()).doubleValue();
-        if (unit == Unit.PERCENT) {
-            value = value * 100d;
+    public String valueToString(Object value) throws ParseException {
+        if (value == null) {
+            return "";
         }
 
-        String result = Utils.formatter.format(MathUtils.round(value, numberOfDecimals));
+        double numericValue = toNumericValue(value);
+        if (unit == Unit.PERCENT) {
+            numericValue = numericValue * 100d;
+        }
+
+        String result = Utils.formatter.format(MathUtils.round(numericValue, numberOfDecimals));
         if (showAbbreviation) {
             result += " " + unit.getAbbreviation();
         }
         return result;
+    }
+
+    private static double toNumericValue(Object value) throws ParseException {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        return Utils.formatter.parse(String.valueOf(value)).doubleValue();
     }
 }
