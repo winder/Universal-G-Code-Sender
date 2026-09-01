@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2024 Will Winder
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,12 +16,21 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.listeners;
+package com.willwinder.universalgcodesender.firmware.grblhal.commands;
 
-public record EnabledPins(boolean x, boolean x0, boolean x1, 
-                          boolean y, boolean y0, boolean y1,
-                          boolean z, boolean z0, boolean z1,
-                          boolean a, boolean b, boolean c, boolean probe, boolean door,
-                          boolean hold, boolean softReset, boolean cycleStart, boolean eStop) {
-    public static final EnabledPins EMPTY_PINS = new EnabledPinsBuilder().createEnabledPins();
+import com.willwinder.universalgcodesender.firmware.grbl.commands.GrblCommand;
+
+/**
+ * A command sent to a grblHAL controller. grblHAL uses the same response format as GRBL 1.1.
+ *
+ * @author Joacim Breiler
+ */
+public class GrblHalCommand extends GrblCommand {
+    public GrblHalCommand(String command) {
+        super(command);
+    }
+
+    public GrblHalCommand(String command, String originalCommand, String comment, int commandNumber) {
+        super(command, originalCommand, comment, commandNumber);
+    }
 }

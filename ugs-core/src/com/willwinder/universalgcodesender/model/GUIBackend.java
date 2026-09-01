@@ -571,7 +571,7 @@ public class GUIBackend implements BackendAPI {
     public boolean isIdle() {
         return isConnected() &&
                 controller.getControllerStatus() != null &&
-                (controller.getControllerStatus().getState() == ControllerState.IDLE || controller.getControllerStatus().getState() == ControllerState.CHECK);
+                (controller.getControllerStatus().getState() == ControllerState.ALARM || controller.getControllerStatus().getState() == ControllerState.IDLE || controller.getControllerStatus().getState() == ControllerState.CHECK);
     }
 
     @Override

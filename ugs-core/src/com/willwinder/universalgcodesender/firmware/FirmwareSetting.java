@@ -58,6 +58,12 @@ public class FirmwareSetting implements Serializable {
     private String shortDescription = "";
 
     /**
+     * The name of the group that this setting belongs to. Not all controllers report groups so
+     * this may be empty.
+     */
+    private String groupName = "";
+
+    /**
      * A constructor with all parameters for constructing a firmware setting
      *
      * @param key              the name of the setting
@@ -66,13 +72,19 @@ public class FirmwareSetting implements Serializable {
      *                         understand which values are allowed
      * @param description      the full description of the setting
      * @param shortDescription a short description of the setting
+     * @param groupName        the name of the group that the setting belongs to
      */
-    public FirmwareSetting(String key, String value, String units, String description, String shortDescription) {
+    public FirmwareSetting(String key, String value, String units, String description, String shortDescription, String groupName) {
         this.key = key;
         this.value = value;
         this.units = units;
         this.description = description;
         this.shortDescription = shortDescription;
+        this.groupName = groupName;
+    }
+
+    public FirmwareSetting(String key, String value, String units, String description, String shortDescription) {
+        this(key, value, units, description, shortDescription, "");
     }
 
     public FirmwareSetting(String key, String value) {
@@ -98,6 +110,10 @@ public class FirmwareSetting implements Serializable {
 
     public String getShortDescription() {
         return shortDescription;
+    }
+
+    public String getGroupName() {
+        return groupName;
     }
 
     @Override

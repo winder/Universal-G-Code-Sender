@@ -316,6 +316,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         if (ep.hold()) enabled.add(Translations.PIN_HOLD);
         if (ep.softReset()) enabled.add(Translations.PIN_SOFT_RESET);
         if (ep.cycleStart()) enabled.add(Translations.PIN_CYCLE_STARY);
+        if (ep.eStop()) enabled.add(Translations.PIN_ESTOP);
 
         if (!enabled.isEmpty()) {
             pinStatesLabel.setText(String.join(" ", enabled));

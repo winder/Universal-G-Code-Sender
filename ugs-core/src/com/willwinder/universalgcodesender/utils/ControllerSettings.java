@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.TinyGController;
 import com.willwinder.universalgcodesender.communicator.XLCDCommunicator;
 import com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCController;
+import com.willwinder.universalgcodesender.firmware.grblhal.GrblHalController;
 import com.willwinder.universalgcodesender.firmware.smoothie.SmoothieController;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.gcode.util.CommandProcessorLoader;
@@ -52,6 +53,7 @@ public class ControllerSettings {
 
     public enum CONTROLLER {
         GRBL("GRBL"),
+        GRBLHAL("grblHAL"),
         FLUIDNC("FluidNC"),
         SMOOTHIE("SmoothieBoard"),
         TINYG("TinyG"),
@@ -100,22 +102,15 @@ public class ControllerSettings {
             return Optional.empty();
         }
 
-        switch (controller) {
-            case GRBL:
-                return Optional.of(new GrblController());
-            case SMOOTHIE:
-                return Optional.of(new SmoothieController());
-            case TINYG:
-                return Optional.of(new TinyGController());
-            case G2CORE:
-                return Optional.of(new G2CoreController());
-            case XLCD:
-                return Optional.of(new GrblController(new XLCDCommunicator()));
-            case FLUIDNC:
-                return Optional.of(new FluidNCController());
-            default:
-                return Optional.empty();
-        }
+        return switch (controller) {
+            case GRBL -> Optional.of(new GrblController());
+            case GRBLHAL -> Optional.of(new GrblHalController());
+            case SMOOTHIE -> Optional.of(new SmoothieController());
+            case TINYG -> Optional.of(new TinyGController());
+            case G2CORE -> Optional.of(new G2CoreController());
+            case XLCD -> Optional.of(new GrblController(new XLCDCommunicator()));
+            case FLUIDNC -> Optional.of(new FluidNCController());
+        };
     }
 
     /**

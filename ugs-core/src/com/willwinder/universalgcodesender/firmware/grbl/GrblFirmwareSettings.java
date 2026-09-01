@@ -114,7 +114,7 @@ public class GrblFirmwareSettings implements IFirmwareSettings {
         }
 
         // Make a copy of existing property and send it to our controller
-        final FirmwareSetting newSetting = new FirmwareSetting(oldSetting.getKey(), value, oldSetting.getUnits(), oldSetting.getDescription(), oldSetting.getShortDescription());
+        final FirmwareSetting newSetting = new FirmwareSetting(oldSetting.getKey(), value, oldSetting.getUnits(), oldSetting.getDescription(), oldSetting.getShortDescription(), oldSetting.getGroupName());
         try {
             GcodeCommand command = controller.createCommand(newSetting.getKey() + "=" + newSetting.getValue());
             ControllerUtils.sendAndWaitForCompletion(controller, command);

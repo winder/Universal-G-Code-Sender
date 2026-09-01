@@ -6,9 +6,9 @@ import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.control.cell.TextFieldTreeTableCell;
 
-public class FirmwareSettingTableCell extends TextFieldTableCell<FirmwareSetting, String> {
+public class FirmwareSettingTableCell extends TextFieldTreeTableCell<FirmwareSetting, String> {
 
     private TextField textField;
 
@@ -17,6 +17,10 @@ public class FirmwareSettingTableCell extends TextFieldTableCell<FirmwareSetting
 
     @Override
     public void startEdit() {
+        if (isGroupHeading()) {
+            return;
+        }
+
         super.startEdit();
         if (textField == null) {
             createTextField();
@@ -58,7 +62,7 @@ public class FirmwareSettingTableCell extends TextFieldTableCell<FirmwareSetting
     public void commitEdit(String newValue) {
         BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
 
-        FirmwareSetting setting = getTableRow().getItem();
+        FirmwareSetting setting = getTreeTableRow().getItem();
         try {
             FirmwareSetting updateFirmwareSetting = backendAPI.getController().getFirmwareSettings().setValue(setting.getKey(), newValue);
 
@@ -77,6 +81,10 @@ public class FirmwareSettingTableCell extends TextFieldTableCell<FirmwareSetting
             textField.setStyle("");
         }
         super.commitEdit(newValue);
+    }
+
+    private boolean isGroupHeading() {
+        return getTreeTableRow() != null && FirmwareSettingRows.isGroupHeading(getTreeTableRow().getTreeItem());
     }
 
     private void createTextField() {

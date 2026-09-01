@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2024 Will Winder
+    Copyright 2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,12 +16,20 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.listeners;
+package com.willwinder.universalgcodesender.firmware;
 
-public record EnabledPins(boolean x, boolean x0, boolean x1, 
-                          boolean y, boolean y0, boolean y1,
-                          boolean z, boolean z0, boolean z1,
-                          boolean a, boolean b, boolean c, boolean probe, boolean door,
-                          boolean hold, boolean softReset, boolean cycleStart, boolean eStop) {
-    public static final EnabledPins EMPTY_PINS = new EnabledPinsBuilder().createEnabledPins();
+import java.util.List;
+
+/**
+ * A named group of firmware settings, used for presenting the settings in sections.
+ *
+ * @param name     the name of the group. Settings that the controller has not placed in a group are
+ *                 collected in a group with an empty name, which should be presented without a heading
+ * @param settings the settings belonging to the group, ordered by their key
+ * @author Joacim Breiler
+ */
+public record FirmwareSettingGroup(String name, List<FirmwareSetting> settings) {
+    public boolean hasName() {
+        return name != null && !name.isEmpty();
+    }
 }

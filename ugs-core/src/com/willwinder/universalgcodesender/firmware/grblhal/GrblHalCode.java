@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2024 Will Winder
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,12 +16,15 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.listeners;
+package com.willwinder.universalgcodesender.firmware.grblhal;
 
-public record EnabledPins(boolean x, boolean x0, boolean x1, 
-                          boolean y, boolean y0, boolean y1,
-                          boolean z, boolean z0, boolean z1,
-                          boolean a, boolean b, boolean c, boolean probe, boolean door,
-                          boolean hold, boolean softReset, boolean cycleStart, boolean eStop) {
-    public static final EnabledPins EMPTY_PINS = new EnabledPinsBuilder().createEnabledPins();
+/**
+ * An error or alarm code as reported by the enumeration commands $EE and $EA.
+ *
+ * @param code        the numeric code, ie {@code 1}
+ * @param message     a short message for the code, ie {@code Hard limit}
+ * @param description a long description of the cause. May be empty
+ * @author Joacim Breiler
+ */
+public record GrblHalCode(String code, String message, String description) {
 }

@@ -15,6 +15,7 @@ class Translations {
     static final String PIN_HOLD = Localization.getString("machineStatus.pin.hold").toUpperCase();
     static final String PIN_SOFT_RESET = Localization.getString("machineStatus.pin.softReset").toUpperCase();
     static final String PIN_CYCLE_STARY = Localization.getString("machineStatus.pin.cycleStart").toUpperCase();
+    static final String PIN_ESTOP = Localization.getString("machineStatus.pin.eStop").toUpperCase();
     private Translations() {
     }
 }
