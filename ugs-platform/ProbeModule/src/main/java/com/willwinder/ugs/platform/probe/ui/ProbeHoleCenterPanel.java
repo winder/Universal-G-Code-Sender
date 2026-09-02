@@ -32,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.util.prefs.PreferenceChangeEvent;
 
@@ -68,6 +69,10 @@ public class ProbeHoleCenterPanel extends JPanel {
     }
 
     private void onSettingsChanged(PreferenceChangeEvent e) {
+        SwingUtilities.invokeLater(() -> updateComponents(e));
+    }
+
+    private void updateComponents(PreferenceChangeEvent e) {
         if (e.getKey().endsWith(ProbeSettings.SETTINGS_UNITS)) {
             var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
             hcDiameterSpinner.setUnits(units);

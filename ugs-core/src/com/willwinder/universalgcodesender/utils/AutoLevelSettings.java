@@ -1,16 +1,27 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Settings for the auto leveler. All lengths are stored in millimeters and all feed rates in
+ * millimeters per minute, regardless of the units preferred for display.
+ */
 public class AutoLevelSettings implements Serializable {
 
-    private double autoLevelProbeZeroHeight = 0;
     private Position autoLevelProbeOffset = Position.ZERO;
+
+    /**
+     * The thickness in millimeters of a touch plate resting on the material surface. All probe
+     * movements are raised by this amount so that the tool clears the plate, and probed heights are
+     * lowered by it so that the scanned mesh stays in material coordinates.
+     */
+    private double touchPlateThickness = 0;
     /**
      * How long the arcs segments should be expanded in millimeters
      */
@@ -28,7 +39,7 @@ public class AutoLevelSettings implements Serializable {
     // Main window
     private double stepResolution = 1;
     /**
-     * Sets the corner for the minimum position to scan during auto leveling
+     * Sets the corner for the minimum position in millimeters to scan during auto leveling
      */
     private double minX = 0.0;
     private double minY = 0.0;
@@ -54,7 +65,7 @@ public class AutoLevelSettings implements Serializable {
     }
 
     public boolean equals(AutoLevelSettings obj) {
-        return this.minX == obj.minX && this.minY == obj.minY && this.minZ == obj.minZ && this.maxX == obj.maxX && this.maxY == obj.maxY && this.maxZ == obj.maxZ && this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight && Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) && this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength && this.stepResolution == obj.stepResolution && this.probeSpeed == obj.probeSpeed && this.probeScanFeedRate == obj.probeScanFeedRate && this.zRetract == obj.zRetract && this.zSurface == obj.zSurface;
+        return this.minX == obj.minX && this.minY == obj.minY && this.minZ == obj.minZ && this.maxX == obj.maxX && this.maxY == obj.maxY && this.maxZ == obj.maxZ && Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) && this.touchPlateThickness == obj.touchPlateThickness && this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength && this.stepResolution == obj.stepResolution && this.probeSpeed == obj.probeSpeed && this.probeScanFeedRate == obj.probeScanFeedRate && this.zRetract == obj.zRetract && this.zSurface == obj.zSurface;
     }
 
     public void setSettingChangeListener(SettingChangeListener settingChangeListener) {
@@ -187,24 +198,25 @@ public class AutoLevelSettings implements Serializable {
         }
     }
 
-    public double getAutoLevelProbeZeroHeight() {
-        return autoLevelProbeZeroHeight;
-    }
-
-    public void setAutoLevelProbeZeroHeight(double autoLevelProbeZeroHeight) {
-        if (this.autoLevelProbeZeroHeight != autoLevelProbeZeroHeight) {
-            this.autoLevelProbeZeroHeight = autoLevelProbeZeroHeight;
-            changed();
-        }
-    }
-
     public Position getAutoLevelProbeOffset() {
         return autoLevelProbeOffset;
     }
 
     public void setAutoLevelProbeOffset(Position autoLevelProbeOffset) {
-        if (this.autoLevelProbeOffset != autoLevelProbeOffset) {
-            this.autoLevelProbeOffset = autoLevelProbeOffset;
+        Position millimeters = autoLevelProbeOffset.getPositionIn(Units.MM);
+        if (!Objects.equals(this.autoLevelProbeOffset, millimeters)) {
+            this.autoLevelProbeOffset = millimeters;
+            changed();
+        }
+    }
+
+    public double getTouchPlateThickness() {
+        return touchPlateThickness;
+    }
+
+    public void setTouchPlateThickness(double touchPlateThickness) {
+        if (this.touchPlateThickness != touchPlateThickness) {
+            this.touchPlateThickness = touchPlateThickness;
             changed();
         }
     }
@@ -233,8 +245,8 @@ public class AutoLevelSettings implements Serializable {
 
     public void apply(AutoLevelSettings settings) {
         if (!this.equals(settings)) {
-            autoLevelProbeZeroHeight = settings.getAutoLevelProbeZeroHeight();
             autoLevelProbeOffset = settings.getAutoLevelProbeOffset();
+            touchPlateThickness = settings.getTouchPlateThickness();
             autoLevelArcSliceLength = settings.getAutoLevelArcSliceLength();
             probeScanFeedRate = settings.getProbeScanFeedRate();
             probeSpeed = settings.getProbeSpeed();
@@ -253,15 +265,17 @@ public class AutoLevelSettings implements Serializable {
     }
 
     public void setMin(Position position) {
-        setMinX(position.getX());
-        setMinY(position.getY());
-        setMinZ(position.getZ());
+        Position millimeters = position.getPositionIn(Units.MM);
+        setMinX(millimeters.getX());
+        setMinY(millimeters.getY());
+        setMinZ(millimeters.getZ());
     }
 
     public void setMax(Position position) {
-        setMaxX(position.getX());
-        setMaxY(position.getY());
-        setMaxZ(position.getZ());
+        Position millimeters = position.getPositionIn(Units.MM);
+        setMaxX(millimeters.getX());
+        setMaxY(millimeters.getY());
+        setMaxZ(millimeters.getZ());
     }
 
     public void addSettingChangeListener(SettingChangeListener listener) {

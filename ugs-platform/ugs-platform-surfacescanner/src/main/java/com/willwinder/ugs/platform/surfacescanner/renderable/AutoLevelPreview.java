@@ -38,10 +38,16 @@ import java.util.stream.DoubleStream;
  * @author wwinder
  */
 public class AutoLevelPreview extends Renderable {
+
+    private static final String TOUCH_PLATE_VISIBLE_OPTION = "platform.visualizer.autolevel.touch-plate";
+
     private final GLUT glut;
 
     private ImmutableCollection<Position> positions;
     private Position[][] grid = null;
+    private double touchPlateThickness = 0;
+    private double probeAreaMinZ = 0;
+    private boolean touchPlateVisible = VisualizerOptions.getBooleanOption(TOUCH_PLATE_VISIBLE_OPTION, true);
 
     // The maximum distance of a probe used for coloring.
     private double maxZ;
@@ -49,6 +55,8 @@ public class AutoLevelPreview extends Renderable {
 
     private float[] high = {0, 255, 0}; // green
     private float[] low = {255, 0, 0}; // red
+    private static final float[] touchPlateColor = {0.4f, 0.5f, 0.8f, 0.35f};
+    private static final float[] probeAreaColor = {0.3f, 0, 0, 0.2f};
 
     public AutoLevelPreview(String title) {
         super(10, title, VISUALIZER_OPTION_AUTOLEVEL_PREVIEW);
@@ -79,9 +87,22 @@ public class AutoLevelPreview extends Renderable {
         low = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_LOW).value);
     }
 
+    public boolean isTouchPlateVisible() {
+        return touchPlateVisible;
+    }
+
+    public void setTouchPlateVisible(boolean touchPlateVisible) {
+        this.touchPlateVisible = touchPlateVisible;
+        VisualizerOptions.setBooleanOption(TOUCH_PLATE_VISIBLE_OPTION, touchPlateVisible);
+    }
+
     public void updateSettings(
             ImmutableCollection<Position> positions,
-            final Position[][] grid) {
+            final Position[][] grid,
+            double probeAreaMinZ,
+            double touchPlateThickness) {
+        this.probeAreaMinZ = probeAreaMinZ;
+        this.touchPlateThickness = touchPlateThickness;
         if (positions != null && !positions.isEmpty()) {
             this.positions = positions;
             this.grid = grid;
@@ -106,11 +127,11 @@ public class AutoLevelPreview extends Renderable {
 
         double minx, miny;
         double maxx, maxy;
-        double minz, maxz;
+        double maxz;
 
         minx = maxx = first.x;
         miny = maxy = first.y;
-        minz = maxz = first.z;
+        maxz = first.z;
 
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
@@ -132,24 +153,52 @@ public class AutoLevelPreview extends Renderable {
             maxx = Math.max(maxx, p.x);
             miny = Math.min(miny, p.y);
             maxz = Math.max(maxz, p.z);
-            minz = Math.min(minz, p.z);
             maxy = Math.max(maxy, p.y);
             gl.glPopMatrix();
         }
 
-        // Outline of probe area
+        drawProbedSurface(gl);
+
+        // With lighting enabled the alpha channel is taken from the diffuse material instead of the
+        // current color, so translucent geometry would be drawn opaque
+        gl.glDisable(GL2.GL_LIGHTING);
+        drawProbeAreaOutline(gl, minx, maxx, miny, maxy, maxz);
+        drawProbeAreaOutline(gl, minx, maxx, miny, maxy, probeAreaMinZ);
+        drawTouchPlate(gl, minx, maxx, miny, maxy);
+        gl.glEnable(GL2.GL_LIGHTING);
+
+        gl.glPopMatrix();
+    }
+
+    private void drawProbeAreaOutline(GL2 gl, double minx, double maxx, double miny, double maxy, double z) {
         gl.glPushMatrix();
         gl.glTranslated(
                 (minx + maxx) / 2,
                 (miny + maxy) / 2,
-                (minz + maxz) / 2);
-        gl.glScaled(maxx - minx, maxy - miny, maxz - minz);
-        gl.glColor4fv(new float[]{0.3f, 0, 0, 0.1f}, 0);
+                z);
+        gl.glScaled(maxx - minx, maxy - miny, 0);
+        gl.glColor4fv(probeAreaColor, 0);
         glut.glutWireCube((float) 1.);
         gl.glPopMatrix();
+    }
 
-        drawProbedSurface(gl);
+    private void drawTouchPlate(GL2 gl, double minx, double maxx, double miny, double maxy) {
+        if (!touchPlateVisible || touchPlateThickness <= 0) {
+            return;
+        }
+
+        // Translucent geometry must not hide anything drawn after it
+        gl.glDepthMask(false);
+        gl.glPushMatrix();
+        gl.glTranslated(
+                (minx + maxx) / 2,
+                (miny + maxy) / 2,
+                touchPlateThickness / 2);
+        gl.glScaled(maxx - minx, maxy - miny, touchPlateThickness);
+        gl.glColor4fv(touchPlateColor, 0);
+        glut.glutSolidCube((float) 1.);
         gl.glPopMatrix();
+        gl.glDepthMask(true);
     }
 
     private void setColorForZ(GL2 gl, double zPos) {

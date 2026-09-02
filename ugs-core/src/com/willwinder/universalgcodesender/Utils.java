@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import com.willwinder.universalgcodesender.utils.ThreadLocalNumberFormat;
 import com.willwinder.universalgcodesender.utils.Version;
 
 import javax.swing.JCheckBox;
@@ -51,7 +52,7 @@ import java.util.logging.Logger;
  * @author wwinder
  */
 public class Utils {
-    public static final NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
+    public static final NumberFormat formatter = new ThreadLocalNumberFormat(() -> new DecimalFormat("#.###", Localization.dfs));
     private static final Logger LOGGER = Logger.getLogger(Utils.class.getSimpleName());
 
     public static String formattedMillis(long millis) {

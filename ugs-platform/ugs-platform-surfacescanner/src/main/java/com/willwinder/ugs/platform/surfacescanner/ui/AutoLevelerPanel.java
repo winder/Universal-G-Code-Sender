@@ -24,15 +24,15 @@ import com.willwinder.ugs.platform.surfacescanner.Utils;
 import com.willwinder.ugs.platform.surfacescanner.actions.ScanSurfaceAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.ToggleApplyToGcodeAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.TogglePreviewAction;
+import com.willwinder.ugs.platform.surfacescanner.actions.ToggleTouchPlateAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.UpdateMinMaxFromGcode;
 import com.willwinder.ugs.platform.surfacescanner.renderable.AutoLevelPreview;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
-import com.willwinder.universalgcodesender.uielements.components.Spinner;
+import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import net.miginfocom.swing.MigLayout;
 
@@ -52,15 +52,16 @@ public class AutoLevelerPanel extends JPanel {
     private final transient MeshLevelManager meshLevelManager;
     private final transient AutoLevelPreview autoLevelPreview;
     private final AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
-    private Spinner stepResolution;
-    private Spinner xMax;
-    private Spinner xMin;
-    private Spinner yMax;
-    private Spinner yMin;
-    private Spinner zMax;
-    private Spinner zMin;
+    private UnitSpinner stepResolution;
+    private UnitSpinner xMax;
+    private UnitSpinner xMin;
+    private UnitSpinner yMax;
+    private UnitSpinner yMin;
+    private UnitSpinner zMax;
+    private UnitSpinner zMin;
     private PercentSpinner zRetract;
-    private Spinner zSurface;
+    private UnitSpinner zSurface;
+    private boolean updatingControls = false;
 
     public AutoLevelerPanel(SurfaceScanner surfaceScanner, MeshLevelManager meshLevelManager, AutoLevelPreview autoLevelPreview, AutoLevelSettings autoLevelSettings, UnitUtils.Units units) {
         this.surfaceScanner = surfaceScanner;
@@ -76,15 +77,15 @@ public class AutoLevelerPanel extends JPanel {
     }
 
     private void initComponents() {
-        xMin = new Spinner(autoLevelSettings.getMinX());
-        yMin = new Spinner(autoLevelSettings.getMinY());
-        zMin = new Spinner(autoLevelSettings.getMinZ());
-        xMax = new Spinner(autoLevelSettings.getMaxX());
-        yMax = new Spinner(autoLevelSettings.getMaxY());
-        zMax = new Spinner(autoLevelSettings.getMaxZ());
+        xMin = new UnitSpinner(autoLevelSettings.getMinX(), Unit.MM);
+        yMin = new UnitSpinner(autoLevelSettings.getMinY(), Unit.MM);
+        zMin = new UnitSpinner(autoLevelSettings.getMinZ(), Unit.MM);
+        xMax = new UnitSpinner(autoLevelSettings.getMaxX(), Unit.MM);
+        yMax = new UnitSpinner(autoLevelSettings.getMaxY(), Unit.MM);
+        zMax = new UnitSpinner(autoLevelSettings.getMaxZ(), Unit.MM);
 
-        stepResolution = new Spinner(autoLevelSettings.getStepResolution());
-        zSurface = new Spinner(autoLevelSettings.getZSurface());
+        stepResolution = new UnitSpinner(autoLevelSettings.getStepResolution(), Unit.MM);
+        zSurface = new UnitSpinner(autoLevelSettings.getZSurface(), Unit.MM);
         zRetract = new PercentSpinner(autoLevelSettings.getZRetract(), 0.001);
         zRetract.setToolTipText(Localization.getString("autoleveler.panel.z-retract.tooltip"));
 
@@ -131,6 +132,7 @@ public class AutoLevelerPanel extends JPanel {
         jPanel3.add(new JButton(new ScanSurfaceAction(surfaceScanner)), "growx, wrap");
         jPanel3.add(new JLabel(" "), "growx, spanx, wrap");
         jPanel3.add(new JCheckBox(new TogglePreviewAction(autoLevelPreview)), "growx, wrap");
+        jPanel3.add(new JCheckBox(new ToggleTouchPlateAction(autoLevelPreview)), "growx, wrap");
         jPanel3.add(new JCheckBox(new ToggleApplyToGcodeAction(meshLevelManager)), "growx, wrap");
 
         setLayout(new MigLayout("fill"));
@@ -154,6 +156,10 @@ public class AutoLevelerPanel extends JPanel {
     }
 
     private void syncControlsToSettings() {
+        if (updatingControls) {
+            return;
+        }
+
         AutoLevelSettings newSettings = copySettings();
 
         if (!Utils.removeProbeData(surfaceScanner)) {
@@ -161,13 +167,16 @@ public class AutoLevelerPanel extends JPanel {
         }
 
         autoLevelSettings.apply(newSettings);
+        updateSpinnerLimits();
+    }
+
+    private void updateSpinnerLimits() {
         xMax.setMinimum(xMin.getDoubleValue());
         xMin.setMaximum(xMax.getDoubleValue());
         yMax.setMinimum(yMin.getDoubleValue());
         yMin.setMaximum(yMax.getDoubleValue());
         zMax.setMinimum(zMin.getDoubleValue());
         zMin.setMaximum(zMax.getDoubleValue());
-
 
         // There is no point in having the step resolution bigger than the largest size
         double stepResolutionMax = Math.max(Math.abs(xMin.getDoubleValue()) + xMax.getDoubleValue(), Math.abs(yMin.getDoubleValue()) + yMax.getDoubleValue());
@@ -176,14 +185,14 @@ public class AutoLevelerPanel extends JPanel {
 
     private AutoLevelSettings copySettings() {
         AutoLevelSettings newSettings = new AutoLevelSettings(autoLevelSettings);
-        newSettings.setZSurface(zSurface.getDoubleValue());
-        newSettings.setStepResolution(stepResolution.getDoubleValue());
-        newSettings.setMinX(xMin.getDoubleValue());
-        newSettings.setMinY(yMin.getDoubleValue());
-        newSettings.setMinZ(zMin.getDoubleValue());
-        newSettings.setMaxX(xMax.getDoubleValue());
-        newSettings.setMaxY(yMax.getDoubleValue());
-        newSettings.setMaxZ(zMax.getDoubleValue());
+        newSettings.setZSurface(zSurface.getDoubleValue(Unit.MM));
+        newSettings.setStepResolution(stepResolution.getDoubleValue(Unit.MM));
+        newSettings.setMinX(xMin.getDoubleValue(Unit.MM));
+        newSettings.setMinY(yMin.getDoubleValue(Unit.MM));
+        newSettings.setMinZ(zMin.getDoubleValue(Unit.MM));
+        newSettings.setMaxX(xMax.getDoubleValue(Unit.MM));
+        newSettings.setMaxY(yMax.getDoubleValue(Unit.MM));
+        newSettings.setMaxZ(zMax.getDoubleValue(Unit.MM));
         newSettings.setZRetract(zRetract.getDoubleValue());
         return newSettings;
     }
@@ -202,40 +211,30 @@ public class AutoLevelerPanel extends JPanel {
     }
 
     private void syncSettingsToControls(AutoLevelSettings autoLevelSettings) {
-        if (stepResolution.getDoubleValue() != autoLevelSettings.getStepResolution()) {
-            stepResolution.setValue(autoLevelSettings.getStepResolution());
-        }
+        updatingControls = true;
+        try {
+            setSpinnerValue(stepResolution, autoLevelSettings.getStepResolution());
+            setSpinnerValue(zSurface, autoLevelSettings.getZSurface());
+            setSpinnerValue(xMin, autoLevelSettings.getMinX());
+            setSpinnerValue(yMin, autoLevelSettings.getMinY());
+            setSpinnerValue(zMin, autoLevelSettings.getMinZ());
+            setSpinnerValue(xMax, autoLevelSettings.getMaxX());
+            setSpinnerValue(yMax, autoLevelSettings.getMaxY());
+            setSpinnerValue(zMax, autoLevelSettings.getMaxZ());
 
-        if (zRetract.getDoubleValue() != autoLevelSettings.getZRetract()) {
-            zRetract.setValue(autoLevelSettings.getZRetract());
-        }
+            if (zRetract.getDoubleValue() != autoLevelSettings.getZRetract()) {
+                zRetract.setValue(autoLevelSettings.getZRetract());
+            }
 
-        if (zSurface.getDoubleValue() != autoLevelSettings.getZSurface()) {
-            zSurface.setValue(autoLevelSettings.getZSurface());
+            updateSpinnerLimits();
+        } finally {
+            updatingControls = false;
         }
+    }
 
-        if (xMin.getDoubleValue() != autoLevelSettings.getMinX()) {
-            xMin.getModel().setValue(autoLevelSettings.getMinX());
-        }
-
-        if (yMin.getDoubleValue() != autoLevelSettings.getMinY()) {
-            yMin.getModel().setValue(autoLevelSettings.getMinY());
-        }
-
-        if (zMin.getDoubleValue() != autoLevelSettings.getMinZ()) {
-            zMin.getModel().setValue(autoLevelSettings.getMinZ());
-        }
-
-        if (xMax.getDoubleValue() != autoLevelSettings.getMaxX()) {
-            xMax.getModel().setValue(autoLevelSettings.getMaxX());
-        }
-
-        if (yMax.getDoubleValue() != autoLevelSettings.getMaxY()) {
-            yMax.getModel().setValue(autoLevelSettings.getMaxY());
-        }
-
-        if (zMax.getDoubleValue() != autoLevelSettings.getMaxZ()) {
-            zMax.getModel().setValue(autoLevelSettings.getMaxZ());
+    private static void setSpinnerValue(UnitSpinner spinner, double millimeters) {
+        if (spinner.getDoubleValue(Unit.MM) != millimeters) {
+            spinner.setValue(millimeters, Unit.MM);
         }
     }
 
@@ -253,25 +252,29 @@ public class AutoLevelerPanel extends JPanel {
     }
 
     public Position getMinPosition() {
-        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
-        return new Position(xMin.getDoubleValue(), yMin.getDoubleValue(), zMin.getDoubleValue(), backendAPI.getSettings().getPreferredUnits());
+        return new Position(xMin.getDoubleValue(Unit.MM), yMin.getDoubleValue(Unit.MM), zMin.getDoubleValue(Unit.MM), UnitUtils.Units.MM);
     }
 
     public Position getMaxPosition() {
-        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
-        return new Position(xMax.getDoubleValue(), yMax.getDoubleValue(), zMax.getDoubleValue(), backendAPI.getSettings().getPreferredUnits());
+        return new Position(xMax.getDoubleValue(Unit.MM), yMax.getDoubleValue(Unit.MM), zMax.getDoubleValue(Unit.MM), UnitUtils.Units.MM);
     }
 
     public void setUnits(UnitUtils.Units units) {
-        double stepSize = units == UnitUtils.Units.MM ? 0.1 : 0.01;
+        Unit spinnerUnit = units == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
+        updatingControls = true;
+        try {
+            stepResolution.setUnits(spinnerUnit);
+            xMin.setUnits(spinnerUnit);
+            xMax.setUnits(spinnerUnit);
+            yMin.setUnits(spinnerUnit);
+            yMax.setUnits(spinnerUnit);
+            zMin.setUnits(spinnerUnit);
+            zMax.setUnits(spinnerUnit);
+            zSurface.setUnits(spinnerUnit);
+        } finally {
+            updatingControls = false;
+        }
 
-        stepResolution.setStepSize(stepSize);
-        xMin.setStepSize(stepSize);
-        xMax.setStepSize(stepSize);
-        yMin.setStepSize(stepSize);
-        yMax.setStepSize(stepSize);
-        zMin.setStepSize(stepSize);
-        zMax.setStepSize(stepSize);
-        zSurface.setStepSize(stepSize);
+        syncSettingsToControls(autoLevelSettings);
     }
 }

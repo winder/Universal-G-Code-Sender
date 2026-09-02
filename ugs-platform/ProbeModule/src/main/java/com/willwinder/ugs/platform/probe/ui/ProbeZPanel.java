@@ -29,6 +29,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.util.prefs.PreferenceChangeEvent;
 
@@ -67,6 +68,10 @@ public class ProbeZPanel extends JPanel {
     }
 
     private void onSettingsChanged(PreferenceChangeEvent event) {
+        SwingUtilities.invokeLater(() -> updateComponents(event));
+    }
+
+    private void updateComponents(PreferenceChangeEvent event) {
         switch (event.getKey()) {
             case ProbeSettings.SETTINGS_UNITS:
                 var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;

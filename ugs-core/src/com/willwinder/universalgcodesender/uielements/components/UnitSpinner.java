@@ -34,6 +34,7 @@ import javax.swing.text.DefaultFormatterFactory;
 public class UnitSpinner extends JSpinner {
 
     private final SpinnerNumberModel spinnerNumberModel;
+    private Unit units;
 
     public UnitSpinner(double value, Unit units) {
         this(value, units, null, null, 0.01d);
@@ -47,6 +48,8 @@ public class UnitSpinner extends JSpinner {
     }
 
     public void setUnits(Unit units) {
+        this.units = units;
+
         if (units == Unit.MM) {
             spinnerNumberModel.setStepSize(0.01);
         } else if (units == Unit.INCH) {
@@ -62,8 +65,32 @@ public class UnitSpinner extends JSpinner {
         setEditor(numberEditor);
     }
 
+    public Unit getUnits() {
+        return units;
+    }
+
     public double getDoubleValue() {
         return (Double) getModel().getValue();
+    }
+
+    /**
+     * Sets the value given in the supplied units, converting it to the units of this spinner.
+     *
+     * @param value the value to set
+     * @param units the units of the given value
+     */
+    public void setValue(double value, Unit units) {
+        setValue(value * units.convertTo(this.units));
+    }
+
+    /**
+     * Returns the current value converted to the given units.
+     *
+     * @param units the units to convert the value to
+     * @return the value in the given units
+     */
+    public double getDoubleValue(Unit units) {
+        return getDoubleValue() * this.units.convertTo(units);
     }
 
 
@@ -71,6 +98,13 @@ public class UnitSpinner extends JSpinner {
         spinnerNumberModel.setMinimum(min);
         if (getDoubleValue() < min) {
             setValue(min);
+        }
+    }
+
+    public void setMaximum(double max) {
+        spinnerNumberModel.setMaximum(max);
+        if (getDoubleValue() > max) {
+            setValue(max);
         }
     }
 
