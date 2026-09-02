@@ -95,8 +95,8 @@ public class UnionAction extends AbstractDesignAction implements SelectionListen
             }
 
             controller.getSelectionManager().clearSelection();
-            controller.getDrawing().removeEntities(entities);
-            controller.getDrawing().insertEntity(path);
+            controller.getModel().removeEntities(entities);
+            controller.getModel().insertEntity(path);
             controller.getSelectionManager().addSelection(path);
         }
 
@@ -104,8 +104,8 @@ public class UnionAction extends AbstractDesignAction implements SelectionListen
         public void undo() {
             if (path != null) {
                 controller.getSelectionManager().clearSelection();
-                controller.getDrawing().removeEntity(path);
-                controller.getDrawing().insertEntities(entities);
+                controller.getModel().removeEntity(path);
+                controller.getModel().insertEntities(entities);
                 controller.getSelectionManager().setSelection(entities);
                 path = null;
             }

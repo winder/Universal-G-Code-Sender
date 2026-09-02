@@ -67,7 +67,7 @@ public class MouseListener extends MouseAdapter {
 
         if (selectedControl != null) {
             selectedControl.onEvent(new MouseEntityEvent(selectedControl, EventType.MOUSE_DRAGGED, startPos, lastPos, shiftPressed, ctrlPressed, altPressed));
-            controller.getDrawing().repaint();
+            controller.repaintDrawing();
         }
     }
 
@@ -131,7 +131,7 @@ public class MouseListener extends MouseAdapter {
                 .ifPresent(control -> {
                     selectedControl = control;
                     control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_PRESSED, startPos, startPos, shiftPressed, ctrlPressed, altPressed));
-                    controller.getDrawing().repaint();
+                    controller.repaintDrawing();
                 });
     }
 
@@ -146,7 +146,7 @@ public class MouseListener extends MouseAdapter {
         if (selectedControl != null) {
             selectedControl.onEvent(new MouseEntityEvent(selectedControl, EventType.MOUSE_RELEASED, startPos, lastPos, shiftPressed, ctrlPressed, altPressed));
             selectedControl = null;
-            controller.getDrawing().repaint();
+            controller.repaintDrawing();
         }
     }
 

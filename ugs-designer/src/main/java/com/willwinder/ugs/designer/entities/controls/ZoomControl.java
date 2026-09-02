@@ -66,7 +66,7 @@ public class ZoomControl extends AbstractControl {
         } else if (entityEvent instanceof KeyboardEntityEvent keyboardEntityEvent) {
             if (keyboardEntityEvent.getKeyCode() == KeyEvent.VK_SHIFT) {
                 isShiftPressed = keyboardEntityEvent.getType() == EventType.KEY_PRESSED;
-                controller.getDrawing().repaint();
+                controller.repaintDrawing();
             }
         }
     }

@@ -47,15 +47,13 @@ public class Controller {
     private final Settings settings = new Settings();
     private final Set<ControllerListener> listeners = Sets.newConcurrentHashSet();
     private final UndoManager undoManager;
-    private final Drawing drawing;
+    private final DesignModel model = new DesignModel();
+    private Drawing drawing;
     private Tool tool;
 
     public Controller(SelectionManager selectionManager, UndoManager undoManager) {
         this.undoManager = undoManager;
         this.selectionManager = selectionManager;
-        this.drawing = new Drawing(this);
-        this.undoManager.addListener(this.drawing::repaint);
-
         setTool(Tool.SELECT);
     }
 
@@ -71,8 +69,32 @@ public class Controller {
         undoManager.addAction(add);
     }
 
-    public Drawing getDrawing() {
+    /**
+     * The entities being edited, without any UI toolkit attached.
+     */
+    public DesignModel getModel() {
+        return model;
+    }
+
+    /**
+     * The Swing canvas editing the model. Created the first time it is asked for, so front ends
+     * that draw the model themselves never load Swing components.
+     */
+    public synchronized Drawing getDrawing() {
+        if (drawing == null) {
+            drawing = new Drawing(this);
+            undoManager.addListener(drawing::repaint);
+        }
         return drawing;
+    }
+
+    /**
+     * Repaints the Swing canvas if one has been created.
+     */
+    public void repaintDrawing() {
+        if (drawing != null) {
+            drawing.repaint();
+        }
     }
 
     public SelectionManager getSelectionManager() {
@@ -90,7 +112,7 @@ public class Controller {
 
     public void newDrawing() {
         undoManager.clear();
-        drawing.clear();
+        model.clear();
         notifyListeners(ControllerEventType.NEW_DRAWING);
     }
 
@@ -116,14 +138,16 @@ public class Controller {
 
     public void setDesign(Design design) {
         newDrawing();
-        getDrawing().insertEntities(design.getEntities());
-        getDrawing().repaint();
+        model.insertEntities(design.getEntities());
+        repaintDrawing();
         setTool(Tool.SELECT);
         applyDesignSettings(design);
     }
 
     public void setCursor(Cursor cursor) {
-        drawing.setCursor(cursor);
+        if (drawing != null) {
+            drawing.setCursor(cursor);
+        }
     }
 
     public void loadFile(File file) {
@@ -144,13 +168,15 @@ public class Controller {
         if (projectTool == null) {
             return;
         }
+
         ToolLibraryService library = LookupService.lookupOptional(ToolLibraryService.class).orElse(null);
         if (library == null) {
             // Headless mode or no library — apply the project's tool as a raw snapshot.
             applyResolvedTool(projectTool, projectTool, hasDesignSettings);
             return;
         }
-        Window parent = SwingUtilities.getWindowAncestor(drawing);
+
+        Window parent = drawing == null ? null : SwingUtilities.getWindowAncestor(drawing);
         ToolLibrarySyncService sync = new ToolLibrarySyncService(library);
         ToolDefinition resolved = sync.resolveOnLoad(parent, projectTool);
         if (resolved != null) {

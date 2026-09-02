@@ -518,6 +518,18 @@ public class Raster extends AbstractCuttable {
         }
     }
 
+    /**
+     * The image shown for this raster: the grey depth map while depth mapping, otherwise the
+     * ink mask. Cached until the raster's image or settings change, so callers may compare
+     * instances to detect a change.
+     */
+    public BufferedImage getPreviewImage() {
+        if (image == null) {
+            return null;
+        }
+        return depthMapping ? getOrCreateProcessedGray() : getOrCreateProcessedInkMask();
+    }
+
     private BufferedImage getOrCreateProcessedInkMask() {
         if (processedInkMask != null) {
             return processedInkMask;

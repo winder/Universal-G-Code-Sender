@@ -53,7 +53,7 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
         setRowHeight(0);
 
         expandRow(0);
-        ((EntityTreeModel) getModel()).notifyTreeStructureChanged(controller.getDrawing().getRootEntity());
+        ((EntityTreeModel) getModel()).notifyTreeStructureChanged(controller.getModel().getRootEntity());
 
         this.controller = controller;
         registerListeners();
@@ -95,7 +95,7 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
-        EntityGroup rootEntity = controller.getDrawing().getRootEntity();
+        EntityGroup rootEntity = controller.getModel().getRootEntity();
         List<TreePath> treePathList = EntityTreeUtils.getSelectedPaths(controller, rootEntity, Collections.emptyList());
         TreePath[] treePaths = treePathList.toArray(new TreePath[0]);
         setSelectionPaths(treePaths);

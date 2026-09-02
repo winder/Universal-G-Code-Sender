@@ -18,6 +18,7 @@
     <properties>
         <javafx.version>25.0.4</javafx.version>
         <exec.maven.plugin.version>3.5.0</exec.maven.plugin.version>
+        <vulkan4j.version>0.4.4</vulkan4j.version>
     </properties>
 
     <dependencies>
@@ -109,10 +110,11 @@
             <version>3.5.4</version>
         </dependency>
 
+        <!-- Vulkan bindings for the experimental Vulkan visualizer -->
         <dependency>
-            <groupId>org.fxyz3d</groupId>
-            <artifactId>fxyz3d</artifactId>
-            <version>0.6.0</version>
+            <groupId>club.doki7</groupId>
+            <artifactId>vulkan</artifactId>
+            <version>${vulkan4j.version}</version>
         </dependency>
 
         <!-- For scripting -->
@@ -137,6 +139,14 @@
 
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${ugs.fx.jvm.version}</source>
+                    <target>${ugs.fx.jvm.version}</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>

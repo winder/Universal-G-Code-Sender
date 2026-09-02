@@ -102,7 +102,7 @@ public class ToolButtonTest {
         Rectangle rectangle = new Rectangle(0, 0);
         rectangle.setSize(new Size(10, 10));
         rectangle.setCutType(cutType);
-        controller.getDrawing().insertEntity(rectangle);
+        controller.getModel().insertEntity(rectangle);
     }
 
     private JLabel labelAt(ToolButton button, int index) {

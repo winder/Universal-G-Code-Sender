@@ -68,7 +68,7 @@ public class UgsDesignWriter implements DesignWriter {
             Gson gson = createGsonParser();
             DesignV1 design = new DesignV1();
 
-            EntityGroup rootEntity = controller.getDrawing().getRootEntity();
+            EntityGroup rootEntity = controller.getModel().getRootEntity();
             design.setEntities(rootEntity.getChildren().stream().map(this::convertToEntity).toList());
             design.setTool(controller.getSettings().getCurrentToolSnapshot());
             design.setSettings(SettingsV1.fromInternal(controller.getSettings()));

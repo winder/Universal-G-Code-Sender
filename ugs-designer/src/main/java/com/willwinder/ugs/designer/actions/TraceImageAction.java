@@ -57,7 +57,7 @@ public class TraceImageAction extends AbstractDesignAction {
                 AddAction addAction = new AddAction(controller, entities);
                 addAction.actionPerformed(e);
                 controller.getSelectionManager().addSelection(entities);
-                controller.getDrawing().repaint();
+                controller.repaintDrawing();
                 controller.setTool(Tool.SELECT);
             }
         });

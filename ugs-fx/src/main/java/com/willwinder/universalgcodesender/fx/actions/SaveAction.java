@@ -18,8 +18,6 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.google.common.io.Files;
-import com.willwinder.ugs.designer.io.gcode.GcodeDesignWriter;
 import com.willwinder.ugs.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
@@ -93,15 +91,11 @@ public class SaveAction extends BaseAction {
         try {
             Controller controller = ControllerFactory.getController();
 
+            // The G-code follows the design as it is edited, so saving only writes the design.
             UgsDesignWriter designWriter = new UgsDesignWriter();
             designWriter.write(workspace.getFile(), controller);
 
-            GcodeDesignWriter gcodeWriter = new GcodeDesignWriter();
-            File tempFile = new File(Files.createTempDir(), workspace.getFile().getName() + ".gcode");
-            gcodeWriter.write(tempFile, controller);
-
             BackendAPI backend = LookupService.lookup(BackendAPI.class);
-            backend.setGcodeFile(tempFile);
             backend.getSettings().setLastWorkingDirectory(workspace.getFile().getParent());
 
             WorkspaceManager.getInstance().markActiveWorkspaceDirty(false);

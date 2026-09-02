@@ -38,6 +38,7 @@ import com.willwinder.ugs.designer.entities.controls.SelectionControl;
 import com.willwinder.ugs.designer.entities.controls.VertexControlGroup;
 import com.willwinder.ugs.designer.entities.controls.ZoomControl;
 import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.logic.DesignModel;
 import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
 import static java.awt.RenderingHints.KEY_ANTIALIASING;
 import static java.awt.RenderingHints.KEY_RENDERING;
@@ -57,7 +58,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.Serial;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -69,13 +69,12 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     public static final double MIN_SCALE = 0.05;
     @Serial
     private static final long serialVersionUID = 1298712398723987873L;
+    private final transient DesignModel model;
     private final transient EntityGroup globalRoot;
-    private final transient EntityGroup entitiesRoot;
     private final transient EntityGroup controlsRoot;
     private final transient Throttler refreshThrottler;
     private final transient Rectangle2D currentBounds = new Rectangle(0, 0, 8, 8);
     private double scale;
-    private double snapToGrid;
     private Point2D.Double position = new Point2D.Double();
     private Dimension oldMinimumSize;
     private transient DropHandler dropHandler;
@@ -91,8 +90,8 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         globalRoot.addChild(gridControl);
         globalRoot.addListener(event -> refreshThrottler.run());
 
-        entitiesRoot = new EntityGroup();
-        globalRoot.addChild(entitiesRoot);
+        model = controller.getModel();
+        globalRoot.addChild(model.getRootEntity());
         globalRoot.addChild(controller.getSelectionManager());
 
         controlsRoot = new EntityGroup();
@@ -114,7 +113,8 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         setFocusable(true);
         setBackground(Colors.BACKGROUND);
         setScale(2);
-        snapToGridUpdated(1);
+        model.addSnapToGridListener(this::propagateSnapToGrid);
+        propagateSnapToGrid(model.getSnapToGrid());
     }
 
     @Override
@@ -160,43 +160,36 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         return bi;
     }
 
+    public DesignModel getModel() {
+        return model;
+    }
+
     public List<Entity> getEntitiesAt(Point2D p) {
-        return globalRoot.getChildrenAt(p);
+        return model.getEntitiesAt(p);
     }
 
     public List<Entity> getEntitiesIntersecting(Shape shape) {
-        return globalRoot.getChildrenIntersecting(shape);
+        return model.getEntitiesIntersecting(shape);
     }
 
     public void insertEntity(Entity entity) {
-        entitiesRoot.addChild(entity);
+        model.insertEntity(entity);
     }
 
     public void insertEntities(List<Entity> entities) {
-        entities.forEach(entitiesRoot::addChild);
+        model.insertEntities(entities);
     }
 
     public List<Entity> getEntities() {
-        List<Entity> result = new ArrayList<>();
-        entitiesRoot.getChildren().forEach(shape -> recursiveCollectEntities(shape, result));
-        return result;
+        return model.getEntities();
     }
 
     public EntityGroup getRootEntity() {
-        return entitiesRoot;
+        return model.getRootEntity();
     }
 
     public GridControl getGridControl() {
         return gridControl;
-    }
-
-    private void recursiveCollectEntities(Entity shape, List<Entity> result) {
-        if (shape instanceof EntityGroup entityGroup) {
-            List<Entity> shapes = entityGroup.getChildren();
-            shapes.forEach(s -> recursiveCollectEntities(s, result));
-        } else {
-            result.add(shape);
-        }
     }
 
     @Override
@@ -225,18 +218,8 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     }
 
     public void removeEntities(List<Entity> entities) {
-        removeEntitiesRecursively(globalRoot, entities);
+        model.removeEntities(entities);
         refresh();
-    }
-
-    private void removeEntitiesRecursively(EntityGroup parent, List<Entity> entities) {
-        parent.getChildren().forEach(child -> {
-            if (child instanceof EntityGroup entityGroup) {
-                removeEntitiesRecursively(entityGroup, entities);
-            }
-        });
-
-        parent.removeAll(entities);
     }
 
     /**
@@ -295,7 +278,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     }
 
     public void clear() {
-        entitiesRoot.removeAll();
+        model.clear();
     }
 
     @Override
@@ -324,15 +307,18 @@ public class Drawing extends JPanel implements ISnapToGridListener {
 
     @Override
     public void snapToGridUpdated(double aNewValue) {
-        this.snapToGrid = aNewValue;
+        model.setSnapToGrid(aNewValue);
+    }
+
+    private void propagateSnapToGrid(double snapToGrid) {
         for (Entity ctrl : this.controlsRoot.getAllChildren()) {
             if (ctrl instanceof ISnapToGridListener iSnapToGridListener) {
-                iSnapToGridListener.snapToGridUpdated(aNewValue);
+                iSnapToGridListener.snapToGridUpdated(snapToGrid);
             }
         }
     }
 
     public double getSnapToGrid() {
-        return snapToGrid;
+        return model.getSnapToGrid();
     }
 }

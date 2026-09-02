@@ -35,6 +35,7 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.util.GeometryFixer;
 import org.locationtech.jts.geom.util.PolygonExtracter;
+import org.locationtech.jts.operation.overlayng.OverlayNGRobust;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -181,7 +182,62 @@ public class ToolPathUtils {
                 polygons.add(factory.createPolygon(rings.get(i).getExteriorRing(), holesOfShell.get(i).toArray(new LinearRing[0])));
             }
         }
-        return polygons.size() == 1 ? polygons.getFirst() : factory.createMultiPolygon(polygons.toArray(new Polygon[0]));
+        List<Geometry> merged = dissolveSeams(polygons, factory);
+        return merged.size() == 1 ? merged.get(0) : factory.buildGeometry(merged);
+    }
+
+    /**
+     * An area emits a region whose outline meets itself as several rings sharing an edge, split
+     * along horizontal seams. Cut as separate pockets those seams would be left standing, so the
+     * polygons sharing an edge are unioned back into one. Polygons that only meet at a point or
+     * not at all are left as they are.
+     */
+    private static List<Geometry> dissolveSeams(List<Polygon> polygons, GeometryFactory factory) {
+        int[] group = new int[polygons.size()];
+        Arrays.fill(group, -1);
+        int groups = 0;
+        for (int i = 0; i < polygons.size(); i++) {
+            if (group[i] < 0) {
+                group[i] = groups++;
+            }
+            for (int j = i + 1; j < polygons.size(); j++) {
+                if (sharesAnEdge(polygons.get(i), polygons.get(j))) {
+                    if (group[j] < 0) {
+                        group[j] = group[i];
+                    } else if (group[j] != group[i]) {
+                        int from = group[j];
+                        for (int k = 0; k < group.length; k++) {
+                            if (group[k] == from) {
+                                group[k] = group[i];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        List<Geometry> result = new ArrayList<>();
+        for (int g = 0; g < groups; g++) {
+            List<Geometry> members = new ArrayList<>();
+            for (int i = 0; i < polygons.size(); i++) {
+                if (group[i] == g) {
+                    members.add(polygons.get(i));
+                }
+            }
+            if (members.size() == 1) {
+                result.add(members.get(0));
+            } else if (members.size() > 1) {
+                Geometry union = OverlayNGRobust.union(factory.buildGeometry(members));
+                for (int i = 0; i < union.getNumGeometries(); i++) {
+                    result.add(union.getGeometryN(i));
+                }
+            }
+        }
+        return result;
+    }
+
+    private static boolean sharesAnEdge(Polygon a, Polygon b) {
+        return a.getEnvelopeInternal().intersects(b.getEnvelopeInternal()) && a.relate(b, "****1****");
     }
 
     public static List<Geometry> convertShapeToGeometry(Shape shape, GeometryFactory factory, double flatnessPrecision) {

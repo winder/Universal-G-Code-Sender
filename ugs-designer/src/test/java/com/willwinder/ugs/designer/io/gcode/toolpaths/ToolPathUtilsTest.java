@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Polygon;
 
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,5 +66,31 @@ public class ToolPathUtilsTest {
         Geometry geometry = convertAreaToGeometry(area, new GeometryFactory(), 0.1);
 
         assertEquals(expected, geometry.getArea(), 0.1);
+    }
+
+    @Test
+    public void convertAreaToGeometry_shouldJoinOverlappingSubPathsIntoOnePolygon() {
+        // An area splits a self touching outline into rings that share an edge; the pocket must
+        // still see one region without a wall along the seam.
+        Path2D outline = new Path2D.Double();
+        outline.append(new Rectangle2D.Double(0, 0, 30, 10), false);
+        outline.append(new Ellipse2D.Double(10, -5, 20, 20), false);
+        outline.append(new Rectangle2D.Double(25, 5, 20, 30), false);
+        Area area = new Area(outline);
+
+        Geometry geometry = convertAreaToGeometry(area, new GeometryFactory(), 0.1);
+
+        assertEquals(1, geometry.getNumGeometries());
+        assertEquals(areaOf(area), geometry.getArea(), 1.0);
+    }
+
+    private static double areaOf(Area area) {
+        Geometry union = new GeometryFactory().createPolygon();
+        java.util.List<?> rings = org.locationtech.jts.awt.ShapeReader.toCoordinates(area.getPathIterator(null, 0.1));
+        for (Object ring : rings) {
+            Polygon polygon = new GeometryFactory().createPolygon((org.locationtech.jts.geom.Coordinate[]) ring);
+            union = union.symDifference(polygon);
+        }
+        return union.getArea();
     }
 }

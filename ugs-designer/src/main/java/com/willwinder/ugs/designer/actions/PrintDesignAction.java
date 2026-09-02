@@ -123,7 +123,7 @@ public class PrintDesignAction extends AbstractDesignAction {
             config.setDimensionsUnits(UnitUtils.Units.MM);
         }
 
-        Rectangle2D designBounds = controller.getDrawing().getRootEntity().getBounds();
+        Rectangle2D designBounds = controller.getModel().getRootEntity().getBounds();
         config.setDesignWidthMm(designBounds.getWidth());
         config.setDesignHeightMm(designBounds.getHeight());
         return config;

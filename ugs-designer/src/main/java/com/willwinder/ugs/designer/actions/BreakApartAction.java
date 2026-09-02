@@ -115,8 +115,8 @@ public class BreakApartAction extends AbstractDesignAction implements SelectionL
             }).collect(Collectors.toList());
 
             controller.getSelectionManager().clearSelection();
-            controller.getDrawing().removeEntity(entity);
-            controller.getDrawing().insertEntities(newEntities);
+            controller.getModel().removeEntity(entity);
+            controller.getModel().insertEntities(newEntities);
             controller.getSelectionManager().addSelection(newEntities);
         }
 
@@ -141,8 +141,8 @@ public class BreakApartAction extends AbstractDesignAction implements SelectionL
         public void undo() {
             if (entity != null) {
                 controller.getSelectionManager().clearSelection();
-                controller.getDrawing().removeEntities(newEntities);
-                controller.getDrawing().insertEntity(entity);
+                controller.getModel().removeEntities(newEntities);
+                controller.getModel().insertEntity(entity);
                 controller.getSelectionManager().setSelection(Collections.singletonList(entity));
             }
         }

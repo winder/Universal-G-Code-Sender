@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.fx.component.probe;
 
-import com.willwinder.universalgcodesender.fx.component.visualizer.models.ProbeZModel;
 import com.willwinder.universalgcodesender.fx.dialog.ProbeConfirmDialog;
 import com.willwinder.universalgcodesender.fx.service.probe.ProbeService;
 import com.willwinder.universalgcodesender.fx.settings.ProbeSettings;
@@ -42,7 +41,6 @@ public class ProbeZPane extends BorderPane {
     private final BackendAPI backend;
     private final ProbeService probeService;
 
-    private final ProbeZModel model;
     private final Button probeButton;
 
     private final ProbeStatePane probeStatePane = new ProbeStatePane();
@@ -53,7 +51,6 @@ public class ProbeZPane extends BorderPane {
 
         this.backend = backend;
         this.probeService = new ProbeService(backend, ProbeSettings.getInstance());
-        this.model = new ProbeZModel(probeService);
 
         backend.addUGSEventListener(this::onUGSEvent);
         probeButton = createProbeButton(backend);
@@ -87,10 +84,6 @@ public class ProbeZPane extends BorderPane {
         probeButton.setOnAction(e -> onProbePressed());
         probeButton.setDisable(!backend.isIdle());
         return probeButton;
-    }
-
-    public ProbeZModel getModel() {
-        return model;
     }
 
     private void onProbePressed() {

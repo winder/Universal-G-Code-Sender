@@ -261,6 +261,10 @@ public class Settings {
         listeners.add(settingsListener);
     }
 
+    public void removeListener(SettingsListener settingsListener) {
+        listeners.remove(settingsListener);
+    }
+
     /**
      * Returns the general safety height in millimeters
      *
