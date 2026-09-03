@@ -16,15 +16,16 @@ if [ -z ${APP_VERSION} ]; then echo "Missing APP_VERSION"; exit 1; fi
 JVM=zulu25.36.205-ca-fx-jdk25.0.4.1-macosx_aarch64
 set -e
 ZIP=$JVM.tar.gz
-export JAVA_HOME=.jdks/$JVM
-if test -d $JAVA_HOME/$JVM/; then
+JDK_DIR=.jdks/$JVM
+# The macOS archives are application bundles with the JDK inside Contents/Home
+export JAVA_HOME=$JDK_DIR/Contents/Home
+if test -x $JAVA_HOME/bin/jdeps; then
   echo "Using existing JDK from $JAVA_HOME"
 else
-	rm -rf $JAVA_HOME
-	mkdir -p $JAVA_HOME
+	rm -rf $JDK_DIR
+	mkdir -p $JDK_DIR
 	curl -o $ZIP https://cdn.azul.com/zulu/bin/$ZIP
-	tar -xvzf $ZIP -C $JAVA_HOME
-	mv $JAVA_HOME/$JVM/* $JAVA_HOME/
+	tar -xvzf $ZIP -C $JDK_DIR --strip-components=1
 fi
 
 JAVA_VERSION=25
