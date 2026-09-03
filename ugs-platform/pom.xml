@@ -30,15 +30,13 @@
 
       <!--==== JRE Bundle Properties ====-->
       <!-- JVMS can be found here: https://adoptium.net/download/ -->
-      <ugs.bundle.java.mac.x64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.8.1%2B1/OpenJDK17U-jre_x64_mac_hotspot_17.0.8.1_1.tar.gz</ugs.bundle.java.mac.x64.url>
-      <ugs.bundle.java.mac.aarch64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.8.1%2B1/OpenJDK17U-jre_aarch64_mac_hotspot_17.0.8.1_1.tar.gz</ugs.bundle.java.mac.aarch64.url>
+      <ugs.bundle.java.mac.x64.url>https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1/OpenJDK25U-jre_x64_mac_hotspot_25.0.4.1_1.tar.gz</ugs.bundle.java.mac.x64.url>
+      <ugs.bundle.java.mac.aarch64.url>https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1/OpenJDK25U-jre_aarch64_mac_hotspot_25.0.4.1_1.tar.gz</ugs.bundle.java.mac.aarch64.url>
 
-      <ugs.bundle.java.win32.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.8.1%2B1/OpenJDK17U-jre_x86-32_windows_hotspot_17.0.8.1_1.zip</ugs.bundle.java.win32.url>
-      <ugs.bundle.java.win64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.8.1%2B1/OpenJDK17U-jre_x64_windows_hotspot_17.0.8.1_1.zip</ugs.bundle.java.win64.url>
+      <ugs.bundle.java.win64.url>https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1/OpenJDK25U-jre_x64_windows_hotspot_25.0.4.1_1.zip</ugs.bundle.java.win64.url>
 
-      <ugs.bundle.java.linux.x64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.8.1%2B1/OpenJDK17U-jre_x64_linux_hotspot_17.0.8.1_1.tar.gz</ugs.bundle.java.linux.x64.url>
-      <ugs.bundle.java.linux.arm.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.8.1%2B1/OpenJDK17U-jre_arm_linux_hotspot_17.0.8.1_1.tar.gz</ugs.bundle.java.linux.arm.url>
-      <ugs.bundle.java.linux.aarch64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jre_aarch64_linux_hotspot_17.0.15_6.tar.gz</ugs.bundle.java.linux.aarch64.url>
+      <ugs.bundle.java.linux.x64.url>https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1/OpenJDK25U-jre_x64_linux_hotspot_25.0.4.1_1.tar.gz</ugs.bundle.java.linux.x64.url>
+      <ugs.bundle.java.linux.aarch64.url>https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1/OpenJDK25U-jre_aarch64_linux_hotspot_25.0.4.1_1.tar.gz</ugs.bundle.java.linux.aarch64.url>
 
       <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->
       <ugs.codesign.identity>-</ugs.codesign.identity>
@@ -50,7 +48,7 @@
       <!--==== Plugin Versions ====-->
       <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
-      <ugs.nbm-maven-plugin.version>4.8</ugs.nbm-maven-plugin.version>
+      <ugs.nbm-maven-plugin.version>14.5</ugs.nbm-maven-plugin.version>
     </properties>
 
     <build>

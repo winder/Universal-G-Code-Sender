@@ -13,7 +13,7 @@ if [ -z ${PROJECT_VERSION} ]; then echo "Missing PROJECT_VERSION"; exit 1; fi
 if [ -z ${APP_VERSION} ]; then echo "Missing APP_VERSION"; exit 1; fi
 
 # Download JVM
-JVM=zulu21.44.17-ca-fx-jdk21.0.8-linux_aarch64
+JVM=zulu25.36.205-ca-fx-jdk25.0.4.1-linux_aarch64
 set -e
 ZIP=$JVM.tar.gz
 export JAVA_HOME=.jdks/$JVM
@@ -27,7 +27,7 @@ else
 	mv $JAVA_HOME/$JVM/* $JAVA_HOME/
 fi
 
-JAVA_VERSION=17
+JAVA_VERSION=25
 MAIN_JAR="ugs-fx-$PROJECT_VERSION.jar"
 
 echo "Java home: $JAVA_HOME"
