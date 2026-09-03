@@ -35,7 +35,6 @@ Unpack and start the program ```bin/ugsplatform```
 | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.26/macosx-x64-ugs-platform-app-2.1.26.dmg)                   | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/macosx-x64-ugs-platform-app-2.0-SNAPSHOT.dmg)                   |
 | [![Mac OSX](pictures/os_mac.png) Mac OSX ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.26/macosx-aarch64-ugs-platform-app-2.1.26.dmg)         | [![Mac OSX ARM64](pictures/os_mac.png) Mac OSX ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/macosx-aarch64-ugs-platform-app-2.0-SNAPSHOT.dmg)   | 
 | [![Linux x64](pictures/os_linux.png) Linux 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.26/linux-x64-ugs-platform-app-2.1.26.tar.gz)        | [![Linux x64](pictures/os_linux.png) Linux 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/linux-x64-ugs-platform-app-2.0-SNAPSHOT.tar.gz)        |
-| [![Linux ARM](pictures/os_linux_arm.png) Linux ARM](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.26/linux-arm-ugs-platform-app-2.1.26.tar.gz)       | [![Linux ARM](pictures/os_linux_arm.png) Linux ARM](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/linux-arm-ugs-platform-app-2.0-SNAPSHOT.tar.gz)       |
 | [![Linux ARM](pictures/os_linux_arm.png) Linux ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.26/linux-aarch64-ugs-platform-app-2.1.26.tar.gz) | [![Linux ARM](pictures/os_linux_arm.png) Linux ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/linux-aarch64-ugs-platform-app-2.0-SNAPSHOT.tar.gz) | 
 | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.26/ugs-platform-app-2.1.26.zip)                               | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/ugs-platform-app-2.0-SNAPSHOT.zip)                               |
 
@@ -75,7 +74,7 @@ Vector graphics designer for generating GCode toolpaths
 <details><summary>Show details on how to compile the software</summary>
 <p>
 
-For development we use [Maven](http://maven.apache.org) and [Java 17](https://adoptium.net/) for compiling.
+For development we use [Maven](http://maven.apache.org) and [Java 25](https://adoptium.net/) for compiling.
 
 On Windows you might need to install `zip`:
 ```

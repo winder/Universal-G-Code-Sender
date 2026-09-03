@@ -14,7 +14,7 @@ if "%APP_VERSION%"=="" (
 )
 
 :: ----------- DOWNLOAD JVM ------------------------------------------------
-set JVM=zulu21.42.19-ca-fx-jdk21.0.7-win_x64
+set JVM=zulu25.36.205-ca-fx-jdk25.0.4.1-win_x64
 set ZIP=%JVM%.zip
 set JAVA_HOME=.jdks\%JVM%
 
@@ -26,7 +26,7 @@ if exist "%JAVA_HOME%\" (
     powershell -Command "Expand-Archive -Force '%ZIP%' '.jdks'"
 )
 
-set JAVA_VERSION=17
+set JAVA_VERSION=25
 set MAIN_JAR=ugs-fx-%PROJECT_VERSION%.jar
 
 echo Java home: %JAVA_HOME%
