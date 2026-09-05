@@ -10,8 +10,11 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
 
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +31,7 @@ public class ToolPathUtilsTest {
 
         double toolDiameter = 1.2;
 
-        Geometry geometryCollection = convertAreaToGeometry(new Area(design.getEntities().get(0).getShape()), new GeometryFactory(), 0.1);
+        Geometry geometryCollection = convertAreaToGeometry(new Area(design.getEntities().getFirst().getShape()), new GeometryFactory(), 0.1);
         Geometry shell = geometryCollection.buffer(-toolDiameter / 2d);
         List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection, toolDiameter, 1, 0.1);
         assertEquals(4, geometries.size());
@@ -36,5 +39,31 @@ public class ToolPathUtilsTest {
         List<List<PartialPosition>> coordinateList = new ArrayList<>();
         addGeometriesToCoordinatesList(shell, geometries, coordinateList, 0);
         assertEquals(3, coordinateList.size());
+    }
+
+    @Test
+    public void convertAreaToGeometry_shouldKeepHolesAndIslands() {
+        Area area = new Area(new Rectangle2D.Double(0, 0, 100, 100));
+        area.subtract(new Area(new Rectangle2D.Double(20, 20, 60, 60)));
+        area.add(new Area(new Rectangle2D.Double(40, 40, 20, 20)));
+
+        Geometry geometry = convertAreaToGeometry(area, new GeometryFactory(), 0.1);
+
+        assertEquals(100 * 100 - 60 * 60 + 20 * 20, geometry.getArea(), 0.001);
+        assertEquals(2, geometry.getNumGeometries());
+        assertEquals(1, ((Polygon) geometry.getGeometryN(0)).getNumInteriorRing()
+                + ((Polygon) geometry.getGeometryN(1)).getNumInteriorRing());
+    }
+
+    @Test
+    public void convertAreaToGeometry_shouldNotFillAHoleBoundedByATinyCurvedRing() {
+        // Flattening a very small ellipse with a coarse tolerance folds its ring over itself.
+        Area area = new Area(new Rectangle2D.Double(0, 0, 10, 10));
+        area.subtract(new Area(new Ellipse2D.Double(4.8, 4.8, 0.4, 0.4)));
+        double expected = 100 - Math.PI * 0.2 * 0.2;
+
+        Geometry geometry = convertAreaToGeometry(area, new GeometryFactory(), 0.1);
+
+        assertEquals(expected, geometry.getArea(), 0.1);
     }
 }
