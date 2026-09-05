@@ -33,7 +33,11 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
-import org.locationtech.jts.operation.polygonize.Polygonizer;
+import org.locationtech.jts.geom.util.GeometryFixer;
+import org.locationtech.jts.geom.util.PolygonExtracter;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
+import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
 import java.awt.Shape;
@@ -94,24 +98,90 @@ public class ToolPathUtils {
                 .toList();
     }
 
+    /**
+     * Converts the area to polygons with the same holes and islands. The rings of an area bound
+     * its material by the even-odd rule: a ring inside another ring is a hole, a ring inside a hole
+     * is an island. Each ring is classified by how many rings enclose it, which keeps the rings'
+     * own vertices and direction so the tool paths follow them as drawn. A ring that the
+     * flattening left self intersecting is repaired first, or it would corrupt the classification.
+     */
     public static Geometry convertAreaToGeometry(final Area area, final GeometryFactory factory, double flatnessPrecision) {
-
         PathIterator iter = area.getPathIterator(null, flatnessPrecision);
-
         PrecisionModel precisionModel = factory.getPrecisionModel();
-        Polygonizer polygonizer = new Polygonizer(true);
 
         List<Coordinate[]> coords = ShapeReader.toCoordinates(iter);
-        List<Geometry> geometries = new ArrayList<>();
+        List<Polygon> rings = new ArrayList<>();
         for (Coordinate[] array : coords) {
-            for (Coordinate c : array)
+            for (Coordinate c : array) {
                 precisionModel.makePrecise(c);
-
-            LineString lineString = factory.createLineString(array);
-            geometries.add(lineString);
+            }
+            if (array.length < 4) {
+                continue;
+            }
+            Polygon ring = factory.createPolygon(array);
+            if (ring.isValid()) {
+                rings.add(ring);
+            } else {
+                rings.addAll(ringsOf(GeometryFixer.fix(ring), factory));
+            }
         }
-        polygonizer.add(factory.buildGeometry(geometries).union());
-        return polygonizer.getGeometry();
+        return assembleByNesting(rings, factory);
+    }
+
+    /**
+     * The rings of a repaired ring, each as a polygon of its own; repairing a ring that crosses
+     * itself splits it into the loops it was made of.
+     */
+    private static List<Polygon> ringsOf(Geometry repaired, GeometryFactory factory) {
+        List<Polygon> rings = new ArrayList<>();
+        for (Object part : PolygonExtracter.getPolygons(repaired)) {
+            Polygon polygon = (Polygon) part;
+            rings.add(factory.createPolygon(polygon.getExteriorRing().getCoordinates()));
+            for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
+                rings.add(factory.createPolygon(polygon.getInteriorRingN(i).getCoordinates()));
+            }
+        }
+        return rings;
+    }
+
+    private static Geometry assembleByNesting(List<Polygon> rings, GeometryFactory factory) {
+        List<PreparedGeometry> prepared = rings.stream().map(PreparedGeometryFactory::prepare).toList();
+        List<Point> interiorPoints = rings.stream().map(Polygon::getInteriorPoint).toList();
+
+        // The rings enclosing each ring, innermost last; a ring at even depth is a shell.
+        int[] depth = new int[rings.size()];
+        int[] parent = new int[rings.size()];
+        Arrays.fill(parent, -1);
+        for (int i = 0; i < rings.size(); i++) {
+            double parentArea = Double.MAX_VALUE;
+            for (int j = 0; j < rings.size(); j++) {
+                if (i != j && rings.get(j).getArea() > rings.get(i).getArea() && prepared.get(j).contains(interiorPoints.get(i))) {
+                    depth[i]++;
+                    if (rings.get(j).getArea() < parentArea) {
+                        parentArea = rings.get(j).getArea();
+                        parent[i] = j;
+                    }
+                }
+            }
+        }
+
+        List<List<LinearRing>> holesOfShell = new ArrayList<>();
+        for (int i = 0; i < rings.size(); i++) {
+            holesOfShell.add(new ArrayList<>());
+        }
+        for (int i = 0; i < rings.size(); i++) {
+            if (depth[i] % 2 == 1) {
+                holesOfShell.get(parent[i]).add(rings.get(i).getExteriorRing());
+            }
+        }
+
+        List<Polygon> polygons = new ArrayList<>();
+        for (int i = 0; i < rings.size(); i++) {
+            if (depth[i] % 2 == 0) {
+                polygons.add(factory.createPolygon(rings.get(i).getExteriorRing(), holesOfShell.get(i).toArray(new LinearRing[0])));
+            }
+        }
+        return polygons.size() == 1 ? polygons.getFirst() : factory.createMultiPolygon(polygons.toArray(new Polygon[0]));
     }
 
     public static List<Geometry> convertShapeToGeometry(Shape shape, GeometryFactory factory, double flatnessPrecision) {
