@@ -52,6 +52,13 @@ public class GeneralSettingsPane extends VBox {
         addUnitSection();
         addLanguageSection();
         addToolbarSection();
+        addToolChangeSection();
+    }
+
+    private void addToolChangeSection() {
+        SwitchButton handleToolChanges = new SwitchButton(backend.getSettings().isHandleToolChanges());
+        handleToolChanges.selectedProperty().addListener((observable, oldValue, newValue) -> backend.getSettings().setHandleToolChanges(newValue));
+        settings.getChildren().add(new SettingsRow(Localization.getString("sender.handle-tool-changes"), Localization.getString("settings.handleToolChanges.tooltip"), handleToolChanges));
     }
 
     private void addToolbarSection() {
