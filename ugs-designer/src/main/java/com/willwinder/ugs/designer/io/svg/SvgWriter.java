@@ -71,7 +71,7 @@ public class SvgWriter implements DesignWriter {
     @Override
     public void write(OutputStream outputStream, Controller controller) {
         try {
-            EntityGroup root = controller.getDrawing().getRootEntity();
+            EntityGroup root = controller.getModel().getRootEntity();
             Rectangle2D bounds = root.getBounds();
 
             Document document = createDocument();

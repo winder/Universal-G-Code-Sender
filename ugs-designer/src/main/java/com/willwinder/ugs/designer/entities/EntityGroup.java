@@ -179,7 +179,11 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     @Override
     public void move(Point2D deltaMovement) {
         try {
-            applyTransform(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
+            // Move the children through their own method so each one announces the move to its
+            // real parent; a selection group is not part of the design tree.
+            if (children != null) {
+                children.forEach(child -> child.move(deltaMovement));
+            }
             invalidateBounds();
             notifyEvent(new EntityEvent(this, EventType.MOVED));
         } catch (Exception e) {

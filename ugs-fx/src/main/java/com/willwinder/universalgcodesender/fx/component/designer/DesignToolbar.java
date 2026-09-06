@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.fx.actions.DesignLineAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignPointAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignRectangleAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignSelectAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignVertexAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignTextAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignTraceImageAction;
 
@@ -39,12 +40,14 @@ public class DesignToolbar extends AbstractDesignToolbar {
         super("design-tool-toolbar");
 
         addToggleButton(DesignSelectAction.class);
+        addToggleButton(DesignVertexAction.class);
+        addSeparator();
         addToggleButton(DesignRectangleAction.class);
         addToggleButton(DesignCircleAction.class);
         addToggleButton(DesignPointAction.class);
         addToggleButton(DesignTextAction.class);
         addToggleButton(DesignLineAction.class);
-
+        addSeparator();
         addButton(DesignImportAction.class);
         addButton(DesignClipartAction.class);
         addButton(DesignTraceImageAction.class);

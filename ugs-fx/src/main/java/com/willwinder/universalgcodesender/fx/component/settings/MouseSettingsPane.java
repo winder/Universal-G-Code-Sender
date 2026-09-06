@@ -51,6 +51,13 @@ public class MouseSettingsPane extends BorderPane {
         );
         mouseControls.getChildren().add(new SettingsRow("Invert scroll wheel zoom", "Inverts the zoom direction when using the mouse scroll wheel", invertZoom));
 
+        // Invert rotation
+        SwitchButton invertRotation = new SwitchButton();
+        invertRotation.selectedProperty().bindBidirectional(
+                VisualizerSettings.getInstance().invertRotationProperty()
+        );
+        mouseControls.getChildren().add(new SettingsRow("Invert mouse rotation", "Inverts the direction the view rotates in when dragging with the rotate button", invertRotation));
+
         // Primary binding
         ComboBox<String> primaryButton =
                 new ComboBox<>(FXCollections.observableArrayList("PRIMARY", "MIDDLE", "SECONDARY"));

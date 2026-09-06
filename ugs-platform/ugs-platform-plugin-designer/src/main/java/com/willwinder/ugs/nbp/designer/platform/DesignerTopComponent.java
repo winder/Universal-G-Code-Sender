@@ -133,7 +133,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         setVisible(true);
 
         controller.getUndoManager().addListener(this);
-        controller.getDrawing().repaint();
+        controller.repaintDrawing();
     }
 
     @Override
@@ -186,7 +186,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         SwingUtilities.invokeLater(() -> {
-            controller.getDrawing().repaint();
+            controller.repaintDrawing();
             PlatformUtils.openSettings();
             PlatformUtils.openEntitesTree();
             requestActive();

@@ -1,11 +1,12 @@
 package com.willwinder.universalgcodesender.fx.model;
 
-import com.google.common.io.Files;
-import com.willwinder.ugs.designer.io.gcode.GcodeDesignWriter;
 import com.willwinder.ugs.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.designer.model.Design;
+import com.willwinder.universalgcodesender.fx.service.DesignGcodeService;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 
@@ -13,8 +14,14 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.Optional;
 
+/**
+ * A design workspace. Opening it loads the design into the designer controller and generates its
+ * G-code; from then on a {@link DesignGcodeService} keeps the G-code in step with every change,
+ * so the toolpath is always current without saving.
+ */
 public class UgsdWorkspaceContext extends WorkspaceContext {
     public static final String FILE_EXTENSION = "ugsd";
+    private DesignGcodeService gcodeService;
 
     public UgsdWorkspaceContext(File file) {
         super(file);
@@ -39,19 +46,31 @@ public class UgsdWorkspaceContext extends WorkspaceContext {
                 Design read = new UgsDesignReader().read(file).orElseThrow();
                 controller.setDesign(read);
             }
-
-            GcodeDesignWriter writer = new GcodeDesignWriter();
             String name = file != null ? file.getName() : "untitled";
-            File tempFile = new File(Files.createTempDir(), name + ".gcode");
-            writer.write(tempFile, controller);
-
-            BackendAPI backend = LookupService.lookup(BackendAPI.class);
-            backend.setGcodeFile(tempFile);
+            gcodeService = new DesignGcodeService(controller, LookupService.lookup(BackendAPI.class), name);
+            gcodeService.bind();
+            gcodeService.regenerateAsync();
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
             throw new IllegalArgumentException("Not a valid design file: " + (file != null ? file.getAbsolutePath() : "untitled"), e);
         }
+    }
+
+    @Override
+    public void close() {
+        if (gcodeService != null) {
+            gcodeService.unbind();
+            gcodeService = null;
+        }
+    }
+
+    /**
+     * Whether the design's G-code is being regenerated; always false before the workspace is
+     * opened or after it is closed.
+     */
+    public ReadOnlyBooleanProperty gcodeBusyProperty() {
+        return gcodeService != null ? gcodeService.busyProperty() : new SimpleBooleanProperty(false);
     }
 
     /**
@@ -61,11 +80,10 @@ public class UgsdWorkspaceContext extends WorkspaceContext {
     @Override
     public Optional<WorkspaceBounds> getBounds() {
         Controller controller = ControllerFactory.getController();
-        Rectangle2D bounds = controller.getDrawing().getRootEntity().getBounds();
+        Rectangle2D bounds = controller.getModel().getRootEntity().getBounds();
         if (bounds == null || bounds.isEmpty()) {
             return Optional.empty();
         }
-
         double minX = Math.min(bounds.getMinX(), 0);
         double minY = Math.min(bounds.getMinY(), 0);
         double maxX = Math.max(bounds.getMaxX(), 0);

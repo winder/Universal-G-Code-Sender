@@ -38,6 +38,7 @@ import com.willwinder.ugs.designer.model.Settings;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Logger;
 
 /**
@@ -60,12 +61,22 @@ public class SimpleGcodeRouter {
         }
     }
 
+    /**
+     * Generating a large design takes a while; interrupting the generating thread abandons it
+     * so a newer generation can start.
+     */
+    private static void abortIfInterrupted() {
+        if (Thread.currentThread().isInterrupted()) {
+            throw new CancellationException("G-code generation was interrupted");
+        }
+    }
+
     private GcodePath getGcodePathFromCuttables(List<Cuttable> cuttables) {
         GcodePath gcodePath = new GcodePath();
         int index = 0;
 
         for (Cuttable cuttable : cuttables) {
-
+            abortIfInterrupted();
             index++;
             gcodePath.addSegment(new Segment(" " + cuttable.getName() + " - " + cuttable.getCutType().getName() + " (" + index + "/" + cuttables.size() + ")"));
             if (cuttable.getIncludeInExport()) {
@@ -154,6 +165,7 @@ public class SimpleGcodeRouter {
         GrblGcodeWriter simpleGcodeWriter = new GrblGcodeWriter(settings, writer);
         simpleGcodeWriter.begin();
         for (Segment segment : path.getSegments()) {
+            abortIfInterrupted();
             simpleGcodeWriter.writeSegment(segment);
         }
         simpleGcodeWriter.end();

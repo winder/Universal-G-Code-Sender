@@ -53,7 +53,7 @@ public class GcodeDesignWriter implements DesignWriter {
     public void write(OutputStream outputStream, Controller controller) {
         try {
             SimpleGcodeRouter gcodeRouter = new SimpleGcodeRouter(controller.getSettings());
-            List<Cuttable> cuttables = controller.getDrawing().getEntities().stream()
+            List<Cuttable> cuttables = controller.getModel().getEntities().stream()
                     .filter(Cuttable.class::isInstance)
                     .map(Cuttable.class::cast)
                     .filter(cuttable -> !cuttable.isHidden())

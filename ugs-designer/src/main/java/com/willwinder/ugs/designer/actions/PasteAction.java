@@ -34,7 +34,7 @@ public class PasteAction extends AbstractDesignAction {
             String data = (String) contents.getTransferData(DataFlavor.stringFlavor);
             UgsDesignReader reader = new UgsDesignReader();
             List<Entity> entities = reader.deserialize(data);
-            controller.getDrawing().insertEntities(entities);
+            controller.getModel().insertEntities(entities);
             controller.getSelectionManager().clearSelection();
             controller.getSelectionManager().setSelection(entities);
         } catch (UnsupportedFlavorException | JsonSyntaxException | IOException ex) {

@@ -47,6 +47,17 @@ public class LookupService {
         if (isInitialized) {
             return;
         }
+        initialize(new GUIBackend());
+    }
+
+    /**
+     * Initializes the services around the given backend, which lets a UI supply a backend with
+     * its own event dispatching.
+     */
+    public static void initialize(GUIBackend backend) {
+        if (isInitialized) {
+            return;
+        }
 
         synchronized (LookupService.class) {
             if (isInitialized) {
@@ -54,7 +65,6 @@ public class LookupService {
             }
             LOGGER.info("Initializing lookup service");
             try {
-                GUIBackend backend = new GUIBackend();
                 Settings settings = SettingsFactory.loadSettings();
                 backend.applySettings(settings);
                 register(backend);

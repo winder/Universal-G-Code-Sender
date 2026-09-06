@@ -59,17 +59,17 @@ public class GroupAction extends AbstractDesignAction implements SelectionListen
         @Override
         public void redo() {
             Controller controller = ControllerFactory.getController();
-            Optional<EntityGroup> parent = controller.getDrawing().getRootEntity().findParentFor(entities.get(0));
+            Optional<EntityGroup> parent = controller.getModel().getRootEntity().findParentFor(entities.get(0));
 
             controller.getSelectionManager().clearSelection();
-            controller.getDrawing().removeEntities(entities);
+            controller.getModel().removeEntities(entities);
 
             group = new Group();
             group.addAll(entities);
             if (parent.isPresent()) {
                 parent.get().addChild(group);
             } else {
-                controller.getDrawing().insertEntity(group);
+                controller.getModel().insertEntity(group);
             }
             controller.getSelectionManager().setSelection(Collections.singletonList(group));
         }
@@ -77,14 +77,14 @@ public class GroupAction extends AbstractDesignAction implements SelectionListen
         @Override
         public void undo() {
             Controller controller = ControllerFactory.getController();
-            Optional<EntityGroup> parent = controller.getDrawing().getRootEntity().findParentFor(group);
+            Optional<EntityGroup> parent = controller.getModel().getRootEntity().findParentFor(group);
             controller.getSelectionManager().clearSelection();
-            controller.getDrawing().removeEntity(group);
+            controller.getModel().removeEntity(group);
 
             if (parent.isPresent()) {
                 parent.get().addAll(entities);
             } else {
-                controller.getDrawing().insertEntities(entities);
+                controller.getModel().insertEntities(entities);
             }
             controller.getSelectionManager().setSelection(entities);
         }

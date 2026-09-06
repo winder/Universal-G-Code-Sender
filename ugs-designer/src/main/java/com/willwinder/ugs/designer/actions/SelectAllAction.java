@@ -44,7 +44,7 @@ public class SelectAllAction extends AbstractDesignAction {
         putValue(NAME, "Select all");
 
         this.controller = ControllerFactory.getController();
-        setEnabled(!this.controller.getDrawing().getEntities().isEmpty());
+        setEnabled(!this.controller.getModel().getEntities().isEmpty());
     }
 
     @Override
@@ -52,8 +52,8 @@ public class SelectAllAction extends AbstractDesignAction {
         SelectionManager selectionManager = controller.getSelectionManager();
         ThreadHelper.invokeLater(() -> {
             selectionManager.clearSelection();
-            selectionManager.setSelection(controller.getDrawing().getEntities());
-            controller.getDrawing().repaint();
+            selectionManager.setSelection(controller.getModel().getEntities());
+            controller.repaintDrawing();
         });
     }
 }

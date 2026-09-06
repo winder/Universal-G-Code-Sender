@@ -62,7 +62,7 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
     public OffsetDialog(Controller controller) {
         super(SwingUtilities.getWindowAncestor(controller.getDrawing()), ModalityType.APPLICATION_MODAL);
         this.controller = controller;
-        this.controller.getDrawing().insertEntity(entityGroup);
+        this.controller.getModel().insertEntity(entityGroup);
         entityGroup.setName("Temporary offset group");
         setTitle("Offset selection");
         setPreferredSize(new Dimension(500, 300));
@@ -124,7 +124,7 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
     }
 
     private void onCancel() {
-        controller.getDrawing().removeEntity(entityGroup);
+        controller.getModel().removeEntity(entityGroup);
         setVisible(false);
         dispose();
     }
@@ -133,13 +133,13 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         List<Entity> children = entityGroup.getChildren();
         List<Entity> selection = controller.getSelectionManager().getSelection();
 
-        controller.getDrawing().removeEntity(entityGroup);
+        controller.getModel().removeEntity(entityGroup);
         controller.addEntities(children);
 
         controller.getSelectionManager().clearSelection();
         controller.getSelectionManager().addSelection(children);
         controller.getSelectionManager().addSelection(selection);
-        controller.getDrawing().repaint();
+        controller.repaintDrawing();
 
         setVisible(false);
         dispose();
@@ -180,7 +180,7 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         } else {
             allOffsetPaths.forEach(entityGroup::addChild);
         }
-        controller.getDrawing().repaint();
+        controller.repaintDrawing();
     }
 
     private Path performUnionOperation(List<Path> paths) {
@@ -302,7 +302,7 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
     public void windowOpened(WindowEvent e) {}
     @Override
     public void windowClosing(WindowEvent e) {
-        controller.getDrawing().removeEntity(entityGroup);
+        controller.getModel().removeEntity(entityGroup);
     }
     @Override
     public void windowClosed(WindowEvent e) {}

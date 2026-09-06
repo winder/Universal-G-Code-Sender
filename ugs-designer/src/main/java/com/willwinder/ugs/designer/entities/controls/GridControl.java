@@ -130,7 +130,7 @@ public class GridControl extends AbstractEntity implements Control {
 
         Rectangle2D bounds = printBoundsOverride != null
                 ? printBoundsOverride
-                : controller.getDrawing().getRootEntity().getBounds();
+                : controller.getModel().getRootEntity().getBounds();
         double gridMargin = (gridSize * 100);
 
 
