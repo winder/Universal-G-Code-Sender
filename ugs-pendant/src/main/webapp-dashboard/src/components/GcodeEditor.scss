@@ -1,0 +1,60 @@
+.gcodeEditor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 8px;
+}
+
+.gcodeEditorToolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .gcodeEditorFileName {
+    font-weight: 600;
+  }
+
+  .gcodeEditorLocked {
+    color: #f0ad4e;
+    font-size: 0.8rem;
+  }
+
+  .gcodeEditorError {
+    color: #ff6b6b;
+    font-size: 0.8rem;
+  }
+
+  .gcodeEditorSave {
+    margin-left: auto;
+  }
+}
+
+.gcodeEditorContent {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  border: 1px solid #2f3132;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.gcodeEditorCodeMirror {
+  height: 100%;
+}
+
+.gcodeEditorLoading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  background: #111213;
+  z-index: 1;
+}
+
+.gcodeEditorEmpty {
+  color: #6b7280;
+  padding: 16px;
+}

@@ -1,0 +1,42 @@
+.jobBar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 16px;
+  background-color: #2a2c2d;
+  border-top: 1px solid #3a3d3e;
+
+  .jobFile {
+    font-weight: 600;
+    min-width: 160px;
+  }
+
+  .jobProgress {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+
+    .progress {
+      flex: 1;
+      height: 1.75rem;
+    }
+
+    .jobTimeLeft {
+      white-space: nowrap;
+      color: #8a8f92;
+      font-size: 0.85rem;
+    }
+  }
+
+  .jobActions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+
+    .btn {
+      min-height: 48px;
+    }
+  }
+}
