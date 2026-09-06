@@ -38,7 +38,10 @@ import jakarta.ws.rs.core.MediaType;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import jakarta.ws.rs.NotFoundException;
+
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
@@ -124,5 +127,34 @@ public class FilesResource {
                 sendProgress.getNumRemainingRows(),
                 sendProgress.getDuration(),
                 sendProgress.getRemainingDuration());
+    }
+
+    @GET
+    @Path("getFileContent")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(summary = "Get the raw gcode text of a file in the workspace directory")
+    public String getFileContent(@QueryParam("file") String file) throws IOException {
+        return Files.readString(resolveWorkspaceFile(file).toPath());
+    }
+
+    @POST
+    @Path("saveFileContent")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Operation(summary = "Save the raw gcode text of a file in the workspace directory and reload it")
+    public void saveFileContent(@QueryParam("file") String file, String content) throws Exception {
+        Files.writeString(resolveWorkspaceFile(file).toPath(), content);
+        backendAPI.openWorkspaceFile(file);
+    }
+
+    /**
+     * Resolves a filename to a file in the workspace directory, throwing a 404 if it isn't one of the
+     * files already listed by {@link BackendAPI#getWorkspaceFileList()} - this keeps the file operations
+     * confined to the configured workspace directory instead of trusting an arbitrary client-supplied path.
+     */
+    private File resolveWorkspaceFile(String file) {
+        if (!backendAPI.getWorkspaceFileList().contains(file)) {
+            throw new NotFoundException("Couldn't find the file '" + file + "' in workspace directory");
+        }
+        return new File(backendAPI.getSettings().getWorkspaceDirectory(), file);
     }
 }

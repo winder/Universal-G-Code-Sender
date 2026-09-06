@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.pendantui.html.DashboardStaticConfig;
 import com.willwinder.universalgcodesender.pendantui.html.StaticConfig;
 import com.willwinder.universalgcodesender.pendantui.v1.AppV1Config;
 import com.willwinder.universalgcodesender.pendantui.v1.ws.EventsSocket;
@@ -56,6 +57,7 @@ import java.util.logging.Logger;
 public class PendantUI implements UGSEventListener {
     public static final String WEBSOCKET_CONTEXT_PATH = "/ws/v1";
     public static final String API_CONTEXT_PATH = "/api/v1";
+    public static final String DASHBOARD_CONTEXT_PATH = "/dashboard";
     private static final Logger LOG = Logger.getLogger(PendantUI.class.getSimpleName());
     private final JogService jogService;
     private final BackendAPI backendAPI;
@@ -85,6 +87,7 @@ public class PendantUI implements UGSEventListener {
         contextHandlerCollection.addHandler(createResourceConfigHandler(new StaticConfig(), ""));
         contextHandlerCollection.addHandler(createResourceConfigHandler(new AppV1Config(backendAPI, jogService), API_CONTEXT_PATH));
         contextHandlerCollection.addHandler(createResourceConfigHandler(new StaticConfig(), "/*"));
+        contextHandlerCollection.addHandler(createResourceConfigHandler(new DashboardStaticConfig(), DASHBOARD_CONTEXT_PATH));
         contextHandlerCollection.addHandler(createWebSocketHandler(WEBSOCKET_CONTEXT_PATH));
 
         try {

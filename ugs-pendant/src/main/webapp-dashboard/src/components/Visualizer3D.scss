@@ -1,0 +1,25 @@
+.visualizer3D {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+}
+
+.visualizer3DCanvas {
+  height: 100%;
+  width: 100%;
+
+  canvas {
+    display: block;
+  }
+}
+
+.visualizer3DEmpty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  z-index: 1;
+  pointer-events: none;
+}

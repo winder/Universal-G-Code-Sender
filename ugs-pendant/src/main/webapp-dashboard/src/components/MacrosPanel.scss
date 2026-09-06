@@ -1,0 +1,16 @@
+.macrosPanel {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.macroButton {
+  min-height: 56px;
+}
+
+.macrosEmpty {
+  color: #6b7280;
+  font-size: 0.9rem;
+}

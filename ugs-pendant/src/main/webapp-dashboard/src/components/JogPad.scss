@@ -1,0 +1,57 @@
+.jogPad {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  flex-wrap: wrap;
+
+  .jogBtn {
+    min-width: 64px;
+    min-height: 64px;
+  }
+
+  .jogXY {
+    display: grid;
+    grid-template-columns: repeat(3, 64px);
+    grid-template-rows: repeat(3, 64px);
+    gap: 6px;
+  }
+
+  .jogCenter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-size: 0.85rem;
+    border: 1px dashed #3a3d3e;
+    border-radius: 6px;
+  }
+
+  // Visually separated from the XY pad (own border + margin) so a touch
+  // aimed at Z can't land on an XY move by accident.
+  .jogZ {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    margin-left: 8px;
+    border-left: 2px solid #3a3d3e;
+
+    .jogBtn {
+      width: 76px;
+    }
+  }
+
+  .jogSettings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 140px;
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: #8a8f92;
+      margin-bottom: 2px;
+    }
+  }
+}

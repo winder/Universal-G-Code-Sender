@@ -1,0 +1,15 @@
+.accessoryState {
+   overflow: hidden;
+   margin-left: 12px;
+   display: inline-flex;
+ 
+   .card-body {
+     text-align: center;
+     padding: 5px 12px;
+     font-weight: bold;
+
+     background-color: #dc3545;
+     color: white;
+   }
+ }
+ 

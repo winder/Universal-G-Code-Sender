@@ -1,0 +1,26 @@
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  background-color: #2a2c2d;
+  border-bottom: 1px solid #3a3d3e;
+
+  .topBarSection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .topBarActions {
+    flex: 1;
+    justify-content: center;
+
+    .btn {
+      min-height: 48px;
+      padding-left: 18px;
+      padding-right: 18px;
+    }
+  }
+}
