@@ -45,6 +45,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public ArrayList<Byte>   sentBytes = new ArrayList<>();
     public Boolean open = false;
     public Boolean areActiveCommands = false;
+    public boolean hasCommandsAwaitingResponse = false;
     public boolean paused = false;
 
     // Function calls.
@@ -131,6 +132,11 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public boolean areActiveCommands() {
         this.numAreActiveCommandsCalls++;
         return this.areActiveCommands;
+    }
+
+    @Override
+    public boolean hasCommandsAwaitingResponse() {
+        return this.hasCommandsAwaitingResponse;
     }
 
     @Override

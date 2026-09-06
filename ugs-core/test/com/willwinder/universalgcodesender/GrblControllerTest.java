@@ -443,6 +443,7 @@ public class GrblControllerTest {
         GrblController instance = initializeAndConnectController(VERSION_GRBL_1_1F);
         instance.queueStream(new SimpleGcodeStreamReader("G4P2", "G0X1"));
         instance.beginStreaming();
+        mgc.hasCommandsAwaitingResponse = true;
 
         instance.rawResponseHandler("<Idle|MPos:1.000,2.000,3.000|FS:0,0>");
 

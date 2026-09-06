@@ -557,8 +557,10 @@ public class GrblController extends AbstractController {
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getFirmwareSettings().getReportingUnits());
 
-        // While dwelling (G4) the controller reports itself as idle even though the program is still running,
-        // keep reporting it as running until every command in the stream has been completed.
+        // While dwelling (G4) the controller reports itself as idle even though the program is still running.
+        // The dwell command is not acknowledged until it has finished, so keep reporting the controller as
+        // running while sent commands are still awaiting a response. This intentionally does not consider the
+        // rows remaining in the stream, since the stream may be gated by an interceptor waiting for idle.
         if (isIdleWhileStreaming()) {
             controllerStatus = ControllerStatusBuilder
                     .newInstance(controllerStatus)
@@ -617,7 +619,7 @@ public class GrblController extends AbstractController {
         return controllerStatus.getState() == ControllerState.IDLE &&
                 isStreaming() &&
                 !comm.isPaused() &&
-                !allCommandsInStreamCompleted();
+                comm.hasCommandsAwaitingResponse();
     }
 
     /**

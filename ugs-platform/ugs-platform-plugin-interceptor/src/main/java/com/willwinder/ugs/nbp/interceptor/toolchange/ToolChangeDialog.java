@@ -151,7 +151,7 @@ public class ToolChangeDialog implements InterceptorDialog {
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         dialog.setContentPane(content);
         dialog.pack();
-        dialog.setMinimumSize(new Dimension(460, 480));
+        dialog.setMinimumSize(new Dimension(460, 500));
         dialog.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
     }
 
