@@ -1,0 +1,100 @@
+@import url(root.css);
+
+/**
+ * Insert clipart dialog
+ */
+.clipart-category-list {
+    -fx-border-color: -ugs-border-color;
+    -fx-border-width: 0 1 0 0;
+}
+
+.clipart-category-list:focused {
+    -fx-background-color: white;
+    -fx-background-insets: 0;
+}
+
+.clipart-category-list .list-cell {
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 1.1em;
+}
+
+.clipart-scroll,
+.clipart-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.clipart-result-count,
+.clipart-no-results,
+.clipart-details-placeholder {
+    -fx-text-fill: #888888;
+}
+
+/* Cards */
+.clipart-card {
+    -fx-background-color: white;
+    -fx-border-color: -ugs-border-color;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10 8 10 8;
+    -fx-spacing: 4;
+    -fx-cursor: hand;
+}
+
+.clipart-card:hover {
+    -fx-background-color: derive(-fx-focus-background-color, 60%);
+    -fx-border-color: derive(-fx-focus-border-color, 40%);
+}
+
+.clipart-card:selected {
+    -fx-background-color: -fx-focus-background-color;
+    -fx-border-color: -fx-focus-border-color;
+    -fx-border-width: 2;
+    -fx-padding: 9 7 9 7;
+}
+
+.clipart-card .clipart-preview {
+    -fx-padding: 4;
+}
+
+.clipart-card .clipart-name {
+    -fx-font-weight: bold;
+    -fx-padding: 6 0 2 0;
+}
+
+.clipart-card .clipart-credits,
+.clipart-details .clipart-details-label {
+    -fx-text-fill: #777777;
+    -fx-font-size: 0.9em;
+}
+
+/* License badge used both on the cards and in the details pane */
+.clipart-license {
+    -fx-background-color: derive(-fx-focus-border-color, 75%);
+    -fx-background-radius: 10;
+    -fx-padding: 1 8 1 8;
+    -fx-font-size: 0.85em;
+    -fx-text-fill: -ugs-blackish-color;
+}
+
+/* Details of the selected clipart */
+.clipart-details {
+    -fx-background-color: white;
+    -fx-border-color: -ugs-border-color;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 16 16 16 16;
+    -fx-alignment: center-left;
+}
+
+.clipart-details .clipart-details-name {
+    -fx-font-weight: bold;
+    -fx-font-size: 1.1em;
+    -fx-padding: 0 0 6 0;
+}
+
+.clipart-details .hyperlink {
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}

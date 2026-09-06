@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.fx.service.FxBackend;
 import com.willwinder.universalgcodesender.fx.service.FxEventDispatcher;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.fx.helper.BrowserHelper;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
@@ -118,6 +119,7 @@ public class Main extends Application {
 
         ShortcutService.registerListener(scene);
         FontRegistry.registerFonts();
+        BrowserHelper.setHostServices(getHostServices());
 
         scene.getStylesheets().add(Objects.requireNonNull(Main.class.getResource("/styles/root.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(Main.class.getResource("/styles/menu-bar.css")).toExternalForm());
