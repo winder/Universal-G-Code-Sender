@@ -18,13 +18,55 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.ugs.designer.actions.ToolClipartAction;
+import com.willwinder.ugs.designer.actions.AddAction;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.gui.clipart.Clipart;
+import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.logic.ControllerFactory;
+import com.willwinder.ugs.designer.logic.Tool;
+import com.willwinder.universalgcodesender.fx.dialog.InsertClipartDialog;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
+import javafx.stage.Window;
 
-public class DesignClipartAction extends AbstractDesignCommandAction {
+/**
+ * Opens the clipart dialog and inserts the chosen clipart into the design. The dialog and the model
+ * mutation both run on the JavaFX thread, which owns the designer model in the FX visualizer.
+ */
+public class DesignClipartAction extends BaseAction {
     public static final String ICON_BASE = "icons/clipart.svg";
 
     public DesignClipartAction() {
-        super(new ToolClipartAction(), Localization.getString("platform.designer.clipart"), ICON_BASE);
+        super(Localization.getString("platform.designer.clipart"), Localization.getString("platform.designer.clipart"), Localization.getString("actions.category.designer"), ICON_BASE);
+    }
+
+    @Override
+    public void handleAction(ActionEvent event) {
+        Window owner = resolveWindow(event);
+        Platform.runLater(() -> {
+            InsertClipartDialog dialog = new InsertClipartDialog(owner);
+            dialog.showAndWait();
+            dialog.getSelectedClipart().ifPresent(this::insertClipart);
+        });
+    }
+
+    private void insertClipart(Clipart clipart) {
+        Controller controller = ControllerFactory.getController();
+        Cuttable cuttable = clipart.getCuttable();
+        new AddAction(controller, cuttable).actionPerformed(null);
+        controller.getSelectionManager().addSelection(cuttable);
+        controller.setTool(Tool.SELECT);
+    }
+
+    private static Window resolveWindow(ActionEvent event) {
+        if (event != null && event.getSource() instanceof Node node && node.getScene() != null) {
+            return node.getScene().getWindow();
+        }
+        return Window.getWindows().stream()
+                .filter(Window::isFocused)
+                .findFirst()
+                .orElse(null);
     }
 }

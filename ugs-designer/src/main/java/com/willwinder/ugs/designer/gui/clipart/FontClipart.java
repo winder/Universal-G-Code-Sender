@@ -39,11 +39,11 @@ import java.awt.image.BufferedImage;
  */
 public class FontClipart implements Clipart {
     private final Category category;
-    private final JLabel label;
     private final String name;
     private final String text;
     private final Font font;
     private final ClipartSource source;
+    private JLabel label;
 
     public FontClipart(String name, Category category, Font font, String text, ClipartSource source) {
         this.name = name;
@@ -51,11 +51,6 @@ public class FontClipart implements Clipart {
         this.text = text;
         this.font = font;
         this.source = source;
-
-        label = new ClipartLabel(text);
-        label.setFont(font);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setForeground(ThemeColors.VERY_DARK_GREY);
     }
 
     @Override
@@ -68,8 +63,18 @@ public class FontClipart implements Clipart {
         return name;
     }
 
+    /**
+     * The Swing preview is created on demand so that UI variants which render the shape
+     * themselves never need to instantiate any Swing components.
+     */
     @Override
     public Component getPreview() {
+        if (label == null) {
+            label = new ClipartLabel(text);
+            label.setFont(font);
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            label.setForeground(ThemeColors.VERY_DARK_GREY);
+        }
         return label;
     }
 
