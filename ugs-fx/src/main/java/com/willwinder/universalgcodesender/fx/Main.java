@@ -38,6 +38,7 @@ import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
+import com.willwinder.universalgcodesender.fx.interceptor.InterceptorDialogService;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
 import com.willwinder.universalgcodesender.fx.service.ShortcutService;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceFileLoader;
@@ -130,6 +131,7 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         registerShortCuts(scene);
+        registerInterceptorDialogs(primaryStage);
 
         Parameters params = getParameters();
         if (!params.getUnnamed().isEmpty()) {
@@ -155,6 +157,11 @@ public class Main extends Application {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Could not open the default design workspace", e);
         }
+    }
+
+    private void registerInterceptorDialogs(Stage primaryStage) {
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
+        backend.addUGSEventListener(new InterceptorDialogService(backend, primaryStage));
     }
 
     private void registerWindowBoundsListeners(Stage primaryStage) {

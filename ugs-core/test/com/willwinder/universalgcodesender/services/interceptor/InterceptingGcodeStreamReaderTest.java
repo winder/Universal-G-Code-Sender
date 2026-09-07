@@ -18,12 +18,22 @@
  */
 package com.willwinder.universalgcodesender.services.interceptor;
 
+import com.willwinder.universalgcodesender.GrblController;
+import com.willwinder.universalgcodesender.GrblControllerInitializer;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblBuildOptions;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblVersion;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -151,5 +161,42 @@ public class InterceptingGcodeStreamReaderTest {
 
         assertThat(reader.isGated()).isFalse();
         assertThat(result).isSameAs(nextMove);
+    }
+
+    @Test
+    public void getNextCommand_shouldLetControllerReportIdleWhileGated() throws Exception {
+        MockGrblCommunicator communicator = new MockGrblCommunicator();
+        GrblController controller = initializeAndConnectController(communicator);
+        GcodeCommand toolChange = new GcodeCommand("M6 T1");
+        when(service.findInterceptor(toolChange)).thenReturn(Optional.of(mock(CommandInterceptor.class)));
+        InterceptingGcodeStreamReader reader = new InterceptingGcodeStreamReader(new SimpleGcodeStreamReader(toolChange, new GcodeCommand("G0 X1")), service);
+        controller.queueStream(reader);
+        controller.beginStreaming();
+        GcodeCommand blankTriggerLine = reader.getNextCommand();
+        controller.commandSent(blankTriggerLine);
+        controller.rawResponseListener("ok");
+
+        controller.rawResponseListener("<Idle|MPos:0.000,0.000,0.000|FS:0,0>");
+
+        assertThat(reader.isGated()).isTrue();
+        assertThat(controller.getControllerStatus().getState()).isEqualTo(ControllerState.IDLE);
+        assertThat(controller.isStreaming()).isTrue();
+    }
+
+    private static GrblController initializeAndConnectController(MockGrblCommunicator communicator) throws Exception {
+        Localization.initialize("en_US");
+        GrblControllerInitializer initializer = mock(GrblControllerInitializer.class);
+        when(initializer.isInitialized()).thenReturn(false);
+        when(initializer.isInitializing()).thenReturn(false);
+        when(initializer.initialize()).thenReturn(true);
+        when(initializer.getOptions()).thenReturn(new GrblBuildOptions());
+        when(initializer.getVersion()).thenReturn(new GrblVersion("[VER:1.1f]"));
+
+        GrblController controller = new GrblController(communicator, initializer);
+        controller.openCommPort(new Settings().getConnectionDriver(), "/dev/port", 1234);
+        Thread.sleep(50);
+
+        when(initializer.isInitialized()).thenReturn(true);
+        return controller;
     }
 }

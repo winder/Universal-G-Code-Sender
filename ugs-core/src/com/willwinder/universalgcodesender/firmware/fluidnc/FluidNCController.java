@@ -770,8 +770,10 @@ public class FluidNCController implements IController, ICommunicatorListener {
             ControllerState previousState = controllerStatus.getState();
             controllerStatus = FluidNCUtils.getStatusFromStatusResponse(controllerStatus, response, getFirmwareSettings().getReportingUnits());
 
-            // While dwelling (G4) the controller reports itself as idle even though the program is still running,
-            // keep reporting it as running until every command in the stream has been completed.
+            // While dwelling (G4) the controller reports itself as idle even though the program is still running.
+            // The dwell command is not acknowledged until it has finished, so keep reporting the controller as
+            // running while sent commands are still awaiting a response. This intentionally does not consider the
+            // rows remaining in the stream, since the stream may be gated by an interceptor waiting for idle.
             if (isIdleWhileStreaming()) {
                 controllerStatus = ControllerStatusBuilder
                         .newInstance(controllerStatus)
@@ -883,7 +885,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         return controllerStatus.getState() == ControllerState.IDLE &&
                 isStreaming() &&
                 !communicator.isPaused() &&
-                !allCommandsInStreamCompleted();
+                communicator.hasCommandsAwaitingResponse();
     }
 
     private void fileStreamComplete() {
