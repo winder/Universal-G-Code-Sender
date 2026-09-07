@@ -52,7 +52,6 @@ public class AppV1Config extends ResourceConfig {
         register(ExceptionMapper.class);
         register(ObjectMapperProvider.class);
         register(CustomOpenApiResource.class);
-        register(ObjectMapperProvider.class);
 
         register(new AbstractBinder() {
             @Override
