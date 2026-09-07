@@ -25,6 +25,11 @@ const initialState: Status = {
   },
   feedSpeed: 0,
   spindleSpeed: 0,
+  accessoryStates: {
+    spindleCW: false,
+    flood: false,
+    mist: false,
+  },
   state: "DISCONNECTED",
   pins: {
     x: false,
@@ -50,6 +55,11 @@ const statusSlice = createSlice({
       state.workCoord = action.payload.workCoord;
       state.feedSpeed = action.payload.feedSpeed;
       state.spindleSpeed = action.payload.spindleSpeed;
+      state.accessoryStates = {
+        spindleCW: action.payload.accessoryStates?.spindleCW ?? false,
+        flood: action.payload.accessoryStates?.flood ?? false,
+        mist: action.payload.accessoryStates?.mist ?? false,
+      };
       state.state = action.payload.state;
       state.pins = {
         x: action.payload.pins.x,

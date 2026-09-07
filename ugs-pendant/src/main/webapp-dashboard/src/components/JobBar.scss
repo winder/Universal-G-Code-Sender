@@ -14,19 +14,25 @@
   .jobProgress {
     flex: 1;
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    gap: 4px;
     min-width: 0;
 
     .progress {
-      flex: 1;
-      height: 1.75rem;
+      height: 1.5rem;
     }
 
-    .jobTimeLeft {
-      white-space: nowrap;
-      color: #8a8f92;
-      font-size: 0.85rem;
+    .jobSendStatus {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 20px;
+      color: #c3c8cb;
+      font-size: 1rem;
+
+      .jobSendStatusLabel {
+        color: #ffffff;
+        font-weight: 700;
+      }
     }
   }
 

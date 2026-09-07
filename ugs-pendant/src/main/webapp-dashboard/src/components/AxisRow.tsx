@@ -43,9 +43,17 @@ const AxisRow = ({ axisType }: Props) => {
   return (
     <div className={"axisRow " + (active ? "axisChanging " : "") + (limitPin ? "limitPin" : "")}>
       <div className="axisLabel">{axisType}</div>
-      <div className="axisValue">
-        {round(workCoord).toFixed(3)}
-        <span className="axisUnits">{status.workCoord.units.toLocaleLowerCase()}</span>
+      <div className="axisValues">
+        <div className="axisValue work">
+          {round(workCoord).toFixed(3)}
+          <span className="axisUnits">{status.workCoord.units.toLocaleLowerCase()}</span>
+        </div>
+        {machineCoord !== null && machineCoord !== undefined && (
+          <div className="axisValue machine">
+            {round(machineCoord).toFixed(3)}
+            <span className="axisUnits">{status.machineCoord.units.toLocaleLowerCase()}</span>
+          </div>
+        )}
       </div>
       <Button
         className="axisZeroButton"

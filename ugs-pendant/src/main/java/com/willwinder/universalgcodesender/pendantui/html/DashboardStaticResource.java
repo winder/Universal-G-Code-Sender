@@ -73,8 +73,20 @@ public class DashboardStaticResource {
         }
 
         InputStream resource = DashboardStaticResource.class.getResourceAsStream(String.format(RESOURCES_PATH, path));
+        if (Objects.isNull(resource)) {
+            return Response.status(NOT_FOUND).build();
+        }
+
         String mimeType = getMimeType(path);
-        return Objects.isNull(resource) ? Response.status(NOT_FOUND).build() :
-                Response.ok().entity(resource).header(HttpHeaders.CONTENT_TYPE, mimeType).build();
+        Response.ResponseBuilder builder = Response.ok().entity(resource).header(HttpHeaders.CONTENT_TYPE, mimeType);
+        if (path.equals("index.html")) {
+            // index.html references the JS/CSS bundle by a hash that changes on every
+            // build - a device that cached this page (no headers here previously told
+            // it not to) can keep loading a stale bundle indefinitely after the server
+            // is rebuilt, even though the hashed asset files themselves are always
+            // fetched correctly by name. Force it to always be revalidated.
+            builder.header(HttpHeaders.CACHE_CONTROL, "no-cache, must-revalidate");
+        }
+        return builder.build();
     }
 }

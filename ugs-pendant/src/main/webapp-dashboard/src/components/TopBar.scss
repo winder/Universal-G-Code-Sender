@@ -12,15 +12,4 @@
     align-items: center;
     gap: 8px;
   }
-
-  .topBarActions {
-    flex: 1;
-    justify-content: center;
-
-    .btn {
-      min-height: 48px;
-      padding-left: 18px;
-      padding-right: 18px;
-    }
-  }
 }

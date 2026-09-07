@@ -1,12 +1,18 @@
 .jogPad {
   display: flex;
-  align-items: flex-start;
-  gap: 28px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 16px;
 
   .jogBtn {
     min-width: 64px;
     min-height: 64px;
+  }
+
+  .jogArrows {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 16px;
   }
 
   .jogXY {
@@ -20,24 +26,36 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #6b7280;
-    font-size: 0.85rem;
-    border: 1px dashed #3a3d3e;
-    border-radius: 6px;
+    padding: 0;
   }
 
-  // Visually separated from the XY pad (own border + margin) so a touch
-  // aimed at Z can't land on an XY move by accident.
+  // Dead center of the jog pad, reachable by the same hand that's jogging - and
+  // enabled during JOG (not just RUN/HOLD/CHECK), since a jog needs to be
+  // abortable too, not just a running job.
+  .jogStop {
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+  }
+
+  // Visually separated from the XY pad (own border) so a touch aimed at Z can't
+  // land on an XY move by accident, and stretched (via align-items: stretch on
+  // .jogArrows) to fill the same height as the XY grid, split evenly top/bottom.
   .jogZ {
     display: flex;
     flex-direction: column;
     gap: 6px;
     padding: 8px;
-    margin-left: 8px;
     border-left: 2px solid #3a3d3e;
 
     .jogBtn {
+      flex: 1;
       width: 76px;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -45,13 +63,5 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    min-width: 140px;
-
-    label {
-      display: block;
-      font-size: 0.8rem;
-      color: #8a8f92;
-      margin-bottom: 2px;
-    }
   }
 }

@@ -38,6 +38,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 
 import java.io.File;
@@ -132,29 +133,90 @@ public class FilesResource {
     @GET
     @Path("getFileContent")
     @Produces(MediaType.TEXT_PLAIN)
-    @Operation(summary = "Get the raw gcode text of a file in the workspace directory")
-    public String getFileContent(@QueryParam("file") String file) throws IOException {
-        return Files.readString(resolveWorkspaceFile(file).toPath());
+    @Operation(summary = "Get the raw gcode text of the currently loaded file")
+    public String getFileContent() throws IOException {
+        return Files.readString(currentGcodeFile().toPath());
     }
 
     @POST
     @Path("saveFileContent")
     @Consumes(MediaType.TEXT_PLAIN)
-    @Operation(summary = "Save the raw gcode text of a file in the workspace directory and reload it")
-    public void saveFileContent(@QueryParam("file") String file, String content) throws Exception {
-        Files.writeString(resolveWorkspaceFile(file).toPath(), content);
-        backendAPI.openWorkspaceFile(file);
+    @Operation(summary = "Save the raw gcode text of the currently loaded file and reload it")
+    public void saveFileContent(String content) throws Exception {
+        File gcodeFile = currentGcodeFile();
+        Files.writeString(gcodeFile.toPath(), content);
+
+        FileLoader fileLoader = LookupService.lookupOptional(FileLoader.class)
+                .orElseGet(() -> new BackendFileLoader(backendAPI));
+        fileLoader.openFile(gcodeFile);
+    }
+
+    @POST
+    @Path("closeFile")
+    @Operation(summary = "Close the currently loaded file")
+    public void closeFile() throws Exception {
+        backendAPI.unsetGcodeFile();
+    }
+
+    @POST
+    @Path("saveFileContentAs")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Operation(summary = "Save the raw gcode text as a new file in the workspace directory, and open it")
+    public void saveFileContentAs(@QueryParam("filename") String filename, String content) throws Exception {
+        if (filename == null || filename.isBlank() || !filename.equals(new File(filename).getName())) {
+            throw new BadRequestException("Invalid filename");
+        }
+
+        File currentFile = currentGcodeFile();
+        File targetDirectory = workspaceDirectory().orElseGet(currentFile::getParentFile);
+        File targetFile = new File(targetDirectory, ensureExtension(filename, currentFile));
+        Files.writeString(targetFile.toPath(), content);
+
+        FileLoader fileLoader = LookupService.lookupOptional(FileLoader.class)
+                .orElseGet(() -> new BackendFileLoader(backendAPI));
+        fileLoader.openFile(targetFile);
     }
 
     /**
-     * Resolves a filename to a file in the workspace directory, throwing a 404 if it isn't one of the
-     * files already listed by {@link BackendAPI#getWorkspaceFileList()} - this keeps the file operations
-     * confined to the configured workspace directory instead of trusting an arbitrary client-supplied path.
+     * "Save as" needs a folder that's actually meaningful to the user - "next to whatever
+     * file happens to be currently open" fails silently for anything opened by uploading it
+     * through the browser's file picker (see {@link #open}), since that lands in a JVM temp
+     * directory the browser never reveals the real original path for. The configured
+     * workspace directory (the same folder {@link #getWorkspaceFileList} already lists) is
+     * always a real, known location the user picked, and the result shows up in that list
+     * immediately - so prefer it whenever one is configured.
      */
-    private File resolveWorkspaceFile(String file) {
-        if (!backendAPI.getWorkspaceFileList().contains(file)) {
-            throw new NotFoundException("Couldn't find the file '" + file + "' in workspace directory");
+    private Optional<File> workspaceDirectory() {
+        String workspaceDirectory = backendAPI.getSettings().getWorkspaceDirectory();
+        if (workspaceDirectory == null || workspaceDirectory.isBlank()) {
+            return Optional.empty();
         }
-        return new File(backendAPI.getSettings().getWorkspaceDirectory(), file);
+        File folder = new File(workspaceDirectory);
+        return folder.isDirectory() ? Optional.of(folder) : Optional.empty();
+    }
+
+    private static String ensureExtension(String filename, File referenceFile) {
+        if (filename.contains(".")) {
+            return filename;
+        }
+        String refName = referenceFile.getName();
+        int dot = refName.lastIndexOf('.');
+        return filename + (dot >= 0 ? refName.substring(dot) : ".gcode");
+    }
+
+    /**
+     * These endpoints always operate on whichever file is already loaded (rather than taking a
+     * client-supplied filename) - both because editing only makes sense for the currently open job,
+     * and because it sidesteps needing to validate an arbitrary path: a file opened via upload (as
+     * opposed to {@link #openWorkspaceFile}) doesn't live in the workspace directory, so restricting
+     * these to workspace-only files (as an earlier version of this did) would have made them
+     * unusable for anything but files picked from the workspace list.
+     */
+    private File currentGcodeFile() {
+        File gcodeFile = backendAPI.getGcodeFile();
+        if (gcodeFile == null) {
+            throw new NotFoundException("No file is currently loaded");
+        }
+        return gcodeFile;
     }
 }

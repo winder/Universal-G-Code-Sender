@@ -1,6 +1,37 @@
 .visualizer3D {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  min-height: 0;
+}
+
+.visualizer3DToolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  flex: 0 0 auto;
+  border-bottom: 1px solid #2f3132;
+  flex-wrap: wrap;
+
+  .btn {
+    min-height: 38px;
+  }
+
+  .visualizer3DBounds {
+    color: #8a8f92;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .visualizer3DBoundary {
+    margin-left: auto;
+  }
+}
+
+.visualizer3DBody {
+  position: relative;
+  flex: 1 1 auto;
   min-height: 0;
 }
 

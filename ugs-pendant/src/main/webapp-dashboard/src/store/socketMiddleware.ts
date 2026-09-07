@@ -11,6 +11,7 @@ import {
 } from "@reduxjs/toolkit";
 import {RootState} from "./store";
 import {getSettings} from "./settingsSlice";
+import {fetchStatus} from "./statusSlice";
 import {fetchFileStatus} from "./fileStatusSlice";
 import {consoleActions} from "./consoleSlice.ts";
 import {CommandEvent} from "../model/CommandEvent.ts";
@@ -48,6 +49,12 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
             console.log("Established connection");
             store.dispatch(socketActions.connectionEstablished());
             store.dispatch(getSettings());
+            // Without this, a freshly loaded page starts from the default redux
+            // state (state: "DISCONNECTED") and only corrects itself once the
+            // backend happens to push a status change - so reloading while
+            // already connected could get stuck showing "disconnected" until
+            // something on the machine changed.
+            store.dispatch(fetchStatus());
 
             const timer = setInterval(() => {
                 if (!socket.isConnected()) {

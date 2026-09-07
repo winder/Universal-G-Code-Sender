@@ -7,4 +7,5 @@ export type Settings = {
   portRate: string;
   firmwareVersion: string;
   useZStepSize: boolean;
+  workspaceDirectory: string;
 };

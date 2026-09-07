@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     runs-on: ubuntu-24.04
 
     steps:
@@ -41,7 +41,7 @@ jobs:
         overwrite: true
 
   release-macosx-x64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     runs-on: macos-latest
 
     steps:
@@ -79,7 +79,7 @@ jobs:
           overwrite: true
 
   release-macosx-aarch64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     runs-on: macos-latest
 
     steps:
@@ -117,7 +117,7 @@ jobs:
           overwrite: true
 
   build-fx-linux-x64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     runs-on: ubuntu-24.04
 
     steps:
@@ -149,7 +149,7 @@ jobs:
           overwrite: true
 
   build-fx-linux-aarch64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     runs-on: ubuntu-24.04-arm
 
     steps:
@@ -181,7 +181,7 @@ jobs:
           overwrite: true
 
   build-fx-macosx-x64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     runs-on: macos-14
 
     steps:
@@ -213,7 +213,7 @@ jobs:
           overwrite: true
 
   build-fx-macosx-aarch64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     runs-on: macos-latest
 
     steps:
@@ -245,7 +245,7 @@ jobs:
           overwrite: true
 
   build-fx-windows:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3

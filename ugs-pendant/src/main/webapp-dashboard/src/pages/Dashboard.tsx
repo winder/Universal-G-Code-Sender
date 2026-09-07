@@ -1,6 +1,8 @@
 import { useAppSelector } from "../hooks/useAppSelector";
 import TopBar from "../components/TopBar";
 import DroPanel from "../components/DroPanel";
+import FeedSpindleReadout from "../components/FeedSpindleReadout";
+import PinsStatus from "../components/PinsStatus";
 import JogPad from "../components/JogPad";
 import CenterPanel from "../components/CenterPanel";
 import RightRail from "../components/RightRail";
@@ -18,7 +20,13 @@ const Dashboard = () => {
       <div className="dashboardBody">
         <div className="dashboardLeft">
           <DroPanel />
-          <JogPad />
+          <FeedSpindleReadout />
+          <PinsStatus />
+
+          <div className="dashboardLeftJog">
+            <h6 className="dashboardSectionHeading">Jog</h6>
+            <JogPad />
+          </div>
         </div>
 
         <div className="dashboardCenter">

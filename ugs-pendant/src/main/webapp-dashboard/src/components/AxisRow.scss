@@ -29,19 +29,37 @@
     width: 1.2ch;
   }
 
-  .axisValue {
+  .axisValues {
     flex: 1;
-    font-family: "lcd", monospace;
-    font-size: 2.2rem;
-    color: #4ade80;
     text-align: right;
-    line-height: 1;
   }
 
-  .axisUnits {
+  .axisValue {
+    font-family: "lcd", monospace;
+    line-height: 1;
+
+    &.work {
+      font-size: 2.2rem;
+      color: #4ade80;
+    }
+
+    &.machine {
+      font-size: 1.1rem;
+      color: #5b8a99;
+      margin-top: 2px;
+    }
+  }
+
+  .axisValue.work .axisUnits {
     font-size: 1rem;
     color: #6b7280;
     margin-left: 6px;
+  }
+
+  .axisValue.machine .axisUnits {
+    font-size: 0.75rem;
+    color: #4b5a60;
+    margin-left: 4px;
   }
 
   .axisZeroButton {

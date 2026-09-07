@@ -5,6 +5,11 @@ export type Status = {
   workCoord: Coordinate;
   feedSpeed: number;
   spindleSpeed: number;
+  accessoryStates: {
+    spindleCW: boolean;
+    flood: boolean;
+    mist: boolean;
+  };
   state: string;
   pins: {
     x: boolean;

@@ -47,6 +47,17 @@ export const openWorkspaceFile = (fileName: string): Promise<void> => {
   ).then();
 };
 
+export const closeFile = (): Promise<void> => {
+  const request = {
+    method: "POST",
+  };
+  return fetch("/api/v1/files/closeFile", request).then((response) => {
+    if (!response.ok) {
+      throw new Error(`Couldn't close file (${response.status})`);
+    }
+  });
+};
+
 export const uploadAndOpen = (file: File): Promise<void> => {
   let formData: FormData = new FormData();
   formData.append("file", file, file.name);

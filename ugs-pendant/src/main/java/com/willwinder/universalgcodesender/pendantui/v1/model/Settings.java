@@ -14,6 +14,7 @@ public class Settings implements Serializable {
     private String portRate;
     private String firmwareVersion;
     private boolean useZStepSize;
+    private String workspaceDirectory;
 
     public void setJogFeedRate(double jogFeedRate) {
         this.jogFeedRate = jogFeedRate;
@@ -77,5 +78,13 @@ public class Settings implements Serializable {
 
     public boolean isUseZStepSize() {
         return useZStepSize;
+    }
+
+    public void setWorkspaceDirectory(String workspaceDirectory) {
+        this.workspaceDirectory = workspaceDirectory;
+    }
+
+    public String getWorkspaceDirectory() {
+        return workspaceDirectory;
     }
 }

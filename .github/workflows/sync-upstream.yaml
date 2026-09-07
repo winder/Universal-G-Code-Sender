@@ -1,0 +1,40 @@
+name: Sync upstream
+
+# Keeps this fork's master (the dashboard feature) current with the real
+# Universal Gcode Sender project. Runs weekly, and on-demand from the Actions
+# tab. If upstream has touched the same lines this fork modified, the merge
+# step below fails and nothing gets pushed - GitHub emails the repo owner
+# about the failed run by default, which is the signal to merge by hand once
+# and push. A silent auto-push on conflict would be worse than that.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # every Monday, 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  sync:
+    if: github.repository_owner == 'zanymutt'
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/winder/Universal-G-Code-Sender.git
+          git fetch upstream master
+
+      - name: Merge upstream/master
+        run: git merge upstream/master --no-edit
+
+      - name: Push
+        run: git push origin master

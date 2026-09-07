@@ -1,12 +1,61 @@
-.stepSize {
-  display: inline-block;
-  width: 100%;
+.feedRate {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 
-  .btn {
-      min-width: 10px;
+  .feedRateHeading {
+    font-size: 0.8rem;
+    color: #8a8f92;
   }
 
-  button { 
-    width: 100%;
+  .feedRateRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-group {
+    display: flex;
+    flex-wrap: nowrap;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  // All seven presets must stay on a single row - no wrapping - so the layout
+  // stays predictable on a touchscreen. Instead of a fixed min-width (which
+  // forced a wrap once the row got too narrow to fit), give every button an
+  // equal flex-basis of 0 so they shrink together to whatever width the row
+  // actually has.
+  .btn-group .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 40px;
+    padding: 4px 2px;
+    font-size: 0.78rem;
+  }
+
+  // Highlight the active feed rate the same green as the DRO readout, instead
+  // of Bootstrap's default gray "pressed" state. Driven from a class tied
+  // directly to React state rather than a `:checked` sibling selector, which
+  // can collide with Bootstrap's own default checked-button styling.
+  .feedRateActive {
+    background-color: #4ade80 !important;
+    border-color: #4ade80 !important;
+    color: #111213 !important;
+  }
+
+  .feedRateCurrent {
+    flex: 0 0 auto;
+    min-width: 60px;
+    padding: 4px 10px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #2f3132;
+    border-radius: 6px;
+    background-color: #111213;
+    color: #4ade80;
+    font-weight: 700;
   }
 }

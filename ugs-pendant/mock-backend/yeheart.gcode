@@ -1,0 +1,143 @@
+(Made in : Autodesk CAM Post Processor)
+(G-Code optimized for Grbl 1.1 / BlackBox controller)
+(Neo 11 OpenBuilds CNC : GRBL/BlackBox)
+(Post-Processor : OpenbuildsFusion360PostGrbl_NeoMod_11_dualprobe.cps)
+(V1.0.43)
+(Units = mm)
+(Laser UseZ = false)
+(Laser UsePierce = false)
+
+(Arcs are limited to the XY plane: if you want vertical arcs then)
+(edit allowedCircularPlanes in the CPS file)
+
+(Drawing name : Untitled)
+(Program Name : yeheart)
+
+(1 Operation :)
+(1 : 2D Profile1)
+(  Work Coordinate System : G54)
+(  Tool 2: Plasma Cutter Diam = 1mm)
+(  Machining time : 0h:0m:5s)
+
+G90 G94 G17
+G21
+
+(Plasma pierce height 3)
+(Plasma topHeight 1.5)
+
+(Operation 1 of 1 : 2D Profile1)
+G54
+(Plasma cutting with GRBL.)
+(Using torch height probe and pierce delay.)
+G0 X14.536 Y-39.159 F2500
+G0 X14.536 Y-39.159 Z25
+
+G53 G38.2 Z0 F200
+(Read float switch input immediately after probe stop)
+M66 P0 L0
+#100 = -3 ; default assume float switch trigger
+o100 if [#5399 EQ 0]
+  #100 = -0.2 ; float inactive, assume ohmic trigger
+o100 endif
+G10 L20 Z[#100]
+G0 X14.536 Y-39.159  ; force position after probe
+Z3
+M4 S1000
+G4 P0.4
+G1 Z1.5 F2500
+M8
+G1 X17.615 Y-35.22
+X17.684 Y-35.12
+X17.74 Y-35.013
+X17.782 Y-34.9
+X17.811 Y-34.783
+X17.825 Y-34.663
+X17.825 Y-34.542
+X17.811 Y-34.423
+X17.782 Y-34.305
+X17.739 Y-34.192
+X17.682 Y-34.086
+X17.614 Y-33.986
+X17.534 Y-33.896
+X17.443 Y-33.816
+X16.009 Y-32.695
+G2 X9.593 Y-30.954 I-1.223 J8.185
+G3 X3.474 Y-28.118 I-23.564 J-42.817
+G2 X8.283 Y-14.53 I4.193 J6.16
+G1 X8.887 Y-14.726
+X9.956 Y-14.975
+X12.238 Y-14.602
+G2 X21.285 Y-8.402 I10.022 J-4.924
+X22.641 Y-3.304 I10.516 J-0.066
+X35.606 Y-7.997 I5.852 J-4.087
+G1 X35.929 Y-8.456
+G3 X38.562 Y-9.098 I2.563 J4.788
+G2 X46.372 Y-14.445 I-2.044 J-11.363
+X55.301 Y-19.517 I2.327 J-6.299
+X52.282 Y-27.616 I-6.105 J-2.337
+X47.854 Y-30.697 I-11.319 J11.549
+X42.407 Y-33.25 I-7.13 J8.125
+X40.781 Y-33.225 I-0.738 J5.045
+G1 X37.02 Y-38.421
+G2 X31.552 Y-42.626 I-15.169 J14.064
+G1 X31.465 Y-42.721
+X31.388 Y-42.825
+X31.325 Y-42.938
+X31.274 Y-43.057
+X31.238 Y-43.181
+X31.216 Y-43.308
+X31.209 Y-43.437
+X31.217 Y-43.566
+X31.239 Y-43.693
+X31.276 Y-43.816
+G2 X24.405 Y-48.465 I-5.701 J1.025
+G1 X24.174 Y-48.371
+X23.949 Y-48.263
+X23.731 Y-48.141
+X23.522 Y-48.006
+X23.321 Y-47.858
+X23.131 Y-47.697
+X22.95 Y-47.524
+X22.781 Y-47.341
+X22.624 Y-47.147
+X22.48 Y-46.943
+X22.349 Y-46.731
+X22.231 Y-46.511
+X22.128 Y-46.284
+X22.039 Y-46.051
+X21.965 Y-45.812
+X21.906 Y-45.57
+X21.863 Y-45.324
+X21.705 Y-45.133
+X21.56 Y-44.932
+X21.428 Y-44.723
+X21.309 Y-44.506
+X21.203 Y-44.282
+X21.112 Y-44.052
+X21.035 Y-43.817
+X20.973 Y-43.577
+X20.925 Y-43.334
+X20.893 Y-43.088
+X20.877 Y-42.841
+X20.875 Y-42.594
+X20.889 Y-42.346
+X20.918 Y-42.101
+X20.963 Y-41.857
+X21.022 Y-41.617
+X21.097 Y-41.38
+X21.185 Y-41.149
+X21.013 Y-40.208
+X20.536 Y-36.527
+X19.58 Y-35.569
+X18.359 Y-34.532
+X16.655 Y-33.2
+M5
+G4 p0.5
+M9
+G0 Z30
+G4 p13.
+G0 Z40
+
+M5
+G0 X0 Y0
+M30

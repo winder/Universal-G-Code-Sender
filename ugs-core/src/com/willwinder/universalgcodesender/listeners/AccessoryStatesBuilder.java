@@ -22,7 +22,10 @@ package com.willwinder.universalgcodesender.listeners;
  * A class for storing the accessory states
  */
 public class AccessoryStatesBuilder {
-    private boolean spindleCW = true;
+    // Represents "nothing reported as active" - not an assumption that the spindle
+    // is already spinning. This value backs AccessoryStates.EMPTY_ACCESSORY_STATE,
+    // which is used before any real status report has arrived.
+    private boolean spindleCW = false;
     private boolean flood;
     private boolean mist;
 

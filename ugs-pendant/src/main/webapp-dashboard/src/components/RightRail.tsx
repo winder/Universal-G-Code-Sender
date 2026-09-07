@@ -1,27 +1,24 @@
-import { useState } from "react";
-import { Nav } from "react-bootstrap";
-import ConsolePanel from "./ConsolePanel";
+import Toolbox from "./Toolbox";
 import MacrosPanel from "./MacrosPanel";
+import SpindleCoolantControls from "./SpindleCoolantControls";
 import "./RightRail.scss";
 
-type Tab = "console" | "macros";
-
 const RightRail = () => {
-  const [tab, setTab] = useState<Tab>("console");
-
   return (
     <div className="rightRail">
-      <Nav variant="pills" activeKey={tab} onSelect={(key) => setTab((key as Tab) ?? "console")}>
-        <Nav.Item>
-          <Nav.Link eventKey="console">Console</Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="macros">Macros</Nav.Link>
-        </Nav.Item>
-      </Nav>
+      <div className="rightRailSection">
+        <h6 className="rightRailHeading">Toolbox</h6>
+        <Toolbox />
+      </div>
 
-      <div className="rightRailContent">
-        {tab === "console" ? <ConsolePanel /> : <MacrosPanel />}
+      <div className="rightRailSection rightRailMacros">
+        <h6 className="rightRailHeading">Macros</h6>
+        <MacrosPanel />
+      </div>
+
+      <div className="rightRailSection rightRailSpindle">
+        <h6 className="rightRailHeading">Spindle / Coolant</h6>
+        <SpindleCoolantControls />
       </div>
     </div>
   );

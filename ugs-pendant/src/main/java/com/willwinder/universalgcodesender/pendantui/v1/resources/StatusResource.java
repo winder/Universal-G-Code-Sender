@@ -58,6 +58,7 @@ public class StatusResource {
                 status.setState(controllerStatus.getState());
                 status.setFeedSpeed(controllerStatus.getFeedSpeed());
                 status.setSpindleSpeed(controllerStatus.getSpindleSpeed());
+                status.setAccessoryStates(controllerStatus.getAccessoryStates());
             } else {
                 // Hack, we are connected so we need to set it to an unknown state
                 status.setState(ControllerState.UNKNOWN);

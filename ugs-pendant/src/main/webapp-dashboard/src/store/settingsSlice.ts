@@ -37,7 +37,8 @@ const initialState: Settings = {
   firmwareVersion: "GRBL",
   port: "COM1",
   portRate: "115200",
-  useZStepSize: true
+  useZStepSize: true,
+  workspaceDirectory: "",
 };
 
 const settingsSlice = createSlice({

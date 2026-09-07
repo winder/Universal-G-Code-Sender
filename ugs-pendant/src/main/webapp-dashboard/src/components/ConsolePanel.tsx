@@ -23,7 +23,7 @@ const ConsolePanel = () => {
   }, [messages]);
 
   const handleSendGcode = () => {
-    if (gcodeCommand.trim()) {
+    if (isEnabled && gcodeCommand.trim()) {
       sendGcode(gcodeCommand.trim()).then(() => {
         setGcodeCommand("");
       });
@@ -64,6 +64,11 @@ const ConsolePanel = () => {
 
       <div className="consoleInput">
         <InputGroup>
+          {/* Deliberately never `disabled` - a disabled input forces the browser to
+              blur it, which was kicking focus out of the console the moment a sent
+              command changed the controller state (e.g. any real motion). Typing/
+              queuing a command ahead of time is harmless; only actually sending is
+              gated on isEnabled, in handleSendGcode and the Send button below. */}
           <Form.Control
             id="gcode-command-input"
             type="text"
@@ -71,7 +76,6 @@ const ConsolePanel = () => {
             value={gcodeCommand}
             onChange={(e) => setGcodeCommand(e.target.value)}
             onKeyDown={handleKeyDown}
-            disabled={!isEnabled}
           />
           <Button
             variant="primary"

@@ -1,5 +1,10 @@
 import { createServer } from "http";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 import { WebSocketServer } from "ws";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const settings = {
   jogFeedRate: 1000,
@@ -10,6 +15,7 @@ const settings = {
   portRate: "115200",
   firmwareVersion: "GRBL",
   useZStepSize: true,
+  workspaceDirectory: "C:\\Users\\qvipe\\gcode-workspace",
 };
 
 const status = {
@@ -17,6 +23,7 @@ const status = {
   workCoord: { x: 12.5, y: -4.2, z: 0.75, a: 0, b: 0, c: 0, units: "MM" },
   feedSpeed: 0,
   spindleSpeed: 0,
+  accessoryStates: { spindleCW: false, flood: false, mist: false },
   state: "IDLE",
   pins: {
     x: false, y: false, z: false, a: false, b: false, c: false,
@@ -30,16 +37,10 @@ const macros = [
   { name: "Spindle On", description: undefined, gcode: "M3 S1000" },
 ];
 
-const fileStatus = {
-  fileName: "test-part.nc",
-  rowCount: 4200,
-  completedRowCount: 0,
-  remainingRowCount: 4200,
-  sendDuration: 0,
-  sendRemainingDuration: 0,
-};
-
-let fileContent = `; sample part
+// A small set of files simulating the "workspace directory" - keyed by the bare
+// filename the real backend would use.
+const files = {
+  "test-part.nc": `; sample part
 G21 G90
 G0 Z5
 G0 X0 Y0
@@ -49,16 +50,94 @@ G1 X50 Y30
 G1 X0 Y30
 G1 X0 Y0
 G0 Z5
-`;
+`,
+  "yeheart.gcode": readFileSync(join(__dirname, "yeheart.gcode"), "utf8"),
+};
 
-const toolpath = [
-  { start: { x: 0, y: 0, z: 5 }, end: { x: 0, y: 0, z: -1 }, rapid: false, arc: false },
-  { start: { x: 0, y: 0, z: -1 }, end: { x: 50, y: 0, z: -1 }, rapid: false, arc: false },
-  { start: { x: 50, y: 0, z: -1 }, end: { x: 50, y: 30, z: -1 }, rapid: false, arc: false },
-  { start: { x: 50, y: 30, z: -1 }, end: { x: 0, y: 30, z: -1 }, rapid: false, arc: false },
-  { start: { x: 0, y: 30, z: -1 }, end: { x: 0, y: 0, z: -1 }, rapid: false, arc: false },
-  { start: { x: 0, y: 0, z: -1 }, end: { x: 0, y: 0, z: 5 }, rapid: true, arc: false },
-];
+let activeFile = "yeheart.gcode";
+
+const fileStatus = {
+  fileName: activeFile,
+  rowCount: files[activeFile].split(/\r?\n/).length,
+  completedRowCount: 0,
+  remainingRowCount: files[activeFile].split(/\r?\n/).length,
+  sendDuration: 0,
+  sendRemainingDuration: 0,
+};
+
+/**
+ * A rough gcode-to-toolpath approximation for mock/dev purposes only - handles modal
+ * G0/G1/G2/G3, absolute X/Y/Z, and I/J arc centers. Not a substitute for the real
+ * backend's GcodeViewParse, just enough to visualize real-world files while iterating
+ * on the dashboard UI without a Java build.
+ */
+function gcodeToSegments(text) {
+  const segments = [];
+  let x = 0, y = 0, z = 0;
+  let lastG = null;
+
+  const getNum = (line, letter) => {
+    const m = line.match(new RegExp(letter + "(-?[0-9.]+)"));
+    return m ? parseFloat(m[1]) : null;
+  };
+
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.replace(/;.*/, "").replace(/\([^)]*\)/g, "").trim();
+    if (!line || /^#/.test(line) || /^o\d/i.test(line)) continue;
+
+    const gMatch = line.match(/G(\d+)/);
+    const g = gMatch ? parseInt(gMatch[1], 10) : lastG;
+
+    const nx = getNum(line, "X");
+    const ny = getNum(line, "Y");
+    const nz = getNum(line, "Z");
+    const i = getNum(line, "I");
+    const j = getNum(line, "J");
+
+    if (nx === null && ny === null && nz === null) {
+      if (gMatch) lastG = g;
+      continue;
+    }
+
+    const targetX = nx !== null ? nx : x;
+    const targetY = ny !== null ? ny : y;
+    const targetZ = nz !== null ? nz : z;
+
+    if (g === 0 || g === 1) {
+      segments.push({ start: { x, y, z }, end: { x: targetX, y: targetY, z: targetZ }, rapid: g === 0, arc: false });
+      x = targetX; y = targetY; z = targetZ;
+    } else if (g === 2 || g === 3) {
+      const cx = x + (i || 0);
+      const cy = y + (j || 0);
+      const radius = Math.hypot(x - cx, y - cy);
+      const startAngle = Math.atan2(y - cy, x - cx);
+      let endAngle = Math.atan2(targetY - cy, targetX - cx);
+      const clockwise = g === 2;
+      let delta = endAngle - startAngle;
+      if (clockwise) {
+        while (delta >= 0) delta -= 2 * Math.PI;
+      } else {
+        while (delta <= 0) delta += 2 * Math.PI;
+      }
+      const steps = Math.max(2, Math.round((Math.abs(delta) / (2 * Math.PI)) * 96));
+      let px = x, py = y, pz = z;
+      for (let s = 1; s <= steps; s++) {
+        const a = startAngle + delta * (s / steps);
+        const sx = cx + radius * Math.cos(a);
+        const sy = cy + radius * Math.sin(a);
+        const sz = z + (targetZ - z) * (s / steps);
+        segments.push({ start: { x: px, y: py, z: pz }, end: { x: sx, y: sy, z: sz }, rapid: false, arc: true });
+        px = sx; py = sy; pz = sz;
+      }
+      x = targetX; y = targetY; z = targetZ;
+    } else {
+      x = targetX; y = targetY; z = targetZ;
+    }
+    if (gMatch) lastG = g;
+  }
+
+  return segments;
+}
 
 function json(res, data, status_ = 200) {
   res.writeHead(status_, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
@@ -87,31 +166,111 @@ const server = createServer((req, res) => {
   if (p === "/api/v1/machine/getFirmwareList") return json(res, ["GRBL", "Smoothie", "TinyG", "g2core"]);
   if (p === "/api/v1/machine/getBaudRateList") return json(res, ["9600", "115200", "250000"]);
   if (p === "/api/v1/status/getStatus") return json(res, status);
-  if (p.startsWith("/api/v1/machine/")) return json(res, {});
-  if (p === "/api/v1/files/getFileStatus") return json(res, fileStatus);
-  if (p === "/api/v1/files/getWorkspaceFileList") return json(res, { fileList: ["part1.nc", "part2.nc", "test-part.nc"] });
-  if (p === "/api/v1/files/getFileContent") {
-    res.writeHead(200, { "Content-Type": "text/plain", "Access-Control-Allow-Origin": "*" });
-    return res.end(fileContent);
-  }
-  if (p === "/api/v1/files/saveFileContent") {
+  if (p === "/api/v1/machine/sendGcode" && req.method === "POST") {
     let body = "";
     req.on("data", (c) => (body += c));
     req.on("end", () => {
-      fileContent = body;
+      // Simulate just enough of a real controller's response to spindle/coolant
+      // commands so the on/off buttons have something real to reflect in the mock.
+      const commands = (JSON.parse(body || "{}").commands || "").toUpperCase();
+      if (/\bM0?3\b/.test(commands)) {
+        const sMatch = commands.match(/S(\d+)/);
+        status.spindleSpeed = sMatch ? parseInt(sMatch[1], 10) : 1000;
+        status.accessoryStates.spindleCW = true;
+      } else if (/\bM0?4\b/.test(commands)) {
+        const sMatch = commands.match(/S(\d+)/);
+        status.spindleSpeed = sMatch ? parseInt(sMatch[1], 10) : 1000;
+        status.accessoryStates.spindleCW = true;
+      } else if (/\bM0?5\b/.test(commands)) {
+        status.spindleSpeed = 0;
+        status.accessoryStates.spindleCW = false;
+      } else if (/\bM0?8\b/.test(commands)) {
+        status.accessoryStates.flood = true;
+      } else if (/\bM0?9\b/.test(commands)) {
+        status.accessoryStates.flood = false;
+        status.accessoryStates.mist = false;
+      }
       json(res, {});
     });
     return;
   }
+  if (p.startsWith("/api/v1/machine/")) return json(res, {});
+  if (p === "/api/v1/files/getFileStatus") return json(res, fileStatus);
+  if (p === "/api/v1/files/getWorkspaceFileList") return json(res, { fileList: Object.keys(files) });
+  if (p === "/api/v1/files/openWorkspaceFile" && req.method === "POST") {
+    const file = url.searchParams.get("file");
+    if (file && files[file] !== undefined) {
+      activeFile = file;
+      fileStatus.fileName = file;
+      fileStatus.rowCount = files[file].split(/\r?\n/).length;
+      fileStatus.completedRowCount = 0;
+      fileStatus.remainingRowCount = fileStatus.rowCount;
+      broadcast({ eventType: "FileStateEvent", event: {} });
+    }
+    return json(res, {});
+  }
+  if (p === "/api/v1/files/getFileContent") {
+    const file = url.searchParams.get("file") || activeFile;
+    res.writeHead(200, { "Content-Type": "text/plain", "Access-Control-Allow-Origin": "*" });
+    return res.end(files[file] ?? "");
+  }
+  if (p === "/api/v1/files/saveFileContent") {
+    const file = url.searchParams.get("file") || activeFile;
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      files[file] = body;
+      json(res, {});
+    });
+    return;
+  }
+  if (p === "/api/v1/files/saveFileContentAs" && req.method === "POST") {
+    const filename = url.searchParams.get("filename");
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      files[filename] = body;
+      activeFile = filename;
+      fileStatus.fileName = filename;
+      fileStatus.rowCount = body.split(/\r?\n/).length;
+      fileStatus.completedRowCount = 0;
+      fileStatus.remainingRowCount = fileStatus.rowCount;
+      broadcast({ eventType: "FileStateEvent", event: {} });
+      json(res, {});
+    });
+    return;
+  }
+  if (p === "/api/v1/files/closeFile" && req.method === "POST") {
+    activeFile = null;
+    fileStatus.fileName = "";
+    fileStatus.rowCount = 0;
+    fileStatus.completedRowCount = 0;
+    fileStatus.remainingRowCount = 0;
+    broadcast({ eventType: "FileStateEvent", event: {} });
+    return json(res, {});
+  }
   if (p.startsWith("/api/v1/files/")) return json(res, {});
   if (p === "/api/v1/macros/getMacroList") return json(res, macros);
   if (p.startsWith("/api/v1/macros/")) return json(res, {});
-  if (p === "/api/v1/visualizer/getToolpath") return json(res, toolpath);
+  if (p === "/api/v1/visualizer/getToolpath") return json(res, gcodeToSegments(files[activeFile] ?? ""));
 
   json(res, { error: "not found" }, 404);
 });
 
 const wss = new WebSocketServer({ server, path: "/ws/v1/events" });
+
+// The real backend pushes a FileStateEvent over the websocket whenever a file is
+// opened/loaded - the dashboard relies on that push (not just the HTTP response)
+// to know a *different* file is now active. Mirror that here so mock testing
+// actually exercises the same code path the real app does.
+function broadcast(event) {
+  wss.clients.forEach((client) => {
+    if (client.readyState === client.OPEN) {
+      client.send(JSON.stringify(event));
+    }
+  });
+}
+
 wss.on("connection", (ws) => {
   console.log("WS connected");
   const timer = setInterval(() => {

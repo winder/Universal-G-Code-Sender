@@ -8,5 +8,10 @@ export type ToolpathSegment = {
 };
 
 export const getToolpath = (): Promise<ToolpathSegment[]> => {
-  return fetch("/api/v1/visualizer/getToolpath").then((response) => response.json());
+  return fetch("/api/v1/visualizer/getToolpath").then((response) => {
+    if (!response.ok) {
+      throw new Error(`Couldn't load toolpath (${response.status})`);
+    }
+    return response.json();
+  });
 };

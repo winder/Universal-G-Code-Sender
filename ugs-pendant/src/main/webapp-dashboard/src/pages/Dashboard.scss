@@ -10,7 +10,7 @@
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(340px, 420px) 1fr minmax(280px, 360px);
+  grid-template-columns: minmax(300px, 360px) 1fr minmax(280px, 360px);
   gap: 16px;
   padding: 16px;
   overflow: auto;
@@ -26,8 +26,24 @@
 }
 
 .dashboardLeft {
-  gap: 16px;
+  // Tightened from 16px - on a 1920x1080 (or an equivalently-scaled 4K 13")
+  // screen this column was landing just over the available height by ~14px,
+  // needing an internal scrollbar for the sake of a few px of breathing room.
+  gap: 10px;
   overflow-y: auto;
+}
+
+.dashboardLeftJog {
+  padding-top: 10px;
+  border-top: 1px solid #2f3132;
+}
+
+.dashboardSectionHeading {
+  color: #8a8f92;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
 }
 
 // Below this, side-by-side rails no longer fit a touchscreen comfortably;

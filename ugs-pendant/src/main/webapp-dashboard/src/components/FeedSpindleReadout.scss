@@ -1,0 +1,43 @@
+.feedSpindleReadout {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feedSpindleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #111213;
+  border: 1px solid #2f3132;
+  border-radius: 6px;
+  padding: 10px 14px;
+
+  .feedSpindleLabel {
+    font-family: "lcd", monospace;
+    font-size: 1.1rem;
+    color: #8a8f92;
+    width: 5ch;
+  }
+
+  .feedSpindleValue {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    font-family: "lcd", monospace;
+    font-size: 2.2rem;
+    color: #4ade80;
+    line-height: 1;
+  }
+
+  // A fixed-width, left-aligned unit column keeps the digits themselves lined up
+  // between rows, instead of "mm/min" vs "rpm" pushing them to different widths.
+  .feedSpindleUnits {
+    display: inline-block;
+    width: 4.5ch;
+    margin-left: 6px;
+    font-size: 1rem;
+    color: #6b7280;
+    text-align: left;
+  }
+}

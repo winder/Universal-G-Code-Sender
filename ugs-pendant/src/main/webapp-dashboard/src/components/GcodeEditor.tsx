@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { EditorState } from "@codemirror/state";
+import { Compartment, EditorState } from "@codemirror/state";
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { searchKeymap } from "@codemirror/search";
 import { Button, Spinner } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
+import { faFloppyDisk, faFileExport } from "@fortawesome/free-solid-svg-icons";
 import { useAppSelector } from "../hooks/useAppSelector";
-import { getFileContent, saveFileContent } from "../services/fileContent";
+import { getFileContent, saveFileContent, saveFileContentAs } from "../services/fileContent";
 import { gcodeLanguage, gcodeSyntaxHighlighting } from "./gcodeLanguage";
+import SaveAsModal from "./SaveAsModal";
 import "./GcodeEditor.scss";
 
 const editorTheme = EditorView.theme(
@@ -33,10 +34,15 @@ const GcodeEditor = () => {
 
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
+  // The editable state needs to change without tearing down and recreating the
+  // whole editor (that would also blow away undo history/cursor position) - a
+  // Compartment lets it be reconfigured in place from the effect below.
+  const editableCompartmentRef = useRef(new Compartment());
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSaveAs, setShowSaveAs] = useState(false);
 
   useEffect(() => {
     if (!editorContainerRef.current || !fileName) {
@@ -48,7 +54,7 @@ const GcodeEditor = () => {
     setIsDirty(false);
 
     let cancelled = false;
-    getFileContent(fileName)
+    getFileContent()
       .then((content) => {
         if (cancelled || !editorContainerRef.current) return;
 
@@ -64,7 +70,7 @@ const GcodeEditor = () => {
               gcodeLanguage,
               gcodeSyntaxHighlighting,
               editorTheme,
-              EditorView.editable.of(isEditable),
+              editableCompartmentRef.current.of(EditorView.editable.of(isEditable)),
               EditorView.updateListener.of((update) => {
                 if (update.docChanged) setIsDirty(true);
               }),
@@ -84,13 +90,29 @@ const GcodeEditor = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileName]);
 
+  // Keeps the editor's editable state in sync with the machine state on its
+  // own, instead of only picking it up next time a file loads - previously,
+  // opening a file while the machine hadn't yet reported IDLE (e.g. right
+  // after connecting) froze the editor as non-editable/unclickable forever,
+  // even once the machine settled into IDLE.
+  useEffect(() => {
+    viewRef.current?.dispatch({
+      effects: editableCompartmentRef.current.reconfigure(EditorView.editable.of(isEditable)),
+    });
+  }, [isEditable]);
+
   const handleSave = () => {
     if (!viewRef.current || !fileName) return;
     setIsSaving(true);
-    saveFileContent(fileName, viewRef.current.state.doc.toString())
+    saveFileContent(viewRef.current.state.doc.toString())
       .then(() => setIsDirty(false))
       .catch(() => setError("Couldn't save this file."))
       .finally(() => setIsSaving(false));
+  };
+
+  const handleSaveAsToWorkspace = (newFilename: string) => {
+    if (!viewRef.current) return Promise.reject();
+    return saveFileContentAs(newFilename, viewRef.current.state.doc.toString()).then(() => setIsDirty(false));
   };
 
   if (!fileName) {
@@ -99,10 +121,27 @@ const GcodeEditor = () => {
 
   return (
     <div className="gcodeEditor">
+      {showSaveAs && (
+        <SaveAsModal
+          defaultFileName={fileName}
+          getContent={() => viewRef.current?.state.doc.toString() ?? ""}
+          onSaveToWorkspace={handleSaveAsToWorkspace}
+          handleClose={() => setShowSaveAs(false)}
+        />
+      )}
+
       <div className="gcodeEditorToolbar">
         <span className="gcodeEditorFileName">{fileName}</span>
         {!isEditable && <span className="gcodeEditorLocked">Read-only while the machine isn't idle</span>}
         {error && <span className="gcodeEditorError">{error}</span>}
+        <Button
+          className="gcodeEditorSave"
+          variant="outline-secondary"
+          disabled={!isEditable || isSaving}
+          onClick={() => setShowSaveAs(true)}
+        >
+          <FontAwesomeIcon icon={faFileExport} /> Save as
+        </Button>
         <Button
           className="gcodeEditorSave"
           variant="primary"

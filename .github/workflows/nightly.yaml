@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-test:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     runs-on: ubuntu-24.04
 
     steps:
@@ -34,7 +34,7 @@ jobs:
         overwrite: true
 
   build-ugs-platform-macosx-aarch64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: macos-latest
 
@@ -65,7 +65,7 @@ jobs:
           overwrite: true
 
   build-ugs-platform-macosx-x64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: macos-latest
 
@@ -97,7 +97,7 @@ jobs:
 
 
   build-fx-linux-x64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: ubuntu-24.04
 
@@ -122,7 +122,7 @@ jobs:
           overwrite: true
 
   build-fx-linux-aarch64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: ubuntu-24.04-arm
 
@@ -147,7 +147,7 @@ jobs:
           overwrite: true
 
   build-fx-macosx-x64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: macos-14
 
@@ -172,7 +172,7 @@ jobs:
           overwrite: true
 
   build-fx-macosx-aarch64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: macos-latest
 
@@ -197,7 +197,7 @@ jobs:
           overwrite: true
 
   build-fx-windows:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: windows-latest
     steps:
