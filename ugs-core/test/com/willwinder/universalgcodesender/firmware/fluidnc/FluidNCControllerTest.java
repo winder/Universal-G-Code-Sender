@@ -371,6 +371,7 @@ public class FluidNCControllerTest {
     public void rawResponseListener_shouldReportRunningWhenIdleDuringStream() {
         target.queueStream(new SimpleGcodeStreamReader("G4P2", "G0 X1"));
         target.beginStreaming();
+        when(communicator.hasCommandsAwaitingResponse()).thenReturn(true);
 
         target.rawResponseListener("<Idle>");
 

@@ -23,6 +23,8 @@ import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.FlowPane;
 
 import java.util.Optional;
@@ -54,5 +56,9 @@ abstract class AbstractDesignToolbar extends FlowPane {
 
     private Optional<Action> getAction(Class<? extends Action> actionClass) {
         return ActionRegistry.getInstance().getAction(actionClass.getCanonicalName());
+    }
+
+    public void addSeparator() {
+        getChildren().add(new Separator(Orientation.VERTICAL));
     }
 }

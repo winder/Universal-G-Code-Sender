@@ -35,6 +35,8 @@ import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerEventType;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
+import com.willwinder.universalgcodesender.fx.model.WorkspaceBounds;
+import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.TreeCell;
@@ -42,14 +44,14 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.SelectionMode;
 
-import javax.swing.SwingUtilities;
-import java.util.ArrayList;
+import java.awt.geom.Rectangle2D;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * A JavaFX tree showing the entities of the active design. It mirrors the Swing
@@ -60,6 +62,8 @@ import java.util.Set;
 public class EntityTreeView extends TreeView<Entity> {
 
     private static final int ICON_SIZE = 16;
+    private static final double ZOOM_MARGIN_FACTOR = 0.1;
+    private static final double MIN_ZOOM_MARGIN = 5;
 
     // Entity-property events that should refresh the cell labels/icons without rebuilding.
     private static final EnumSet<EventType> REFRESH_EVENTS = EnumSet.of(
@@ -83,12 +87,12 @@ public class EntityTreeView extends TreeView<Entity> {
         getStyleClass().add("entity-tree");
         setShowRoot(false);
         getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        setCellFactory(tv -> new EntityTreeCell());
+        setCellFactory(tv -> new EntityTreeCell(this::zoomTo));
 
         rebuild();
 
         this.rootListener = event -> Platform.runLater(() -> onEntityEvent(event.getType()));
-        controller.getDrawing().getRootEntity().addListener(rootListener);
+        controller.getModel().getRootEntity().addListener(rootListener);
 
         controller.addListener(event -> {
             if (event == ControllerEventType.NEW_DRAWING) {
@@ -101,6 +105,21 @@ public class EntityTreeView extends TreeView<Entity> {
 
         getSelectionModel().getSelectedItems().addListener(
                 (ListChangeListener<TreeItem<Entity>>) c -> syncSelectionToManager());
+    }
+
+    /**
+     * Frames the entity in the visualizer with some room around it; a point gets a fixed extent
+     * as its bounds have no size to fit.
+     */
+    private void zoomTo(Entity entity) {
+        Rectangle2D bounds = entity.getBounds();
+        if (bounds == null) {
+            return;
+        }
+        double margin = Math.max(ZOOM_MARGIN_FACTOR * Math.max(bounds.getWidth(), bounds.getHeight()), MIN_ZOOM_MARGIN);
+        VisualizerService.getInstance().centerOnBounds(new WorkspaceBounds(
+                bounds.getMinX() - margin, bounds.getMinY() - margin,
+                bounds.getMaxX() + margin, bounds.getMaxY() + margin));
     }
 
     private void onEntityEvent(EventType type) {
@@ -116,7 +135,7 @@ public class EntityTreeView extends TreeView<Entity> {
         Set<Entity> expanded = collectExpandedEntities();
 
         itemByEntity.clear();
-        EntityGroup root = controller.getDrawing().getRootEntity();
+        EntityGroup root = controller.getModel().getRootEntity();
         TreeItem<Entity> rootItem = buildItem(root, expanded, true);
         setRoot(rootItem);
 
@@ -154,24 +173,36 @@ public class EntityTreeView extends TreeView<Entity> {
         item.getChildren().forEach(child -> collectExpandedEntities(child, expanded));
     }
 
+    /**
+     * A group selected in the tree is selected as a whole, like in the platform edition. Entities
+     * whose ancestor is selected too are left out, or a move would be applied to them twice.
+     */
     private void syncSelectionToManager() {
         if (updatingSelection) {
             return;
         }
 
-        List<Entity> selected = new ArrayList<>();
-        getSelectionModel().getSelectedItems().forEach(item -> {
-            if (item != null && item.getValue() != null) {
-                selected.add(item.getValue());
-            }
-        });
+        List<TreeItem<Entity>> selectedItems = getSelectionModel().getSelectedItems().stream()
+                .filter(item -> item != null && item.getValue() != null)
+                .toList();
+        List<Entity> selected = selectedItems.stream()
+                .filter(item -> !hasSelectedAncestor(item, selectedItems))
+                .map(TreeItem::getValue)
+                .toList();
+        selectionManager.setSelection(selected);
+    }
 
-        // The selection lives in the Swing-based designer model; mutate it on the EDT.
-        SwingUtilities.invokeLater(() -> selectionManager.setSelection(selected));
+    private static boolean hasSelectedAncestor(TreeItem<Entity> item, List<TreeItem<Entity>> selectedItems) {
+        for (TreeItem<Entity> parent = item.getParent(); parent != null; parent = parent.getParent()) {
+            if (selectedItems.contains(parent)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void syncSelectionFromManager() {
-        Set<Entity> desired = new HashSet<>(selectionManager.getSelection());
+        Set<Entity> desired = new HashSet<>(selectionManager.getChildren());
 
         // Skip if the tree already reflects the manager's selection to avoid a sync loop.
         Set<Entity> current = new HashSet<>();
@@ -202,6 +233,14 @@ public class EntityTreeView extends TreeView<Entity> {
      * Renders an entity as an icon plus its name.
      */
     private static class EntityTreeCell extends TreeCell<Entity> {
+        EntityTreeCell(Consumer<Entity> onDoubleClick) {
+            setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !isEmpty() && getItem() != null) {
+                    onDoubleClick.accept(getItem());
+                }
+            });
+        }
+
         @Override
         protected void updateItem(Entity entity, boolean empty) {
             super.updateItem(entity, empty);

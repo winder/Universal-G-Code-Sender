@@ -36,14 +36,14 @@ public class EntityTreeModelTest {
         Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
         EntityTreeModel model = new EntityTreeModel(controller);
         Object root = model.getRoot();
-        assertEquals(controller.getDrawing().getRootEntity(), root);
+        assertEquals(controller.getModel().getRootEntity(), root);
     }
 
     @Test
     public void addChildShouldCreateTreeNodesInsertedEvent() throws Exception {
         Assume.assumeFalse(GraphicsEnvironment.isHeadless());
         Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
-        EntityGroup root = controller.getDrawing().getRootEntity();
+        EntityGroup root = controller.getModel().getRootEntity();
 
         TreeModelListener listener = Mockito.mock(TreeModelListener.class);
         EntityTreeModel model = new EntityTreeModel(controller);
@@ -62,7 +62,7 @@ public class EntityTreeModelTest {
     public void removeChildShouldCreateTreeNodesRemovedEvent() throws Exception {
         Assume.assumeFalse(GraphicsEnvironment.isHeadless());
         Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
-        EntityGroup root = controller.getDrawing().getRootEntity();
+        EntityGroup root = controller.getModel().getRootEntity();
         Rectangle rectangle = new Rectangle();
         root.addChild(rectangle);
 

@@ -61,7 +61,7 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
     public MultiplyDialog(Controller controller) {
         super(SwingUtilities.getWindowAncestor(controller.getDrawing()), ModalityType.APPLICATION_MODAL);
         this.controller = controller;
-        this.controller.getDrawing().insertEntity(entityGroup);
+        this.controller.getModel().insertEntity(entityGroup);
         entityGroup.setName("Temporary multiplier group");
         setTitle("Multiply object");
         setPreferredSize(new Dimension(400, 200));
@@ -123,7 +123,7 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
     }
 
     private void onCancel() {
-        controller.getDrawing().removeEntity(entityGroup);
+        controller.getModel().removeEntity(entityGroup);
         setVisible(false);
         dispose();
     }
@@ -132,14 +132,14 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
         List<Entity> children = entityGroup.getChildren();
         List<Entity> selection = controller.getSelectionManager().getSelection();
 
-        controller.getDrawing().removeEntity(entityGroup);
+        controller.getModel().removeEntity(entityGroup);
         controller.addEntities(children);
 
         // Reselect the entities
         controller.getSelectionManager().clearSelection();
         controller.getSelectionManager().addSelection(children);
         controller.getSelectionManager().addSelection(selection);
-        controller.getDrawing().repaint();
+        controller.repaintDrawing();
 
         setVisible(false);
         dispose();
@@ -166,7 +166,7 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
                 }
             }
         }
-        controller.getDrawing().repaint();
+        controller.repaintDrawing();
     }
 
     @Override
@@ -176,7 +176,7 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
 
     @Override
     public void windowClosing(WindowEvent e) {
-        controller.getDrawing().removeEntity(entityGroup);
+        controller.getModel().removeEntity(entityGroup);
     }
 
     @Override

@@ -78,7 +78,7 @@ public class DesignerMain extends JFrame {
 
         loadExample(controller);
         controller.getDrawing().setComponentPopupMenu(PopupMenuFactory.createPopupMenu());
-        controller.getDrawing().repaint();
+        controller.repaintDrawing();
     }
 
     private static void setupLookAndFeel() {

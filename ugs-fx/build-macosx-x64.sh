@@ -93,6 +93,30 @@ $JAVA_HOME/bin/jlink \
   --include-locales=en,de \
   --output target/java-runtime
 
+# ------ MOLTENVK -----------------------------------------------------------
+# macOS has no native Vulkan driver, so the Vulkan visualizer reaches Vulkan
+# through MoltenVK, which translates it to Metal. The dylib is bundled into the
+# application directory and pointed at with ugs.vulkan.library below. The
+# released dylib is a universal binary, so the same file serves both the x64
+# and the aarch64 build.
+
+MOLTENVK_VERSION=1.4.2
+MOLTENVK_TAR=MoltenVK-macos-${MOLTENVK_VERSION}.tar
+if test -f $MOLTENVK_TAR; then
+  echo "Using existing MoltenVK ${MOLTENVK_VERSION}"
+else
+  echo "Downloading MoltenVK ${MOLTENVK_VERSION}"
+  curl -fLo $MOLTENVK_TAR https://github.com/KhronosGroup/MoltenVK/releases/download/v${MOLTENVK_VERSION}/MoltenVK-macos.tar
+fi
+
+rm -rfd target/moltenvk/
+mkdir -p target/moltenvk
+tar -xf $MOLTENVK_TAR -C target/moltenvk \
+  MoltenVK/MoltenVK/dynamic/dylib/macOS/libMoltenVK.dylib \
+  MoltenVK/LICENSE
+cp target/moltenvk/MoltenVK/MoltenVK/dynamic/dylib/macOS/libMoltenVK.dylib target/installer/input/libs/
+cp target/moltenvk/MoltenVK/LICENSE target/installer/input/libs/LICENSE-MoltenVK
+
 # ------ PACKAGING ----------------------------------------------------------
 # In the end we will find the package inside the target/installer directory.
 
@@ -104,7 +128,7 @@ $JAVA_HOME/bin/jpackage \
   --main-class com.willwinder.universalgcodesender.fx.Main \
   --main-jar ${MAIN_JAR} \
   --resource-dir installer \
-  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.autoproxy.disable=true -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader"  \
+  --java-options "--enable-native-access=ALL-UNNAMED -Dugs.vulkan.library=\$APPDIR/libMoltenVK.dylib -XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.autoproxy.disable=true -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader"  \
   --runtime-image target/java-runtime \
   --app-version ${APP_VERSION} \
   --copyright "Joacim Breiler" \

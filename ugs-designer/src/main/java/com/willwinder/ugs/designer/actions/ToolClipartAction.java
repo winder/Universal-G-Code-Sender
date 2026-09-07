@@ -55,7 +55,7 @@ public class ToolClipartAction extends AbstractDesignAction {
                 AddAction addAction = new AddAction(controller, optionalClipart.get().getCuttable());
                 addAction.actionPerformed(e);
                 controller.getSelectionManager().addSelection(optionalClipart.get().getCuttable());
-                controller.getDrawing().repaint();
+                controller.repaintDrawing();
                 controller.setTool(Tool.SELECT);
             }
         });

@@ -11,7 +11,7 @@ import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.ugs.designer.entities.cuttable.PlungeType;
 import com.willwinder.ugs.designer.entities.cuttable.Point;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
-import com.willwinder.ugs.designer.gui.Drawing;
+import com.willwinder.ugs.designer.logic.DesignModel;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.model.Design;
 import com.willwinder.ugs.designer.model.Settings;
@@ -40,7 +40,7 @@ public class UgsDesignReaderTest {
     private Controller controller;
 
     @Mock
-    private Drawing drawing;
+    private DesignModel model;
 
     @Before
     public void setUp() {
@@ -241,11 +241,11 @@ public class UgsDesignReaderTest {
 
     private String convertEntityToString(Entity entity) {
         when(controller.getSettings()).thenReturn(new Settings());
-        when(controller.getDrawing()).thenReturn(drawing);
+        when(controller.getModel()).thenReturn(model);
 
         EntityGroup group = new EntityGroup();
         group.addChild(entity);
-        when(drawing.getRootEntity()).thenReturn(group);
+        when(model.getRootEntity()).thenReturn(group);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         UgsDesignWriter writer = new UgsDesignWriter();

@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.pendantui.v1;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.ExceptionMapper;
+import com.willwinder.universalgcodesender.pendantui.ObjectMapperProvider;
 import com.willwinder.universalgcodesender.pendantui.html.StaticResource;
 import com.willwinder.universalgcodesender.pendantui.v1.resources.CustomOpenApiResource;
 import com.willwinder.universalgcodesender.pendantui.v1.resources.FilesResource;
@@ -49,6 +50,7 @@ public class AppV1Config extends ResourceConfig {
         register(WadlFeature.class);
         register(StaticResource.class);
         register(ExceptionMapper.class);
+        register(ObjectMapperProvider.class);
         register(CustomOpenApiResource.class);
         register(ObjectMapperProvider.class);
 

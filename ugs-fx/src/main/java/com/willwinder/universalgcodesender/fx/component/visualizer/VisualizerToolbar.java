@@ -36,7 +36,7 @@ import javafx.scene.paint.Color;
 
 /**
  * A horizontal row of the visualizer feature toggles shown in the top-right corner of the
- * {@link Visualizer}: G-code model, grid, axes, ruler and machine visibility.
+ * {@link VisualizerPane}: G-code model, grid, axes, ruler and machine visibility.
  */
 public class VisualizerToolbar extends HBox {
     static final int BUTTON_SIZE = 24;

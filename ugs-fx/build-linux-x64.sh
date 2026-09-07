@@ -104,7 +104,7 @@ $JAVA_HOME/bin/jpackage \
   --main-class com.willwinder.universalgcodesender.fx.Launcher \
   --main-jar ${MAIN_JAR} \
   --resource-dir installer \
-  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader"  \
+  --java-options "--enable-native-access=ALL-UNNAMED -XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader"  \
   --runtime-image target/java-runtime \
   --app-version ${APP_VERSION} \
   --copyright "Joacim Breiler" \
@@ -141,7 +141,7 @@ $JAVA_HOME/bin/jpackage \
   --main-class com.willwinder.universalgcodesender.fx.Launcher \
   --main-jar ${MAIN_JAR} \
   --resource-dir installer \
-  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true  -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader"  \
+  --java-options "--enable-native-access=ALL-UNNAMED -XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true  -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader"  \
   --runtime-image target/java-runtime \
   --app-version ${APP_VERSION} \
   --vendor "Universal G-code Sender" \

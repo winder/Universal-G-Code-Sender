@@ -22,13 +22,9 @@ import com.willwinder.universalgcodesender.fx.component.BorderedTitledPane;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.MachineType;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
-import com.willwinder.universalgcodesender.fx.control.UnitTextField;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.Unit;
-import com.willwinder.universalgcodesender.model.UnitValue;
-import javafx.beans.property.FloatProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -80,7 +76,6 @@ public class VisualizerSettingsPane extends BorderPane {
         settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("platform.visualizer.gcodeModel"),
                 new VBox(10,
                         new SettingsRow(Localization.getString("platform.visualizer.model"), showGcode),
-                        createFloatSetting(Localization.getString("platform.visualizer.gcodeModel.lineWidth"), VisualizerSettings.getInstance().lineWidthProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.background"), VisualizerSettings.getInstance().colorBackgroundProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.rapid"), VisualizerSettings.getInstance().colorRapidProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.linear.min.speed"), VisualizerSettings.getInstance().colorFeedMinProperty()),
@@ -164,11 +159,5 @@ public class VisualizerSettingsPane extends BorderPane {
         });
         colorPicker.setMinHeight(28);
         return new SettingsRow(text, colorPicker);
-    }
-
-    private Node createFloatSetting(String text, FloatProperty floatProperty) {
-        UnitTextField unitTextField = new UnitTextField(new UnitValue(Unit.MM, floatProperty.getValue()), Unit.MM);
-        unitTextField.unitValueProperty().addListener((observable, oldValue, newValue) -> floatProperty.set(newValue.convertTo(Unit.MM).floatValue()));
-        return new SettingsRow(text, unitTextField);
     }
 }

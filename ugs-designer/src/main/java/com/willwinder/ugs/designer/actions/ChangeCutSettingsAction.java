@@ -66,7 +66,7 @@ public class ChangeCutSettingsAction extends AbstractAction implements UndoableA
         for (Cuttable cuttable : cuttableList) {
             cuttable.setEntitySetting(entitySetting, newValue);
         }
-        this.controller.getDrawing().repaint();
+        this.controller.repaintDrawing();
     }
 
     @Override

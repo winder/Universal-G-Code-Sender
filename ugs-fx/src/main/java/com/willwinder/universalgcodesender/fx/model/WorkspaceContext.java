@@ -19,6 +19,13 @@ public abstract class WorkspaceContext {
 
     public abstract void open();
 
+    /**
+     * Called when the workspace stops being the active one, to release what {@link #open()}
+     * set up.
+     */
+    public void close() {
+    }
+
     public File getFile() { return file; }
     public void setFile(File file) { this.file = file; }
     public UUID getId() { return id; }

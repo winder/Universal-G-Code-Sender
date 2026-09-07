@@ -60,11 +60,22 @@ class EntitySettingsControlFactory {
         this.valueRefresherRegistry = valueRefresherRegistry;
     }
 
-    UnitTextField doubleField(ToDoubleFunction<Cuttable> getter,
-                              CuttableDoubleSetter setter,
-                              List<Cuttable> entities, Unit units) {
+    <T> UnitTextField doubleField(ToDoubleFunction<T> getter,
+                                  DoubleSetter<T> setter,
+                                  List<T> entities, Unit units) {
+        return doubleField(getter, setter, entities, units, null);
+    }
+
+    /**
+     * @param undo builds the undoable action for a committed edit; {@code null} records an action
+     *             that simply sets the values back through the setter
+     */
+    <T> UnitTextField doubleField(ToDoubleFunction<T> getter,
+                                  DoubleSetter<T> setter,
+                                  List<T> entities, Unit units,
+                                  UndoRecorder<T> undo) {
         UnitTextField field = numericField(entities, getter, units);
-        bindLivePreviewWithUndo(field, getter, setter, entities);
+        bindLivePreviewWithUndo(field, getter, setter, entities, undo);
         valueRefresherRegistry.accept(() -> refreshDoubleField(field, getter, entities));
         return field;
     }
@@ -73,7 +84,7 @@ class EntitySettingsControlFactory {
                        CuttableIntSetter setter,
                        List<Cuttable> entities, Unit units) {
         boolean mixed = entities.stream().mapToInt(getter).distinct().count() > 1;
-        UnitTextField field = new UnitTextField(new UnitValue(units, mixed ? 0 : getter.applyAsInt(entities.get(0))), units);
+        UnitTextField field = new UnitTextField(new UnitValue(units, mixed ? 0 : getter.applyAsInt(entities.getFirst())), units);
         field.setPromptText(mixed ? MIXED_VALUE_PROMPT : "");
         commitOnEditInt(field, parsed -> applyToAll(entities, e -> setter.set(e, parsed)));
         return field;
@@ -81,7 +92,7 @@ class EntitySettingsControlFactory {
 
     ComboBox<CutType> cutTypeCombo(List<Cuttable> entities) {
         // Show the intersection of available cut types so we never set an invalid value.
-        Set<CutType> available = new LinkedHashSet<>(entities.get(0).getAvailableCutTypes());
+        Set<CutType> available = new LinkedHashSet<>(entities.getFirst().getAvailableCutTypes());
         for (int i = 1; i < entities.size(); i++) {
             available.retainAll(entities.get(i).getAvailableCutTypes());
         }
@@ -96,7 +107,7 @@ class EntitySettingsControlFactory {
                               List<Cuttable> entities) {
         ComboBox<E> combo = new ComboBox<>(FXCollections.observableArrayList(values));
         boolean mixed = entities.stream().map(getter).distinct().count() > 1;
-        combo.setValue(mixed ? null : getter.apply(entities.get(0)));
+        combo.setValue(mixed ? null : getter.apply(entities.getFirst()));
         combo.setPromptText(mixed ? MIXED_VALUE_PROMPT : "");
         combo.setConverter(new StringConverter<>() {
             @Override
@@ -123,15 +134,15 @@ class EntitySettingsControlFactory {
         SwitchButton sw = new SwitchButton();
         boolean mixed = entities.stream().map(getter).distinct().count() > 1;
         // SwitchButton has no tri-state; show as off when mixed.
-        sw.selectedProperty().set(!mixed && getter.apply(entities.get(0)));
+        sw.selectedProperty().set(!mixed && getter.apply(entities.getFirst()));
         sw.selectedProperty().addListener((obs, oldVal, newVal) ->
                 applyToAll(entities, e -> setter.accept(e, newVal)));
         return sw;
     }
 
-    private UnitTextField numericField(List<Cuttable> entities, ToDoubleFunction<Cuttable> getter, Unit units) {
+    private <T> UnitTextField numericField(List<T> entities, ToDoubleFunction<T> getter, Unit units) {
         boolean mixed = entities.stream().mapToDouble(getter).distinct().count() > 1;
-        UnitTextField field = new UnitTextField(new UnitValue(units, mixed ? 0 : getter.applyAsDouble(entities.get(0))), units);
+        UnitTextField field = new UnitTextField(new UnitValue(units, mixed ? 0 : getter.applyAsDouble(entities.getFirst())), units);
         field.setPromptText(mixed ? MIXED_VALUE_PROMPT : "");
         return field;
     }
@@ -142,12 +153,13 @@ class EntitySettingsControlFactory {
      * edit is committed (the field is blurred, or Enter is pressed). This keeps the undo stack to
      * one entry per edit instead of one per keystroke.
      */
-    private void bindLivePreviewWithUndo(UnitTextField field,
-                                         ToDoubleFunction<Cuttable> getter,
-                                         CuttableDoubleSetter setter,
-                                         List<Cuttable> entities) {
+    private <T> void bindLivePreviewWithUndo(UnitTextField field,
+                                             ToDoubleFunction<T> getter,
+                                             DoubleSetter<T> setter,
+                                             List<T> entities,
+                                             UndoRecorder<T> undo) {
         // The per-entity values captured when the edit session begins; used to build the undo action.
-        Map<Cuttable, Double> originalValues = new HashMap<>();
+        Map<T, Double> originalValues = new HashMap<>();
 
         // Live preview: push every valid value straight to the entities (no undo entry yet).
         field.unitValueProperty().addListener((obs, oldVal, newVal) -> {
@@ -159,33 +171,34 @@ class EntitySettingsControlFactory {
             if (Boolean.TRUE.equals(isFocused)) {
                 captureOriginalValues(getter, entities, originalValues);
             } else {
-                commitEdit(setter, entities, originalValues, field.getValue());
+                commitEdit(setter, entities, originalValues, field.getValue(), undo);
             }
         });
 
         // Enter commits without waiting for the field to lose focus, then starts a fresh session.
         field.setOnAction(e -> {
-            commitEdit(setter, entities, originalValues, field.getValue());
+            commitEdit(setter, entities, originalValues, field.getValue(), undo);
             captureOriginalValues(getter, entities, originalValues);
         });
     }
 
-    private void captureOriginalValues(ToDoubleFunction<Cuttable> getter,
-                                       List<Cuttable> entities,
-                                       Map<Cuttable, Double> originalValues) {
+    private <T> void captureOriginalValues(ToDoubleFunction<T> getter,
+                                           List<T> entities,
+                                           Map<T, Double> originalValues) {
         originalValues.clear();
         entities.forEach(e -> originalValues.put(e, getter.applyAsDouble(e)));
     }
 
-    private void commitEdit(CuttableDoubleSetter setter,
-                            List<Cuttable> entities,
-                            Map<Cuttable, Double> originalValues,
-                            double finalValue) {
+    private <T> void commitEdit(DoubleSetter<T> setter,
+                                List<T> entities,
+                                Map<T, Double> originalValues,
+                                double finalValue,
+                                UndoRecorder<T> undo) {
         if (originalValues.isEmpty()) {
             return;
         }
 
-        Map<Cuttable, Double> before = new HashMap<>(originalValues);
+        Map<T, Double> before = new HashMap<>(originalValues);
         originalValues.clear();
 
         boolean changed = before.values().stream().anyMatch(original -> original != finalValue);
@@ -195,7 +208,7 @@ class EntitySettingsControlFactory {
 
         // The live preview has already applied finalValue, so the action only needs to record how
         // to redo it and how to revert each entity to the value it had before the edit started.
-        UndoableAction action = new UndoableAction() {
+        UndoableAction action = undo != null ? undo.record(entities, before, finalValue) : new UndoableAction() {
             @Override
             public void redo() {
                 entities.forEach(e -> setter.set(e, finalValue));
@@ -224,25 +237,33 @@ class EntitySettingsControlFactory {
         });
     }
 
-    private void refreshDoubleField(UnitTextField field, ToDoubleFunction<Cuttable> getter, List<Cuttable> entities) {
+    private <T> void refreshDoubleField(UnitTextField field, ToDoubleFunction<T> getter, List<T> entities) {
         // Don't stomp on a value the user is currently editing.
         if (field.isFocused()) {
             return;
         }
         boolean mixed = entities.stream().mapToDouble(getter).distinct().count() > 1;
         guard.run(() -> {
-            field.setValue(mixed ? 0 : getter.applyAsDouble(entities.get(0)));
+            field.setValue(mixed ? 0 : getter.applyAsDouble(entities.getFirst()));
             field.setPromptText(mixed ? MIXED_VALUE_PROMPT : "");
         });
     }
 
-    private void applyToAll(List<Cuttable> entities, Consumer<Cuttable> action) {
+    private <T> void applyToAll(List<T> entities, Consumer<T> action) {
         guard.run(() -> entities.forEach(action));
     }
 
     @FunctionalInterface
-    interface CuttableDoubleSetter {
-        void set(Cuttable entity, double value);
+    interface DoubleSetter<T> {
+        void set(T entity, double value);
+    }
+
+    /**
+     * Builds the undoable action for an edit that has already been applied to the targets.
+     */
+    @FunctionalInterface
+    interface UndoRecorder<T> {
+        UndoableAction record(List<T> targets, Map<T, Double> before, double finalValue);
     }
 
     @FunctionalInterface

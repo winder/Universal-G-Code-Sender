@@ -61,7 +61,7 @@ public class AddAction extends AbstractDesignAction implements DrawAction, Undoa
 
     public void execute() {
         controller.getSelectionManager().clearSelection();
-        controller.getDrawing().insertEntities(entities);
+        controller.getModel().insertEntities(entities);
     }
 
     public void redo() {
@@ -70,7 +70,7 @@ public class AddAction extends AbstractDesignAction implements DrawAction, Undoa
 
     public void undo() {
         controller.getSelectionManager().clearSelection();
-        controller.getDrawing().removeEntities(entities);
+        controller.getModel().removeEntities(entities);
     }
 
     @Override

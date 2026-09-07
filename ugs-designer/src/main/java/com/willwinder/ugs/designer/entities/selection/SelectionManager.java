@@ -231,12 +231,13 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
         }
     }
 
-    public void toggleSelection(Set<Entity> entitiesIntersecting) {
-        entitiesIntersecting.stream().filter(c -> entityGroup.getChildren().contains(c)).forEach(e -> {
-            entityGroup.removeChild(e);
-            e.removeListener(this);
-        });
-        entitiesIntersecting.stream().filter(c -> !entityGroup.getChildren().contains(c)).forEach(entityGroup::addChild);
+    public void toggleSelection(Set<Entity> entities) {
+        // Partition before changing anything, or the entities just removed would be added back.
+        List<Entity> toRemove = entities.stream().filter(this::isSelected).toList();
+        List<Entity> toAdd = entities.stream().filter(entity -> !isSelected(entity)).toList();
+        entityGroup.removeAll(toRemove);
+        toRemove.forEach(entity -> entity.removeListener(this));
+        entityGroup.addAll(toAdd);
         fireSelectionEvent(new SelectionEvent());
     }
 

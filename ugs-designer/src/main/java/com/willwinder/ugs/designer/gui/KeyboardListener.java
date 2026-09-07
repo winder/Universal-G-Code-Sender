@@ -79,7 +79,7 @@ public class KeyboardListener implements KeyListener {
             return false;
         }
 
-        double step = controller.getDrawing().getSnapToGrid();
+        double step = controller.getModel().getSnapToGrid();
         if (step <= 0) {
             step = DEFAULT_MOVE_STEP;
         }
@@ -100,7 +100,7 @@ public class KeyboardListener implements KeyListener {
         MoveAction moveAction = new MoveAction(entities, deltaMovement);
         moveAction.execute();
         controller.getUndoManager().addAction(moveAction);
-        controller.getDrawing().repaint();
+        controller.repaintDrawing();
         return true;
     }
 

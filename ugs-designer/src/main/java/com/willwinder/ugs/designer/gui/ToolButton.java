@@ -48,7 +48,7 @@ public class ToolButton extends PanelButton {
         super("", "");
         this.controller = controller;
         controller.getSettings().addListener(this::updateText);
-        controller.getDrawing().getRootEntity().addListener(e -> updateText());
+        controller.getModel().getRootEntity().addListener(e -> updateText());
         updateText();
     }
 
@@ -66,17 +66,17 @@ public class ToolButton extends PanelButton {
 
     private void updateText() {
         setTitle("Tool");
-        boolean hasLaserOperations = controller.getDrawing().getEntities().stream()
+        boolean hasLaserOperations = controller.getModel().getEntities().stream()
                 .filter(Cuttable.class::isInstance)
                 .map(e -> (Cuttable) e)
                 .anyMatch(ToolButton::isLaserOperation);
 
-        boolean hasMillOperations = controller.getDrawing().getEntities().stream()
+        boolean hasMillOperations = controller.getModel().getEntities().stream()
                 .filter(Cuttable.class::isInstance)
                 .map(e -> (Cuttable) e)
                 .anyMatch(ToolButton::isMillOperation);
 
-        boolean hasPlotterOperations = controller.getDrawing().getEntities().stream()
+        boolean hasPlotterOperations = controller.getModel().getEntities().stream()
                 .filter(Cuttable.class::isInstance)
                 .map(e -> (Cuttable) e)
                 .anyMatch(ToolButton::isPlotterOperation);

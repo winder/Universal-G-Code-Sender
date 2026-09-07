@@ -19,7 +19,7 @@
 package com.willwinder.universalgcodesender.fx.component.drawer;
 
 import com.willwinder.universalgcodesender.fx.component.probe.ProbeZPane;
-import com.willwinder.universalgcodesender.fx.component.visualizer.models.ProbeZModel;
+import com.willwinder.universalgcodesender.fx.component.visualizer.scene.renderables.ProbeMarkerRenderable;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.fx.service.probe.ProbeService;
@@ -29,22 +29,22 @@ import javafx.scene.layout.BorderPane;
 
 public class ProbeDrawer extends Drawer {
 
-    private final ProbeZModel probeModel;
+    private final ProbeMarkerRenderable probeMarker;
 
     public ProbeDrawer() {
         BackendAPI backend = LookupService.lookup(BackendAPI.class);
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(new ProbeZPane(backend));
         getChildren().add(borderPane);
-        probeModel = new ProbeZModel(new ProbeService(backend, ProbeSettings.getInstance()));
+        probeMarker = new ProbeMarkerRenderable(new ProbeService(backend, ProbeSettings.getInstance()));
     }
 
     @Override
     public void setActive(boolean active) {
         if (active) {
-            VisualizerService.getInstance().addModel(probeModel);
+            VisualizerService.getInstance().addRenderable(probeMarker);
         } else {
-            VisualizerService.getInstance().removeModel(probeModel);
+            VisualizerService.getInstance().removeRenderable(probeMarker);
         }
     }
 }

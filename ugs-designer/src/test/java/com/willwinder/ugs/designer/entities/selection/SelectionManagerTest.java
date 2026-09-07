@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import java.awt.geom.Point2D;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -106,5 +108,16 @@ public class SelectionManagerTest {
         target.setSelection(Collections.singletonList(control));
 
         assertTrue(target.isEmpty());
+    }
+
+    @Test
+    public void toggleSelection_shouldRemoveSelectedAndAddUnselectedEntities() {
+        Rectangle selected = new Rectangle(0, 0, 10, 10);
+        Rectangle unselected = new Rectangle(20, 0, 10, 10);
+        target.addSelection(selected);
+
+        target.toggleSelection(Set.of(selected, unselected));
+
+        assertEquals(List.of(unselected), target.getSelection());
     }
 }

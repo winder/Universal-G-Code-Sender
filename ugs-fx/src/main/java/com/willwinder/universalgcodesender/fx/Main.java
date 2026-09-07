@@ -25,16 +25,20 @@ import com.willwinder.universalgcodesender.fx.component.ToolBarMenu;
 import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
 import com.willwinder.universalgcodesender.fx.component.dro.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
-import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
+import com.willwinder.universalgcodesender.fx.component.visualizer.VisualizerPane;
 import com.willwinder.universalgcodesender.fx.component.designer.InspectorPane;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
+import com.willwinder.universalgcodesender.fx.service.FxBackend;
+import com.willwinder.universalgcodesender.fx.service.FxEventDispatcher;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.fx.helper.BrowserHelper;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
+import com.willwinder.universalgcodesender.fx.interceptor.InterceptorDialogService;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
 import com.willwinder.universalgcodesender.fx.service.ShortcutService;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceFileLoader;
@@ -49,6 +53,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
@@ -70,10 +75,11 @@ public class Main extends Application {
     private SplitPane motionSplitPane;
     private SplitPane contentSplitPane;
     private StackPane contentPanel;
+    private VisualizerPane visualizerPane;
 
     @Override
     public void init() throws Exception {
-        LookupService.initialize();
+        LookupService.initialize(new FxBackend(new FxEventDispatcher()));
         LookupService.register(new WorkspaceFileLoader());
 
         BackendAPI backend = LookupService.lookup(BackendAPI.class);
@@ -114,6 +120,7 @@ public class Main extends Application {
 
         ShortcutService.registerListener(scene);
         FontRegistry.registerFonts();
+        BrowserHelper.setHostServices(getHostServices());
 
         scene.getStylesheets().add(Objects.requireNonNull(Main.class.getResource("/styles/root.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(Main.class.getResource("/styles/menu-bar.css")).toExternalForm());
@@ -124,6 +131,7 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         registerShortCuts(scene);
+        registerInterceptorDialogs(primaryStage);
 
         Parameters params = getParameters();
         if (!params.getUnnamed().isEmpty()) {
@@ -151,6 +159,11 @@ public class Main extends Application {
         }
     }
 
+    private void registerInterceptorDialogs(Stage primaryStage) {
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
+        backend.addUGSEventListener(new InterceptorDialogService(backend, primaryStage));
+    }
+
     private void registerWindowBoundsListeners(Stage primaryStage) {
         primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowWidthProperty().set(newValue.doubleValue()));
         primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowHeightProperty().set(newValue.doubleValue()));
@@ -174,6 +187,9 @@ public class Main extends Application {
         });
 
         primaryStage.setOnCloseRequest(event -> {
+            if (visualizerPane != null) {
+                visualizerPane.dispose();
+            }
             SettingsFactory.saveSettings();
             Platform.exit();
             System.exit(0);
@@ -182,13 +198,18 @@ public class Main extends Application {
 
     private void createContentPanel() {
         contentPanel = new StackPane();
-        contentPanel.getChildren().add(new Visualizer());
+        contentPanel.getChildren().add(createVisualizer());
 
         DrawerPane drawerPane = new DrawerPane();
         contentPanel.getChildren().add(drawerPane);
         StackPane.setAlignment(drawerPane, Pos.BOTTOM_RIGHT);
     }
 
+
+    private Node createVisualizer() {
+        visualizerPane = new VisualizerPane();
+        return visualizerPane;
+    }
 
     private void createContentPane() {
         contentSplitPane = new SplitPane();

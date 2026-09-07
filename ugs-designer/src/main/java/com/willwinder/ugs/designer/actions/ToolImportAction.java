@@ -124,7 +124,7 @@ public class ToolImportAction extends AbstractDesignAction {
             controller.setTool(Tool.SELECT);
             controller.addEntities(design.getEntities());
             controller.getSelectionManager().addSelection(design.getEntities());
-            controller.getDrawing().repaint();
+            controller.repaintDrawing();
         } else {
             throw new RuntimeException("Could not open: " + f.getName());
         }
@@ -145,7 +145,7 @@ public class ToolImportAction extends AbstractDesignAction {
             if (f != null) {
                 if (isRasterFile(f)) {
                     Controller controller = ControllerFactory.getController();
-                    controller.getDrawing().insertEntity(new Raster(f));
+                    controller.getModel().insertEntity(new Raster(f));
                 } else {
                     try {
                         readDesign(controller, backend, f);

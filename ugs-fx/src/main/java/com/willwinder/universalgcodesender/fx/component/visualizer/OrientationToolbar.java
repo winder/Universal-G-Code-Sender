@@ -27,7 +27,7 @@ import javafx.scene.paint.Color;
 
 /**
  * A vertical stack of the orientation-related overlay buttons shown beneath the orientation
- * cube in the top-left corner of the {@link Visualizer}: the camera projection toggle and the
+ * cube in the top-left corner of the {@link VisualizerPane}: the camera projection toggle and the
  * center-on-workspace action.
  */
 public class OrientationToolbar extends VBox {

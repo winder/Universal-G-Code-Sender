@@ -13,6 +13,11 @@ public class GcodeWorkspaceContext extends WorkspaceContext {
         super(file);
     }
 
+    /**
+     * Hands the file to the backend. Called on the JavaFX thread, the JavaFX backend loads it on
+     * its loader thread and reports progress and completion through the file events, so a large
+     * program does not freeze the UI.
+     */
     @Override
     public void open() {
         if (!file.exists()) {
@@ -21,8 +26,8 @@ public class GcodeWorkspaceContext extends WorkspaceContext {
 
         try {
             BackendAPI backend = LookupService.lookup(BackendAPI.class);
-            backend.setGcodeFile(file);
             backend.getSettings().setLastWorkingDirectory(file.getParent());
+            backend.setGcodeFile(file);
         } catch (Exception e) {
             throw new IllegalArgumentException("Not a valid gcode file: " + file.getAbsolutePath(), e);
         }

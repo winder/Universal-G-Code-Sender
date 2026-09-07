@@ -54,7 +54,7 @@ public class EntityTreeModel implements TreeModel, ControllerListener, EntityLis
     public EntityTreeModel(Controller controller) {
         this.controller = controller;
         controller.addListener(this);
-        controller.getDrawing().getRootEntity().addListener(this);
+        controller.getModel().getRootEntity().addListener(this);
         fireFullReload();
     }
 
@@ -64,7 +64,7 @@ public class EntityTreeModel implements TreeModel, ControllerListener, EntityLis
 
     @Override
     public Object getRoot() {
-        return controller.getDrawing().getRootEntity();
+        return controller.getModel().getRootEntity();
     }
 
     @Override
@@ -120,7 +120,7 @@ public class EntityTreeModel implements TreeModel, ControllerListener, EntityLis
     public void onControllerEvent(ControllerEventType event) {
         if (event == ControllerEventType.NEW_DRAWING) {
             fireFullReload();
-            controller.getDrawing().getRootEntity().addListener(this);
+            controller.getModel().getRootEntity().addListener(this);
         }
     }
 
@@ -221,11 +221,11 @@ public class EntityTreeModel implements TreeModel, ControllerListener, EntityLis
         LinkedList<Entity> path = new LinkedList<>();
         path.add(target);
 
-        Optional<EntityGroup> parentFor = controller.getDrawing().getRootEntity().findParentFor(target);
+        Optional<EntityGroup> parentFor = controller.getModel().getRootEntity().findParentFor(target);
         parentFor.ifPresent(path::addFirst);
         EntityGroup current = parentFor.orElse(null);
         while (current != null) {
-            parentFor = controller.getDrawing().getRootEntity().findParentFor(current);
+            parentFor = controller.getModel().getRootEntity().findParentFor(current);
             parentFor.ifPresent(path::addFirst);
             current = parentFor.orElse(null);
         }

@@ -20,9 +20,7 @@ package com.willwinder.universalgcodesender.fx.settings;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.MachineType;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.FloatProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -32,7 +30,7 @@ public class VisualizerSettings {
     private static final Preferences preferences = Preferences.userNodeForPackage(VisualizerSettings.class);
     private static final String SHOW_MACHINE_MODEL = "showMachineModel";
     private static final String MACHINE_MODEL = "machineModel";
-    private static final String LINE_WIDTH = "lineWidth";
+    private static final String COLOR_BACKGROUND = "color.background";
     private static final String COLOR_RAPID = "color.rapid";
     private static final String COLOR_COMPLETED = "color.completed";
     private static final String COLOR_PLUNGE = "color.plunge";
@@ -50,6 +48,7 @@ public class VisualizerSettings {
     private static final String COLOR_DESIGN_SHAPE_BACKGROUND = "color.design.shapeBackground";
 
     private static final String MOUSE_INVERT_ZOOM = "mouse.invertZoom";
+    private static final String MOUSE_INVERT_ROTATION = "mouse.invertRotation";
     private static final String MOUSE_PAN_BUTTON = "mouse.pan.button";
     private static final String MOUSE_PAN_MODIFIER = "mouse.pan.modifier";
     private static final String MOUSE_ROTATE_BUTTON = "mouse.rotate.button";
@@ -81,7 +80,7 @@ public class VisualizerSettings {
 
     private final BooleanProperty showMachine = new SimpleBooleanProperty(loadBoolean(SHOW_MACHINE_MODEL, false));
     private final StringProperty machineModel = new SimpleStringProperty(loadString(MACHINE_MODEL, MachineType.GENMITSU_PRO_MAX.name()));
-    private final StringProperty colorBackground = new SimpleStringProperty(loadString(COLOR_RAPID, "#D3D3D3"));
+    private final StringProperty colorBackground = new SimpleStringProperty(loadString(COLOR_BACKGROUND, "#D3D3D3FF"));
     private final StringProperty colorRapid = new SimpleStringProperty(loadString(COLOR_RAPID, "#EDFF00FF"));
     private final StringProperty colorCompleted = new SimpleStringProperty(loadString(COLOR_COMPLETED, "#BEBEBEC8"));
     private final StringProperty colorPlunge = new SimpleStringProperty(loadString(COLOR_PLUNGE, "#006400FF"));
@@ -90,22 +89,22 @@ public class VisualizerSettings {
     private final StringProperty colorFeedMax = new SimpleStringProperty(loadString(COLOR_FEED_MAX, "#00009EFF"));
     private final StringProperty colorSpindleMin = new SimpleStringProperty(loadString(COLOR_SPINDLE_MIN, "#CCFFFFFF"));
     private final StringProperty colorSpindleMax = new SimpleStringProperty(loadString(COLOR_SPINDLE_MAX, "#00009EFF"));
-    private final StringProperty colorRulerLines = new SimpleStringProperty(loadString(COLOR_RULER_LINES, "#333333FF"));
-    private final StringProperty colorRulerText = new SimpleStringProperty(loadString(COLOR_RULER_TEXT, "#333333FF"));
+    private final StringProperty colorRulerLines = new SimpleStringProperty(loadString(COLOR_RULER_LINES, "#999999FF"));
+    private final StringProperty colorRulerText = new SimpleStringProperty(loadString(COLOR_RULER_TEXT, "#999999FF"));
     private final StringProperty colorDesignResize = new SimpleStringProperty(loadString(COLOR_DESIGN_RESIZE, "#4F9EB0FF"));
     private final StringProperty colorDesignRotation = new SimpleStringProperty(loadString(COLOR_DESIGN_ROTATION, "#4F9EB0FF"));
     private final StringProperty colorDesignMove = new SimpleStringProperty(loadString(COLOR_DESIGN_MOVE, "#4F9EB0FF"));
     private final StringProperty colorDesignShapeOutline = new SimpleStringProperty(loadString(COLOR_DESIGN_SHAPE_OUTLINE, "#4F9EB0FF"));
-    private final StringProperty colorDesignShapeBackground = new SimpleStringProperty(loadString(COLOR_DESIGN_SHAPE_BACKGROUND, "#FFFFFFFF"));
+    private final StringProperty colorDesignShapeBackground = new SimpleStringProperty(loadString(COLOR_DESIGN_SHAPE_BACKGROUND, "#FFFFFFE5"));
 
     private final BooleanProperty invertZoom = new SimpleBooleanProperty(loadBoolean(MOUSE_INVERT_ZOOM, false));
+    private final BooleanProperty invertRotation = new SimpleBooleanProperty(loadBoolean(MOUSE_INVERT_ROTATION, false));
     private final StringProperty panMouseButton = new SimpleStringProperty(loadString(MOUSE_PAN_BUTTON, "SECONDARY"));
     private final StringProperty panModifierKey = new SimpleStringProperty(loadString(MOUSE_PAN_MODIFIER, ModifierKey.NONE.name()));
     private final StringProperty rotateMouseButton = new SimpleStringProperty(loadString(MOUSE_ROTATE_BUTTON, "SECONDARY"));
     private final StringProperty rotateModifierKey = new SimpleStringProperty(loadString(MOUSE_ROTATE_MODIFIER, ModifierKey.SHIFT.name()));
     private final StringProperty primaryMouseButton = new SimpleStringProperty(loadString(MOUSE_PRIMARY_BUTTON, "PRIMARY"));
     private final StringProperty primaryModifierKey = new SimpleStringProperty(loadString(MOUSE_PRIMARY_MODIFIER, ModifierKey.NONE.name()));
-    private final FloatProperty lineWidth = new SimpleFloatProperty(loadFloat(LINE_WIDTH, 0.1f));
     private final BooleanProperty useParallelCamera = new SimpleBooleanProperty(loadBoolean(USE_PARALLEL_CAMERA, false));
     private final BooleanProperty showGcodeModel = new SimpleBooleanProperty(loadBoolean(SHOW_GCODE_MODEL, true));
     private final BooleanProperty showRuler = new SimpleBooleanProperty(loadBoolean(SHOW_RULER, true));
@@ -117,6 +116,7 @@ public class VisualizerSettings {
     VisualizerSettings() {
         showMachine.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE_MODEL, newVal));
         machineModel.addListener((obs, oldVal, newVal) -> saveString(MACHINE_MODEL, newVal));
+        colorBackground.addListener((obs, oldVal, newVal) -> saveString(COLOR_BACKGROUND, newVal));
         colorRapid.addListener((obs, oldVal, newVal) -> saveString(COLOR_RAPID, newVal));
         colorCompleted.addListener((obs, oldVal, newVal) -> saveString(COLOR_COMPLETED, newVal));
         colorPlunge.addListener((obs, oldVal, newVal) -> saveString(COLOR_PLUNGE, newVal));
@@ -134,6 +134,7 @@ public class VisualizerSettings {
         colorDesignShapeBackground.addListener((obs, oldVal, newVal) -> saveString(COLOR_DESIGN_SHAPE_BACKGROUND, newVal));
 
         invertZoom.addListener((obs, oldVal, newVal) -> saveBoolean(MOUSE_INVERT_ZOOM, newVal));
+        invertRotation.addListener((obs, oldVal, newVal) -> saveBoolean(MOUSE_INVERT_ROTATION, newVal));
         panMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PAN_BUTTON, newVal));
         panModifierKey.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PAN_MODIFIER, newVal));
         rotateMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_ROTATE_BUTTON, newVal));
@@ -141,7 +142,6 @@ public class VisualizerSettings {
         primaryMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PRIMARY_BUTTON, newVal));
         primaryModifierKey.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PRIMARY_MODIFIER, newVal));
         useParallelCamera.addListener((obs, oldVal, newVal) -> saveBoolean(USE_PARALLEL_CAMERA, newVal));
-        lineWidth.addListener((obs, oldVal, newVal) -> saveFloat(LINE_WIDTH, newVal.floatValue()));
         showGcodeModel.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_GCODE_MODEL, newVal));
         showRuler.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_RULER, newVal));
         showGrid.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_GRID, newVal));
@@ -234,6 +234,13 @@ public class VisualizerSettings {
         return invertZoom;
     }
 
+    /**
+     * Reverses the direction the view rotates in when dragging with the rotate button.
+     */
+    public BooleanProperty invertRotationProperty() {
+        return invertRotation;
+    }
+
     public StringProperty panMouseButtonProperty() {
         return panMouseButton;
     }
@@ -256,10 +263,6 @@ public class VisualizerSettings {
 
     public StringProperty primaryModifierKeyProperty() {
         return primaryModifierKey;
-    }
-
-    public FloatProperty lineWidthProperty() {
-        return lineWidth;
     }
 
     public BooleanProperty useParallelCameraProperty() {
@@ -304,13 +307,5 @@ public class VisualizerSettings {
 
     private void saveBoolean(String key, boolean value) {
         preferences.putBoolean(key, value);
-    }
-
-    private float loadFloat(String key, float defaultValue) {
-        return preferences.getFloat(key, defaultValue);
-    }
-
-    private void saveFloat(String key, float value) {
-        preferences.putFloat(key, value);
     }
 }

@@ -602,4 +602,20 @@ public class EntityGroupTest {
         verify(entityListener, times(2)).onEvent(entityEventCaptor.capture());
         assertEquals(EventType.MOVED, entityEventCaptor.getValue().getType());
     }
+
+    @Test
+    public void move_shouldNotifyTheChildrensOwnListeners() {
+        Rectangle rectangle = new Rectangle(0, 0, 10, 10);
+        EntityListener parentListener = mock(EntityListener.class);
+        rectangle.addListener(parentListener);
+        EntityGroup selection = new EntityGroup();
+        selection.addChild(rectangle);
+
+        selection.move(new Point2D.Double(5, 5));
+
+        ArgumentCaptor<EntityEvent> captor = ArgumentCaptor.forClass(EntityEvent.class);
+        verify(parentListener).onEvent(captor.capture());
+        assertEquals(EventType.MOVED, captor.getValue().getType());
+        assertEquals(rectangle, captor.getValue().getTarget());
+    }
 }

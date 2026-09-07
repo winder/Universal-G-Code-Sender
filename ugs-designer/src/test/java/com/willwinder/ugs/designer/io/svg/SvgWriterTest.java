@@ -21,7 +21,7 @@ package com.willwinder.ugs.designer.io.svg;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.EntityGroup;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
-import com.willwinder.ugs.designer.gui.Drawing;
+import com.willwinder.ugs.designer.logic.DesignModel;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.model.Design;
 import com.willwinder.ugs.designer.model.Size;
@@ -44,7 +44,7 @@ public class SvgWriterTest {
     private Controller controller;
 
     @Mock
-    private Drawing drawing;
+    private DesignModel model;
 
     @Before
     public void setUp() {
@@ -57,8 +57,8 @@ public class SvgWriterTest {
         Rectangle rectangle = new Rectangle(10, 20);
         rectangle.setSize(new Size(30, 40));
         root.addChild(rectangle);
-        when(drawing.getRootEntity()).thenReturn(root);
-        when(controller.getDrawing()).thenReturn(drawing);
+        when(model.getRootEntity()).thenReturn(root);
+        when(controller.getModel()).thenReturn(model);
 
         String svg = write(controller);
 
@@ -73,8 +73,8 @@ public class SvgWriterTest {
         Rectangle rectangle = new Rectangle(10, 20);
         rectangle.setSize(new Size(30, 40));
         root.addChild(rectangle);
-        when(drawing.getRootEntity()).thenReturn(root);
-        when(controller.getDrawing()).thenReturn(drawing);
+        when(model.getRootEntity()).thenReturn(root);
+        when(controller.getModel()).thenReturn(model);
 
         String svg = write(controller);
         Design design = new SvgReader()

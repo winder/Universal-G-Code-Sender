@@ -41,10 +41,23 @@ public class WorkspaceManager {
 
     public synchronized WorkspaceContext open(File file) {
         WorkspaceContext workspace = WorkspaceContextFactory.create(file);
+        activate(workspace);
+        return workspace;
+    }
+
+    /**
+     * Makes the workspace the active one. Loading a design fires change events on the shared
+     * designer controller while listeners of the previous workspace may still be attached, so
+     * whatever dirtiness those events left behind is cleared: a workspace is clean when opened.
+     */
+    private void activate(WorkspaceContext workspace) {
+        if (activeWorkspace != null) {
+            activeWorkspace.close();
+        }
         activeWorkspace = workspace;
         workspace.open();
+        workspace.setDirty(false);
         notifyWorkspaceOpened(workspace);
-        return workspace;
     }
 
     public synchronized WorkspaceContext openWorkspace(File file) {
@@ -56,13 +69,12 @@ public class WorkspaceManager {
     }
 
     public synchronized void setWorkspace(WorkspaceContext workspace) {
-        activeWorkspace = workspace;
-        workspace.open();
-        notifyWorkspaceOpened(workspace);
+        activate(workspace);
     }
 
     public synchronized void closeActiveWorkspace() {
         if (activeWorkspace != null) {
+            activeWorkspace.close();
             activeWorkspace = null;
             notifyWorkspaceClosed();
         }

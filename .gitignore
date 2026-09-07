@@ -9,6 +9,7 @@ target/*
 /target/
 .metadata
 tar.gz
+MoltenVK-macos-*.tar
 .classpath
 .factorypath
 .project

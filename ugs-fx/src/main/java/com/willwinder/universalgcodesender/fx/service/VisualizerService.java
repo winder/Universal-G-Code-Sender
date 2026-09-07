@@ -18,65 +18,69 @@
  */
 package com.willwinder.universalgcodesender.fx.service;
 
-import com.willwinder.universalgcodesender.fx.component.visualizer.DragHandler;
-import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
+import com.willwinder.universalgcodesender.fx.component.visualizer.scene.Renderable;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceBounds;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.input.MouseEvent;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
+/**
+ * Lets components outside the visualizer add things to it and ask it to frame the workspace,
+ * without holding a reference to the visualizer itself.
+ */
 public class VisualizerService {
     private static final VisualizerService INSTANCE = new VisualizerService();
-
-    private final ObservableList<Model> models = FXCollections.observableArrayList();
-    private final List<Consumer<MouseEvent>> backgroundClickHandlers = new CopyOnWriteArrayList<>();
-    private volatile DrawGestureProvider drawGestureProvider;
+    private final ObservableList<Renderable> renderables = FXCollections.observableArrayList();
     private volatile Consumer<WorkspaceBounds> centerOnBoundsHandler;
+    private final BooleanProperty toolpathLoading = new SimpleBooleanProperty(false);
 
     public static VisualizerService getInstance() {
         return INSTANCE;
     }
 
-    public ObservableList<Model> getModels() {
-        return models;
+    /**
+     * Whether the visualizer is still turning a loaded program into its toolpath. Set on the
+     * JavaFX thread, so it can be bound to the UI.
+     */
+    public ReadOnlyBooleanProperty toolpathLoadingProperty() {
+        return toolpathLoading;
     }
 
-    public void addModel(Model model) {
-        models.add(model);
-    }
-
-    public void removeModel(Model model) {
-        models.remove(model);
-    }
-
-    public void onZoomChange(double zoom) {
+    public void setToolpathLoading(boolean loading) {
         if (Platform.isFxApplicationThread()) {
-            models.forEach(model -> model.onZoomChange(zoom));
+            toolpathLoading.set(loading);
         } else {
-            Platform.runLater(() -> models.forEach(model -> model.onZoomChange(zoom)));
+            Platform.runLater(() -> toolpathLoading.set(loading));
         }
     }
 
-    public void addBackgroundClickHandler(Consumer<MouseEvent> handler) {
-        backgroundClickHandlers.add(handler);
+    /**
+     * The renderables registered from outside the visualizer. Components add and remove theirs
+     * here without knowing whether a visualizer is showing; the visualizer picks up whatever is
+     * registered.
+     */
+    public ObservableList<Renderable> getRenderables() {
+        return renderables;
     }
 
-    public void removeBackgroundClickHandler(Consumer<MouseEvent> handler) {
-        backgroundClickHandlers.remove(handler);
+    public void addRenderable(Renderable renderable) {
+        if (!renderables.contains(renderable)) {
+            renderables.add(renderable);
+        }
     }
 
-    public void fireBackgroundClick(MouseEvent event) {
-        backgroundClickHandlers.forEach(h -> h.accept(event));
+    public void removeRenderable(Renderable renderable) {
+        renderables.remove(renderable);
     }
 
     /**
-     * Registers the handler that knows how to recenter/fit the view on a bounding box. Pass null
-     * to unregister. Registered by the {@code Visualizer}; invoked by the center-camera action.
+     * Registers the handler that knows how to recenter and fit the view on a bounding box. Pass
+     * null to unregister. Registered by the visualizer pane; invoked by the center camera action.
      */
     public void setCenterOnBoundsHandler(Consumer<WorkspaceBounds> handler) {
         this.centerOnBoundsHandler = handler;
@@ -96,29 +100,5 @@ public class VisualizerService {
         } else {
             Platform.runLater(() -> handler.accept(bounds));
         }
-    }
-
-    /**
-     * Registers a provider that can begin a designer "draw" drag gesture. Pass null to
-     * unregister. Used so the generic visualizer can hand off a primary-button press to
-     * the designer when a drawing tool is active, without knowing about designer tools.
-     */
-    public void setDrawGestureProvider(DrawGestureProvider provider) {
-        this.drawGestureProvider = provider;
-    }
-
-    /**
-     * Asks the registered provider (if any) to begin a draw gesture at the given designer
-     * (model mm) coordinates. Returns a {@link DragHandler} driving the gesture, or null
-     * when no drawing tool is active and the press should be handled normally.
-     */
-    public DragHandler beginDrawGesture(double designerX, double designerY) {
-        DrawGestureProvider provider = drawGestureProvider;
-        return provider == null ? null : provider.beginGesture(designerX, designerY);
-    }
-
-    @FunctionalInterface
-    public interface DrawGestureProvider {
-        DragHandler beginGesture(double designerX, double designerY);
     }
 }

@@ -23,7 +23,7 @@ import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.designer.gui.Drawing;
+import com.willwinder.ugs.designer.logic.DesignModel;
 import com.willwinder.universalgcodesender.i18n.Localization;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class DesignDeleteAction extends AbstractDesignEditAction implements Sele
         SelectionManager selectionManager = controller.getSelectionManager();
         List<Entity> selection = selectionManager.getChildren();
         if (!selection.isEmpty()) {
-            UndoableDeleteAction undoableAction = new UndoableDeleteAction(controller.getDrawing(), selection);
+            UndoableDeleteAction undoableAction = new UndoableDeleteAction(controller.getModel(), selection);
             controller.getUndoManager().addAction(undoableAction);
             undoableAction.execute();
         }
@@ -61,17 +61,16 @@ public class DesignDeleteAction extends AbstractDesignEditAction implements Sele
      * Removes the given entities from the drawing and restores them on undo.
      */
     private static class UndoableDeleteAction implements UndoableAction {
-        private final transient Drawing drawing;
+        private final transient DesignModel model;
         private final transient List<Entity> entities;
 
-        UndoableDeleteAction(Drawing drawing, List<Entity> entities) {
-            this.drawing = drawing;
+        UndoableDeleteAction(DesignModel model, List<Entity> entities) {
+            this.model = model;
             this.entities = new ArrayList<>(entities);
         }
 
         void execute() {
-            drawing.removeEntities(entities);
-            drawing.repaint();
+            model.removeEntities(entities);
         }
 
         @Override
@@ -81,8 +80,7 @@ public class DesignDeleteAction extends AbstractDesignEditAction implements Sele
 
         @Override
         public void undo() {
-            drawing.insertEntities(entities);
-            drawing.repaint();
+            model.insertEntities(entities);
         }
 
         @Override
