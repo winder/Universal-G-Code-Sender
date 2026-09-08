@@ -75,6 +75,7 @@ jobs:
         with:
           file: "ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg;"
           prerelease: true
+          draft: false
           tag_name: ${GITHUB_REF_NAME}
           overwrite: true
 
@@ -113,6 +114,7 @@ jobs:
         with:
           file: "ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg;"
           prerelease: true
+          draft: false
           tag_name: ${GITHUB_REF_NAME}
           overwrite: true
 
@@ -145,6 +147,7 @@ jobs:
         with:
           file: "ugs-fx/target/installer/ugs-*.deb;ugs-fx/target/installer/ugs-*.rpm"
           prerelease: true
+          draft: false
           tag_name: ${GITHUB_REF_NAME}
           overwrite: true
 
@@ -177,6 +180,7 @@ jobs:
         with:
           file: "ugs-fx/target/installer/ugs-*.deb;ugs-fx/target/installer/ugs-*.rpm"
           prerelease: true
+          draft: false
           tag_name: ${GITHUB_REF_NAME}
           overwrite: true
 
@@ -209,6 +213,7 @@ jobs:
         with:
           file: "ugs-fx/target/installer/ugs-*.dmg"
           prerelease: true
+          draft: false
           tag_name: ${GITHUB_REF_NAME}
           overwrite: true
 
@@ -241,6 +246,7 @@ jobs:
         with:
           file: "ugs-fx/target/installer/ugs-*.dmg"
           prerelease: true
+          draft: false
           tag_name: ${GITHUB_REF_NAME}
           overwrite: true
 
@@ -274,5 +280,6 @@ jobs:
         with:
           file: "ugs-fx/target/installer/ugs-*.exe;ugs-fx/target/installer/ugs-*.msi"
           prerelease: true
+          draft: false
           tag_name: ${GITHUB_REF_NAME}
           overwrite: true
