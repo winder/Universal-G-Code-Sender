@@ -42,7 +42,6 @@ public class SettingsAdapter {
     private static final String TOOL_STEP_OVER = "toolStepOver";
     private static final String V_BIT_ANGLE = "vBitAngle";
     private static final String DEPTH_PER_PASS = "depthPerPass";
-    private static final String STOCK_THICKNESS = "stockThickness";
     private static final String SPINDLE_DIRECTION = "spindleDirection";
     private static final String COOLANT_MODE = "coolantMode";
     private static final String TAB_HEIGHT = "tabHeight";
@@ -73,7 +72,6 @@ public class SettingsAdapter {
         settings.setSafeHeight(preferences.getDouble(SAFE_HEIGHT, 5d));
         settings.setToolStepOver(preferences.getDouble(TOOL_STEP_OVER, 0.3));
         settings.setVBitAngle(preferences.getDouble(V_BIT_ANGLE, 60d));
-        settings.setStockThickness(preferences.getDouble(STOCK_THICKNESS, 10));
         settings.setSpindleDirection(preferences.get(SPINDLE_DIRECTION, "M3"));
         settings.setCoolantMode(readCoolantMode());
         settings.setTabHeight(preferences.getDouble(TAB_HEIGHT, 1d));
@@ -103,7 +101,6 @@ public class SettingsAdapter {
         preferences.putDouble(SAFE_HEIGHT, settings.getSafeHeight());
         preferences.putDouble(TOOL_STEP_OVER, settings.getToolStepOver());
         preferences.putDouble(V_BIT_ANGLE, settings.getVBitAngle());
-        preferences.putDouble(STOCK_THICKNESS, settings.getStockThickness());
         preferences.put(SPINDLE_DIRECTION, settings.getSpindleDirection());
         preferences.put(COOLANT_MODE, settings.getCoolantMode().name());
         preferences.putDouble(TAB_HEIGHT, settings.getTabHeight());

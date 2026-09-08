@@ -71,7 +71,6 @@ public class UgsDesignWriterTest {
         assertEquals(321, writtenSettings.getPlungeSpeed());
         assertEquals(6.5, writtenSettings.getToolDiameter(), 0.1);
         assertEquals(EndmillShape.V_BIT, writtenSettings.getToolShape());
-        assertEquals(22.5, writtenSettings.getStockThickness(), 0.1);
         assertEquals(12.5, writtenSettings.getSafeHeight(), 0.1);
         assertEquals(UnitUtils.Units.INCH, writtenSettings.getPreferredUnits());
         assertEquals(0.75, writtenSettings.getToolStepOver(), 0.1);
@@ -124,7 +123,6 @@ public class UgsDesignWriterTest {
         settings.setPlungeSpeed(321);
         settings.setToolDiameter(6.5);
         settings.setToolShape(EndmillShape.V_BIT);
-        settings.setStockThickness(22.5);
         settings.setSafeHeight(12.5);
         settings.setPreferredUnits(UnitUtils.Units.INCH);
         settings.setToolStepOver(0.75);

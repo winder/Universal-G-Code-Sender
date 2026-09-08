@@ -57,7 +57,6 @@ public class ControllerTest {
         controller.setDesign(design);
 
         assertEquals(3.5, controller.getSettings().getDepthPerPass(), 1e-9);
-        assertEquals(22.5, controller.getSettings().getStockThickness(), 1e-9);
     }
 
     @Test
@@ -87,7 +86,6 @@ public class ControllerTest {
     private static Settings createSettings(double depthPerPass) {
         Settings settings = new Settings();
         settings.setDepthPerPass(depthPerPass);
-        settings.setStockThickness(22.5);
         settings.setCurrentToolId("tool-id");
         return settings;
     }

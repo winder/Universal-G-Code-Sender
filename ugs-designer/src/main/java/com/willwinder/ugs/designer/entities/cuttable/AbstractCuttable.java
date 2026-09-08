@@ -382,12 +382,16 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         return new Color(color, color, color);
     }
 
+    /**
+     * Shapes are drawn darker the deeper they cut, relative to the deepest cut in the design.
+     */
     private double getCutAlpha() {
         Controller controller = ControllerFactory.getController();
-        if (getTargetDepth() == 0) {
+        double deepest = controller.getModel().getDeepestCut();
+        if (getTargetDepth() == 0 || deepest <= 0) {
             return 1d;
         }
-        return 1d - Math.max(Float.MIN_VALUE, getTargetDepth() / controller.getSettings().getStockThickness());
+        return 1d - Math.max(Float.MIN_VALUE, getTargetDepth() / deepest);
     }
 
     protected void copyPropertiesTo(Cuttable copy) {

@@ -33,7 +33,6 @@ public class Settings {
     private int plungeSpeed = 400;
     private double toolDiameter = 3d;
     private EndmillShape toolShape = EndmillShape.UPCUT;
-    private double stockThickness = 10;
     private double safeHeight = 5;
     private UnitUtils.Units preferredUnits = UnitUtils.Units.MM;
     private double toolStepOver = 0.3;
@@ -244,14 +243,6 @@ public class Settings {
      *
      * @return the stock thickness
      */
-    public double getStockThickness() {
-        return stockThickness;
-    }
-
-    public void setStockThickness(double thickness) {
-        this.stockThickness = thickness;
-        notifyListeners();
-    }
 
     private void notifyListeners() {
         listeners.forEach(SettingsListener::onSettingsChanged);
@@ -340,10 +331,6 @@ public class Settings {
         notifyListeners();
     }
 
-    public String getStockSizeDescription() {
-        double scale = UnitUtils.scaleUnits(UnitUtils.Units.MM, getPreferredUnits());
-        return Utils.formatter.format(getStockThickness() * scale) + " " + getPreferredUnits().abbreviation;
-    }
 
     /**
      * Returns how tall the tabs holding a cut out shape in the stock are allowed to be in
@@ -398,7 +385,6 @@ public class Settings {
         setDepthPerPass(settings.getDepthPerPass());
         setFeedSpeed(settings.getFeedSpeed());
         setPlungeSpeed(settings.getPlungeSpeed());
-        setStockThickness(settings.getStockThickness());
         setToolDiameter(settings.getToolDiameter());
         setToolShape(settings.getToolShape());
         setToolStepOver(settings.getToolStepOver());

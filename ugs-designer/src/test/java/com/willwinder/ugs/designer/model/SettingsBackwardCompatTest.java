@@ -46,7 +46,6 @@ public class SettingsBackwardCompatTest {
         assertEquals(1000, settings.getFeedSpeed());
         assertEquals(400, settings.getPlungeSpeed());
         assertEquals(3.0, settings.getToolDiameter(), 1e-9);
-        assertEquals(10.0, settings.getStockThickness(), 1e-9);
         assertEquals(5.0, settings.getSafeHeight(), 1e-9);
         assertEquals(0.3, settings.getToolStepOver(), 1e-9);
         assertEquals(1.0, settings.getDepthPerPass(), 1e-9);
