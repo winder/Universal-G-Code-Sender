@@ -22,7 +22,12 @@ import com.willwinder.ugs.designer.actions.ChangeToolSettingsAction;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.model.CoolantMode;
 import com.willwinder.ugs.designer.model.PenMode;
+import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
+import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
+import com.willwinder.universalgcodesender.fx.component.toollibrary.EndmillShapeComboBox;
+import com.willwinder.universalgcodesender.fx.component.toollibrary.ToolShapeIcons;
 import com.willwinder.ugs.designer.model.Settings;
+import com.willwinder.universalgcodesender.fx.component.BorderedTitledPane;
 import com.willwinder.universalgcodesender.fx.component.ButtonBox;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
@@ -32,19 +37,26 @@ import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitValue;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Separator;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * A basic tool settings dialog for the designer, mirroring the fields of the Swing
@@ -53,6 +65,16 @@ import java.util.Objects;
  */
 public class ToolSettingsStage extends Stage {
     private final Controller controller;
+    private static final String DEVIATION_STYLE = "-fx-control-inner-background: #FFF3CD;";
+    private final Label selectedToolLabel = new Label();
+    private final EndmillShapeComboBox toolShape = new EndmillShapeComboBox();
+    private final SwitchButton useToolChanges = new SwitchButton();
+    private final SettingsRow vBitAngleRow;
+    /**
+     * The library tool the design is bound to, or null for a custom tool. Fields that deviate from
+     * it are highlighted, and it is stored with the design on apply.
+     */
+    private ToolDefinition librarySnapshot;
 
     private final UnitTextField toolDiameter;
     private final UnitTextField stepOver;
@@ -90,6 +112,9 @@ public class ToolSettingsStage extends Stage {
         setTitle("Tool settings");
 
         Settings settings = controller.getSettings();
+        librarySnapshot = settings.getCurrentToolSnapshot() == null ? null : new ToolDefinition(settings.getCurrentToolSnapshot());
+        toolShape.setValue(settings.getToolShape());
+        useToolChanges.selectedProperty().set(settings.getUseToolChanges());
         toolDiameter = numericField(Unit.MM, settings.getToolDiameter());
         stepOver = numericField(Unit.PERCENT, settings.getToolStepOver());
         vBitAngle = numericField(Unit.DEGREE, settings.getVBitAngle());
@@ -128,45 +153,66 @@ public class ToolSettingsStage extends Stage {
         penUpCommandRow = new SettingsRow("Pen up command", penUpCommand);
         penMode.valueProperty().addListener((observable, oldValue, newValue) -> updatePenRowVisibility());
         updatePenRowVisibility();
-
+        vBitAngleRow = new SettingsRow("V-bit angle", vBitAngle);
+        toolShape.valueProperty().addListener((observable, oldValue, newValue) -> updateVBitAngleVisibility());
+        updateVBitAngleVisibility();
+        installDeviationHighlighting();
+        updateSelectedToolLabel();
         setScene(createScene());
-        setWidth(380);
-        setHeight(800);
+        setWidth(520);
+        // Tall enough for the whole form on a big screen, but never taller than the screen,
+        // where the last sections and the buttons would end up out of reach
+        setHeight(Math.min(860, Screen.getPrimary().getVisualBounds().getHeight() - 80));
         setResizable(true);
 
         setOnShowing(event -> centerOnOwner());
     }
 
     private Scene createScene() {
-        VBox form = new VBox(4,
-                new SettingsRow("Tool diameter", toolDiameter),
-                new SettingsRow("Tool step over", stepOver),
-                new SettingsRow("V-bit angle", vBitAngle),
-                new Separator(),
-                new SettingsRow("Default feed speed", feedSpeed),
-                new SettingsRow("Plunge speed", plungeSpeed),
-                new SettingsRow("Depth per pass", depthPerPass),
+        Button selectToolButton = new Button("Select tool");
+        selectToolButton.setOnAction(e -> onPickFromLibrary());
+        selectedToolLabel.setMinWidth(120);
+        selectedToolLabel.setMaxWidth(220);
+        HBox libraryToolBox = new HBox(6, selectedToolLabel, selectToolButton);
+        libraryToolBox.setAlignment(Pos.CENTER_LEFT);
+
+        VBox form = new VBox(32,
+                new BorderedTitledPane("Tool and Spindle", new VBox(10,
+                        new SettingsRow("Name", "The tool from the tool library this design is cut with. Fields edited away from the library tool are highlighted.", libraryToolBox),
+                        new SettingsRow("Tool change", "Writes an M6 tool change with the library tool's slot number at the start of the program. Needs a tool with a slot number.", useToolChanges),
+                        new SettingsRow("Shape", toolShape),
+                        vBitAngleRow,
+                        new Separator(),
+                        new SettingsRow("Tool diameter", toolDiameter),
+                        new Separator(),
+                        new SettingsRow("Feed speed", feedSpeed),
+                        new SettingsRow("Plunge speed", plungeSpeed),
+                        new SettingsRow("Depth per pass", depthPerPass),
+                        new SettingsRow("Tool step over", stepOver),
+                        new Separator(),
+                        new SettingsRow("Detect max spindle speed", detectMaxSpindleSpeed),
+                        new SettingsRow("Max spindle speed", maxSpindleSpeed),
+                        new SettingsRow("Spindle start command", spindleDirection),
+                        new SettingsRow("Coolant", coolantMode))
+        ),
+        new BorderedTitledPane("Cutting", new VBox(10,
                 new SettingsRow("Safe height", safeHeight),
-                new Separator(),
                 new SettingsRow("Tab height", "How much material a tab leaves below the bottom of the cut, holding the shape in the stock.", tabHeight),
-                new SettingsRow("Tab length", "How long a tab is along the tool path. Shapes too small for tabs this long get shorter ones.", tabLength),
-                new Separator(),
-                new SettingsRow("Detect max spindle speed", detectMaxSpindleSpeed),
-                new SettingsRow("Max spindle speed", maxSpindleSpeed),
-                new SettingsRow("Spindle start command", spindleDirection),
-                new SettingsRow("Coolant", coolantMode),
-                new Separator(),
+                new SettingsRow("Tab length", "How long a tab is along the tool path. Shapes too small for tabs this long get shorter ones.", tabLength))
+        ),
+        new BorderedTitledPane("Plotter", new VBox(10,
                 new SettingsRow("Pen width", "The width of the line the pen draws. Fills are kept half of this inside the shape.", penWidth),
                 new SettingsRow("Pen up/down", "How a plotter puts its pen down on the paper and lifts it again.", penMode),
                 penDownDepthRow,
                 penDownSpindleSpeedRow,
                 penUpSpindleSpeedRow,
                 penDownCommandRow,
-                penUpCommandRow,
-                new Separator(),
-                new SettingsRow("Laser diameter", laserDiameter),
-                new SettingsRow("Curve precision", flatnessPrecision),
-                new SettingsRow("Generate arcs", arcFitting));
+                penUpCommandRow)),
+                new BorderedTitledPane("Laser", new VBox(10,
+                        new SettingsRow("Laser diameter", laserDiameter))),
+                new BorderedTitledPane("Tool path", new VBox(10,
+                        new SettingsRow("Curve precision", flatnessPrecision),
+                        new SettingsRow("Generate arcs", arcFitting))));
         form.setPadding(new Insets(16));
 
         ScrollPane scroll = new ScrollPane(form);
@@ -195,8 +241,19 @@ public class ToolSettingsStage extends Stage {
         Settings settings = new Settings();
         settings.applySettings(controller.getSettings());
         settings.setToolDiameter(toolDiameter.getValue());
+        settings.setToolShape(toolShape.getSelectedShape());
         settings.setToolStepOver(stepOver.getValue());
         settings.setVBitAngle(vBitAngle.getValue());
+        settings.setUseToolChanges(useToolChanges.selectedProperty().get());
+        if (librarySnapshot != null) {
+            settings.setCurrentToolId(librarySnapshot.getId());
+            settings.setCurrentToolSnapshot(new ToolDefinition(librarySnapshot));
+            settings.setToolNumber(librarySnapshot.getToolNumber());
+        } else {
+            settings.setCurrentToolId(null);
+            settings.setCurrentToolSnapshot(null);
+            settings.setToolNumber(ToolDefinition.UNASSIGNED_TOOL_NUMBER);
+        }
         settings.setFeedSpeed((int) Math.round(feedSpeed.getValue()));
         settings.setPlungeSpeed((int) Math.round(plungeSpeed.getValue()));
         settings.setDepthPerPass(depthPerPass.getValue());
@@ -239,6 +296,97 @@ public class ToolSettingsStage extends Stage {
         setRowVisible(penUpSpindleSpeedRow, selected == PenMode.SPINDLE_SPEED);
         setRowVisible(penDownCommandRow, selected == PenMode.CUSTOM_COMMAND);
         setRowVisible(penUpCommandRow, selected == PenMode.CUSTOM_COMMAND);
+    }
+
+    private void updateVBitAngleVisibility() {
+        setRowVisible(vBitAngleRow, toolShape.getSelectedShape() == EndmillShape.V_BIT);
+    }
+
+    private void onPickFromLibrary() {
+        Optional<ToolDefinition> picked = ToolLibraryStage.pick(this, controller.getSettings().getPreferredUnits(),
+                librarySnapshot == null ? null : librarySnapshot.getId());
+        picked.ifPresent(this::selectTool);
+    }
+
+    /**
+     * Binds the design to a library tool and copies its values into the fields. The library's
+     * "custom" entry unbinds the design instead and leaves the fields as they are.
+     */
+    private void selectTool(ToolDefinition tool) {
+        if (tool == null || tool.isCustomSentinel()) {
+            librarySnapshot = null;
+        } else {
+            librarySnapshot = new ToolDefinition(tool);
+            toolDiameter.setValue(tool.getDiameterInMm());
+            toolShape.setValue(tool.getShape());
+            if (tool.getVBitAngleDegrees() != null) {
+                vBitAngle.setValue(tool.getVBitAngleDegrees());
+            }
+            feedSpeed.setValue(tool.getFeedSpeed());
+            plungeSpeed.setValue(tool.getPlungeSpeed());
+            depthPerPass.setValue(tool.getDepthPerPass());
+            stepOver.setValue(tool.getStepOverPercent());
+            maxSpindleSpeed.setValue(tool.getMaxSpindleSpeed());
+            spindleDirection.setValue(tool.getSpindleDirection());
+        }
+        updateSelectedToolLabel();
+        refreshDeviationHighlighting();
+    }
+
+    private void updateSelectedToolLabel() {
+        if (librarySnapshot == null || librarySnapshot.getName() == null) {
+            selectedToolLabel.setText("— Custom —");
+            selectedToolLabel.setGraphic(null);
+        } else {
+            selectedToolLabel.setText(ToolShapeIcons.describe(librarySnapshot));
+            selectedToolLabel.setGraphic(ToolShapeIcons.icon(librarySnapshot.getShape()));
+        }
+    }
+
+    /**
+     * Highlights fields whose value differs from the bound library tool, so it is visible that the
+     * design no longer cuts with exactly that tool.
+     */
+    private void installDeviationHighlighting() {
+        highlightDeviation(toolDiameter, () -> librarySnapshot == null ? null : librarySnapshot.getDiameterInMm());
+        highlightDeviation(stepOver, () -> librarySnapshot == null ? null : librarySnapshot.getStepOverPercent());
+        highlightDeviation(vBitAngle, () -> librarySnapshot == null ? null : librarySnapshot.getVBitAngleDegrees());
+        highlightDeviation(feedSpeed, () -> librarySnapshot == null ? null : (double) librarySnapshot.getFeedSpeed());
+        highlightDeviation(plungeSpeed, () -> librarySnapshot == null ? null : (double) librarySnapshot.getPlungeSpeed());
+        highlightDeviation(depthPerPass, () -> librarySnapshot == null ? null : librarySnapshot.getDepthPerPass());
+        highlightDeviation(maxSpindleSpeed, () -> librarySnapshot == null ? null : (double) librarySnapshot.getMaxSpindleSpeed());
+        highlightDeviation(toolShape, () -> librarySnapshot == null ? null : librarySnapshot.getShape());
+        highlightDeviation(spindleDirection, () -> librarySnapshot == null ? null : librarySnapshot.getSpindleDirection());
+    }
+
+    private final java.util.List<Runnable> deviationUpdates = new java.util.ArrayList<>();
+
+    private void highlightDeviation(UnitTextField field, Supplier<Double> reference) {
+        Runnable update = () -> {
+            Double expected = reference.get();
+            paintDeviation(field, expected != null && Math.abs(field.getValue() - expected) > 1e-6);
+        };
+        field.textProperty().addListener((observable, was, text) -> update.run());
+        deviationUpdates.add(update);
+        update.run();
+    }
+
+    private <T> void highlightDeviation(ComboBox<T> combo, Supplier<T> reference) {
+        Runnable update = () -> {
+            T expected = reference.get();
+            paintDeviation(combo, expected != null && !Objects.equals(expected, combo.getValue()));
+        };
+        combo.valueProperty().addListener((observable, was, value) -> update.run());
+        deviationUpdates.add(update);
+        update.run();
+    }
+
+    private void refreshDeviationHighlighting() {
+        deviationUpdates.forEach(Runnable::run);
+    }
+
+    private static void paintDeviation(Control control, boolean deviates) {
+        control.setStyle(deviates ? DEVIATION_STYLE : "");
     }
 
     private static void setRowVisible(SettingsRow row, boolean visible) {

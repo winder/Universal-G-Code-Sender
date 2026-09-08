@@ -22,6 +22,7 @@ import com.willwinder.ugs.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
+import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
@@ -100,6 +101,10 @@ public class ToolButton extends Button {
     }
 
     private String getMillToolDescription() {
+        ToolDefinition libraryTool = controller.getSettings().getCurrentToolSnapshot();
+        if (libraryTool != null && libraryTool.getName() != null && !libraryTool.getName().isBlank()) {
+            return libraryTool.getName();
+        }
         double scale = UnitUtils.scaleUnits(UnitUtils.Units.MM, controller.getSettings().getPreferredUnits());
         return Utils.formatter.format(controller.getSettings().getToolDiameter() * scale)
                 + " " + controller.getSettings().getPreferredUnits().abbreviation;
