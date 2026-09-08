@@ -273,6 +273,8 @@ public class GrblUtils {
             ret.addCapability(CapabilitiesConstants.OVERRIDES);
             ret.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
             ret.addCapability(CapabilitiesConstants.OPEN_DOOR);
+            ret.addCapability(CapabilitiesConstants.REPORT_FEED_RATE);
+            ret.addCapability(CapabilitiesConstants.REPORT_SPINDLE_SPEED);
         }
 
         if (options.isEnabled(GrblBuildOption.HOMING_FORCE_ORIGIN_ENABLED)) {

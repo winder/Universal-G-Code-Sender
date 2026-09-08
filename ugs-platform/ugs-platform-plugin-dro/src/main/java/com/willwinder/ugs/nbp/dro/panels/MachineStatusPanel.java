@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.dro.panels;
 
 import com.willwinder.ugs.nbp.dro.FontManager;
 import com.willwinder.universalgcodesender.Capabilities;
+import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -86,6 +87,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
     private Units units;
     private final Map<Axis, AxisPanel> axisPanels = new EnumMap<>(Axis.class);
     private final DecimalFormat decimalFormatter = new DecimalFormat("0.000");
+    private JPanel speedPanel;
 
 
     public MachineStatusPanel(BackendAPI backend) {
@@ -123,7 +125,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
 
     private void initComponents() {
         String debug = "";
-        setLayout(new MigLayout(debug + "fillx, wrap 1, inset 5", "grow"));
+        setLayout(new MigLayout(debug + "fillx, wrap 1, inset 5, hidemode 3", "grow"));
 
         activeStateValueLabel.setForeground(ThemeColors.VERY_DARK_GREY);
         activeStateValueLabel.setText(Translations.OFFLINE);
@@ -141,7 +143,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         add(axisPanel, PANEL_CONSTRAINTS);
 
         // show feed rate
-        JPanel speedPanel = new JPanel(new MigLayout(debug + "fillx, wrap 2, inset 0", "[al right][]"));
+        speedPanel = new JPanel(new MigLayout(debug + "fillx, wrap 2, hidemode 3, inset 0", "[al right][]"));
         speedPanel.setOpaque(false);
         JLabel feedLabel = new JLabel(Localization.getString("gcode.setting.feed"));
         speedPanel.add(feedLabel);
@@ -247,6 +249,10 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
             axisPanels.get(a).setVisible(visible);
             axisPanels.get(a).setShowMachinePosition(settings.isShowMachinePosition());
         }
+
+        speedPanel.setVisible(cap.hasCapability(CapabilitiesConstants.REPORT_FEED_RATE) || cap.hasCapability(CapabilitiesConstants.REPORT_SPINDLE_SPEED));
+        spindleSpeedValue.setVisible(cap.hasCapability(CapabilitiesConstants.REPORT_SPINDLE_SPEED));
+        feedValue.setVisible(cap.hasCapability(CapabilitiesConstants.REPORT_FEED_RATE));
     }
 
     private void onControllerStatusReceived(ControllerStatus status) {

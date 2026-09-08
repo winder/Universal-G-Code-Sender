@@ -153,6 +153,8 @@ public class GrblHalUtils {
         capabilities.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         capabilities.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
         capabilities.addCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING);
+        capabilities.addCapability(CapabilitiesConstants.REPORT_FEED_RATE);
+        capabilities.addCapability(CapabilitiesConstants.REPORT_SPINDLE_SPEED);
 
         if (buildOptions.isEnabled(GrblBuildOption.VARIABLE_SPINDLE_ENABLED)) {
             capabilities.addCapability(CapabilitiesConstants.VARIABLE_SPINDLE);

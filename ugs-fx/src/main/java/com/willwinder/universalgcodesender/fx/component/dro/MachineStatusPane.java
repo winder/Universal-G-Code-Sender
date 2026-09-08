@@ -1,5 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.dro;
 
+import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitValue;
@@ -159,7 +160,9 @@ public class MachineStatusPane extends GridPane {
             });
 
             if (backend.getController() == null) return;
+            feedRate.setVisible(backend.getController().getCapabilities().hasCapability(CapabilitiesConstants.REPORT_FEED_RATE));
             feedRate.setText(String.format("%d", Math.round(feedSpeedWithUnit.convertTo(preferredUnits == UnitUtils.Units.MM ? Unit.MM_PER_MINUTE : Unit.INCHES_PER_MINUTE).doubleValue())));
+            spindleSpeed.setVisible(backend.getController().getCapabilities().hasCapability(CapabilitiesConstants.REPORT_SPINDLE_SPEED));
             spindleSpeed.setText(String.format("%d", Math.round(backend.getController().getControllerStatus().getSpindleSpeed())));
         });
 

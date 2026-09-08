@@ -136,4 +136,14 @@ public class CapabilitiesConstants {
      * Does the controller support variable spindles (typically PWM or through RS484 interfaces)
      */
     public static final String VARIABLE_SPINDLE = "VARIABLE_SPINDLE";
+
+    /**
+     * Does the controller support reporting the controllers current feed rate
+     */
+    public static final String REPORT_FEED_RATE = "REPORT_FEED_RATE";
+
+    /**
+     * Does the controller support reporting the controllers current spindle speed
+     */
+    public static final String REPORT_SPINDLE_SPEED = "REPORT_SPINDLE_SPEED";
 }
