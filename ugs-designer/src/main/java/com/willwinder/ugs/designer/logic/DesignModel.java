@@ -19,6 +19,7 @@
 package com.willwinder.ugs.designer.logic;
 
 import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.EntityGroup;
 
 import java.awt.Shape;
@@ -56,6 +57,21 @@ public class DesignModel {
         List<Entity> result = new ArrayList<>();
         root.getChildren().forEach(entity -> collectLeaves(entity, result));
         return result;
+    }
+
+    /**
+     * The deepest target depth of any cuttable in the design, or zero when nothing is cut. Shapes
+     * are shaded by their depth relative to this, since the design does not know how thick the
+     * material is.
+     */
+    public double getDeepestCut() {
+        double deepest = 0;
+        for (Entity entity : getEntities()) {
+            if (entity instanceof Cuttable cuttable) {
+                deepest = Math.max(deepest, cuttable.getTargetDepth());
+            }
+        }
+        return deepest;
     }
 
     public List<Entity> getEntitiesAt(Point2D point) {

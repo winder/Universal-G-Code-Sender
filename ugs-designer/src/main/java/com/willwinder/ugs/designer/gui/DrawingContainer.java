@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.designer.gui;
 
-import com.willwinder.ugs.designer.actions.OpenStockSettingsAction;
 import com.willwinder.ugs.designer.actions.OpenToolSettingsAction;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -107,13 +106,6 @@ public class DrawingContainer extends JPanel implements ComponentListener, Mouse
         toolButton.addActionListener(new OpenToolSettingsAction(controller));
         buttonPanel.add(toolButton);
 
-        add(Box.createHorizontalStrut(6));
-        PanelButton stockButton = new PanelButton("Stock", controller.getSettings().getStockSizeDescription());
-        stockButton.setMinimumSize(new Dimension(60, 40));
-        stockButton.setMaximumSize(new Dimension(100, 40));
-        controller.getSettings().addListener(() -> stockButton.setText(controller.getSettings().getStockSizeDescription()));
-        stockButton.addActionListener(new OpenStockSettingsAction(controller));
-        buttonPanel.add(stockButton);
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.add(scrollPane, JLayeredPane.DEFAULT_LAYER, 0);

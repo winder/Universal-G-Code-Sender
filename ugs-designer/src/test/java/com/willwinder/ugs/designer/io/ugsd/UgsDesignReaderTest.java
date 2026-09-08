@@ -236,7 +236,6 @@ public class UgsDesignReaderTest {
                 .read(IOUtils.toInputStream(designFile, Charset.defaultCharset()))
                 .orElseThrow();
 
-        assertEquals(10.0, design.getSettings().getStockThickness(), 0.1);
     }
 
     private String convertEntityToString(Entity entity) {

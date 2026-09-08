@@ -38,7 +38,6 @@ public class SettingsV1 implements Serializable {
     private Integer plungeSpeed;
     private Double toolDiameter;
     private EndmillShape toolShape;
-    private Double stockThickness;
     private Double safeHeight;
     private UnitUtils.Units preferredUnits;
     private Double toolStepOver;
@@ -70,7 +69,6 @@ public class SettingsV1 implements Serializable {
         result.plungeSpeed = settings.getPlungeSpeed();
         result.toolDiameter = settings.getToolDiameter();
         result.toolShape = settings.getToolShape();
-        result.stockThickness = settings.getStockThickness();
         result.safeHeight = settings.getSafeHeight();
         result.preferredUnits = settings.getPreferredUnits();
         result.toolStepOver = settings.getToolStepOver();
@@ -111,9 +109,6 @@ public class SettingsV1 implements Serializable {
         }
         if (toolShape != null) {
             settings.setToolShape(toolShape);
-        }
-        if (stockThickness != null) {
-            settings.setStockThickness(stockThickness);
         }
         if (safeHeight != null) {
             settings.setSafeHeight(safeHeight);
