@@ -164,6 +164,7 @@ public class GcodeParserUtils {
                 if (meta.point != null) {
                     meta.point.setFeedRate(state.feedRate);
                     meta.point.setSpindleSpeed(state.spindleSpeed);
+                    meta.point.setToolNumber(state.toolNumber);
                 }
                 results.add(meta);
             }

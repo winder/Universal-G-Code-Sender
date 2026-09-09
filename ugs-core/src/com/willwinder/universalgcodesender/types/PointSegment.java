@@ -44,6 +44,7 @@ public final class PointSegment {
     private int lineNumber;
     private ArcProperties arcProperties = null;
     private double spindleSpeed = 0;
+    private int toolNumber = 0;
 
     private class ArcProperties {
         public boolean isClockwise;
@@ -58,6 +59,7 @@ public final class PointSegment {
     
         this.setFeedRate(ps.feedRate);
         this.setSpindleSpeed(ps.getSpindleSpeed());
+        this.setToolNumber(ps.getToolNumber());
         this.setIsArc(ps.isArc);
         this.setIsMetric(ps.isMetric);
         this.setIsZMovement(ps.isZMovement);
@@ -123,6 +125,17 @@ public final class PointSegment {
 
     public double getSpindleSpeed() {
         return spindleSpeed;
+    }
+
+    /**
+     * The tool selected by the last T word before this segment, or 0 when the program never selected one.
+     */
+    public int getToolNumber() {
+        return toolNumber;
+    }
+
+    public void setToolNumber(int toolNumber) {
+        this.toolNumber = toolNumber;
     }
     
     public void setIsZMovement(final boolean isZ) {
