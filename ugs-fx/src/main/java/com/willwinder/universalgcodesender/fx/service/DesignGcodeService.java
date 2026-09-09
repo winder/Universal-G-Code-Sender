@@ -134,16 +134,16 @@ public final class DesignGcodeService {
     }
 
     /**
-     * Whether a regeneration is pending or running. Changes on the UI executor's thread, the
-     * JavaFX thread in the application, so it can be bound to the UI directly.
-     */
-    /**
      * The program file this service writes the design to and loads into the backend.
      */
     public File getGcodeFile() {
         return gcodeFile;
     }
 
+    /**
+     * Whether a regeneration is pending or running. Changes on the UI executor's thread, the
+     * JavaFX thread in the application, so it can be bound to the UI directly.
+     */
     public ReadOnlyBooleanProperty busyProperty() {
         return busy;
     }

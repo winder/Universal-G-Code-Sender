@@ -82,8 +82,7 @@ public class Settings {
             instance = new Settings();
             LOGGER.info("Settings initialized from " + preferences.absolutePath());
         }
-
-
+        
         return instance;
     }
 
