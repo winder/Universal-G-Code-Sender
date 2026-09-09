@@ -40,8 +40,6 @@ public record ResolvedTool(ToolProfile profile, Source source, String label, Opt
 
     public enum Source {
         PROGRAM_SLOT("Selected by the program's T word, matched to the tool library"),
-        PROGRAM_COMMENT_LIBRARY("Named in the program's tool comment, matched to the tool library"),
-        PROGRAM_COMMENT("Read from the program's tool comment"),
         DESIGN("The tool the design is set up with"),
         DEFAULT_TOOL("Not selected by the program, using the default tool from the visualizer settings"),
         LIBRARY_FIRST("Not selected by the program, using the first tool in the tool library"),
@@ -97,7 +95,6 @@ public record ResolvedTool(ToolProfile profile, Source source, String label, Opt
                 case DEFAULT_TOOL -> "the default tool from the visualizer settings";
                 case LIBRARY_FIRST -> "the first tool in the tool library";
                 case BUILT_IN -> "a 1/8\" flat endmill, since the tool library is empty";
-                case PROGRAM_COMMENT, PROGRAM_COMMENT_LIBRARY -> "the tool named in the program's tool comment";
                 default -> "another tool";
             };
             return "The program selects T" + requestedToolNumber + ", but no library tool has that number. Using "

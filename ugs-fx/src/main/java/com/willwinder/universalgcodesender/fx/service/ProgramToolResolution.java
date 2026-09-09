@@ -18,10 +18,8 @@
  */
 package com.willwinder.universalgcodesender.fx.service;
 
-import com.willwinder.ugs.designer.logic.ToolLibraryService;
 import com.willwinder.universalgcodesender.fx.component.visualizer.simulation.DesignTool;
 import com.willwinder.universalgcodesender.fx.component.visualizer.simulation.LibraryToolResolver;
-import com.willwinder.universalgcodesender.fx.component.visualizer.simulation.ProgramToolResolver;
 import com.willwinder.universalgcodesender.fx.component.visualizer.simulation.ToolResolver;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 
@@ -31,25 +29,21 @@ import java.util.Optional;
 
 /**
  * Decides how the tools of a program are resolved: from the design settings when the program is
- * the export of the open design, otherwise from the program text and the tool library. Shared by
- * the stock simulation and the tool listing so both tell the same story.
+ * the export of the open design, otherwise from its {@code T} words and the tool library. Shared
+ * by the stock simulation and the tool listing so both tell the same story.
  */
 public final class ProgramToolResolution {
     private ProgramToolResolution() {
     }
 
     /**
-     * Reads the program file and opens the tool library, so call it off the JavaFX thread.
+     * Opens the tool library, which reads a file, so call it off the JavaFX thread.
      *
      * @param defaultToolId the library tool to fall back to when the program selects none, or empty
      */
-    public static ToolResolver forProgram(File file, String defaultToolId) throws IOException {
+    public static ToolResolver forProgram(File file, String defaultToolId) {
         Optional<ToolResolver> designTool = designToolFor(file);
-        if (designTool.isPresent()) {
-            return designTool.get();
-        }
-        ToolLibraryService library = ToolLibraryProvider.getInstance();
-        return ProgramToolResolver.forProgram(file.toPath(), library, new LibraryToolResolver(library, defaultToolId));
+        return designTool.orElseGet(() -> new LibraryToolResolver(ToolLibraryProvider.getInstance(), defaultToolId));
     }
 
     /**
