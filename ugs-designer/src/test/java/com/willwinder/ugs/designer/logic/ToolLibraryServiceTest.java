@@ -212,31 +212,28 @@ public class ToolLibraryServiceTest {
     }
 
     @Test
-    public void addingToolWithClaimedToolNumberIsRejected() {
+    public void addingToolWithClaimedToolNumberTakesTheNumberOver() {
         ToolLibraryService service = new ToolLibraryService(libraryPath);
-        service.addTool(namedToolWithNumber("first", 5));
+        ToolDefinition first = service.addTool(namedToolWithNumber("first", 5));
 
-        try {
-            service.addTool(namedToolWithNumber("second", 5));
-            fail("Expected rejection of duplicate tool number");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage().contains("first"));
-        }
+        ToolDefinition second = service.addTool(namedToolWithNumber("second", 5));
+
+        assertEquals(5, second.getToolNumber());
+        assertEquals(ToolDefinition.UNASSIGNED_TOOL_NUMBER, service.getById(first.getId()).orElseThrow().getToolNumber());
+        assertEquals(second.getId(), service.getByToolNumber(5).orElseThrow().getId());
     }
 
     @Test
-    public void updatingToolToClaimedToolNumberIsRejected() {
+    public void updatingToolToClaimedToolNumberTakesTheNumberOver() {
         ToolLibraryService service = new ToolLibraryService(libraryPath);
-        service.addTool(namedToolWithNumber("first", 5));
+        ToolDefinition first = service.addTool(namedToolWithNumber("first", 5));
         ToolDefinition second = service.addTool(namedToolWithNumber("second", 6));
         second.setToolNumber(5);
 
-        try {
-            service.updateTool(second);
-            fail("Expected rejection of duplicate tool number");
-        } catch (IllegalArgumentException expected) {
-            // ok
-        }
+        service.updateTool(second);
+
+        assertEquals(5, service.getById(second.getId()).orElseThrow().getToolNumber());
+        assertEquals(ToolDefinition.UNASSIGNED_TOOL_NUMBER, service.getById(first.getId()).orElseThrow().getToolNumber());
     }
 
     @Test

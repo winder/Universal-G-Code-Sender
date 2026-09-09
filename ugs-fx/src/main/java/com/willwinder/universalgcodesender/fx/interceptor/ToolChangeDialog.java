@@ -18,7 +18,10 @@
  */
 package com.willwinder.universalgcodesender.fx.interceptor;
 
+import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.fx.component.ButtonBox;
+import com.willwinder.universalgcodesender.fx.service.ToolLibraryProvider;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -226,7 +229,7 @@ public class ToolChangeDialog extends Stage implements InterceptorDialog {
 
         return switch (stepId) {
             case ToolChangeInterceptor.STEP_CHANGE_TOOL ->
-                    String.format(Localization.getString("toolchange.change.message"), currentToolNumber());
+                    String.format(Localization.getString("toolchange.change.message"), describeCurrentTool());
             case ToolChangeInterceptor.STEP_CONTINUE -> Localization.getString("toolchange.resume.message");
             default -> "";
         };
@@ -235,6 +238,29 @@ public class ToolChangeDialog extends Stage implements InterceptorDialog {
     private int currentToolNumber() {
         GcodeState state = backend.getGcodeState();
         return state == null ? 0 : state.toolNumber;
+    }
+
+    /**
+     * The tool number, followed by the library tool that holds it when there is one, so the
+     * operator sees "2 (1/4" Upcut)" rather than only a number.
+     */
+    private String describeCurrentTool() {
+        int toolNumber = currentToolNumber();
+        return ToolLibraryProvider.getInstance().getByToolNumber(toolNumber)
+                .map(tool -> toolNumber + " (" + describe(tool) + ")")
+                .orElse(String.valueOf(toolNumber));
+    }
+
+    private static String describe(ToolDefinition tool) {
+        if (tool.getName() != null && !tool.getName().isBlank()) {
+            return tool.getName();
+        }
+        String description = Utils.formatter.format(tool.getDiameter()) + " " + tool.getDiameterUnit().abbreviation
+                + " " + tool.getShape().getDisplayName();
+        if (tool.getShape().requiresAngle() && tool.getVBitAngleDegrees() != null) {
+            description += " " + Utils.formatter.format(tool.getVBitAngleDegrees()) + "°";
+        }
+        return description;
     }
 
     private static String headerFor(InterceptorState state, String stepId) {

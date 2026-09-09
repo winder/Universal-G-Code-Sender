@@ -1,7 +1,10 @@
 package com.willwinder.universalgcodesender.fx.service;
 
+import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContextFactory;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
+import javafx.application.Platform;
 
 import java.io.File;
 import java.util.List;
@@ -57,7 +60,28 @@ public class WorkspaceManager {
         activeWorkspace = workspace;
         workspace.open();
         workspace.setDirty(false);
+        showWorkspaceLayer(workspace);
         notifyWorkspaceOpened(workspace);
+    }
+
+    /**
+     * Opening a file is a request to see it, so the visualizer layer it lives on is turned on even
+     * if it was hidden earlier: the design shapes for a design, the tool path for a program.
+     */
+    private static void showWorkspaceLayer(WorkspaceContext workspace) {
+        Runnable show = () -> {
+            VisualizerSettings settings = VisualizerSettings.getInstance();
+            if (workspace instanceof UgsdWorkspaceContext) {
+                settings.showDesignProperty().set(true);
+            } else {
+                settings.showGcodeModelProperty().set(true);
+            }
+        };
+        if (Platform.isFxApplicationThread()) {
+            show.run();
+        } else {
+            Platform.runLater(show);
+        }
     }
 
     public synchronized WorkspaceContext openWorkspace(File file) {

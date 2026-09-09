@@ -236,8 +236,8 @@ public class VisualizerUtils {
     }
 
     public static LineSegment toCartesian(LineSegment p) {
-        Position start = new Position(p.getStart().x, p.getStart().y, p.getStart().z);
-        Position end = new Position(p.getEnd().x, p.getEnd().y, p.getEnd().z);
+        Position start = new Position(p.getStart().x, p.getStart().y, p.getStart().z, p.getStart().getUnits());
+        Position end = new Position(p.getEnd().x, p.getEnd().y, p.getEnd().z, p.getEnd().getUnits());
 
         if (p.getStart().hasRotation() || p.getEnd().hasRotation()) {
             start = p.getStart().getCartesian();

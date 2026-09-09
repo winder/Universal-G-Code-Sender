@@ -197,18 +197,19 @@ public class ToolLibraryService {
         return claimed;
     }
 
-    private void requireFreeToolNumber(ToolDefinition tool) {
+    /**
+     * A tool number names one physical slot, so giving it to a tool takes it away from whichever
+     * other tool held it. The other tool is left without a slot rather than the change being
+     * rejected, which is what a user renumbering their tools expects.
+     */
+    private void claimToolNumber(ToolDefinition tool) {
         if (!tool.hasToolNumber()) {
             return;
         }
         tools.values().stream()
                 .filter(other -> !other.getId().equals(tool.getId()))
                 .filter(other -> other.getToolNumber() == tool.getToolNumber())
-                .findFirst()
-                .ifPresent(clash -> {
-                    throw new IllegalArgumentException("Tool number " + tool.getToolNumber()
-                            + " is already used by \"" + clash.getName() + "\"");
-                });
+                .forEach(other -> other.setToolNumber(ToolDefinition.UNASSIGNED_TOOL_NUMBER));
     }
 
     public ToolDefinition addTool(ToolDefinition tool) {
@@ -221,7 +222,7 @@ public class ToolLibraryService {
             if (tools.containsKey(copy.getId())) {
                 throw new IllegalArgumentException("Duplicate tool id: " + copy.getId());
             }
-            requireFreeToolNumber(copy);
+            claimToolNumber(copy);
             tools.put(copy.getId(), copy);
             scheduleSave();
             notifyListeners();
@@ -237,7 +238,7 @@ public class ToolLibraryService {
                 throw new IllegalArgumentException("Unknown tool id: " + tool.getId());
             }
             ToolDefinition copy = new ToolDefinition(tool);
-            requireFreeToolNumber(copy);
+            claimToolNumber(copy);
             tools.put(copy.getId(), copy);
             scheduleSave();
             notifyListeners();

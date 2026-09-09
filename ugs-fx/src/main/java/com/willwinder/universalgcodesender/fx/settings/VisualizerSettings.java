@@ -20,6 +20,9 @@ package com.willwinder.universalgcodesender.fx.settings;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.MachineType;
 import javafx.beans.property.BooleanProperty;
+import java.util.List;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -62,6 +65,18 @@ public class VisualizerSettings {
     private static final String SHOW_AXES = "showAxes";
     private static final String SHOW_DESIGN = "showDesign";
     private static final String SHOW_TOOL = "showTool";
+    private static final String SHOW_STOCK = "showStock";
+    private static final String COLOR_STOCK = "color.stock";
+    private static final String STOCK_DEFAULT_TOOL_ID = "stock.defaultToolId";
+    private static final String STOCK_MODE = "stock.mode";
+    private static final String STOCK_DEPTH_COLORING = "stock.depthColoring";
+    private static final String COLOR_STOCK_DEEP = "color.stockDeep";
+    private static final String STOCK_MIN_X = "stock.minX";
+    private static final String STOCK_MIN_Y = "stock.minY";
+    private static final String STOCK_WIDTH = "stock.width";
+    private static final String STOCK_LENGTH = "stock.length";
+    private static final String STOCK_TOP = "stock.top";
+    private static final String STOCK_THICKNESS = "stock.thickness";
 
     public enum ModifierKey {
         NONE, SHIFT, CTRL, ALT, META;
@@ -112,6 +127,17 @@ public class VisualizerSettings {
     private final BooleanProperty showAxes = new SimpleBooleanProperty(loadBoolean(SHOW_AXES, true));
     private final BooleanProperty showDesign = new SimpleBooleanProperty(loadBoolean(SHOW_DESIGN, true));
     private final BooleanProperty showTool = new SimpleBooleanProperty(loadBoolean(SHOW_TOOL, true));
+    private final BooleanProperty showStock = new SimpleBooleanProperty(loadBoolean(SHOW_STOCK, false));
+    private final StringProperty colorStock = new SimpleStringProperty(loadString(COLOR_STOCK, "#C8A96EFF"));
+    private final StringProperty stockDefaultToolId = new SimpleStringProperty(loadString(STOCK_DEFAULT_TOOL_ID, ""));
+    private final StringProperty stockMode = new SimpleStringProperty(loadString(STOCK_MODE, "AUTOMATIC"));
+    private final StringProperty colorStockDeep = new SimpleStringProperty(loadString(COLOR_STOCK_DEEP, "#381c06"));
+    private final DoubleProperty stockMinX = new SimpleDoubleProperty(loadDouble(STOCK_MIN_X, 0));
+    private final DoubleProperty stockMinY = new SimpleDoubleProperty(loadDouble(STOCK_MIN_Y, 0));
+    private final DoubleProperty stockWidth = new SimpleDoubleProperty(loadDouble(STOCK_WIDTH, 100));
+    private final DoubleProperty stockLength = new SimpleDoubleProperty(loadDouble(STOCK_LENGTH, 100));
+    private final DoubleProperty stockTop = new SimpleDoubleProperty(loadDouble(STOCK_TOP, 0));
+    private final DoubleProperty stockThickness = new SimpleDoubleProperty(loadDouble(STOCK_THICKNESS, 10));
 
     VisualizerSettings() {
         showMachine.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE_MODEL, newVal));
@@ -148,6 +174,17 @@ public class VisualizerSettings {
         showAxes.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_AXES, newVal));
         showDesign.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_DESIGN, newVal));
         showTool.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_TOOL, newVal));
+        showStock.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_STOCK, newVal));
+        colorStock.addListener((obs, oldVal, newVal) -> saveString(COLOR_STOCK, newVal));
+        stockDefaultToolId.addListener((obs, oldVal, newVal) -> saveString(STOCK_DEFAULT_TOOL_ID, newVal));
+        stockMode.addListener((obs, oldVal, newVal) -> saveString(STOCK_MODE, newVal));
+        colorStockDeep.addListener((obs, oldVal, newVal) -> saveString(COLOR_STOCK_DEEP, newVal));
+        stockMinX.addListener((obs, oldVal, newVal) -> saveDouble(STOCK_MIN_X, newVal.doubleValue()));
+        stockMinY.addListener((obs, oldVal, newVal) -> saveDouble(STOCK_MIN_Y, newVal.doubleValue()));
+        stockWidth.addListener((obs, oldVal, newVal) -> saveDouble(STOCK_WIDTH, newVal.doubleValue()));
+        stockLength.addListener((obs, oldVal, newVal) -> saveDouble(STOCK_LENGTH, newVal.doubleValue()));
+        stockTop.addListener((obs, oldVal, newVal) -> saveDouble(STOCK_TOP, newVal.doubleValue()));
+        stockThickness.addListener((obs, oldVal, newVal) -> saveDouble(STOCK_THICKNESS, newVal.doubleValue()));
     }
 
     public static VisualizerSettings getInstance() {
@@ -293,6 +330,66 @@ public class VisualizerSettings {
         return showTool;
     }
 
+    public BooleanProperty showStockProperty() {
+        return showStock;
+    }
+
+    public StringProperty colorStockProperty() {
+        return colorStock;
+    }
+
+    /**
+     * Id of the tool library tool the stock simulation uses when the program selects no tool, or
+     * an empty string to use the first tool in the library.
+     */
+    public StringProperty stockDefaultToolIdProperty() {
+        return stockDefaultToolId;
+    }
+
+    /**
+     * Whether the stock block is derived from the program or given by hand; the name of a
+     * {@code StockSpec.Mode}.
+     */
+    public StringProperty stockModeProperty() {
+        return stockMode;
+    }
+
+    public StringProperty colorStockDeepProperty() {
+        return colorStockDeep;
+    }
+
+    public DoubleProperty stockMinXProperty() {
+        return stockMinX;
+    }
+
+    public DoubleProperty stockMinYProperty() {
+        return stockMinY;
+    }
+
+    public DoubleProperty stockWidthProperty() {
+        return stockWidth;
+    }
+
+    public DoubleProperty stockLengthProperty() {
+        return stockLength;
+    }
+
+    public DoubleProperty stockTopProperty() {
+        return stockTop;
+    }
+
+    public DoubleProperty stockThicknessProperty() {
+        return stockThickness;
+    }
+
+    /**
+     * Every property that decides the size of the stock block, for listeners that redo the
+     * simulation when any of them changes.
+     */
+    public List<javafx.beans.Observable> stockProperties() {
+        return List.of(stockMode, stockMinX, stockMinY, stockWidth, stockLength, stockTop, stockThickness);
+    }
+
     private String loadString(String key, String defaultValue) {
         return preferences.get(key, defaultValue);
     }
@@ -307,5 +404,13 @@ public class VisualizerSettings {
 
     private void saveBoolean(String key, boolean value) {
         preferences.putBoolean(key, value);
+    }
+
+    private double loadDouble(String key, double defaultValue) {
+        return preferences.getDouble(key, defaultValue);
+    }
+
+    private void saveDouble(String key, double value) {
+        preferences.putDouble(key, value);
     }
 }

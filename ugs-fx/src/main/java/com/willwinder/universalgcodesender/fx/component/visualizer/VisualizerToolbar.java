@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.fx.actions.ToggleGcodeModelAction;
 import com.willwinder.universalgcodesender.fx.actions.ToggleGridAction;
 import com.willwinder.universalgcodesender.fx.actions.ToggleMachineVisualizationAction;
 import com.willwinder.universalgcodesender.fx.actions.ToggleRulerAction;
+import com.willwinder.universalgcodesender.fx.actions.ToggleStockAction;
 import com.willwinder.universalgcodesender.fx.actions.ToggleToolAction;
 import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
@@ -52,6 +53,7 @@ public class VisualizerToolbar extends HBox {
         getChildren().addAll(
                 designButton,
                 styleButton(new ToggleActionButton(new ToggleGcodeModelAction(), BUTTON_SIZE, false, Color.WHITE)),
+                styleButton(new ToggleActionButton(new ToggleStockAction(), BUTTON_SIZE, false, Color.WHITE)),
                 styleButton(new ToggleActionButton(new ToggleGridAction(), BUTTON_SIZE, false, Color.WHITE)),
                 styleButton(new ToggleActionButton(new ToggleAxesAction(), BUTTON_SIZE, false, Color.WHITE)),
                 styleButton(new ToggleActionButton(new ToggleRulerAction(), BUTTON_SIZE, false, Color.WHITE)),
