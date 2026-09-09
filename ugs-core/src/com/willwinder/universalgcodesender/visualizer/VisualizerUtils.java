@@ -127,6 +127,7 @@ public class VisualizerUtils {
         ls.setIsRotation(meta.isRotation());
         ls.setFeedRate(meta.getFeedRate());
         ls.setSpindleSpeed(meta.getSpindleSpeed());
+        ls.setToolNumber(meta.getToolNumber());
         return ls;
     }
 
@@ -251,6 +252,7 @@ public class VisualizerUtils {
         next.setIsZMovement(p.isZMovement());
         next.setFeedRate(p.getFeedRate());
         next.setSpindleSpeed(p.getSpindleSpeed());
+        next.setToolNumber(p.getToolNumber());
 
         return next;
     }

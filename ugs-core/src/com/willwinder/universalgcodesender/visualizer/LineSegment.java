@@ -36,6 +36,7 @@ public class LineSegment {
     private boolean isRotation = false;
     private double feedRate;
     private double spindleSpeed;
+    private int toolNumber;
 
     public LineSegment(final Position a, final Position b, int num) {
         first = new Position(a);
@@ -101,5 +102,16 @@ public class LineSegment {
 
     public void setSpindleSpeed(double spindleSpeed) {
         this.spindleSpeed = spindleSpeed;
+    }
+
+    /**
+     * The tool selected by the last T word before this segment, or 0 when the program never selected one.
+     */
+    public int getToolNumber() {
+        return toolNumber;
+    }
+
+    public void setToolNumber(int toolNumber) {
+        this.toolNumber = toolNumber;
     }
 }
