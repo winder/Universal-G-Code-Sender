@@ -24,11 +24,12 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machi
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
+import com.willwinder.universalgcodesender.fx.stage.StockSettingsStage;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -50,6 +51,7 @@ public class VisualizerSettingsPane extends BorderPane {
         addCameraSettings();
         addColorSettings();
         addRulerSettings();
+        addStockSettings();
         addDesignSettings();
         setCenter(settingsGroup);
     }
@@ -85,6 +87,21 @@ public class VisualizerSettingsPane extends BorderPane {
                         createColorSetting(Localization.getString("platform.visualizer.color.arc"), VisualizerSettings.getInstance().colorArcProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.completed"), VisualizerSettings.getInstance().colorCompletedProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.plunge"), VisualizerSettings.getInstance().colorPlungeProperty())
+                )
+        ));
+    }
+
+    private void addStockSettings() {
+        SwitchButton showStock = new SwitchButton();
+        showStock.selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showStockProperty());
+        Button stockSize = new Button("Stock size…");
+        stockSize.setOnAction(event -> new StockSettingsStage(getScene() == null ? null : getScene().getWindow()).showAndWait());
+        settingsGroup.getChildren().add(new BorderedTitledPane("Stock",
+                new VBox(10,
+                        new SettingsRow(Localization.getString("platform.visualizer.stock"), Localization.getString("platform.visualizer.stock.desc"), showStock),
+                        createColorSetting("Stock color", VisualizerSettings.getInstance().colorStockProperty()),
+                        createColorSetting("Deep cut color", VisualizerSettings.getInstance().colorStockDeepProperty()),
+                        new SettingsRow("Stock size", "Whether the block is derived from the program or given by hand.", stockSize)
                 )
         ));
     }

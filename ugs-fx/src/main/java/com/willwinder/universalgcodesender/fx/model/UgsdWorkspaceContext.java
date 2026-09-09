@@ -22,6 +22,7 @@ import java.util.Optional;
 public class UgsdWorkspaceContext extends WorkspaceContext {
     public static final String FILE_EXTENSION = "ugsd";
     private DesignGcodeService gcodeService;
+    private Controller controller;
 
     public UgsdWorkspaceContext(File file) {
         super(file);
@@ -35,7 +36,7 @@ public class UgsdWorkspaceContext extends WorkspaceContext {
     @Override
     public void open() {
         try {
-            Controller controller = ControllerFactory.getController();
+            controller = ControllerFactory.getController();
             if (file == null) {
                 // A brand new design that has not been saved yet - start from an empty drawing.
                 controller.newDrawing();
@@ -63,6 +64,21 @@ public class UgsdWorkspaceContext extends WorkspaceContext {
             gcodeService.unbind();
             gcodeService = null;
         }
+        controller = null;
+    }
+
+    /**
+     * The designer controller holding the open design, or empty until the workspace is opened.
+     */
+    public Optional<Controller> getController() {
+        return Optional.ofNullable(controller);
+    }
+
+    /**
+     * The program file the design is exported to, or empty until the workspace is opened.
+     */
+    public Optional<File> getGcodeFile() {
+        return Optional.ofNullable(gcodeService).map(DesignGcodeService::getGcodeFile);
     }
 
     /**

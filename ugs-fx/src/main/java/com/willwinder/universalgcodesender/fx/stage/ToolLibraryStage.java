@@ -76,7 +76,6 @@ public class ToolLibraryStage extends Stage {
     private final ToolEditorPane editor;
     private final Button duplicateButton = new Button("Duplicate");
     private final Button deleteButton = new Button("Delete");
-    private final Button revertButton = new Button("Revert");
     private final ToolLibraryListener libraryListener = this::onLibraryChangedExternally;
     /**
      * Edits made here notify the library listeners too. Counting them lets those notifications be
@@ -95,6 +94,7 @@ public class ToolLibraryStage extends Stage {
         setTitle(mode.title);
         editor = new ToolEditorPane(preferredUnits);
         editor.setChangeListener(this::onEditorChanged);
+        editor.setOccupiedToolNumbers(this::isHeldByAnotherTool);
         setScene(createScene());
         setWidth(WIDTH);
         setHeight(HEIGHT);
@@ -122,8 +122,7 @@ public class ToolLibraryStage extends Stage {
         addButton.setOnAction(event -> onAdd());
         duplicateButton.setOnAction(event -> onDuplicate());
         deleteButton.setOnAction(event -> onDelete());
-        revertButton.setOnAction(event -> onRevert());
-        HBox listButtons = new HBox(6, addButton, duplicateButton, deleteButton, revertButton);
+        HBox listButtons = new HBox(6, addButton, duplicateButton, deleteButton);
         listButtons.getChildren().forEach(button -> {
             HBox.setHgrow(button, Priority.ALWAYS);
             ((Button) button).setMaxWidth(Double.MAX_VALUE);
@@ -193,6 +192,16 @@ public class ToolLibraryStage extends Stage {
         return toolList.getSelectionModel().getSelectedItem();
     }
 
+    /**
+     * Whether a tool other than the selected one holds the tool number.
+     */
+    private boolean isHeldByAnotherTool(int toolNumber) {
+        ToolDefinition selected = selectedTool();
+        return service.getByToolNumber(toolNumber)
+                .filter(holder -> selected == null || !holder.getId().equals(selected.getId()))
+                .isPresent();
+    }
+
     private void refreshList(String preferredSelectionId) {
         List<ToolDefinition> tools = service.getTools();
         toolList.getItems().setAll(tools);
@@ -226,7 +235,6 @@ public class ToolLibraryStage extends Stage {
         boolean isCustom = hasSelection && selected.isCustomSentinel();
         duplicateButton.setDisable(!hasSelection || isCustom);
         deleteButton.setDisable(!hasSelection || isCustom);
-        revertButton.setDisable(!hasSelection || !selected.isBuiltIn() || isCustom);
     }
 
     private void onEditorChanged(ToolDefinition edited) {
@@ -235,16 +243,34 @@ public class ToolLibraryStage extends Stage {
         }
         pendingSelfTriggeredEvents++;
         try {
-            ToolDefinition stored = service.updateTool(edited);
-            replaceInList(stored);
+            service.updateTool(edited);
+            syncListWithLibrary();
         } catch (RuntimeException e) {
             pendingSelfTriggeredEvents--;
+            // Only ids can clash now; a taken tool number is simply moved to the edited tool
             Alert alert = new Alert(Alert.AlertType.WARNING, e.getMessage(), ButtonType.OK);
             alert.setHeaderText(null);
             alert.setTitle("Tool library");
             alert.initOwner(this);
             alert.showAndWait();
             restoreEditorFromLibrary(edited.getId());
+        }
+    }
+
+    /**
+     * Refreshes every row from the library without disturbing the selection or the editor.
+     */
+    private void syncListWithLibrary() {
+        List<ToolDefinition> items = toolList.getItems();
+        int selectedIndex = toolList.getSelectionModel().getSelectedIndex();
+        for (int i = 0; i < items.size(); i++) {
+            ToolDefinition stored = service.getById(items.get(i).getId()).orElse(null);
+            if (stored != null && !stored.matchesValues(items.get(i))) {
+                items.set(i, stored);
+            }
+        }
+        if (selectedIndex >= 0) {
+            toolList.getSelectionModel().select(selectedIndex);
         }
     }
 
@@ -310,18 +336,6 @@ public class ToolLibraryStage extends Stage {
             return null;
         });
         refreshList(null);
-    }
-
-    private void onRevert() {
-        ToolDefinition selected = selectedTool();
-        if (selected == null || !selected.isBuiltIn()) {
-            return;
-        }
-        if (!confirm("Revert tool", "Restore default values for \"" + selected.getName() + "\"?\nThe name will be kept.")) {
-            return;
-        }
-        ToolDefinition reset = withSelfTriggeredEvent(() -> service.revertToDefault(selected.getId()));
-        refreshList(reset.getId());
     }
 
     private boolean confirm(String title, String message) {

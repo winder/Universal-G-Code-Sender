@@ -44,9 +44,9 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.scene.rendera
 import com.willwinder.universalgcodesender.fx.component.visualizer.scene.renderables.OrientationCubeRenderable;
 import com.willwinder.universalgcodesender.fx.component.visualizer.scene.renderables.RulerRenderable;
 import com.willwinder.universalgcodesender.fx.component.visualizer.scene.renderables.SceneGraphRenderable;
+import com.willwinder.universalgcodesender.fx.component.visualizer.scene.renderables.StockRenderable;
 import com.willwinder.universalgcodesender.fx.component.visualizer.scene.renderables.ToolMarkerRenderable;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceBounds;
-import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
@@ -60,7 +60,9 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
+import javafx.scene.layout.HBox;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.ImageView;
@@ -174,6 +176,7 @@ public class VisualizerPane extends Pane {
         scene.add(new AxesRenderable());
         scene.add(ruler);
         scene.add(new DesignRenderable());
+        scene.add(new StockRenderable());
         scene.add(new GcodeToolpathRenderable());
         scene.add(new ToolMarkerRenderable());
         scene.add(new SceneGraphRenderable(new Machine()));
@@ -323,15 +326,20 @@ public class VisualizerPane extends Pane {
         toolbar.setLayoutY(9);
 
         ToolButton toolButton = new ToolButton();
-        toolButton.setLayoutX(20);
-        toolButton.layoutYProperty().bind(heightProperty().subtract(toolButton.heightProperty()).subtract(20));
-
+        ProgramToolsButton programToolsButton = new ProgramToolsButton();
+        StockButton stockButton = new StockButton();
         GcodeRegenerationIndicator regenerationIndicator = new GcodeRegenerationIndicator();
-        regenerationIndicator.layoutXProperty().bind(toolButton.layoutXProperty().add(toolButton.widthProperty()).add(8));
-        regenerationIndicator.layoutYProperty().bind(toolButton.layoutYProperty()
-                .add(toolButton.heightProperty().subtract(regenerationIndicator.heightProperty()).divide(2)));
+        regenerationIndicator.managedProperty().bind(regenerationIndicator.visibleProperty());
 
-        getChildren().addAll(orientationToolbar, toolbar, toolButton, regenerationIndicator);
+        // The tool button for the active workspace type, the stock summary and the busy indicator
+        // share one row in the bottom left corner
+        HBox bottomBar = new HBox(8, toolButton, programToolsButton, stockButton, regenerationIndicator);
+        bottomBar.setAlignment(Pos.CENTER_LEFT);
+        bottomBar.setPickOnBounds(false);
+        bottomBar.setLayoutX(20);
+        bottomBar.layoutYProperty().bind(heightProperty().subtract(bottomBar.heightProperty()).subtract(20));
+
+        getChildren().addAll(orientationToolbar, toolbar, bottomBar);
     }
 
     private void applyProjection(boolean parallel) {

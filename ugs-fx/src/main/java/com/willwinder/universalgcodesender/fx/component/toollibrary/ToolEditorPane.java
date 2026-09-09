@@ -41,6 +41,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.IntPredicate;
 
 /**
  * Edits one tool of the tool library. Every change is reported to the change listener as a copy of
@@ -49,7 +50,7 @@ import java.util.function.Consumer;
  * tool was defined in.
  */
 public class ToolEditorPane extends VBox {
-    private static final int MAX_TOOL_NUMBER = 999;
+    private static final int MAX_TOOL_NUMBER = 9999;
     private static final double DEFAULT_V_BIT_ANGLE = 60;
 
     private final Unit feedUnit;
@@ -73,6 +74,7 @@ public class ToolEditorPane extends VBox {
     private boolean suppressEvents;
     private Consumer<ToolDefinition> changeListener = tool -> {
     };
+    private IntPredicate occupiedToolNumber = number -> false;
 
     public ToolEditorPane(UnitUtils.Units preferredUnits) {
         super(4);
@@ -89,8 +91,19 @@ public class ToolEditorPane extends VBox {
             }
         });
 
+        // The spinner buttons step past numbers other tools hold; typing a held number still takes it over
         toolNumberSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(
-                ToolDefinition.UNASSIGNED_TOOL_NUMBER, MAX_TOOL_NUMBER, ToolDefinition.UNASSIGNED_TOOL_NUMBER));
+                ToolDefinition.UNASSIGNED_TOOL_NUMBER, MAX_TOOL_NUMBER, ToolDefinition.UNASSIGNED_TOOL_NUMBER) {
+            @Override
+            public void increment(int steps) {
+                setValue(ToolNumbers.nextFree(getValue(), steps, occupiedToolNumber, MAX_TOOL_NUMBER));
+            }
+
+            @Override
+            public void decrement(int steps) {
+                setValue(ToolNumbers.nextFree(getValue(), -steps, occupiedToolNumber, MAX_TOOL_NUMBER));
+            }
+        });
         toolNumberSpinner.setEditable(true);
         toolNumberSpinner.setMaxWidth(Double.MAX_VALUE);
         toolNumberSpinner.setTooltip(new Tooltip("The tool slot used in a tool change, for example \"M6 T2\". 0 means none."));
@@ -121,7 +134,12 @@ public class ToolEditorPane extends VBox {
             diameterField.setUnit(unit == UnitUtils.Units.INCH ? Unit.INCH : Unit.MM);
             fireChange();
         });
+        // Room for the value and the unit side by side, so neither "INCH" nor the number is clipped
+        diameterField.setPrefWidth(150);
+        diameterUnitCombo.setMinWidth(100);
+        diameterUnitCombo.setPrefWidth(100);
         HBox diameterBox = new HBox(6, diameterField, diameterUnitCombo);
+        diameterBox.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(diameterField, Priority.ALWAYS);
 
         feedField = field(feedUnit);
@@ -158,6 +176,13 @@ public class ToolEditorPane extends VBox {
                 errorLabel);
         updateAngleVisibility();
         setTool(null, true);
+    }
+
+    /**
+     * Tells the editor which tool numbers other tools hold, so the spinner buttons step past them.
+     */
+    public void setOccupiedToolNumbers(IntPredicate occupied) {
+        this.occupiedToolNumber = occupied == null ? number -> false : occupied;
     }
 
     public void setChangeListener(Consumer<ToolDefinition> listener) {

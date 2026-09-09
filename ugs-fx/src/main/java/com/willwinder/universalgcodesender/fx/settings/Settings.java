@@ -25,9 +25,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 public class Settings {
+    private static final Logger LOGGER = Logger.getLogger(Settings.class.getName());
     private static final String WINDOW_WIDTH = "window.width";
     private static final String WINDOW_HEIGHT = "window.height";
     private static final String WINDOW_POSITION_X = "window.positionX";
@@ -78,8 +80,9 @@ public class Settings {
     public static Settings getInstance() {
         if (instance == null) {
             instance = new Settings();
+            LOGGER.info("Settings initialized from " + preferences.absolutePath());
         }
-
+        
         return instance;
     }
 

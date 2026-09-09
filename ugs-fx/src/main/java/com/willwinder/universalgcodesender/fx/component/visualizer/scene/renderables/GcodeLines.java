@@ -34,6 +34,8 @@ import javafx.scene.paint.Color;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.willwinder.universalgcodesender.fx.helper.Colors.blend;
@@ -72,10 +74,54 @@ public final class GcodeLines {
         }
     }
 
-    public static Model load(File file, Palette palette) throws IOException, GcodeParserException {
+    /**
+     * A parsed program: its segments with arcs expanded, and the fastest feed and spindle speed
+     * in it, which the toolpath colours are scaled by.
+     */
+    public record ParsedProgram(List<LineSegment> segments, double maxFeedRate, double maxSpindleSpeed) {
+    }
+
+    private static final Object CACHE_LOCK = new Object();
+    private static File cachedFile;
+    private static long cachedLength;
+    private static long cachedModified;
+    private static ParsedProgram cachedProgram;
+
+    /**
+     * Parses the program, or returns the previous result when the same unchanged file is asked
+     * for again. The toolpath, the stock simulation and the tool listing all read the loaded
+     * program, and a large one takes a while to parse.
+     */
+    public static ParsedProgram parseProgram(File file) throws IOException, GcodeParserException {
+        long length = file.length();
+        long modified = file.lastModified();
+        synchronized (CACHE_LOCK) {
+            if (cachedProgram != null && file.equals(cachedFile) && cachedLength == length && cachedModified == modified) {
+                return cachedProgram;
+            }
+        }
         GcodeViewParse parser = new GcodeViewParse();
-        List<LineSegment> segments = parse(parser, file);
-        return toModel(segments, parser, palette);
+        List<LineSegment> segments = Collections.unmodifiableList(new ArrayList<>(parse(parser, file)));
+        ParsedProgram program = new ParsedProgram(segments, parser.getMaxFeedRate(), parser.getMaxSpindleSpeed());
+        synchronized (CACHE_LOCK) {
+            cachedFile = file;
+            cachedLength = length;
+            cachedModified = modified;
+            cachedProgram = program;
+        }
+        return program;
+    }
+
+    /**
+     * Parses the program into line segments with arcs expanded, the same way {@link #load} does.
+     */
+    public static List<LineSegment> parseSegments(File file) throws IOException, GcodeParserException {
+        return parseProgram(file).segments();
+    }
+
+    public static Model load(File file, Palette palette) throws IOException, GcodeParserException {
+        ParsedProgram program = parseProgram(file);
+        return toModel(program.segments(), program, palette);
     }
 
     private static List<LineSegment> parse(GcodeViewParse parser, File file)
@@ -88,7 +134,7 @@ public final class GcodeLines {
         }
     }
 
-    private static Model toModel(List<LineSegment> segments, GcodeViewParse parser, Palette palette) {
+    private static Model toModel(List<LineSegment> segments, ParsedProgram program, Palette palette) {
         LineMeshBuilder builder = new LineMeshBuilder(segments.size());
         Bounds3 bounds = null;
         int maxCommandNumber = 0;
@@ -96,7 +142,7 @@ public final class GcodeLines {
             LineSegment cartesian = VisualizerUtils.toCartesian(segment);
             Position start = cartesian.getStart().getPositionIn(UnitUtils.Units.MM);
             Position end = cartesian.getEnd().getPositionIn(UnitUtils.Units.MM);
-            Color color = color(cartesian, parser, palette);
+            Color color = color(cartesian, program, palette);
             int commandNumber = cartesian.getLineNumber();
             maxCommandNumber = Math.max(maxCommandNumber, commandNumber);
 
@@ -117,7 +163,7 @@ public final class GcodeLines {
         return new Model(builder.build(), builder.vertexCount(), maxCommandNumber, bounds);
     }
 
-    private static Color color(LineSegment segment, GcodeViewParse parser, Palette palette) {
+    private static Color color(LineSegment segment, ParsedProgram program, Palette palette) {
         if (segment.isArc()) {
             return palette.arc();
         } else if (segment.isFastTraverse()) {
@@ -125,12 +171,12 @@ public final class GcodeLines {
         } else if (segment.isZMovement()) {
             return palette.plunge();
         }
-        return feedColor(segment.getFeedRate(), segment.getSpindleSpeed(), parser, palette);
+        return feedColor(segment.getFeedRate(), segment.getSpindleSpeed(), program, palette);
     }
 
-    private static Color feedColor(double feedRate, double spindleSpeed, GcodeViewParse parser, Palette palette) {
-        double maxFeedRate = parser.getMaxFeedRate();
-        double maxSpindleSpeed = parser.getMaxSpindleSpeed();
+    private static Color feedColor(double feedRate, double spindleSpeed, ParsedProgram program, Palette palette) {
+        double maxFeedRate = program.maxFeedRate();
+        double maxSpindleSpeed = program.maxSpindleSpeed();
         Color feed = maxFeedRate < 0.01
                 ? palette.feedMax()
                 : interpolate(palette.feedMin(), palette.feedMax(), Math.max(feedRate, 0.1) / maxFeedRate);

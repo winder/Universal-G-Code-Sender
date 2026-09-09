@@ -30,6 +30,7 @@ package com.willwinder.universalgcodesender.fx.component.visualizer.scene;
 public enum SceneLayer {
     GRID(true),
     RULER(true),
+    STOCK(true),
     GCODE(true),
     DESIGN_FILL(true),
     DESIGN_OUTLINE(true),
