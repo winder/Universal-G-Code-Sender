@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.pendantui.v1.resources;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.OverridePercents;
@@ -62,6 +63,7 @@ public class StatusResource {
                 status.setAccessoryStates(controllerStatus.getAccessoryStates());
                 status.setOverrides(controllerStatus.getOverrides() != null
                         ? controllerStatus.getOverrides() : OverridePercents.EMTPY_OVERRIDE_PERCENTS);
+                status.setFloodCoolantOn(controller.getCurrentGcodeState().coolant == Code.M8);
             } else {
                 // Hack, we are connected so we need to set it to an unknown state
                 status.setState(ControllerState.UNKNOWN);

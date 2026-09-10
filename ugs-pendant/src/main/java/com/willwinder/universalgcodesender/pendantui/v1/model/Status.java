@@ -16,6 +16,10 @@ public class Status implements Serializable {
     private Double spindleSpeed = 0.0;
     private AccessoryStates accessoryStates = AccessoryStates.EMPTY_ACCESSORY_STATE;
     private OverridePercents overrides = OverridePercents.EMTPY_OVERRIDE_PERCENTS;
+    // Sourced from the gcode parser's modal state (M7/M8/M9), refreshed via a
+    // "$G" query - unlike accessoryStates, this isn't pushed on every status
+    // report, so it's only as fresh as the last "$G" response received.
+    private boolean floodCoolantOn = false;
     private ControllerState state = ControllerState.DISCONNECTED;
     private long rowCount;
     private long completedRowCount;
@@ -65,6 +69,14 @@ public class Status implements Serializable {
 
     public void setOverrides(OverridePercents overrides) {
         this.overrides = overrides;
+    }
+
+    public boolean isFloodCoolantOn() {
+        return floodCoolantOn;
+    }
+
+    public void setFloodCoolantOn(boolean floodCoolantOn) {
+        this.floodCoolantOn = floodCoolantOn;
     }
 
     public ControllerState getState() {

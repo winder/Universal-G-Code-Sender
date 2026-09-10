@@ -35,6 +35,7 @@ const initialState: Status = {
     rapid: 100,
     spindle: 100,
   },
+  floodCoolantOn: false,
   state: "DISCONNECTED",
   pins: {
     x: false,
@@ -70,6 +71,10 @@ const statusSlice = createSlice({
         rapid: action.payload.overrides?.rapid ?? 100,
         spindle: action.payload.overrides?.spindle ?? 100,
       };
+      // Not carried by the WebSocket push (only the REST getStatus response
+      // has it) - preserve whatever was last fetched instead of resetting to
+      // false on every WS tick.
+      state.floodCoolantOn = action.payload.floodCoolantOn ?? state.floodCoolantOn;
       state.state = action.payload.state;
       state.pins = {
         x: action.payload.pins.x,

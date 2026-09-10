@@ -25,6 +25,7 @@ const status = {
   spindleSpeed: 0,
   accessoryStates: { spindleCW: false, flood: false, mist: false },
   overrides: { feed: 100, rapid: 100, spindle: 100 },
+  floodCoolantOn: false,
   state: "IDLE",
   pins: {
     x: false, y: false, z: false, a: false, b: false, c: false,
@@ -207,7 +208,7 @@ const server = createServer((req, res) => {
     else if (command === "CMD_SPINDLE_OVR_RESET") status.overrides.spindle = 100;
     else if (command === "CMD_SPINDLE_OVR_COARSE_PLUS") status.overrides.spindle = clamp(status.overrides.spindle + 10);
     else if (command === "CMD_SPINDLE_OVR_COARSE_MINUS") status.overrides.spindle = clamp(status.overrides.spindle - 10);
-    else if (command === "CMD_TOGGLE_FLOOD_COOLANT") status.accessoryStates.flood = !status.accessoryStates.flood;
+    else if (command === "CMD_TOGGLE_FLOOD_COOLANT") status.floodCoolantOn = !status.floodCoolantOn;
     return json(res, {});
   }
   if (p.startsWith("/api/v1/machine/")) return json(res, {});

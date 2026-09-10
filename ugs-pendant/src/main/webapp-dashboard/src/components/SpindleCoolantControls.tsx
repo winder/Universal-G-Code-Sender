@@ -1,7 +1,8 @@
-import { useState } from "react";
 import { Button } from "react-bootstrap";
 import { useAppSelector } from "../hooks/useAppSelector";
+import { useAppDispatch } from "../hooks/useAppDispatch";
 import { sendGcode, sendOverride } from "../services/machine";
+import { fetchStatus } from "../store/statusSlice";
 import "./SpindleCoolantControls.scss";
 
 const activeClass = (isActive: boolean) => (isActive ? "spindleCoolantActive" : "");
@@ -20,25 +21,31 @@ const SpindleCoolantControls = () => {
   const spindleOn = useAppSelector((state) => state.status.accessoryStates.spindleCW);
 
   // Confirmed via real hardware that this FluidNC setup never reports coolant
-  // state at all - the "A:" field never carries an "F", even immediately after
-  // M8, because there's no coolant output configured on the controller to report
-  // on. With no real signal to read, showing a value here that LOOKS confirmed
-  // but is actually always wrong is worse than being honest that this is just
-  // "the last button you pressed," not something the controller has verified.
-  //
-  // This local guess is also why coolant uses CMD_TOGGLE_FLOOD_COOLANT (a
-  // real-time byte, like the override commands) rather than a blind toggle:
-  // the On/Off buttons only send it when it would actually change this
-  // tracked state, so a stray extra click can't flip flood the wrong way.
-  // If the real state ever drifts from this guess (toggled by another
-  // client, a controller reset, etc.) these buttons drift with it - same
-  // known limitation as the guess itself.
-  const [coolantOn, setCoolantOn] = useState(false);
+  // state via the "A:" accessory-state field (unlike spindle), so unlike
+  // spindleOn above this can't be read from status reports. Instead it comes
+  // from the gcode parser's M7/M8/M9 modal state, which sendOverride() below
+  // refreshes with a "$G" query after every coolant toggle - see
+  // MachineResource.sendOverride() and StatusResource.getStatus() on the
+  // Java side. The dispatch(fetchStatus()) after each click pulls that
+  // refreshed value in; until it lands, the highlight still shows whatever
+  // was last confirmed rather than flipping optimistically, since a real-time
+  // toggle that got ignored (e.g. no coolant relay wired) should NOT look
+  // like it worked.
+  const coolantOn = useAppSelector((state) => state.status.floodCoolantOn ?? false);
+  const dispatch = useAppDispatch();
   // Real-time byte, not gcode - unlike M8/M9 it isn't queued behind motion,
   // so it keeps working to toggle coolant during a paused (HOLD) job too.
   const canAdjustCoolant = useAppSelector(
     (state) => !["DISCONNECTED", "CONNECTING", "ALARM"].includes(state.status.state)
   );
+
+  const toggleCoolant = () => {
+    sendOverride("CMD_TOGGLE_FLOOD_COOLANT").then(() => {
+      // Give the "$G" query MachineResource sends alongside the toggle time
+      // to round-trip before reading the refreshed state back.
+      window.setTimeout(() => dispatch(fetchStatus()), 400);
+    });
+  };
 
   return (
     <div className="spindleCoolantControls">
@@ -78,12 +85,7 @@ const SpindleCoolantControls = () => {
             variant="outline-secondary"
             className={activeClass(coolantOn)}
             disabled={!canAdjustCoolant}
-            onClick={() => {
-              if (!coolantOn) {
-                setCoolantOn(true);
-                sendOverride("CMD_TOGGLE_FLOOD_COOLANT");
-              }
-            }}
+            onClick={() => !coolantOn && toggleCoolant()}
           >
             On
           </Button>
@@ -91,12 +93,7 @@ const SpindleCoolantControls = () => {
             variant="outline-secondary"
             className={activeClass(!coolantOn)}
             disabled={!canAdjustCoolant}
-            onClick={() => {
-              if (coolantOn) {
-                setCoolantOn(false);
-                sendOverride("CMD_TOGGLE_FLOOD_COOLANT");
-              }
-            }}
+            onClick={() => coolantOn && toggleCoolant()}
           >
             Off
           </Button>
