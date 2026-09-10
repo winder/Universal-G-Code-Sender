@@ -1,0 +1,50 @@
+.overrideControls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.overrideRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  .overrideLabel {
+    color: #c3c8cb;
+    font-size: 0.85rem;
+    font-weight: 700;
+    min-width: 50px;
+  }
+
+  .btn-group {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  // Same fix as StepSize/FeedRate: pin every button to an equal share of the
+  // row instead of Bootstrap's default, which stretches whichever button
+  // lands alone if the group ever wraps.
+  .btn-group .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 36px;
+    padding: 4px 2px;
+    font-size: 0.78rem;
+  }
+
+  // Same "actual value" treatment as .feedRateCurrent/.stepSizeCurrent - this
+  // button shows the real live override percentage, not just a preset choice.
+  .overrideCurrent {
+    font-weight: 700;
+    background-color: #111213 !important;
+    border-color: #2f3132 !important;
+    color: #4ade80 !important;
+  }
+
+  .overrideActive {
+    background-color: #4ade80 !important;
+    border-color: #4ade80 !important;
+    color: #111213 !important;
+  }
+}

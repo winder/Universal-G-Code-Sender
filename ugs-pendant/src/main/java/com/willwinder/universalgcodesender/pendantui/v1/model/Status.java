@@ -3,6 +3,7 @@ package com.willwinder.universalgcodesender.pendantui.v1.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.willwinder.universalgcodesender.listeners.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.OverridePercents;
 import com.willwinder.universalgcodesender.model.Position;
 
 import java.io.Serializable;
@@ -14,6 +15,7 @@ public class Status implements Serializable {
     private Double feedSpeed = 0.0;
     private Double spindleSpeed = 0.0;
     private AccessoryStates accessoryStates = AccessoryStates.EMPTY_ACCESSORY_STATE;
+    private OverridePercents overrides = OverridePercents.EMTPY_OVERRIDE_PERCENTS;
     private ControllerState state = ControllerState.DISCONNECTED;
     private long rowCount;
     private long completedRowCount;
@@ -55,6 +57,14 @@ public class Status implements Serializable {
 
     public void setAccessoryStates(AccessoryStates accessoryStates) {
         this.accessoryStates = accessoryStates;
+    }
+
+    public OverridePercents getOverrides() {
+        return overrides;
+    }
+
+    public void setOverrides(OverridePercents overrides) {
+        this.overrides = overrides;
     }
 
     public ControllerState getState() {

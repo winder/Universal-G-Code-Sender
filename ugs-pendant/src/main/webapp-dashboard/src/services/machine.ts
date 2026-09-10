@@ -102,6 +102,27 @@ export const send = (): Promise<void> => {
   return fetch(url, request).then();
 };
 
+export type OverrideCommand =
+  | "CMD_FEED_OVR_RESET"
+  | "CMD_FEED_OVR_COARSE_PLUS"
+  | "CMD_FEED_OVR_COARSE_MINUS"
+  | "CMD_RAPID_OVR_RESET"
+  | "CMD_RAPID_OVR_MEDIUM"
+  | "CMD_RAPID_OVR_LOW"
+  | "CMD_SPINDLE_OVR_RESET"
+  | "CMD_SPINDLE_OVR_COARSE_PLUS"
+  | "CMD_SPINDLE_OVR_COARSE_MINUS";
+
+export const sendOverride = (command: OverrideCommand): Promise<void> => {
+  return fetch(`/api/v1/machine/sendOverride?command=${command}`, {
+    method: "POST",
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error(`Couldn't send override command (${response.status})`);
+    }
+  });
+};
+
 export const sendGcode = (commands: string): Promise<void> => {
   const url = "/api/v1/machine/sendGcode";
   const request = {

@@ -45,8 +45,10 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 /**
@@ -118,6 +120,16 @@ public class PendantUI implements UGSEventListener {
         return context;
     }
 
+    // Interface display names commonly used by virtual/software adapters
+    // (Hyper-V, VMware, VirtualBox, WSL, VPN clients, etc.) that are never
+    // reachable from a phone on the actual LAN - these are pushed to the end
+    // of the list instead of being picked as the default by findFirst().
+    private static final String[] LIKELY_VIRTUAL_NAME_HINTS = {
+            "virtual", "hyper-v", "vethernet", "vmware", "virtualbox",
+            "docker", "wsl", "loopback", "tailscale", "zerotier",
+            "vpn", "tap-", "tun-", "bluetooth"
+    };
+
     /**
      * Unfortunately, this is not as simple as it seems... since you can have multiple addresses and some of those may not be available via wireless
      *
@@ -135,6 +147,14 @@ public class PendantUI implements UGSEventListener {
         while (networkInterfaceEnum.hasMoreElements()) {
             NetworkInterface networkInterface = networkInterfaceEnum.nextElement();
 
+            try {
+                if (networkInterface.isLoopback() || !networkInterface.isUp()) {
+                    continue;
+                }
+            } catch (SocketException e) {
+                continue;
+            }
+
             Enumeration<InetAddress> addressEnum = networkInterface.getInetAddresses();
             while (addressEnum.hasMoreElements()) {
                 InetAddress addr = addressEnum.nextElement();
@@ -148,7 +168,18 @@ public class PendantUI implements UGSEventListener {
             }
         }
 
+        out.sort(Comparator.comparing(PendantUI::isLikelyVirtualAdapter));
         return out;
+    }
+
+    private static boolean isLikelyVirtualAdapter(PendantURLBean bean) {
+        String name = bean.getDisplayName().toLowerCase(Locale.ROOT);
+        for (String hint : LIKELY_VIRTUAL_NAME_HINTS) {
+            if (name.contains(hint)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void stop() {

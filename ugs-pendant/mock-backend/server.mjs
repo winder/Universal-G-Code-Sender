@@ -24,6 +24,7 @@ const status = {
   feedSpeed: 0,
   spindleSpeed: 0,
   accessoryStates: { spindleCW: false, flood: false, mist: false },
+  overrides: { feed: 100, rapid: 100, spindle: 100 },
   state: "IDLE",
   pins: {
     x: false, y: false, z: false, a: false, b: false, c: false,
@@ -193,6 +194,20 @@ const server = createServer((req, res) => {
       json(res, {});
     });
     return;
+  }
+  if (p === "/api/v1/machine/sendOverride" && req.method === "POST") {
+    const command = url.searchParams.get("command");
+    const clamp = (value) => Math.min(200, Math.max(10, value));
+    if (command === "CMD_FEED_OVR_RESET") status.overrides.feed = 100;
+    else if (command === "CMD_FEED_OVR_COARSE_PLUS") status.overrides.feed = clamp(status.overrides.feed + 10);
+    else if (command === "CMD_FEED_OVR_COARSE_MINUS") status.overrides.feed = clamp(status.overrides.feed - 10);
+    else if (command === "CMD_RAPID_OVR_RESET") status.overrides.rapid = 100;
+    else if (command === "CMD_RAPID_OVR_MEDIUM") status.overrides.rapid = 50;
+    else if (command === "CMD_RAPID_OVR_LOW") status.overrides.rapid = 25;
+    else if (command === "CMD_SPINDLE_OVR_RESET") status.overrides.spindle = 100;
+    else if (command === "CMD_SPINDLE_OVR_COARSE_PLUS") status.overrides.spindle = clamp(status.overrides.spindle + 10);
+    else if (command === "CMD_SPINDLE_OVR_COARSE_MINUS") status.overrides.spindle = clamp(status.overrides.spindle - 10);
+    return json(res, {});
   }
   if (p.startsWith("/api/v1/machine/")) return json(res, {});
   if (p === "/api/v1/files/getFileStatus") return json(res, fileStatus);

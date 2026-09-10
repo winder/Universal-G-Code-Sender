@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.pendantui.v1.resources;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.OverridePercents;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.services.SendProgressService;
@@ -59,6 +60,8 @@ public class StatusResource {
                 status.setFeedSpeed(controllerStatus.getFeedSpeed());
                 status.setSpindleSpeed(controllerStatus.getSpindleSpeed());
                 status.setAccessoryStates(controllerStatus.getAccessoryStates());
+                status.setOverrides(controllerStatus.getOverrides() != null
+                        ? controllerStatus.getOverrides() : OverridePercents.EMTPY_OVERRIDE_PERCENTS);
             } else {
                 // Hack, we are connected so we need to set it to an unknown state
                 status.setState(ControllerState.UNKNOWN);

@@ -31,6 +31,24 @@
   // needing an internal scrollbar for the sake of a few px of breathing room.
   gap: 10px;
   overflow-y: auto;
+  // Same slim scrollbar treatment as .rightRail, so it doesn't sit on top of
+  // content (the jog buttons) and looks consistent across every column.
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3d3e transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #3a3d3e;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 .dashboardLeftJog {

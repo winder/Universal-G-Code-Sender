@@ -10,6 +10,11 @@ export type Status = {
     flood: boolean;
     mist: boolean;
   };
+  overrides: {
+    feed: number;
+    rapid: number;
+    spindle: number;
+  };
   state: string;
   pins: {
     x: boolean;

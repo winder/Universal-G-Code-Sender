@@ -27,13 +27,16 @@ import com.willwinder.universalgcodesender.connection.IConnectionDevice;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
+import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.pendantui.v1.model.GcodeCommands;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotAcceptableException;
@@ -206,6 +209,21 @@ public class MachineResource {
         for (String gcodeCommand : gcodeCommands) {
             backendAPI.sendGcodeCommand(gcodeCommand);
         }
+    }
+
+    @POST
+    @Path("sendOverride")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Send a real-time feed/rapid/spindle override adjustment")
+    public void sendOverride(@QueryParam("command") Overrides command) {
+        if (command == null) {
+            throw new BadRequestException("Missing or unrecognized override command");
+        }
+        IController controller = backendAPI.getController();
+        if (controller == null) {
+            throw new NotAcceptableException("Not connected");
+        }
+        controller.getOverrideManager().sendOverrideCommand(command);
     }
 
     @GET

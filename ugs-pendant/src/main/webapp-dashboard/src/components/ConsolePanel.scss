@@ -20,6 +20,23 @@
   font-size: 0.85rem;
   white-space: pre-wrap;
   word-break: break-word;
+  // Same slim scrollbar treatment as .rightRail/.dashboardLeft, for a
+  // consistent look everywhere a panel can scroll.
+  scrollbar-width: thin;
+  scrollbar-color: #3a3d3e transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #3a3d3e;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 .consoleInput {

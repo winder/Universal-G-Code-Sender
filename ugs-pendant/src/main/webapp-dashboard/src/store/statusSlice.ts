@@ -30,6 +30,11 @@ const initialState: Status = {
     flood: false,
     mist: false,
   },
+  overrides: {
+    feed: 100,
+    rapid: 100,
+    spindle: 100,
+  },
   state: "DISCONNECTED",
   pins: {
     x: false,
@@ -59,6 +64,11 @@ const statusSlice = createSlice({
         spindleCW: action.payload.accessoryStates?.spindleCW ?? false,
         flood: action.payload.accessoryStates?.flood ?? false,
         mist: action.payload.accessoryStates?.mist ?? false,
+      };
+      state.overrides = {
+        feed: action.payload.overrides?.feed ?? 100,
+        rapid: action.payload.overrides?.rapid ?? 100,
+        spindle: action.payload.overrides?.spindle ?? 100,
       };
       state.state = action.payload.state;
       state.pins = {
