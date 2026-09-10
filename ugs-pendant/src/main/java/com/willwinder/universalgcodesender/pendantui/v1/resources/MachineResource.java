@@ -214,7 +214,7 @@ public class MachineResource {
     @POST
     @Path("sendOverride")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Send a real-time feed/rapid/spindle override adjustment")
+    @Operation(summary = "Send a real-time feed/rapid/spindle override adjustment or coolant/spindle toggle")
     public void sendOverride(@QueryParam("command") Overrides command) {
         if (command == null) {
             throw new BadRequestException("Missing or unrecognized override command");

@@ -207,6 +207,7 @@ const server = createServer((req, res) => {
     else if (command === "CMD_SPINDLE_OVR_RESET") status.overrides.spindle = 100;
     else if (command === "CMD_SPINDLE_OVR_COARSE_PLUS") status.overrides.spindle = clamp(status.overrides.spindle + 10);
     else if (command === "CMD_SPINDLE_OVR_COARSE_MINUS") status.overrides.spindle = clamp(status.overrides.spindle - 10);
+    else if (command === "CMD_TOGGLE_FLOOD_COOLANT") status.accessoryStates.flood = !status.accessoryStates.flood;
     return json(res, {});
   }
   if (p.startsWith("/api/v1/machine/")) return json(res, {});

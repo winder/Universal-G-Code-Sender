@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, ButtonGroup } from "react-bootstrap";
 import { useAppSelector } from "../hooks/useAppSelector";
-import { sendGcode } from "../services/machine";
+import { sendGcode, sendOverride } from "../services/machine";
 import "./SpindleCoolantControls.scss";
 
 const activeClass = (isActive: boolean) => (isActive ? "spindleCoolantActive" : "");
@@ -25,7 +25,20 @@ const SpindleCoolantControls = () => {
   // on. With no real signal to read, showing a value here that LOOKS confirmed
   // but is actually always wrong is worse than being honest that this is just
   // "the last button you pressed," not something the controller has verified.
+  //
+  // This local guess is also why coolant uses CMD_TOGGLE_FLOOD_COOLANT (a
+  // real-time byte, like the override commands) rather than a blind toggle:
+  // the On/Off buttons only send it when it would actually change this
+  // tracked state, so a stray extra click can't flip flood the wrong way.
+  // If the real state ever drifts from this guess (toggled by another
+  // client, a controller reset, etc.) these buttons drift with it - same
+  // known limitation as the guess itself.
   const [coolantOn, setCoolantOn] = useState(false);
+  // Real-time byte, not gcode - unlike M8/M9 it isn't queued behind motion,
+  // so it keeps working to toggle coolant during a paused (HOLD) job too.
+  const canAdjustCoolant = useAppSelector(
+    (state) => !["DISCONNECTED", "CONNECTING", "ALARM"].includes(state.status.state)
+  );
 
   return (
     <div className="spindleCoolantControls">
@@ -64,10 +77,12 @@ const SpindleCoolantControls = () => {
           <Button
             variant="outline-secondary"
             className={activeClass(coolantOn)}
-            disabled={!isIdleOrRunning}
+            disabled={!canAdjustCoolant}
             onClick={() => {
-              setCoolantOn(true);
-              sendGcode("M8");
+              if (!coolantOn) {
+                setCoolantOn(true);
+                sendOverride("CMD_TOGGLE_FLOOD_COOLANT");
+              }
             }}
           >
             On
@@ -75,10 +90,12 @@ const SpindleCoolantControls = () => {
           <Button
             variant="outline-secondary"
             className={activeClass(!coolantOn)}
-            disabled={!isIdleOrRunning}
+            disabled={!canAdjustCoolant}
             onClick={() => {
-              setCoolantOn(false);
-              sendGcode("M9");
+              if (coolantOn) {
+                setCoolantOn(false);
+                sendOverride("CMD_TOGGLE_FLOOD_COOLANT");
+              }
             }}
           >
             Off

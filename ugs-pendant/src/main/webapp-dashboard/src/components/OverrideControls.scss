@@ -6,9 +6,10 @@
 
 .overrideRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 6px 10px;
 
   .overrideLabel {
     color: #c3c8cb;
@@ -46,5 +47,38 @@
     background-color: #4ade80 !important;
     border-color: #4ade80 !important;
     color: #111213 !important;
+  }
+
+  // Forces the bar onto its own line below the label + button row, spanning
+  // the full row width (label's min-width is excluded via the row's own gap,
+  // matching how the buttons line up above it).
+  .overrideBar {
+    flex: 1 1 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .overrideBarTrack {
+    flex: 1 1 auto;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #111213;
+    border: 1px solid #2f3132;
+    overflow: hidden;
+  }
+
+  .overrideBarFill {
+    height: 100%;
+    background-color: #4ade80;
+    border-radius: 4px;
+    transition: width 150ms ease;
+  }
+
+  .overrideBarValue {
+    min-width: 3.5ch;
+    text-align: right;
+    font-weight: 700;
+    color: #4ade80;
   }
 }
