@@ -18,9 +18,16 @@
     min-width: 50px;
   }
 
+  // One unified rounded rectangle instead of 3 separate bordered boxes - the
+  // group owns the outer border/radius, and each button is borderless except
+  // for a thin divider between segments, so the reset button in the middle
+  // reads as part of the same shape instead of a gap cut out of it.
   .btn-group {
     flex: 1 1 auto;
     min-width: 0;
+    border: 1px solid #2f3132;
+    border-radius: 6px;
+    overflow: hidden;
   }
 
   // Same fix as StepSize/FeedRate: pin every button to an equal share of the
@@ -32,6 +39,12 @@
     min-height: 36px;
     padding: 4px 2px;
     font-size: 0.78rem;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+
+  .btn-group .btn:not(:last-child) {
+    border-right: 1px solid #2f3132 !important;
   }
 
   // Same "actual value" treatment as .feedRateCurrent/.stepSizeCurrent - this
@@ -39,13 +52,11 @@
   .overrideCurrent {
     font-weight: 700;
     background-color: #111213 !important;
-    border-color: #2f3132 !important;
     color: #4ade80 !important;
   }
 
   .overrideActive {
     background-color: #4ade80 !important;
-    border-color: #4ade80 !important;
     color: #111213 !important;
   }
 

@@ -27,6 +27,14 @@
     min-width: 70px;
   }
 
+  // Two individual, fully-rounded buttons with a gap between them, not a
+  // connected Bootstrap ButtonGroup pill - On and Off are meant to read as
+  // separate controls, unlike the segmented override buttons.
+  .spindleCoolantButtons {
+    display: flex;
+    gap: 8px;
+  }
+
   .btn {
     min-height: 40px;
     min-width: 56px;

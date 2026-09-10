@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, ButtonGroup } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { useAppSelector } from "../hooks/useAppSelector";
 import { sendGcode, sendOverride } from "../services/machine";
 import "./SpindleCoolantControls.scss";
@@ -51,7 +51,7 @@ const SpindleCoolantControls = () => {
             below), clicking the button that's stuck showing "checked" silently
             sends nothing. A plain button's onClick always fires the command,
             regardless of what the highlight currently shows. */}
-        <ButtonGroup>
+        <div className="spindleCoolantButtons">
           <Button
             variant="outline-secondary"
             className={activeClass(spindleOn)}
@@ -68,12 +68,12 @@ const SpindleCoolantControls = () => {
           >
             Off
           </Button>
-        </ButtonGroup>
+        </div>
       </div>
 
       <div className="spindleCoolantRow">
         <span className="spindleCoolantLabel">Coolant</span>
-        <ButtonGroup>
+        <div className="spindleCoolantButtons">
           <Button
             variant="outline-secondary"
             className={activeClass(coolantOn)}
@@ -100,7 +100,7 @@ const SpindleCoolantControls = () => {
           >
             Off
           </Button>
-        </ButtonGroup>
+        </div>
       </div>
     </div>
   );
