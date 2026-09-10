@@ -111,8 +111,7 @@ export type OverrideCommand =
   | "CMD_RAPID_OVR_LOW"
   | "CMD_SPINDLE_OVR_RESET"
   | "CMD_SPINDLE_OVR_COARSE_PLUS"
-  | "CMD_SPINDLE_OVR_COARSE_MINUS"
-  | "CMD_TOGGLE_FLOOD_COOLANT";
+  | "CMD_SPINDLE_OVR_COARSE_MINUS";
 
 export const sendOverride = (command: OverrideCommand): Promise<void> => {
   return fetch(`/api/v1/machine/sendOverride?command=${command}`, {

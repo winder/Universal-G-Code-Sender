@@ -93,6 +93,17 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
                             text: ugsEvent.event.command.response,
                         }),
                     );
+                    // Coolant state isn't in the WebSocket status push (see
+                    // Status.floodCoolantOn on the Java side), so it's only as
+                    // fresh as the last getStatus() fetch. Refresh on ANY
+                    // completed M7/M8/M9 - not just ones sent from this
+                    // dashboard - so a command typed into the native UGS
+                    // console (or sent by any other client) still keeps the
+                    // Coolant button in sync instead of going stale until the
+                    // next click here.
+                    if (/\bM0?[789]\b/i.test(commandEvent.command.command)) {
+                        store.dispatch(fetchStatus());
+                    }
                 } else if (commandEvent.commandEventType === "COMMAND_SENT") {
                     store.dispatch(
                         consoleActions.addMessage({

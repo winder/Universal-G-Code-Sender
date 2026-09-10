@@ -214,8 +214,8 @@ public class MachineResource {
     @POST
     @Path("sendOverride")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Send a real-time feed/rapid/spindle override adjustment or coolant/spindle toggle")
-    public void sendOverride(@QueryParam("command") Overrides command) throws Exception {
+    @Operation(summary = "Send a real-time feed/rapid/spindle override adjustment")
+    public void sendOverride(@QueryParam("command") Overrides command) {
         if (command == null) {
             throw new BadRequestException("Missing or unrecognized override command");
         }
@@ -224,15 +224,6 @@ public class MachineResource {
             throw new NotAcceptableException("Not connected");
         }
         controller.getOverrideManager().sendOverrideCommand(command);
-
-        // Unlike the percentage overrides (reflected in the next status
-        // report's Ov: field), the coolant toggle has no built-in
-        // confirmation - request a parser state refresh ($G) so the real
-        // M7/M8/M9 state is available for the dashboard to read back,
-        // instead of it having to guess from the last button pressed.
-        if (command == Overrides.CMD_TOGGLE_FLOOD_COOLANT || command == Overrides.CMD_TOGGLE_MIST_COOLANT) {
-            backendAPI.sendGcodeCommand("$G");
-        }
     }
 
     @GET

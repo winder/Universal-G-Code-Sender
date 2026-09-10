@@ -188,10 +188,26 @@ const server = createServer((req, res) => {
         status.accessoryStates.spindleCW = false;
       } else if (/\bM0?8\b/.test(commands)) {
         status.accessoryStates.flood = true;
+        status.floodCoolantOn = true;
       } else if (/\bM0?9\b/.test(commands)) {
         status.accessoryStates.flood = false;
         status.accessoryStates.mist = false;
+        status.floodCoolantOn = false;
       }
+      // Mirrors the real backend's CommandEvent push - the dashboard's
+      // console panel and its "refresh coolant state on M7/M8/M9" logic
+      // (socketMiddleware.ts) both depend on this arriving over the socket,
+      // not just the plain REST response.
+      broadcast({
+        eventType: "CommandEvent",
+        event: { commandEventType: "COMMAND_SENT", command: { command: commands, response: "", isError: false, isOk: false } },
+      });
+      setTimeout(() => {
+        broadcast({
+          eventType: "CommandEvent",
+          event: { commandEventType: "COMMAND_COMPLETE", command: { command: commands, response: "ok", isError: false, isOk: true } },
+        });
+      }, 50);
       json(res, {});
     });
     return;
@@ -208,7 +224,6 @@ const server = createServer((req, res) => {
     else if (command === "CMD_SPINDLE_OVR_RESET") status.overrides.spindle = 100;
     else if (command === "CMD_SPINDLE_OVR_COARSE_PLUS") status.overrides.spindle = clamp(status.overrides.spindle + 10);
     else if (command === "CMD_SPINDLE_OVR_COARSE_MINUS") status.overrides.spindle = clamp(status.overrides.spindle - 10);
-    else if (command === "CMD_TOGGLE_FLOOD_COOLANT") status.floodCoolantOn = !status.floodCoolantOn;
     return json(res, {});
   }
   if (p.startsWith("/api/v1/machine/")) return json(res, {});

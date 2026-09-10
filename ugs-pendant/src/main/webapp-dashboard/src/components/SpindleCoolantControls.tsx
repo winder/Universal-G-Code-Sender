@@ -1,8 +1,6 @@
 import { Button } from "react-bootstrap";
 import { useAppSelector } from "../hooks/useAppSelector";
-import { useAppDispatch } from "../hooks/useAppDispatch";
-import { sendGcode, sendOverride } from "../services/machine";
-import { fetchStatus } from "../store/statusSlice";
+import { sendGcode } from "../services/machine";
 import "./SpindleCoolantControls.scss";
 
 const activeClass = (isActive: boolean) => (isActive ? "spindleCoolantActive" : "");
@@ -22,30 +20,20 @@ const SpindleCoolantControls = () => {
 
   // Confirmed via real hardware that this FluidNC setup never reports coolant
   // state via the "A:" accessory-state field (unlike spindle), so unlike
-  // spindleOn above this can't be read from status reports. Instead it comes
-  // from the gcode parser's M7/M8/M9 modal state, which sendOverride() below
-  // refreshes with a "$G" query after every coolant toggle - see
-  // MachineResource.sendOverride() and StatusResource.getStatus() on the
-  // Java side. The dispatch(fetchStatus()) after each click pulls that
-  // refreshed value in; until it lands, the highlight still shows whatever
-  // was last confirmed rather than flipping optimistically, since a real-time
-  // toggle that got ignored (e.g. no coolant relay wired) should NOT look
-  // like it worked.
+  // spindleOn above this can't be read from status reports. It's sourced from
+  // the gcode parser's M7/M8/M9 modal state instead (Status.floodCoolantOn on
+  // the Java side) - kept fresh by socketMiddleware.ts re-fetching status
+  // whenever ANY M7/M8/M9 command completes, from any source (this UI, the
+  // native UGS console, another client), not just this component's own
+  // clicks.
+  //
+  // On/Off deliberately send plain M8/M9 gcode, not the real-time
+  // CMD_TOGGLE_FLOOD_COOLANT byte used earlier: a toggle is only as safe as
+  // the tracked state it's toggling from, and that state can be stale (e.g.
+  // coolant changed via the native console) - a stale toggle sends the WRONG
+  // direction. M8/M9 are idempotent: pressing "On" always means on, however
+  // stale the highlight was, so it can never make things worse.
   const coolantOn = useAppSelector((state) => state.status.floodCoolantOn ?? false);
-  const dispatch = useAppDispatch();
-  // Real-time byte, not gcode - unlike M8/M9 it isn't queued behind motion,
-  // so it keeps working to toggle coolant during a paused (HOLD) job too.
-  const canAdjustCoolant = useAppSelector(
-    (state) => !["DISCONNECTED", "CONNECTING", "ALARM"].includes(state.status.state)
-  );
-
-  const toggleCoolant = () => {
-    sendOverride("CMD_TOGGLE_FLOOD_COOLANT").then(() => {
-      // Give the "$G" query MachineResource sends alongside the toggle time
-      // to round-trip before reading the refreshed state back.
-      window.setTimeout(() => dispatch(fetchStatus()), 400);
-    });
-  };
 
   return (
     <div className="spindleCoolantControls">
@@ -84,16 +72,16 @@ const SpindleCoolantControls = () => {
           <Button
             variant="outline-secondary"
             className={activeClass(coolantOn)}
-            disabled={!canAdjustCoolant}
-            onClick={() => !coolantOn && toggleCoolant()}
+            disabled={!isIdleOrRunning}
+            onClick={() => sendGcode("M8")}
           >
             On
           </Button>
           <Button
             variant="outline-secondary"
             className={activeClass(!coolantOn)}
-            disabled={!canAdjustCoolant}
-            onClick={() => coolantOn && toggleCoolant()}
+            disabled={!isIdleOrRunning}
+            onClick={() => sendGcode("M9")}
           >
             Off
           </Button>
