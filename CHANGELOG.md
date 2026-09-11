@@ -4,6 +4,7 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 ## 2026-09-11
 
+- Fixed macro names getting covered by the reorder/delete icons when selected in the compact (split) macro list - there isn't room there for both, so those actions now only appear in the full-width Macros tab.
 - Fixed macro names disappearing entirely in the compact (split) macro list - a side effect of the previous fix for the hover-jump issue.
 - Fixed the split right-pane header not staying lined up above the right pane, the macro list jumping around as you move the mouse over it (its reorder/delete icons reflowed the row on hover), and widened the macro list column so it's not cramped before selecting anything.
 - Split now defaults to a true, responsive 50/50 (was a fixed pixel width, heavily favoring one side on a wide screen), and the left/right pane selectors now sit on one row instead of two.
