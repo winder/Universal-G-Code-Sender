@@ -4,6 +4,7 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 ## 2026-09-11
 
+- Added a probe/touch-off feature: a new **Probe** tab in the center panel for Z-probe, single-face X/Y touch-off, and X/Y-center and bore/rectangle-center probing, each with its own diagram, a settings form (feed rates, retract, probe diameter, plate thickness, max travel), and a confirm-before-run dialog. Fixed a real bug along the way where a failed probe could be silently treated as a successful one.
 - Restyled the Toolbox buttons (Home, Unlock, Soft reset, etc.) to fit the dark theme instead of solid white.
 - Darkened text inputs across the dashboard to match the dark theme, and gave the macro editor's gcode field the same syntax highlighting as the main gcode editor.
 - Fixed the macro editor so Save/Discard stay visible without scrolling, and fixed a long macro name (with no spaces) distorting the width of neighboring run buttons.
