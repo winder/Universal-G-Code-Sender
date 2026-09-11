@@ -107,6 +107,12 @@
   overflow-wrap: break-word;
   line-height: 1.25;
   font-size: 0.9rem;
+  // Reserves 2 lines' height unconditionally (not just once wrapped) so
+  // selecting/hovering a row - which shrinks its max-width below and can
+  // push a name from 1 line to 2 - never changes that row's height and
+  // shifts every row below it. A short name just ends up vertically
+  // centered in the extra space instead.
+  min-height: 2.25rem;
   // The actions overlay on top of the row rather than taking layout space
   // (see .macroEditorRowActions), which is fine for a short name that
   // doesn't reach that far - but a longer name fills the row's full width
