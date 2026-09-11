@@ -71,7 +71,7 @@ public class LaserRasterToolPath extends AbstractToolPath {
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         source.awaitDepthMap();
 
-        gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), source.getFeedRate()));
+        gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, null, source.getFeedRate()));
 
         List<Geometry> geometries = getGeometries();
         geometries.forEach(g -> {
@@ -163,7 +163,7 @@ public class LaserRasterToolPath extends AbstractToolPath {
                                     SegmentType.MOVE,
                                     start,
                                     null,
-                                    null,
+                                    Segment.SPINDLE_OFF,
                                     null
                             )
                     );

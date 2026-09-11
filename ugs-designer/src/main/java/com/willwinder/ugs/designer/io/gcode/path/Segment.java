@@ -28,6 +28,13 @@ import java.awt.geom.Point2D;
  */
 public final class Segment {
     /**
+     * A spindle speed that stops the spindle, or turns a laser off, instead of running it at a
+     * speed. A laser is switched off with this before every rapid so that it can not burn the
+     * material between two cuts.
+     */
+    public static final int SPINDLE_OFF = 0;
+
+    /**
      * The type of the segment
      */
     public final SegmentType type;
@@ -113,7 +120,7 @@ public final class Segment {
     /**
      * Get the segment comment/label
      *
-     * @return
+     * @return the segment label
      */
     public String getLabel() {
         return label;

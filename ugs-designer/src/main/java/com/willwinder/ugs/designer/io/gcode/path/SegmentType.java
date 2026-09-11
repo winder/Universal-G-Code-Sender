@@ -76,4 +76,11 @@ public enum SegmentType {
     public boolean isArc() {
         return this == CWARC || this == CCWARC;
     }
+
+    /**
+     * @return true for the moves that feed through the material at the programmed feed rate
+     */
+    public boolean isCuttingMove() {
+        return this == LINE || isArc();
+    }
 }

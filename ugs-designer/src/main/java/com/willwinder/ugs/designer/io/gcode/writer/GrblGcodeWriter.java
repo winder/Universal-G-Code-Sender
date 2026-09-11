@@ -127,10 +127,9 @@ public class GrblGcodeWriter implements GcodeWriter {
             writer.write(";" + segment.getLabel() + "\n");
         }
 
-        if (segment.getSpindleSpeed() != null && (!segment.getSpindleSpeed().equals(currentSpindle) || !hasStartedSpindle)) {
-            writer.write(settings.getSpindleDirection() + " S" + segment.getSpindleSpeed() + "\n");
-            hasStartedSpindle = true;
-            currentSpindle = segment.getSpindleSpeed();
+        boolean changesSpeedWhileCutting = isRunningSpindleSpeedChange(segment);
+        if (!changesSpeedWhileCutting) {
+            writeSpindleSpeed(segment.getSpindleSpeed());
         }
 
         switch (segment.type) {
@@ -170,9 +169,57 @@ public class GrblGcodeWriter implements GcodeWriter {
                 // The arc offsets are relative to the start of the arc, so they need to be
                 // formatted before the current position is advanced to the end of the arc
                 String arcOffsets = segment.type.isArc() ? getArcOffsetFormattedGCode(segment) : "";
-                writer.write(getPointFormattedGCode(segment, segment.type.isArc()) + arcOffsets + "\n");
+                String motion = getPointFormattedGCode(segment, segment.type.isArc()) + arcOffsets;
+                String spindleWord = changesSpeedWhileCutting ? getInlineSpindleSpeedWord(segment, motion) : "";
+                writer.write(motion + spindleWord + "\n");
             }
         }
+    }
+
+    /**
+     * A running spindle changes speed with an S word on the cutting move itself. Grbl treats a
+     * standalone M3 as a synchronization point that drains the planner and stops the motion, which
+     * would stutter a laser raster that changes power every fraction of a millimeter.
+     */
+    private boolean isRunningSpindleSpeedChange(Segment segment) {
+        Integer spindleSpeed = segment.getSpindleSpeed();
+        return hasStartedSpindle
+                && segment.type.isCuttingMove()
+                && spindleSpeed != null
+                && spindleSpeed != Segment.SPINDLE_OFF
+                && !spindleSpeed.equals(currentSpindle);
+    }
+
+    private String getInlineSpindleSpeedWord(Segment segment, String motion) {
+        currentSpindle = segment.getSpindleSpeed();
+        return (motion.isEmpty() ? "" : " ") + "S" + currentSpindle;
+    }
+
+    private void writeSpindleSpeed(Integer spindleSpeed) throws IOException {
+        if (spindleSpeed == null) {
+            return;
+        }
+
+        if (spindleSpeed == Segment.SPINDLE_OFF) {
+            writeSpindleStop();
+            return;
+        }
+
+        if (!spindleSpeed.equals(currentSpindle) || !hasStartedSpindle) {
+            writer.write(settings.getSpindleDirection() + " S" + spindleSpeed + "\n");
+            hasStartedSpindle = true;
+            currentSpindle = spindleSpeed;
+        }
+    }
+
+    private void writeSpindleStop() throws IOException {
+        if (!hasStartedSpindle) {
+            return;
+        }
+
+        writer.write(Code.M5.name() + "\n");
+        hasStartedSpindle = false;
+        currentSpindle = null;
     }
 
     private void writePenUp() throws IOException {
