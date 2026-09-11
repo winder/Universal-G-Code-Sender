@@ -2,6 +2,7 @@ import { ControllerStateEvent } from "./ControllerStateEvent";
 import { ControllerStatusEvent } from "./ControllerStatusEvent";
 import { FileStateEvent } from "./FileStateEvent";
 import {CommandEvent} from "./CommandEvent.ts";
+import {AlarmEvent} from "./AlarmEvent.ts";
 
 type UGSControllerStatusEvent = {
   eventType: "ControllerStatusEvent",
@@ -23,6 +24,11 @@ type UGSFileStateEvent = {
   event: FileStateEvent;
 };
 
+type UGSAlarmEvent = {
+  eventType: "AlarmEvent";
+  event: AlarmEvent;
+};
+
 export type UGSEvent = {
   eventType:  "SettingChangedEvent";
-} | UGSCommandEvent | UGSControllerStatusEvent | UGSControllerStateEvent | UGSFileStateEvent;
+} | UGSCommandEvent | UGSControllerStatusEvent | UGSControllerStateEvent | UGSFileStateEvent | UGSAlarmEvent;
