@@ -1,0 +1,15 @@
+.macroGcodeEditor {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid #3a3d3e;
+  border-radius: 4px;
+
+  .cm-editor {
+    height: 100%;
+  }
+
+  .cm-scroller {
+    overflow: auto;
+  }
+}

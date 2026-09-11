@@ -40,14 +40,14 @@ const MacrosPanel = () => {
           className="macroButton"
           variant="secondary"
           style={macroColorStyle(macro.color)}
-          title={macro.description}
+          title={macro.description ? `${macro.name} — ${macro.description}` : macro.name}
           onClick={() => runMacro(macro)}
           disabled={!isEnabled}
         >
           {macro.icon && MACRO_ICONS[macro.icon] && (
             <FontAwesomeIcon icon={MACRO_ICONS[macro.icon]} />
           )}
-          {macro.name}
+          <span className="macroButtonLabel">{macro.name}</span>
         </Button>
       ))}
     </div>

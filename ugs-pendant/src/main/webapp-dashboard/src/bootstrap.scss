@@ -22,6 +22,33 @@
   background-color: #2a2c2d !important;
 }
 
+// Bootstrap's form-control defaults to a white input on every theme - jarring
+// against this dashboard's otherwise-dark UI. Scoped here (not per-component)
+// since it's a handful of plain text inputs scattered around (macro name/
+// description, the console command box, connection settings).
+.form-control {
+  background-color: #1c1e1f;
+  border-color: #3a3d3e;
+  color: #e5e7eb;
+
+  &::placeholder {
+    color: #6b7280;
+  }
+
+  &:focus {
+    background-color: #1c1e1f;
+    border-color: #4ade80;
+    color: #e5e7eb;
+    box-shadow: 0 0 0 0.2rem rgba(74, 222, 128, 0.25);
+  }
+
+  &:disabled,
+  &[readonly] {
+    background-color: #151617;
+    color: #6b7280;
+  }
+}
+
 @media (min-width: 576px) {
   .container-sm,
   .container {

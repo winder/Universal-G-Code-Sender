@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button, Form } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFloppyDisk, faXmark, faFileExport } from "@fortawesome/free-solid-svg-icons";
@@ -7,6 +7,7 @@ import { macroGcodeToEditorText, editorTextToMacroGcode } from "../utils/macroGc
 import { MACRO_COLOR_PRESETS, macroColorStyle } from "../utils/macroColors";
 import { MACRO_ICON_KEYS, MACRO_ICONS } from "../utils/macroIcons";
 import { downloadSingleMacro } from "../services/download";
+import MacroGcodeEditor, { MacroGcodeEditorHandle } from "./MacroGcodeEditor";
 import "./MacroForm.scss";
 
 const PLACEHOLDERS: { label: string; token: string }[] = [
@@ -30,32 +31,17 @@ type Props = {
 };
 
 const MacroForm = ({ macro, isDirty, isNew, onChange, onSave, onDiscard }: Props) => {
+  const gcodeEditorRef = useRef<MacroGcodeEditorHandle | null>(null);
+
   // The editor works in the human multi-line form; only converted to/from
   // UGS's semicolon-joined storage format at the field's edges (here, and
   // in MacroEditor.tsx when a macro is first selected/loaded).
-  const [gcodeText, setGcodeText] = useState(() => macroGcodeToEditorText(macro.gcode));
-  const gcodeRef = useRef<HTMLTextAreaElement | null>(null);
-
   const updateGcodeText = (text: string) => {
-    setGcodeText(text);
     onChange({ ...macro, gcode: editorTextToMacroGcode(text) });
   };
 
   const insertPlaceholder = (token: string) => {
-    const el = gcodeRef.current;
-    if (!el) {
-      return;
-    }
-    const start = el.selectionStart ?? gcodeText.length;
-    const end = el.selectionEnd ?? gcodeText.length;
-    const next = gcodeText.slice(0, start) + token + gcodeText.slice(end);
-    updateGcodeText(next);
-    // Put the cursor right after the inserted token, not at the very end -
-    // otherwise inserting into the middle of existing text feels broken.
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(start + token.length, start + token.length);
-    });
+    gcodeEditorRef.current?.insertAtCursor(token);
   };
 
   return (
@@ -78,14 +64,10 @@ const MacroForm = ({ macro, isDirty, isNew, onChange, onSave, onDiscard }: Props
 
       <Form.Group className="macroFormField macroFormGcode">
         <Form.Label>Gcode</Form.Label>
-        <Form.Control
-          ref={gcodeRef}
-          as="textarea"
-          rows={8}
-          className="macroFormGcodeInput"
-          value={gcodeText}
-          onChange={(e) => updateGcodeText(e.target.value)}
-          placeholder={"G0 X0 Y0\nM3 S1000"}
+        <MacroGcodeEditor
+          ref={gcodeEditorRef}
+          initialValue={macroGcodeToEditorText(macro.gcode)}
+          onChange={updateGcodeText}
         />
         <div className="macroFormPlaceholders">
           {PLACEHOLDERS.map((p) => (

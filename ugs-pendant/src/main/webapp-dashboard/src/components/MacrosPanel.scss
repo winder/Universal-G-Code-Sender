@@ -11,8 +11,14 @@
 .macroButton {
   min-height: 48px;
   height: auto;
+  // A grid item's default min-width is its content's min-content size, which
+  // for one long unbroken word (no spaces to wrap at) can exceed the 110px
+  // track - since auto-fill shares column width across the whole grid, that
+  // one long name would widen every other button's column too. min-width: 0
+  // plus the label's own ellipsis truncation below keeps every button's
+  // width locked to its grid track regardless of name length.
+  min-width: 0;
   padding: 6px 8px;
-  white-space: normal;
   line-height: 1.2;
   display: flex;
   flex-direction: column;
@@ -25,6 +31,13 @@
   &[style*="border-color"] {
     border-width: 2px;
   }
+}
+
+.macroButtonLabel {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .macrosEmpty {
