@@ -58,13 +58,15 @@
   border-radius: 6px;
   cursor: pointer;
   border: 1px solid transparent;
-  // Without this, a row's own min-content (icon + name + actions all at
-  // their natural size) can force it - and everything depending on the
-  // list column's width being exactly what CSS declares, like the split
-  // header's alignment spacer - wider than intended once actions become
-  // visible on hover. min-width: 0 lets the row (and its name label, which
-  // already shrinks via its own min-width: 0) actually respect that.
+  // Without this, a row's own min-content (icon + name) can force it - and
+  // everything depending on the list column's width being exactly what CSS
+  // declares, like the split header's alignment spacer - wider than
+  // intended. min-width: 0 lets the row (and its name label, which already
+  // shrinks via its own min-width: 0) actually respect that.
   min-width: 0;
+  // Anchor for .macroEditorRowActions, which is positioned absolutely (see
+  // below) rather than taking up real layout space.
+  position: relative;
 
   &:hover {
     background-color: #1c1d1e;
@@ -98,15 +100,28 @@
 }
 
 .macroEditorRowActions {
-  flex: 0 0 auto;
+  // Positioned absolutely (out of normal flow) rather than taking up real
+  // width in the row: this row previously toggled the actions with
+  // display: none, which reflowed the row's width on every hover; making
+  // them permanently reserve that width instead (visibility: hidden) fixed
+  // the reflow but meant every row permanently lost that much space to the
+  // name - fine at the full 300px list width, but it left ~0px for the
+  // name at the compact 160px split width, making names disappear
+  // entirely. Being out of flow means the name always gets the row's full
+  // width, and the actions just overlay on top (behind a fading gradient)
+  // when shown - no layout impact either way, at any list width.
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
+  align-items: center;
   gap: 4px;
-  // Reserve this row's space always (rather than display: none) and just
-  // hide it visually until hover/selected - toggling display made the
-  // actions' width appear/disappear on hover, which reflowed the row (and,
-  // via the list column filling with that reflowed content, everything
-  // that assumes the list has a fixed width) on every mouse-over.
-  visibility: hidden;
+  padding-left: 20px;
+  background: linear-gradient(to right, transparent, #1c1d1e 12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease-out;
 
   button {
     border: none;
@@ -132,7 +147,8 @@
 
 .macroEditorRow:hover .macroEditorRowActions,
 .macroEditorRow.selected .macroEditorRowActions {
-  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .macroEditorFormPane {
