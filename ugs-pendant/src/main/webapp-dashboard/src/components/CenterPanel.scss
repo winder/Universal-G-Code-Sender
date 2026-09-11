@@ -103,4 +103,14 @@
     color: #c3c8cb;
     font-size: 0.85rem;
   }
+
+  // Bootstrap's switch defaults to its own blue when checked - swap it for
+  // the same green used as the accent color everywhere else in the
+  // dashboard. Scoped to this one toggle for now rather than every
+  // .form-check-input, since there's no theme system yet to route this
+  // through consistently.
+  #verbose-toggle:checked {
+    background-color: #4ade80;
+    border-color: #4ade80;
+  }
 }
