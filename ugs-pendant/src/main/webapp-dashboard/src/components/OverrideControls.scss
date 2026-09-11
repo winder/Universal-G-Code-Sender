@@ -41,6 +41,12 @@
     font-size: 0.78rem;
     border: none !important;
     border-radius: 0 !important;
+    // Bootstrap's default hover fade takes 150ms - long enough that a
+    // re-render triggered by the live bar/value next to it (both update on
+    // every status tick, as often as every 200ms with $Report/Interval set)
+    // can catch it mid-fade and make the hover look like it isn't working.
+    // Applying it instantly removes that timing window.
+    transition: none !important;
   }
 
   .btn-group .btn:not(:last-child) {
