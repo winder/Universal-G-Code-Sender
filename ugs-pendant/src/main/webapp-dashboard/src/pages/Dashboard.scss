@@ -1,8 +1,11 @@
 .dashboard {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100vw;
+  // Fills .app's own box (see App.scss) rather than the real viewport again
+  // directly - .app may be a different size than the real viewport when
+  // zoomed, and it's .app's size that should reach all the way down.
+  height: 100%;
+  width: 100%;
   overflow: hidden;
 }
 

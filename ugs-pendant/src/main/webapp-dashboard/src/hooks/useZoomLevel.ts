@@ -12,16 +12,19 @@ function readStoredZoom(): number {
 }
 
 // Whole-page zoom for touchscreens of different sizes/distances, persisted
-// so it survives a reload. Uses the CSS `zoom` property rather than a
-// transform: scale - transform would need extra width/height math to avoid
-// clipping or stray scrollbars, `zoom` just reflows the page at the new
-// size like the browser's own ctrl+/- would. Well supported in Chromium
-// (what this dashboard actually runs in) and, since 2024, Firefox.
+// so it survives a reload. Setting the CSS `zoom` property on body/html
+// looks right at first but doesn't actually match a real browser zoom: it
+// shrinks or grows the page in place without changing what 100vh/100vw
+// mean, so the content just shrinks into a corner instead of reflowing to
+// fill the (now effectively bigger or smaller) window - confirmed visually
+// against a real ctrl+/- zoom. Setting this variable instead drives a
+// scale transform in App.scss on a deliberately oversized/undersized `.app`
+// box, which does reflow to fill the window - see the comment there.
 export function useZoomLevel() {
   const [zoom, setZoom] = useState(readStoredZoom);
 
   useEffect(() => {
-    document.body.style.zoom = `${zoom}%`;
+    document.documentElement.style.setProperty("--dashboard-zoom", String(zoom / 100));
     localStorage.setItem(STORAGE_KEY, String(zoom));
   }, [zoom]);
 

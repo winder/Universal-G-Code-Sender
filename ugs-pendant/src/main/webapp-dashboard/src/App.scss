@@ -1,11 +1,32 @@
 @import './bootstrap';
 
+html, body, #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    // .app below is deliberately sized bigger than the real viewport (see
+    // its comment) and then scaled back down/up to fit - without this, that
+    // oversized layout box would show real scrollbars even though nothing
+    // is actually visible past the edge of the window once scaled.
+    overflow: hidden;
+}
+
 body {
     background-color: #1c1e1f;
     color: #f2f2f2;
 }
 
 .app {
-    height: 100vh;
-    width: 100vw;
+    // Sized as a "virtual canvas" larger (when zoomed out) or smaller (when
+    // zoomed in) than the real viewport, then visually scaled by the same
+    // factor - rather than shrinking/growing the real page into a corner
+    // (what the CSS `zoom` property did here), this makes every 100vh/100vw
+    // *inside* the app resolve against a canvas that, once scaled, exactly
+    // fills the real window again - the same reflow-into-the-full-window
+    // effect an actual browser zoom has, which no page can trigger directly.
+    // --dashboard-zoom is set on <html> by useZoomLevel.
+    height: calc(100vh / var(--dashboard-zoom, 1));
+    width: calc(100vw / var(--dashboard-zoom, 1));
+    transform: scale(var(--dashboard-zoom, 1));
+    transform-origin: top left;
 }

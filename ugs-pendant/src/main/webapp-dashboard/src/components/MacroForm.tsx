@@ -87,7 +87,18 @@ const MacroForm = ({ macro, isDirty, isNew, compact = false, onChange, onSave, o
       </Form.Group>
 
       <Form.Group className="macroFormField">
-        <Form.Label>Button color</Form.Label>
+        <div className="macroFormLabelRow">
+          <Form.Label>Button color</Form.Label>
+          {macro.color && (
+            <button
+              type="button"
+              className="macroFormClear"
+              onClick={() => onChange({ ...macro, color: undefined })}
+            >
+              Clear
+            </button>
+          )}
+        </div>
         <div className={"macroFormColors" + groupClass}>
           {MACRO_COLOR_PRESETS.map((color) => (
             <button
@@ -106,20 +117,22 @@ const MacroForm = ({ macro, isDirty, isNew, compact = false, onChange, onSave, o
             onChange={(e) => onChange({ ...macro, color: e.target.value })}
             title="Custom color"
           />
-          {macro.color && (
+        </div>
+      </Form.Group>
+
+      <Form.Group className="macroFormField">
+        <div className="macroFormLabelRow">
+          <Form.Label>Icon</Form.Label>
+          {macro.icon && (
             <button
               type="button"
-              className="macroColorClear"
-              onClick={() => onChange({ ...macro, color: undefined })}
+              className="macroFormClear"
+              onClick={() => onChange({ ...macro, icon: undefined })}
             >
               Clear
             </button>
           )}
         </div>
-      </Form.Group>
-
-      <Form.Group className="macroFormField">
-        <Form.Label>Icon</Form.Label>
         <div className={"macroFormIcons" + groupClass}>
           {MACRO_ICON_KEYS.map((key) => (
             <button
@@ -133,15 +146,6 @@ const MacroForm = ({ macro, isDirty, isNew, compact = false, onChange, onSave, o
               <FontAwesomeIcon icon={MACRO_ICONS[key]} />
             </button>
           ))}
-          {macro.icon && (
-            <button
-              type="button"
-              className="macroColorClear"
-              onClick={() => onChange({ ...macro, icon: undefined })}
-            >
-              Clear
-            </button>
-          )}
         </div>
       </Form.Group>
 

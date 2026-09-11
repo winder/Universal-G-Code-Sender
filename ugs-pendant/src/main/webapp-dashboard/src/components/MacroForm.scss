@@ -106,7 +106,16 @@
   }
 }
 
-.macroColorClear {
+// Puts Clear next to the field's own label instead of amid the swatches -
+// there, as just another item in a wrapping row, it could land alone on
+// its own trailing line and add a whole extra row of height for one word.
+.macroFormLabelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.macroFormClear {
   border: none;
   background: none;
   color: #6b7280;
