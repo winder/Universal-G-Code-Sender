@@ -13,7 +13,11 @@ import "./CenterPanel.scss";
 
 const CONSOLE_MIN_HEIGHT = 100;
 const CONSOLE_MAX_HEIGHT = 640;
-const SPLIT_MIN_WIDTH = 280;
+// Macros' own list panel alone is 160px wide in compact mode, so anything
+// much smaller than this leaves almost nothing for the actual form/settings
+// - this is the floor for BOTH panes (it also caps how far the other side
+// can grow via onSplitResizeMove's maxWidth calculation).
+const SPLIT_MIN_WIDTH = 400;
 const SPLIT_DEFAULT_WIDTH = 480;
 
 const PANE_LABELS: { content: PaneContent; label: string }[] = [
@@ -76,7 +80,10 @@ const CenterPanel = () => {
   const onSelectMainNav = (key: string | null) => {
     if (!key) return;
     if (key === "split") {
-      setView("split");
+      // Tapping Split again while already split collapses back to a single
+      // full panel showing whatever's currently on the left, rather than
+      // being a dead end with no way back to single-view mode.
+      setView(isSplit ? splitLeft : "split");
       return;
     }
     if (isSplit) {

@@ -14,10 +14,20 @@
 // The only field allowed to shrink - everything else (name, description,
 // color/icon pickers, the action buttons) keeps its natural size so Save/
 // Discard stay visible without scrolling; the gcode editor gives up height
-// to make room instead, and scrolls internally once it hits its own floor.
+// to make room instead, down to its own 70px floor.
+//
+// Deliberately NOT min-height: 0 here - that would let the outer flex
+// column (.macroForm) shrink this whole group all the way to 0px when
+// space is tight (a split pane, or a short window), while its children
+// (the 70px-floor editor, the placeholder row) don't respect that and
+// render at their natural size anyway - the result was those children
+// overflowing outside their own collapsed 0-height parent and overlapping
+// the next field below. Leaving min-height at its default (auto) makes
+// this group's own floor the label + editor's 70px + placeholder row, so
+// once content doesn't fit at all, .macroEditorFormPane's overflow-y:auto
+// scrolls the whole form instead of overlapping.
 .macroFormGcode {
   flex: 1 1 auto;
-  min-height: 0;
   display: flex;
   flex-direction: column;
 
