@@ -31,15 +31,18 @@
     }
   }
 
-  // Pushes the Split tab to the far right of the main nav (Bootstrap's Nav
-  // is a flex row already, so margin-left: auto on the last item is enough).
-  .centerPanelSplitTab {
-    margin-left: auto;
-  }
-
-  .centerPanelRightNavRow {
+  // Left-pane selector, the right-pane selector's leading spacer + nav (only
+  // while split), and the Split toggle all live on this one row.
+  .centerPanelNavRow {
     display: flex;
     align-items: center;
+    flex: 0 0 auto;
+  }
+
+  .centerPanelMainNav,
+  .centerPanelRightNav,
+  .centerPanelSplitNav {
+    flex: 0 0 auto;
   }
 
   .centerPanelRightNavSpacer {
@@ -47,8 +50,13 @@
   }
 
   .centerPanelRightNav {
-    flex: 0 0 auto;
     margin-left: 10px;
+  }
+
+  // Pushes Split to the far right of the row regardless of what's before it
+  // (just the main nav, or main nav + spacer + right nav while split).
+  .centerPanelSplitNav {
+    margin-left: auto;
   }
 
   .centerPanelSplitResizer {

@@ -18,7 +18,6 @@ const CONSOLE_MAX_HEIGHT = 640;
 // - this is the floor for BOTH panes (it also caps how far the other side
 // can grow via onSplitResizeMove's maxWidth calculation).
 const SPLIT_MIN_WIDTH = 400;
-const SPLIT_DEFAULT_WIDTH = 480;
 
 const PANE_LABELS: { content: PaneContent; label: string }[] = [
   { content: "visualize", label: "Visualize" },
@@ -43,7 +42,11 @@ const CenterPanel = () => {
   const [consoleHeight, setConsoleHeight] = useState(220);
   const dragStartRef = useRef({ y: 0, height: 0 });
 
-  const [splitLeftWidth, setSplitLeftWidth] = useState(SPLIT_DEFAULT_WIDTH);
+  // null = not yet customized - the left pane stays a true, responsive 50%
+  // of the row (via flex-basis: 50%) rather than a fixed pixel amount, so it
+  // stays 50/50 across window resizes until the user actually drags the
+  // resizer, at which point it becomes a fixed px width like before.
+  const [splitLeftWidth, setSplitLeftWidth] = useState<number | null>(null);
   const splitDragRef = useRef({ x: 0, width: 0 });
   const splitRowRef = useRef<HTMLDivElement | null>(null);
 
@@ -62,14 +65,19 @@ const CenterPanel = () => {
   };
 
   const onSplitResizeStart = (e: React.PointerEvent<HTMLDivElement>) => {
-    splitDragRef.current = { x: e.clientX, width: splitLeftWidth };
+    // First drag ever (splitLeftWidth still null, meaning "true 50%") needs
+    // a real starting px value to compute deltas from - read the row's
+    // actual current width rather than assuming one.
+    const rowWidth = splitRowRef.current?.clientWidth ?? SPLIT_MIN_WIDTH * 2;
+    const startWidth = splitLeftWidth ?? rowWidth / 2;
+    splitDragRef.current = { x: e.clientX, width: startWidth };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
 
   const onSplitResizeMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
     const delta = e.clientX - splitDragRef.current.x;
-    const maxWidth = (splitRowRef.current?.clientWidth ?? SPLIT_DEFAULT_WIDTH * 2) - SPLIT_MIN_WIDTH;
+    const maxWidth = (splitRowRef.current?.clientWidth ?? SPLIT_MIN_WIDTH * 2) - SPLIT_MIN_WIDTH;
     const next = Math.min(maxWidth, Math.max(SPLIT_MIN_WIDTH, splitDragRef.current.width + delta));
     setSplitLeftWidth(next);
   };
@@ -93,9 +101,11 @@ const CenterPanel = () => {
     }
   };
 
+  const leftBasis = splitLeftWidth === null ? "50%" : `${splitLeftWidth}px`;
+
   const contentStyle = (content: PaneContent): React.CSSProperties => {
     if (!isSplit) return {};
-    if (content === splitLeft) return { order: 1, flex: `0 0 ${splitLeftWidth}px` };
+    if (content === splitLeft) return { order: 1, flex: `0 0 ${leftBasis}` };
     if (content === splitRight) return { order: 3, flex: "1 1 auto" };
     return {};
   };
@@ -105,29 +115,45 @@ const CenterPanel = () => {
   return (
     <div className="centerPanel">
       <div className="centerPanelTop">
-        <Nav variant="pills" activeKey={isSplit ? splitLeft : view} onSelect={onSelectMainNav}>
-          {PANE_LABELS.map((p) => (
-            <Nav.Item key={p.content}>
-              <Nav.Link eventKey={p.content}>{p.label}</Nav.Link>
-            </Nav.Item>
-          ))}
-          <Nav.Item className="centerPanelSplitTab">
-            <Nav.Link eventKey="split">Split</Nav.Link>
-          </Nav.Item>
-        </Nav>
+        {/* Left-pane selector, right-pane selector (only while split), and
+            the Split toggle all sit on one row - the right selector's
+            leading spacer matches the left pane's current width so it
+            lines up directly above the right pane, not on a row of its own. */}
+        <div className="centerPanelNavRow">
+          <Nav variant="pills" activeKey={isSplit ? splitLeft : view} onSelect={onSelectMainNav} className="centerPanelMainNav">
+            {PANE_LABELS.map((p) => (
+              <Nav.Item key={p.content}>
+                <Nav.Link eventKey={p.content}>{p.label}</Nav.Link>
+              </Nav.Item>
+            ))}
+          </Nav>
 
-        {isSplit && (
-          <div className="centerPanelRightNavRow">
-            <div className="centerPanelRightNavSpacer" style={{ flexBasis: splitLeftWidth }} />
-            <Nav variant="pills" activeKey={splitRight} onSelect={(key) => key && dispatch(uiActions.setSplitRight(key as PaneContent))} className="centerPanelRightNav">
-              {PANE_LABELS.map((p) => (
-                <Nav.Item key={p.content}>
-                  <Nav.Link eventKey={p.content}>{p.label}</Nav.Link>
-                </Nav.Item>
-              ))}
-            </Nav>
-          </div>
-        )}
+          {isSplit && (
+            <>
+              <div className="centerPanelRightNavSpacer" style={{ flexBasis: leftBasis }} />
+              <Nav
+                variant="pills"
+                activeKey={splitRight}
+                onSelect={(key) => key && dispatch(uiActions.setSplitRight(key as PaneContent))}
+                className="centerPanelRightNav"
+              >
+                {PANE_LABELS.map((p) => (
+                  <Nav.Item key={p.content}>
+                    <Nav.Link eventKey={p.content}>{p.label}</Nav.Link>
+                  </Nav.Item>
+                ))}
+              </Nav>
+            </>
+          )}
+
+          {/* Never shows as "active" itself - isSplit ? splitLeft : view
+              never equals "split", by construction (see onSelectMainNav). */}
+          <Nav variant="pills" activeKey={isSplit ? splitLeft : view} onSelect={onSelectMainNav} className="centerPanelSplitNav">
+            <Nav.Item>
+              <Nav.Link eventKey="split">Split</Nav.Link>
+            </Nav.Item>
+          </Nav>
+        </div>
 
         {/* All four stay mounted always so switching tabs or split assignment
             never resets the 3D camera, reloads/re-fetches the editor's
