@@ -340,13 +340,12 @@ public class GrblGcodeWriterTest {
                 11_000, 1_200));
 
         String[] lines = result.toString().split("\n");
-        assertEquals(6, lines.length);
+        assertEquals(5, lines.length);
         assertEquals("M3 S10000", lines[0]);
         assertEquals("G0 X0Y0", lines[1]);
         assertEquals("G1 F1000 X10Y10", lines[2]);
         assertEquals("G1 X15Y15", lines[3]);
-        assertEquals("M3 S11000", lines[4]);
-        assertEquals("G1 F1200 X20Y20", lines[5]);
+        assertEquals("G1 F1200 X20Y20 S11000", lines[4]);
     }
 
     @Test
@@ -546,6 +545,51 @@ public class GrblGcodeWriterTest {
     }
 
     @Test
+    public void writeSegment_shouldStopTheSpindleBeforeARapidWithSpindleSpeedOff() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.LINE, position(1d, 0d), null, 1000, 500));
+
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(5d, 0d), null, Segment.SPINDLE_OFF, null));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals("M3 S1000", lines[0]);
+        assertEquals("G1 F500 X1Y0", lines[1]);
+        assertEquals("M5", lines[2]);
+        assertEquals("G0 X5", lines[3]);
+        assertEquals(4, lines.length);
+    }
+
+    @Test
+    public void writeSegment_shouldStartTheSpindleAgainAfterItWasStopped() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.LINE, position(1d, 0d), null, 1000, 500));
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(5d, 0d), null, Segment.SPINDLE_OFF, null));
+
+        writer.writeSegment(new Segment(SegmentType.LINE, position(6d, 0d), null, 1000, 500));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals("M5", lines[2]);
+        assertEquals("G0 X5", lines[3]);
+        assertEquals("M3 S1000", lines[4]);
+        assertEquals("G1 F500 X6", lines[5]);
+        assertEquals(6, lines.length);
+    }
+
+    @Test
+    public void writeSegment_shouldNotStopASpindleThatWasNeverStarted() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(5d, 0d), null, Segment.SPINDLE_OFF, null));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals("G0 X5Y0", lines[0]);
+        assertEquals(1, lines.length);
+    }
+
+    @Test
     public void spindleShouldNotRestartForSameSpeedUntilChanged() throws IOException {
         StringWriter result = new StringWriter();
         GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
@@ -575,12 +619,62 @@ public class GrblGcodeWriterTest {
         ));
 
         String[] lines = result.toString().split("\n");
-        assertEquals(5, lines.length);
+        assertEquals(4, lines.length);
         assertEquals("M3 S10000", lines[0]);
         assertEquals("G0 X0", lines[1]);
         assertEquals("G1 F500 X1", lines[2]);
-        assertEquals("M3 S11000", lines[3]);
-        assertEquals("G1 F600 X2", lines[4]);
+        assertEquals("G1 F600 X2 S11000", lines[3]);
+    }
+
+    @Test
+    public void writeSegment_shouldChangeSpeedOfRunningSpindleOnTheCuttingLineInsteadOfANewM3() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(2d, 0d), null, Segment.SPINDLE_OFF, null));
+        writer.writeSegment(new Segment(SegmentType.LINE, position(1.9, 0d), null, 82, 1000));
+
+        writer.writeSegment(new Segment(SegmentType.LINE, position(1.8, 0d), null, 125, 1000));
+        writer.writeSegment(new Segment(SegmentType.LINE, position(1.7, 0d), null, 125, 1000));
+        writer.writeSegment(new Segment(SegmentType.LINE, position(1.6, 0d), null, 24, 1000));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals("G0 X2Y0", lines[0]);
+        assertEquals("M3 S82", lines[1]);
+        assertEquals("G1 F1000 X1.9", lines[2]);
+        assertEquals("G1 X1.8 S125", lines[3]);
+        assertEquals("G1 X1.7", lines[4]);
+        assertEquals("G1 X1.6 S24", lines[5]);
+        assertEquals(6, lines.length);
+    }
+
+    @Test
+    public void writeSegment_shouldChangeSpeedOfRunningSpindleOnAnArc() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.LINE, position(0d, 0d), null, 500, 1000));
+
+        writer.writeSegment(new Segment(SegmentType.CWARC, position(10d, 0d), null, 800, 1000, new Point2D.Double(5, 0)));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals("G2 X10Y0I5J0 S800", lines[2]);
+        assertEquals(3, lines.length);
+    }
+
+    @Test
+    public void writeSegment_shouldStartStoppedSpindleWithM3EvenOnACuttingLine() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.LINE, position(1d, 0d), null, 500, 1000));
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(5d, 0d), null, Segment.SPINDLE_OFF, null));
+
+        writer.writeSegment(new Segment(SegmentType.LINE, position(6d, 0d), null, 800, 1000));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals("M5", lines[2]);
+        assertEquals("G0 X5", lines[3]);
+        assertEquals("M3 S800", lines[4]);
+        assertEquals("G1 F1000 X6", lines[5]);
+        assertEquals(6, lines.length);
     }
 
     @Test
@@ -611,13 +705,12 @@ public class GrblGcodeWriterTest {
                 11_000, 1_200));
 
         String[] lines = result.toString().split("\n");
-        assertEquals(6, lines.length);
+        assertEquals(5, lines.length);
         assertEquals("M3 S10000", lines[0]);
         assertEquals("G0 X0Y0", lines[1]);
         assertEquals("G1 F1000 X10Y10", lines[2]);
         assertEquals("G0 X15Y15", lines[3]);
-        assertEquals("M3 S11000", lines[4]);
-        assertEquals("G1 F1200 X20Y20", lines[5]);
+        assertEquals("G1 F1200 X20Y20 S11000", lines[4]);
     }
 
     @Test

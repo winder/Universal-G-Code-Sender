@@ -35,8 +35,9 @@ public class LaserFillToolPath extends AbstractToolPath {
     }
 
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
-        gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), source.getFeedRate()));
+        gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, null, source.getFeedRate()));
 
+        int laserPower = (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d));
         double toolPathAngle = source.getToolPathAngle();
         List<Geometry> geometries = getGeometries();
         geometries.forEach(g -> {
@@ -52,7 +53,7 @@ public class LaserFillToolPath extends AbstractToolPath {
                 while (currentOffset <= offsetRange[1]) {
                     LineString lineString = generateLineString(envelope, currentOffset, toolPathAngle);
                     if (lineString != null) {
-                        addLineIntersectionSegments(gcodePath, g, lineString, reverse);
+                        addLineIntersectionSegments(gcodePath, g, lineString, reverse, laserPower);
                     }
                     currentOffset += settings.getLaserDiameter();
                     reverse = !reverse;
@@ -61,7 +62,7 @@ public class LaserFillToolPath extends AbstractToolPath {
         });
     }
 
-    private static void addLineIntersectionSegments(GcodePath gcodePath, Geometry geometry, LineString lineString, boolean reverse) {
+    private void addLineIntersectionSegments(GcodePath gcodePath, Geometry geometry, LineString lineString, boolean reverse, int laserPower) {
         Geometry intersection = geometry.intersection(lineString);
 
         // If the intersection is a multipoint we should not connect the points with a line
@@ -79,8 +80,8 @@ public class LaserFillToolPath extends AbstractToolPath {
             }
 
             for (int i = 0; i + 1 < partialPosition.size(); i += 2) {
-                gcodePath.addSegment(SegmentType.MOVE, partialPosition.get(i));
-                gcodePath.addSegment(SegmentType.LINE, partialPosition.get(i + 1));
+                gcodePath.addSegment(new Segment(SegmentType.MOVE, partialPosition.get(i), null, Segment.SPINDLE_OFF, null));
+                gcodePath.addSegment(new Segment(SegmentType.LINE, partialPosition.get(i + 1), null, laserPower, source.getFeedRate()));
             }
         }
     }

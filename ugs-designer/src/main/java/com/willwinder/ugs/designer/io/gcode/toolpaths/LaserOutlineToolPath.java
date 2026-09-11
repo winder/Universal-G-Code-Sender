@@ -20,7 +20,7 @@ public class LaserOutlineToolPath extends AbstractToolPath {
     }
 
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
-        gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), source.getFeedRate()));
+        gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, null, source.getFeedRate()));
 
         List<Geometry> geometries = getGeometries();
         geometries.forEach(g -> addGeometrySegments(g, gcodePath));
@@ -37,6 +37,7 @@ public class LaserOutlineToolPath extends AbstractToolPath {
 
     private void addGeometrySegments(Geometry geometry, GcodePath gcodePath) {
         List<Tabs.Section> sections = toSections(ToolPathUtils.geometryToCoordinates(geometry));
+        int laserPower = getLaserPower();
 
         int currentPass = 0;
         while (currentPass < source.getPasses()) {
@@ -50,11 +51,16 @@ public class LaserOutlineToolPath extends AbstractToolPath {
                 List<PartialPosition> coordinates = section.coordinates().stream()
                         .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).build()).toList();
 
-                gcodePath.addSegment(SegmentType.MOVE, coordinates.get(0), label);
-                coordinates.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c));
+                gcodePath.addSegment(new Segment(SegmentType.MOVE, coordinates.getFirst(), label, Segment.SPINDLE_OFF, null));
+                coordinates.stream().skip(1)
+                        .forEach(c -> gcodePath.addSegment(new Segment(SegmentType.LINE, c, null, laserPower, source.getFeedRate())));
                 label = null;
             }
         }
+    }
+
+    private int getLaserPower() {
+        return (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d));
     }
 
     /**

@@ -14,6 +14,7 @@ import static com.willwinder.ugs.designer.io.gcode.path.SegmentType.MOVE;
 import static com.willwinder.ugs.designer.io.gcode.path.SegmentType.SEAM;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 public class LaserFillToolPathTest {
 
@@ -66,7 +67,7 @@ public class LaserFillToolPathTest {
 
         GcodePath gcodePath = toolPath.toGcodePath();
         List<Segment> segments = gcodePath.getSegments();
-        assertEquals(SEAM, segments.get(0).type);
+        assertEquals(SEAM, segments.getFirst().type);
 
         List<Segment> lineSegments = segments.stream().filter(s -> s.type == LINE).toList();
         assertFalse("Expected the fill to produce line segments", lineSegments.isEmpty());
@@ -74,6 +75,39 @@ public class LaserFillToolPathTest {
         // A 90 degree angle fills with vertical passes, so every line moves along Y while keeping X constant
         lineSegments.forEach(segment ->
                 assertEquals(segment.getPoint().getX(), findMovePreceding(segments, segment).getPoint().getX(), 0.01));
+    }
+
+    @Test
+    public void appendGcodePath_shouldTurnTheLaserOffOnEveryRapidAndOnAgainOnEveryFillLine() {
+        Path path = new Path();
+        path.setPasses(1);
+        path.setSpindleSpeed(50);
+        path.setFeedRate(800);
+        path.moveTo(0, 0);
+        path.lineTo(0, 1);
+        path.lineTo(1, 1);
+        path.lineTo(1, 0);
+        path.lineTo(0, 0);
+        path.close();
+
+        Settings settings = new Settings();
+        settings.setMaxSpindleSpeed(10000);
+
+        LaserFillToolPath toolPath = new LaserFillToolPath(settings, path);
+
+        GcodePath gcodePath = toolPath.toGcodePath();
+
+        List<Segment> segments = gcodePath.getSegments();
+        assertNull("The laser must stay off until the first fill line", segments.getFirst().getSpindleSpeed());
+        List<Segment> moveSegments = segments.stream().filter(s -> s.type == MOVE).toList();
+        List<Segment> lineSegments = segments.stream().filter(s -> s.type == LINE).toList();
+        assertFalse(moveSegments.isEmpty());
+        assertEquals(moveSegments.size(), lineSegments.size());
+        moveSegments.forEach(s -> assertEquals(Segment.SPINDLE_OFF, s.getSpindleSpeed(), 0.01));
+        lineSegments.forEach(s -> {
+            assertEquals(5000, s.getSpindleSpeed(), 0.01);
+            assertEquals(800, s.getFeedSpeed(), 0.01);
+        });
     }
 
     private Segment findMovePreceding(List<Segment> segments, Segment lineSegment) {
