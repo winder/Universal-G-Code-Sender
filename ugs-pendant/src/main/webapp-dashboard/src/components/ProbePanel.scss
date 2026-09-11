@@ -38,7 +38,15 @@
   flex-wrap: wrap;
   gap: 20px;
   flex: 1 1 auto;
-  min-height: 0;
+  // Deliberately NOT min-height: 0 - that lets this collapse to 0px when
+  // its content (especially the single-column settings stack in compact
+  // mode) doesn't fit, while its children keep rendering at full size
+  // regardless, overflowing outside their collapsed parent - and since the
+  // footer comes right after in the flex column, it ends up positioned as
+  // if body were empty, landing on top of whatever overflowed. Leaving
+  // min-height at its default (content-based) makes .probePanel's own
+  // overflow-y: auto scroll the whole panel instead, once things genuinely
+  // don't fit. Same bug/fix as .macroFormGcode in MacroForm.scss.
 }
 
 .probePanelDiagramColumn {

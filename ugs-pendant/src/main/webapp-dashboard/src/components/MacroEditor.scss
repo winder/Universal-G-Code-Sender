@@ -19,8 +19,10 @@
 
   // At split-pane width, 300px for the list leaves too little room for the
   // form itself (the button/icon rows below need it more) - narrower here.
+  // 220px (not narrower) so the reorder/delete icons below still have
+  // somewhere to go without covering the name entirely.
   &.compact {
-    flex-basis: 160px;
+    flex-basis: 220px;
   }
 }
 
@@ -109,17 +111,33 @@
   // (see .macroEditorRowActions), which is fine for a short name that
   // doesn't reach that far - but a longer name fills the row's full width
   // and its tail just gets covered by the (opaque) action buttons once
-  // they appear, rather than properly truncating. Reserving room here -
-  // only for the row actually being hovered/selected, not every row -
-  // makes it ellipsize instead. Not applied in the compact/split list (see
-  // .macroEditorList.compact below) - at 160px wide there just isn't
-  // enough room left for both a readable name and 3 action icons.
-  transition: padding-right 0.1s ease-out;
+  // they appear, rather than properly truncating. Shrinking max-width here
+  // - only for the row actually being hovered/selected, not every row -
+  // makes it ellipsize/wrap around them instead. padding-right does NOT
+  // work for this: -webkit-box (needed for the 2-line clamp above) doesn't
+  // factor padding into its internal line-wrapping width at all - measured
+  // zero effect on where text actually wraps when tried. max-width, an
+  // explicit shrink of the box itself rather than inset padding, does.
+  // Smaller reservation in the compact list (see .macroEditorList.compact
+  // below) since there's less width to spare there to begin with.
+  transition: max-width 0.1s ease-out;
 }
 
-.macroEditorList:not(.compact) .macroEditorRow:hover .macroEditorRowName,
-.macroEditorList:not(.compact) .macroEditorRow.selected .macroEditorRowName {
-  padding-right: 90px;
+// Absolute pixel values, not calc(100% - Npx): percentage widths on a flex
+// item resolve against the flex CONTAINER's full width (the whole row,
+// including the space the swatch icon already claims), not "however much
+// space this item currently has" - so calc(100%-Npx) reserved less than
+// intended and still let the actions overlap the tail of the text.
+// Measured against each list's actual layout (300px / 220px minus the
+// list's own padding, the row's padding, and the swatch+gap).
+.macroEditorRow:hover .macroEditorRowName,
+.macroEditorRow.selected .macroEditorRowName {
+  max-width: 110px;
+}
+
+.macroEditorList.compact .macroEditorRow:hover .macroEditorRowName,
+.macroEditorList.compact .macroEditorRow.selected .macroEditorRowName {
+  max-width: 55px;
 }
 
 .macroEditorRowActions {
@@ -168,12 +186,21 @@
   }
 }
 
-// Reorder/delete stay reachable only in the full-width list - reorder,
-// delete, and export-this-macro are all still one tap away via the full
-// Macros tab, and 160px genuinely isn't enough to show both a readable
-// name and three action icons at once (see .macroEditorRowName above).
-.macroEditorList:not(.compact) .macroEditorRow:hover .macroEditorRowActions,
-.macroEditorList:not(.compact) .macroEditorRow.selected .macroEditorRowActions {
+// The compact list has less width to spare (see .macroEditorList.compact),
+// so the buttons themselves shrink a bit too, to fit the smaller reserved
+// space on .macroEditorRowName above without getting clipped.
+.macroEditorList.compact .macroEditorRowActions {
+  gap: 2px;
+  padding-left: 12px;
+
+  button {
+    padding: 2px 3px;
+    font-size: 0.85em;
+  }
+}
+
+.macroEditorRow:hover .macroEditorRowActions,
+.macroEditorRow.selected .macroEditorRowActions {
   opacity: 1;
   pointer-events: auto;
 }
