@@ -4,6 +4,8 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 ## 2026-09-11
 
+- Fixed the Probe panel's Run button floating on top of the settings fields in a narrow split pane - same root cause as the earlier macro Gcode field fix (a flex child was allowed to collapse to 0 height while its content kept rendering at full size).
+- Restored the macro list's reorder/delete icons in the compact (split) list - widened the column and gave the name text room to shrink around them on hover/select, instead of removing the icons there entirely.
 - Long macro names now wrap instead of truncating with an ellipsis - a second line on the run buttons, up to two lines in the macro editor's list.
 - Fixed macro names getting covered by the reorder/delete icons when selected in the compact (split) macro list - there isn't room there for both, so those actions now only appear in the full-width Macros tab.
 - Fixed macro names disappearing entirely in the compact (split) macro list - a side effect of the previous fix for the hover-jump issue.
