@@ -4,6 +4,7 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 ## 2026-09-11
 
+- Fixed the split right-pane header not staying lined up above the right pane, the macro list jumping around as you move the mouse over it (its reorder/delete icons reflowed the row on hover), and widened the macro list column so it's not cramped before selecting anything.
 - Split now defaults to a true, responsive 50/50 (was a fixed pixel width, heavily favoring one side on a wide screen), and the left/right pane selectors now sit on one row instead of two.
 - Fixed the macro editor's Gcode field overlapping the fields below it in a narrow split pane, added a way to exit Split back to a single panel (tap Split again), and raised the minimum split pane width so there's always enough room for the macro editor's list and form.
 - Turned **Split** into an independent two-pane layout: pick any of Visualize/Edit/Macros/Probe for the left and right panes separately (picking one that's already showing on the other side swaps them instead of duplicating), with a draggable divider between them. Split moved to the far right of the tab bar.
