@@ -35,6 +35,17 @@ const status = {
   },
 };
 
+const probeSettings = {
+  feedRateFast: 100,
+  feedRateSlow: 10,
+  retractDistance: 3,
+  delayAfterRetract: 1,
+  probeDiameter: 3.175,
+  plateThickness: 15,
+  maxTravel: 25,
+  compensateSoftLimits: true,
+};
+
 const macros = [
   { uuid: "m1", name: "Home", description: "Home all axes", gcode: "$H", color: "#4ade80", icon: "home" },
   { uuid: "m2", name: "Zero XY", description: "Zero X/Y work offset", gcode: "G10 L20 P1 X0 Y0", color: "#60a5fa", icon: "crosshairs" },
@@ -314,6 +325,39 @@ const server = createServer((req, res) => {
     return;
   }
   if (p.startsWith("/api/v1/macros/")) return json(res, {});
+  if (p === "/api/v1/probe/getSettings") return json(res, probeSettings);
+  if (p === "/api/v1/probe/saveSettings" && req.method === "POST") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      Object.assign(probeSettings, JSON.parse(body));
+      json(res, {});
+    });
+    return;
+  }
+  if (p === "/api/v1/probe/run" && req.method === "POST") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      const { operation } = JSON.parse(body);
+      // Simulate real motion time so the "Probing..." state is visible, and fail on demand
+      // (name a macro/test trigger via ?fail=1) so the failure UI path can be exercised too.
+      const shouldFail = url.searchParams.get("fail") === "1";
+      setTimeout(() => {
+        if (shouldFail) {
+          return json(res, { success: false, message: `Probe did not make contact within ${probeSettings.maxTravel}mm` });
+        }
+        const probedPosition = {
+          x: status.machineCoord.x + (operation.startsWith("X") ? -3.2 : 0),
+          y: status.machineCoord.y + (operation.startsWith("Y") ? -3.2 : 0),
+          z: operation === "Z" ? status.machineCoord.z - 8.4 : status.machineCoord.z,
+          a: 0, b: 0, c: 0, units: "MM",
+        };
+        json(res, { success: true, probedPosition });
+      }, 900);
+    });
+    return;
+  }
   if (p === "/api/v1/visualizer/getToolpath") return json(res, gcodeToSegments(files[activeFile] ?? ""));
 
   json(res, { error: "not found" }, 404);

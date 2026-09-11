@@ -4,6 +4,7 @@ import Visualizer3D from "./Visualizer3D";
 import GcodeEditor from "./GcodeEditor";
 import ConsolePanel from "./ConsolePanel";
 import MacroEditor from "./MacroEditor";
+import ProbePanel from "./ProbePanel";
 import { useAppSelector } from "../hooks/useAppSelector";
 import { useAppDispatch } from "../hooks/useAppDispatch";
 import { consoleActions } from "../store/consoleSlice";
@@ -54,12 +55,15 @@ const CenterPanel = () => {
           <Nav.Item>
             <Nav.Link eventKey="macros">Macros</Nav.Link>
           </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="probe">Probe</Nav.Link>
+          </Nav.Item>
         </Nav>
 
         {/* All stay mounted always (including in split view) so switching modes
             never resets the 3D camera, reloads/re-fetches the editor's content,
             or discards in-progress macro edits - only visibility/layout toggles. */}
-        <div className={"centerPanelContentRow " + (view === "split" ? "split" : "")} hidden={view === "macros"}>
+        <div className={"centerPanelContentRow " + (view === "split" ? "split" : "")} hidden={view === "macros" || view === "probe"}>
           <div className="centerPanelContent" hidden={view === "edit"}>
             <Visualizer3D />
           </div>
@@ -69,6 +73,9 @@ const CenterPanel = () => {
         </div>
         <div className="centerPanelContent" hidden={view !== "macros"}>
           <MacroEditor />
+        </div>
+        <div className="centerPanelContent" hidden={view !== "probe"}>
+          <ProbePanel />
         </div>
       </div>
 

@@ -4,7 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 // just which CenterPanel tab is active, so the RightRail's macro edit
 // button can switch to it without CenterPanel needing to know about
 // RightRail (or vice versa).
-export type CenterView = "visualize" | "edit" | "split" | "macros";
+export type CenterView = "visualize" | "edit" | "split" | "macros" | "probe";
 
 type UiState = {
   centerView: CenterView;

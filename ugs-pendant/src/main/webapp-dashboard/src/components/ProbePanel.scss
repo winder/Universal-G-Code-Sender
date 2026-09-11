@@ -1,0 +1,126 @@
+.probePanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 12px;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.probePanelOperations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  flex: 0 0 auto;
+}
+
+.probePanelGroup {
+  flex: 1 1 260px;
+}
+
+.probePanelGroupHeading {
+  color: #8a8f92;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.probePanelButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.probePanelBody {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.probePanelDiagramColumn {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 320px;
+}
+
+.probePanelInstructions {
+  color: #9aa0a4;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.probePanelSettings {
+  flex: 1 1 260px;
+  min-width: 220px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  align-content: start;
+}
+
+.probePanelField {
+  min-width: 0;
+}
+
+.probePanelFieldInput {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  span {
+    color: #9aa0a4;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+}
+
+.probePanelSoftLimits {
+  grid-column: 1 / -1;
+
+  #probe-compensate-soft-limits:checked {
+    background-color: #4ade80;
+    border-color: #4ade80;
+  }
+}
+
+.probePanelFooter {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #3a3d3e;
+}
+
+.probePanelRun {
+  font-weight: 600;
+}
+
+.probePanelDisabledHint {
+  color: #9aa0a4;
+  font-size: 0.8rem;
+}
+
+.probePanelResult {
+  flex: 1 1 100%;
+  font-size: 0.85rem;
+  padding: 6px 10px;
+  border-radius: 4px;
+
+  &.success {
+    background-color: rgba(74, 222, 128, 0.12);
+    color: #4ade80;
+  }
+
+  &.failure {
+    background-color: rgba(248, 113, 113, 0.12);
+    color: #f87171;
+  }
+}
