@@ -97,6 +97,21 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 0.9rem;
+  // The actions overlay on top of the row rather than taking layout space
+  // (see .macroEditorRowActions), which is fine for a short name that
+  // doesn't reach that far - but a longer name fills the row's full width
+  // and its tail just gets covered by the (opaque) action buttons once
+  // they appear, rather than properly truncating. Reserving room here -
+  // only for the row actually being hovered/selected, not every row -
+  // makes it ellipsize instead. Not applied in the compact/split list (see
+  // .macroEditorList.compact below) - at 160px wide there just isn't
+  // enough room left for both a readable name and 3 action icons.
+  transition: padding-right 0.1s ease-out;
+}
+
+.macroEditorList:not(.compact) .macroEditorRow:hover .macroEditorRowName,
+.macroEditorList:not(.compact) .macroEditorRow.selected .macroEditorRowName {
+  padding-right: 90px;
 }
 
 .macroEditorRowActions {
@@ -145,8 +160,12 @@
   }
 }
 
-.macroEditorRow:hover .macroEditorRowActions,
-.macroEditorRow.selected .macroEditorRowActions {
+// Reorder/delete stay reachable only in the full-width list - reorder,
+// delete, and export-this-macro are all still one tap away via the full
+// Macros tab, and 160px genuinely isn't enough to show both a readable
+// name and three action icons at once (see .macroEditorRowName above).
+.macroEditorList:not(.compact) .macroEditorRow:hover .macroEditorRowActions,
+.macroEditorList:not(.compact) .macroEditorRow.selected .macroEditorRowActions {
   opacity: 1;
   pointer-events: auto;
 }
