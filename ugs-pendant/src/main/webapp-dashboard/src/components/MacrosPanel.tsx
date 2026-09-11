@@ -26,7 +26,7 @@ const MacrosPanel = () => {
     <div className="macrosPanel">
       {macros.map((macro) => (
         <Button
-          key={macro.name}
+          key={macro.uuid}
           className="macroButton"
           variant="secondary"
           title={macro.description}

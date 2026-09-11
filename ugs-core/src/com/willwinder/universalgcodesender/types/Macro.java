@@ -13,11 +13,32 @@ import java.util.UUID;
  * Created by Phil on 9/6/2015.
  */
 public class Macro implements Serializable {
+    // Without an explicit UID, Java auto-generates one from the class's
+    // exact field layout - any future field addition (like color/icon just
+    // now) silently changes it, breaking deserialization of any Macro
+    // NetBeans has cached from a previous session (it serializes one into
+    // each dynamically-registered per-macro action under the userdir's
+    // config/Actions/Macro/). Freezing it here means adding fields in the
+    // future won't do that again. Does not affect the actual macro list,
+    // which is stored as plain JSON via Gson (see SettingsFactory) - this
+    // only matters for that NetBeans action cache.
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private String uuid = UUID.randomUUID().toString();
     private String name;
     private String description;
     private String gcode;
     private MacroVersion version;
+    // Dashboard-only styling, optional on every macro (including every one
+    // that predates this or was created/edited in the native Settings UI,
+    // which doesn't know about these). Kept as plain fields rather than
+    // encoded into gcode as a comment specifically so they survive being
+    // edited from either UI without any parsing - Settings is persisted via
+    // plain Gson reflection (see SettingsFactory), so new fields round-trip
+    // automatically with no extra (de)serialization code.
+    private String color;
+    private String icon;
 
     public Macro() {
     }
@@ -78,6 +99,22 @@ public class Macro implements Serializable {
         this.version = Objects.requireNonNullElse(version, MacroVersion.V1);
     }
 
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
     @Override
     public String toString() {
         return "Macro{" +
@@ -86,6 +123,8 @@ public class Macro implements Serializable {
                 ", description='" + description + '\'' +
                 ", gcode='" + gcode + '\'' +
                 ", version=" + version +
+                ", color='" + color + '\'' +
+                ", icon='" + icon + '\'' +
                 '}';
     }
 

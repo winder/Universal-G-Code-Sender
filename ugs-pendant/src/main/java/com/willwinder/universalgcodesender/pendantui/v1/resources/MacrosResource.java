@@ -21,9 +21,12 @@ package com.willwinder.universalgcodesender.pendantui.v1.resources;
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.v1.model.Macro;
+import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -47,13 +50,7 @@ public class MacrosResource {
     public List<Macro> getMacroList() {
         return SettingsFactory.loadSettings().getMacros()
                 .stream()
-                .map(macro -> {
-                    Macro result = new Macro();
-                    result.setGcode(macro.getGcode());
-                    result.setDescription(macro.getDescription());
-                    result.setName(macro.getName());
-                    return result;
-                })
+                .map(MacrosResource::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -62,5 +59,59 @@ public class MacrosResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public void executeMacro(Macro macro) throws Exception {
         MacroHelper.executeCustomGcode(macro.getGcode(), backendAPI);
+    }
+
+    // Deliberately a single "replace the whole list" save, mirroring how the
+    // native desktop Settings > Macros panel already works (edit a local
+    // list, one Save writes it back) - covers create/update/delete/reorder
+    // in one atomic operation instead of four endpoints that could partially
+    // fail relative to each other. List order here becomes the stored order,
+    // which is also what the native app and the right-rail run buttons use.
+    @POST
+    @Path("saveMacroList")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Replace the entire macro list")
+    public List<Macro> saveMacroList(List<Macro> macros) {
+        if (macros == null) {
+            throw new BadRequestException("Missing macro list");
+        }
+        for (Macro macro : macros) {
+            if (macro.getUuid() == null || macro.getUuid().isBlank()) {
+                throw new BadRequestException("Every macro requires a uuid");
+            }
+            if (macro.getName() == null || macro.getName().isBlank()) {
+                throw new BadRequestException("Every macro requires a name");
+            }
+        }
+
+        List<com.willwinder.universalgcodesender.types.Macro> coreMacros = macros.stream()
+                .map(MacrosResource::toCoreMacro)
+                .collect(Collectors.toList());
+
+        Settings settings = SettingsFactory.loadSettings();
+        settings.setMacros(coreMacros);
+        SettingsFactory.saveSettings(settings);
+
+        return getMacroList();
+    }
+
+    private static Macro toDto(com.willwinder.universalgcodesender.types.Macro macro) {
+        Macro result = new Macro();
+        result.setUuid(macro.getUuid());
+        result.setGcode(macro.getGcode());
+        result.setDescription(macro.getDescription());
+        result.setName(macro.getName());
+        result.setColor(macro.getColor());
+        result.setIcon(macro.getIcon());
+        return result;
+    }
+
+    private static com.willwinder.universalgcodesender.types.Macro toCoreMacro(Macro dto) {
+        com.willwinder.universalgcodesender.types.Macro macro = new com.willwinder.universalgcodesender.types.Macro(
+                dto.getUuid(), dto.getName(), dto.getDescription(), dto.getGcode());
+        macro.setColor(dto.getColor());
+        macro.setIcon(dto.getIcon());
+        return macro;
     }
 }
