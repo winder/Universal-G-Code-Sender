@@ -5,6 +5,8 @@ import settingsReducer from "./settingsSlice";
 import fileStatusReducer from "./fileStatusSlice";
 import consoleReducer from "./consoleSlice";
 import alarmReducer from "./alarmSlice";
+import macrosReducer from "./macrosSlice";
+import uiReducer from "./uiSlice";
 
 import { socketMiddleware } from "./socketMiddleware";
 
@@ -15,6 +17,8 @@ const rootReducer = combineReducers({
   fileStatus: fileStatusReducer,
   console: consoleReducer,
   alarm: alarmReducer,
+  macros: macrosReducer,
+  ui: uiReducer,
 });
 
 export const store = configureStore({

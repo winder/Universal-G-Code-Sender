@@ -14,6 +14,17 @@
   padding: 6px 8px;
   white-space: normal;
   line-height: 1.2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  // Only takes effect when macroColorStyle() sets these via inline style
+  // (i.e. the macro has a color) - otherwise falls back to Bootstrap's
+  // normal outline-secondary look untouched.
+  &[style*="border-color"] {
+    border-width: 2px;
+  }
 }
 
 .macrosEmpty {

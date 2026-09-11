@@ -36,9 +36,9 @@ const status = {
 };
 
 const macros = [
-  { name: "Home", description: "Home all axes", gcode: "$H" },
-  { name: "Zero XY", description: "Zero X/Y work offset", gcode: "G10 L20 P1 X0 Y0" },
-  { name: "Spindle On", description: undefined, gcode: "M3 S1000" },
+  { uuid: "m1", name: "Home", description: "Home all axes", gcode: "$H", color: "#4ade80", icon: "home" },
+  { uuid: "m2", name: "Zero XY", description: "Zero X/Y work offset", gcode: "G10 L20 P1 X0 Y0", color: "#60a5fa", icon: "crosshairs" },
+  { uuid: "m3", name: "Spindle On", description: undefined, gcode: "M3 S1000" },
 ];
 
 // A small set of files simulating the "workspace directory" - keyed by the bare
@@ -302,6 +302,17 @@ const server = createServer((req, res) => {
   }
   if (p.startsWith("/api/v1/files/")) return json(res, {});
   if (p === "/api/v1/macros/getMacroList") return json(res, macros);
+  if (p === "/api/v1/macros/saveMacroList" && req.method === "POST") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      const next = JSON.parse(body);
+      macros.length = 0;
+      macros.push(...next);
+      json(res, macros);
+    });
+    return;
+  }
   if (p.startsWith("/api/v1/macros/")) return json(res, {});
   if (p === "/api/v1/visualizer/getToolpath") return json(res, gcodeToSegments(files[activeFile] ?? ""));
 

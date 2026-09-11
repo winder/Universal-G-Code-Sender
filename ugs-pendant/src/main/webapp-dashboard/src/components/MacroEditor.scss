@@ -1,0 +1,137 @@
+.macroEditor {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+
+.macroEditorList {
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid #2f3132;
+  padding: 10px;
+  gap: 8px;
+}
+
+.macroEditorListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.macroEditorListHeaderRight {
+  display: flex;
+  gap: 6px;
+}
+
+.macroEditorEmpty {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.macroEditorRows {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.macroEditorRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+
+  &:hover {
+    background-color: #1c1d1e;
+  }
+
+  &.selected {
+    background-color: #1c1d1e;
+    border-color: #4ade80;
+  }
+}
+
+.macroEditorRowSwatch {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  border: 1px solid #3a3d3e;
+}
+
+.macroEditorRowName {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.macroEditorRowActions {
+  flex: 0 0 auto;
+  display: none;
+  gap: 4px;
+
+  button {
+    border: none;
+    background: none;
+    color: #9aa0a4;
+    padding: 2px 4px;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      color: #e5e7eb;
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+  }
+
+  .macroEditorRowDelete:hover:not(:disabled) {
+    color: #f87171;
+  }
+}
+
+.macroEditorRow:hover .macroEditorRowActions,
+.macroEditorRow.selected .macroEditorRowActions {
+  display: flex;
+}
+
+.macroEditorFormPane {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 12px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.macroEditorNoSelection {
+  color: #6b7280;
+  font-size: 0.9rem;
+  padding-top: 20px;
+  text-align: center;
+}
+
+.macroEditorSaving {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  color: #6b7280;
+  font-size: 0.8rem;
+}

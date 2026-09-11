@@ -44,6 +44,22 @@
     display: flex;
     flex-direction: column;
 
+    .rightRailSectionHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+
+      .rightRailHeading {
+        margin-bottom: 0;
+      }
+    }
+
+    .rightRailEditButton {
+      padding: 2px 8px;
+      line-height: 1;
+    }
+
     .macrosPanel {
       flex: 1;
     }

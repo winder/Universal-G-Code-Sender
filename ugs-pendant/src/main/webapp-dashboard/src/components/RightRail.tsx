@@ -1,10 +1,17 @@
+import { Button } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPen } from "@fortawesome/free-solid-svg-icons";
 import Toolbox from "./Toolbox";
 import MacrosPanel from "./MacrosPanel";
 import SpindleCoolantControls from "./SpindleCoolantControls";
 import OverrideControls from "./OverrideControls";
+import { useAppDispatch } from "../hooks/useAppDispatch";
+import { uiActions } from "../store/uiSlice";
 import "./RightRail.scss";
 
 const RightRail = () => {
+  const dispatch = useAppDispatch();
+
   return (
     <div className="rightRail">
       <div className="rightRailSection">
@@ -13,7 +20,18 @@ const RightRail = () => {
       </div>
 
       <div className="rightRailSection rightRailMacros">
-        <h6 className="rightRailHeading">Macros</h6>
+        <div className="rightRailSectionHeader">
+          <h6 className="rightRailHeading">Macros</h6>
+          <Button
+            size="sm"
+            variant="outline-secondary"
+            className="rightRailEditButton"
+            title="Edit macros"
+            onClick={() => dispatch(uiActions.setCenterView("macros"))}
+          >
+            <FontAwesomeIcon icon={faPen} />
+          </Button>
+        </div>
         <MacrosPanel />
       </div>
 

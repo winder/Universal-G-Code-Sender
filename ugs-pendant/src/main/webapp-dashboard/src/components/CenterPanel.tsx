@@ -3,12 +3,12 @@ import { Nav, Form } from "react-bootstrap";
 import Visualizer3D from "./Visualizer3D";
 import GcodeEditor from "./GcodeEditor";
 import ConsolePanel from "./ConsolePanel";
+import MacroEditor from "./MacroEditor";
 import { useAppSelector } from "../hooks/useAppSelector";
 import { useAppDispatch } from "../hooks/useAppDispatch";
 import { consoleActions } from "../store/consoleSlice";
+import { uiActions, CenterView } from "../store/uiSlice";
 import "./CenterPanel.scss";
-
-type View = "visualize" | "edit" | "split";
 
 const CONSOLE_MIN_HEIGHT = 100;
 const CONSOLE_MAX_HEIGHT = 640;
@@ -16,7 +16,11 @@ const CONSOLE_MAX_HEIGHT = 640;
 const CenterPanel = () => {
   const dispatch = useAppDispatch();
   const verboseEnabled = useAppSelector((state) => state.console.verboseEnabled);
-  const [view, setView] = useState<View>("visualize");
+  // Lifted to Redux (rather than local state) so the RightRail's macro edit
+  // button can jump here to the Macros tab without CenterPanel and RightRail
+  // needing to know about each other.
+  const view = useAppSelector((state) => state.ui.centerView);
+  const setView = (next: CenterView) => dispatch(uiActions.setCenterView(next));
   const [consoleHeight, setConsoleHeight] = useState(220);
   const dragStartRef = useRef({ y: 0, height: 0 });
 
@@ -37,7 +41,7 @@ const CenterPanel = () => {
   return (
     <div className="centerPanel">
       <div className="centerPanelTop">
-        <Nav variant="pills" activeKey={view} onSelect={(key) => setView((key as View) ?? "visualize")}>
+        <Nav variant="pills" activeKey={view} onSelect={(key) => setView((key as CenterView) ?? "visualize")}>
           <Nav.Item>
             <Nav.Link eventKey="visualize">Visualize</Nav.Link>
           </Nav.Item>
@@ -47,18 +51,24 @@ const CenterPanel = () => {
           <Nav.Item>
             <Nav.Link eventKey="split">Split</Nav.Link>
           </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="macros">Macros</Nav.Link>
+          </Nav.Item>
         </Nav>
 
-        {/* Both stay mounted always (including in split view) so switching modes
-            never resets the 3D camera or reloads/re-fetches the editor's content -
-            only visibility/layout toggles. */}
-        <div className={"centerPanelContentRow " + (view === "split" ? "split" : "")}>
+        {/* All stay mounted always (including in split view) so switching modes
+            never resets the 3D camera, reloads/re-fetches the editor's content,
+            or discards in-progress macro edits - only visibility/layout toggles. */}
+        <div className={"centerPanelContentRow " + (view === "split" ? "split" : "")} hidden={view === "macros"}>
           <div className="centerPanelContent" hidden={view === "edit"}>
             <Visualizer3D />
           </div>
           <div className="centerPanelContent" hidden={view === "visualize"}>
             <GcodeEditor />
           </div>
+        </div>
+        <div className="centerPanelContent" hidden={view !== "macros"}>
+          <MacroEditor />
         </div>
       </div>
 
