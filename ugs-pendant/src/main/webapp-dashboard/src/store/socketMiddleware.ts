@@ -82,6 +82,9 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
                         (ugsEvent.event as ControllerStatusEvent).status,
                     ),
                 );
+            } else if (ugsEvent.eventType === "Pong") {
+                // No-op - messageReceived() above already recorded this as a
+                // live heartbeat, which is the only reason it's sent.
             } else if (ugsEvent.eventType === "AlarmEvent") {
                 store.dispatch(alarmActions.setAlarm((ugsEvent.event as AlarmEvent).alarm));
             } else if (ugsEvent.eventType === "FileStateEvent") {

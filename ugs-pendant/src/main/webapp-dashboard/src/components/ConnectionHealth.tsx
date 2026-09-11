@@ -6,8 +6,16 @@ import "./ConnectionHealth.scss";
 // connection has actually gone stale (network drop, pendant server hung,
 // etc.) - these thresholds are about the age of the last message actually
 // received, not the socket's own readyState.
-const STALE_AFTER_MS = 3000;
-const LOST_AFTER_MS = 10000;
+//
+// The client pings every 4s (socketMiddleware.ts) and the server replies
+// with a pong (EventsSocket.java), so that alone is enough to keep this
+// live during a genuinely idle machine - status pushes are NOT a reliable
+// heartbeat on their own, since several controllers (e.g. FluidNCController)
+// deliberately skip dispatching a status event when nothing has changed.
+// These thresholds need enough margin over the 4s ping interval to absorb
+// normal jitter without flickering.
+const STALE_AFTER_MS = 7000;
+const LOST_AFTER_MS = 15000;
 
 const ConnectionHealth = () => {
   const isConnected = useAppSelector((state) => state.socket.isConnected);

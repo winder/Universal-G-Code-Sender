@@ -31,4 +31,8 @@ type UGSAlarmEvent = {
 
 export type UGSEvent = {
   eventType:  "SettingChangedEvent";
+} | {
+  // The server's reply to the client's periodic keepalive "ping" - carries
+  // no event payload, just its arrival is the point (see socketMiddleware.ts).
+  eventType: "Pong";
 } | UGSCommandEvent | UGSControllerStatusEvent | UGSControllerStateEvent | UGSFileStateEvent | UGSAlarmEvent;

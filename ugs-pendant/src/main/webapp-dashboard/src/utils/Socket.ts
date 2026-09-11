@@ -24,7 +24,11 @@ class Socket {
 
   send(message: any) {
     if (this.socket?.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(message));
+      // A string is sent as-is (e.g. the "ping" keepalive, matched verbatim
+      // server-side) - JSON.stringify-ing it too would double-encode it into
+      // a quoted string ('"ping"') that never matches. Anything else (a
+      // real object payload) still gets encoded normally.
+      this.socket.send(typeof message === "string" ? message : JSON.stringify(message));
     } else if (this.socket?.readyState === WebSocket.CLOSED) {
       this.socket.close();
       this.socket = undefined;

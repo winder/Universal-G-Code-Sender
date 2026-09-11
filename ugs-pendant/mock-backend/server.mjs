@@ -18,6 +18,8 @@ const settings = {
   workspaceDirectory: "C:\\Users\\qvipe\\gcode-workspace",
 };
 
+let statusBroadcastPaused = false;
+
 const status = {
   machineCoord: { x: 12.5, y: -4.2, z: 0.75, a: 0, b: 0, c: 0, units: "MM" },
   workCoord: { x: 12.5, y: -4.2, z: 0.75, a: 0, b: 0, c: 0, units: "MM" },
@@ -233,6 +235,10 @@ const server = createServer((req, res) => {
   // Mock-only hook (not part of the real API) for exercising the alarm modal
   // and its per-alarm-type message without real hardware. e.g.:
   //   curl "http://localhost:8080/debug/triggerAlarm?type=SOFT_LIMIT"
+  if (p === "/debug/pauseStatusBroadcast") {
+    statusBroadcastPaused = url.searchParams.get("value") !== "false";
+    return json(res, { statusBroadcastPaused });
+  }
   if (p === "/debug/triggerAlarm") {
     const type = url.searchParams.get("type") || "HARD_LIMIT";
     status.state = "ALARM";
@@ -319,6 +325,12 @@ function broadcast(event) {
 wss.on("connection", (ws) => {
   console.log("WS connected");
   const timer = setInterval(() => {
+    // Debug-only pause (see /debug/pauseStatusBroadcast) for exercising the
+    // connection-health dot with no status traffic at all, matching how a
+    // real controller goes quiet once idle (see FluidNCController.java's
+    // dedup check) - the unconditional broadcast here otherwise never
+    // reproduces that.
+    if (statusBroadcastPaused) return;
     ws.send(
       JSON.stringify({
         eventType: "ControllerStatusEvent",
@@ -327,7 +339,13 @@ wss.on("connection", (ws) => {
     );
   }, 500);
   ws.on("message", (msg) => {
-    if (msg.toString() !== "ping") console.log("WS msg", msg.toString());
+    if (msg.toString() === "ping") {
+      // Mirrors EventsSocket.java's new pong reply, so the connection-health
+      // dot has a heartbeat independent of status pushes to test against.
+      ws.send(JSON.stringify({ eventType: "Pong" }));
+    } else {
+      console.log("WS msg", msg.toString());
+    }
   });
   ws.on("close", () => clearInterval(timer));
 });

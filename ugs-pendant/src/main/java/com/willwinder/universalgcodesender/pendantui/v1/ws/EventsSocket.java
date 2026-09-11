@@ -33,6 +33,7 @@ import com.willwinder.universalgcodesender.utils.Settings;
 import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnError;
+import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
@@ -81,6 +82,25 @@ public class EventsSocket implements UGSEventListener {
     public void onWebSocketError(Session session, Throwable cause) {
         sessions.remove(session.getId());
         LOGGER.log(Level.WARNING, cause, () -> "WebSocket Closed: " + session.getId());
+    }
+
+    // The client sends a "ping" text frame every few seconds purely to keep
+    // the socket from being idle-timed-out. Answering it gives the dashboard
+    // a heartbeat it can use to tell "connection is alive" apart from
+    // "nothing has changed" - FluidNCController (and others) deliberately
+    // skip dispatching a ControllerStatusEvent when the status hasn't
+    // changed, so a genuinely idle machine can go a while with no status
+    // traffic at all even on a perfectly healthy connection.
+    @OnMessage
+    public void onWebSocketMessage(Session session, String message) {
+        if (!"ping".equals(message)) {
+            return;
+        }
+        try {
+            session.getBasicRemote().sendText("{\"eventType\":\"Pong\"}");
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, e, () -> "Could not send pong to session: " + session.getId());
+        }
     }
 
     @Override
