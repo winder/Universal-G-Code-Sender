@@ -35,9 +35,14 @@
 
 .macroButtonLabel {
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  // Wraps to a second line instead of truncating - the button already
+  // grows taller for it (min-height: 48px; height: auto above), so a
+  // two-line label is cheap and reads better than clipping the name.
+  // overflow-wrap is the backstop for one long unbroken word (no spaces to
+  // wrap at) - min-width: 0 on .macroButton keeps that from widening the
+  // grid track even when a word has to break mid-word.
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .macrosEmpty {
