@@ -45,7 +45,19 @@ public class FluidNCUtilsTest {
     public void parseAlarmResponse_shouldReturnHardLimitForHardLimitAlarms() {
         assertEquals(Alarm.HARD_LIMIT, FluidNCUtils.parseAlarmResponse("ALARM:1"));
         assertEquals(Alarm.HARD_LIMIT, FluidNCUtils.parseAlarmResponse("[MSG:ERR: ALARM: Hard Limit]"));
-        assertEquals(Alarm.UNKONWN, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Soft Limit]"));
+    }
+
+    @Test
+    public void parseAlarmResponse_shouldClassifyOtherKnownFluidNCAlarmMessages() {
+        assertEquals(Alarm.SOFT_LIMIT, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Soft Limit]"));
+        assertEquals(Alarm.ABORT_DURING_CYCLE, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Abort during cycle]"));
+        assertEquals(Alarm.PROBE_FAIL_INITIAL, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Probe fail initial]"));
+        assertEquals(Alarm.PROBE_FAIL_CONTACT, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Probe fail contact]"));
+        assertEquals(Alarm.HOMING_FAIL_RESET, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Homing fail reset]"));
+        assertEquals(Alarm.HOMING_FAIL_DOOR, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Homing fail door]"));
+        assertEquals(Alarm.HOMING_FAIL_PULLOFF, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Homing fail pulloff]"));
+        assertEquals(Alarm.HOMING_FAIL_APPROACH, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Homing fail approach]"));
+        assertEquals(Alarm.UNKONWN, FluidNCUtils.parseAlarmResponse("[MSG:INFO: ALARM: Something unrecognized]"));
     }
 
     @Test

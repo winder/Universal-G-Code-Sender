@@ -226,6 +226,19 @@ const server = createServer((req, res) => {
     else if (command === "CMD_SPINDLE_OVR_COARSE_MINUS") status.overrides.spindle = clamp(status.overrides.spindle - 10);
     return json(res, {});
   }
+  if (p === "/api/v1/machine/killAlarm" || p === "/api/v1/machine/softReset") {
+    status.state = "IDLE";
+    return json(res, {});
+  }
+  // Mock-only hook (not part of the real API) for exercising the alarm modal
+  // and its per-alarm-type message without real hardware. e.g.:
+  //   curl "http://localhost:8080/debug/triggerAlarm?type=SOFT_LIMIT"
+  if (p === "/debug/triggerAlarm") {
+    const type = url.searchParams.get("type") || "HARD_LIMIT";
+    status.state = "ALARM";
+    broadcast({ eventType: "AlarmEvent", event: { alarm: type } });
+    return json(res, {});
+  }
   if (p.startsWith("/api/v1/machine/")) return json(res, {});
   if (p === "/api/v1/files/getFileStatus") return json(res, fileStatus);
   if (p === "/api/v1/files/getWorkspaceFileList") return json(res, { fileList: Object.keys(files) });

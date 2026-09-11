@@ -321,7 +321,7 @@ public class FluidNCControllerTest {
 
         assertFalse(target.isStreaming());
         assertEquals(ControllerState.ALARM, target.getControllerStatus().getState());
-        verify(listener, times(1)).receivedAlarm(Alarm.UNKONWN);
+        verify(listener, times(1)).receivedAlarm(Alarm.SOFT_LIMIT);
         verify(listener, times(1)).streamCanceled();
         verify(communicator, times(1)).cancelSend();
         verify(communicator, never()).sendByteImmediately(GrblUtils.GRBL_PAUSE_COMMAND);

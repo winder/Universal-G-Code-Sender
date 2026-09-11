@@ -5,6 +5,7 @@ import { useAppSelector } from "../hooks/useAppSelector";
 import { disconnect, softReset } from "../services/machine";
 import AccessoryState from "./AccessoryState";
 import ConnectionWidget from "./ConnectionWidget";
+import ConnectionHealth from "./ConnectionHealth";
 import "./TopBar.scss";
 
 const TopBar = () => {
@@ -15,6 +16,7 @@ const TopBar = () => {
     <div className="topBar">
       <div className="topBarSection">
         <ConnectionWidget />
+        <ConnectionHealth />
         {status?.pins?.cycleStart && <AccessoryState title="Cycle start">C</AccessoryState>}
         {status?.pins?.hold && <AccessoryState title="HOLD">H</AccessoryState>}
         {status?.pins?.door && <AccessoryState title="Door">D</AccessoryState>}

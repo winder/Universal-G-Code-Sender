@@ -34,5 +34,45 @@ public enum Alarm {
      * If a hard limit is triggered which means that the machine position is likely lost.
      * The controller needs to be reset and a re-homing is recommended
      */
-    HARD_LIMIT
+    HARD_LIMIT,
+
+    /**
+     * A commanded move would have exceeded a configured soft (software) travel limit.
+     */
+    SOFT_LIMIT,
+
+    /**
+     * A feed hold was left unresolved (reset while paused, or reset without idling first).
+     */
+    ABORT_DURING_CYCLE,
+
+    /**
+     * A G38 probe cycle failed because the probe was already triggered before the move started.
+     */
+    PROBE_FAIL_INITIAL,
+
+    /**
+     * A G38 probe cycle failed because the probe never made contact during the move.
+     */
+    PROBE_FAIL_CONTACT,
+
+    /**
+     * Homing was interrupted by a reset.
+     */
+    HOMING_FAIL_RESET,
+
+    /**
+     * Homing failed because the safety door was opened during the homing cycle.
+     */
+    HOMING_FAIL_DOOR,
+
+    /**
+     * Homing failed because a limit switch stayed triggered after pulling off.
+     */
+    HOMING_FAIL_PULLOFF,
+
+    /**
+     * Homing failed because a limit switch never triggered during the approach.
+     */
+    HOMING_FAIL_APPROACH
 }

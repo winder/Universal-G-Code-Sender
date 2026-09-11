@@ -4,6 +4,7 @@ import socketReducer from "./socketSlice";
 import settingsReducer from "./settingsSlice";
 import fileStatusReducer from "./fileStatusSlice";
 import consoleReducer from "./consoleSlice";
+import alarmReducer from "./alarmSlice";
 
 import { socketMiddleware } from "./socketMiddleware";
 
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   settings: settingsReducer,
   fileStatus: fileStatusReducer,
   console: consoleReducer,
+  alarm: alarmReducer,
 });
 
 export const store = configureStore({

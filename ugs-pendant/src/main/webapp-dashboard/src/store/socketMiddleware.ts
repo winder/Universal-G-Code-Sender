@@ -15,6 +15,8 @@ import {fetchStatus} from "./statusSlice";
 import {fetchFileStatus} from "./fileStatusSlice";
 import {consoleActions} from "./consoleSlice.ts";
 import {CommandEvent} from "../model/CommandEvent.ts";
+import {alarmActions} from "./alarmSlice.ts";
+import {AlarmEvent} from "../model/AlarmEvent.ts";
 
 let fetchStatusTimer: number;
 let debounceTime = 500;
@@ -73,12 +75,15 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
 
         socket.onMessage((messageEvent: MessageEvent) => {
             const ugsEvent = JSON.parse(messageEvent.data) as UGSEvent;
+            store.dispatch(socketActions.messageReceived());
             if (ugsEvent.eventType === "ControllerStatusEvent") {
                 store.dispatch(
                     statusActions.setStatus(
                         (ugsEvent.event as ControllerStatusEvent).status,
                     ),
                 );
+            } else if (ugsEvent.eventType === "AlarmEvent") {
+                store.dispatch(alarmActions.setAlarm((ugsEvent.event as AlarmEvent).alarm));
             } else if (ugsEvent.eventType === "FileStateEvent") {
                 store.dispatch(fetchFileStatus());
             } else if (ugsEvent.eventType === "SettingChangedEvent") {
