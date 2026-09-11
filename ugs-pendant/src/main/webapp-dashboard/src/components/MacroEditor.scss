@@ -12,6 +12,12 @@
   border-right: 1px solid #2f3132;
   padding: 10px;
   gap: 8px;
+
+  // At split-pane width, 260px for the list leaves too little room for the
+  // form itself (the button/icon rows below need it more) - narrower here.
+  &.compact {
+    flex-basis: 160px;
+  }
 }
 
 .macroEditorListHeader {

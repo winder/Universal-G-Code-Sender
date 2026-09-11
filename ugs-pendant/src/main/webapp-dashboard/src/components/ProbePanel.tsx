@@ -45,7 +45,14 @@ const emptySettings: ProbeSettings = {
   compensateSoftLimits: true,
 };
 
-const ProbePanel = () => {
+type Props = {
+  // True when rendered inside a split pane (half-width) - stacks the
+  // settings fields into a single column instead of the responsive grid,
+  // which would otherwise land on an unpredictable number of columns.
+  compact?: boolean;
+};
+
+const ProbePanel = ({ compact = false }: Props) => {
   const currentState = useAppSelector((state) => state.status.state);
   const isIdle = currentState === "IDLE";
 
@@ -125,13 +132,13 @@ const ProbePanel = () => {
         </div>
       </div>
 
-      <div className="probePanelBody">
+      <div className={"probePanelBody" + (compact ? " compact" : "")}>
         <div className="probePanelDiagramColumn">
           <ProbeDiagram operation={operation} />
           <p className="probePanelInstructions">{INSTRUCTIONS[operation]}</p>
         </div>
 
-        <div className="probePanelSettings">
+        <div className={"probePanelSettings" + (compact ? " compact" : "")}>
           <Form.Group className="probePanelField">
             <Form.Label>Probe feed (fast)</Form.Label>
             <div className="probePanelFieldInput">

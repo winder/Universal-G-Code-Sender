@@ -43,6 +43,22 @@
   gap: 8px;
 }
 
+// At half-width (a split pane), wrapping naturally could land on any number
+// of rows depending on exact width - force exactly two, letting the grid
+// add as many columns as needed, so the layout stays predictable rather
+// than however flex-wrap happens to break at a given pane width.
+.macroFormPlaceholders.compact,
+.macroFormColors.compact,
+.macroFormIcons.compact {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: max-content;
+  align-items: center;
+  flex-wrap: unset;
+  overflow-x: auto;
+}
+
 .macroColorSwatch {
   width: 28px;
   height: 28px;

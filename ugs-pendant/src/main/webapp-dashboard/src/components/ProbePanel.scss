@@ -62,6 +62,13 @@
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 12px;
   align-content: start;
+
+  // At half-width (a split pane) the auto-fill grid would land on an
+  // unpredictable number of columns depending on exact pixel width - one
+  // column keeps every field readable regardless.
+  &.compact {
+    grid-template-columns: 1fr;
+  }
 }
 
 .probePanelField {

@@ -25,12 +25,14 @@ type Props = {
   macro: Macro;
   isDirty: boolean;
   isNew: boolean;
+  compact?: boolean;
   onChange: (macro: Macro) => void;
   onSave: () => void;
   onDiscard: () => void;
 };
 
-const MacroForm = ({ macro, isDirty, isNew, onChange, onSave, onDiscard }: Props) => {
+const MacroForm = ({ macro, isDirty, isNew, compact = false, onChange, onSave, onDiscard }: Props) => {
+  const groupClass = compact ? " compact" : "";
   const gcodeEditorRef = useRef<MacroGcodeEditorHandle | null>(null);
 
   // The editor works in the human multi-line form; only converted to/from
@@ -69,7 +71,7 @@ const MacroForm = ({ macro, isDirty, isNew, onChange, onSave, onDiscard }: Props
           initialValue={macroGcodeToEditorText(macro.gcode)}
           onChange={updateGcodeText}
         />
-        <div className="macroFormPlaceholders">
+        <div className={"macroFormPlaceholders" + groupClass}>
           {PLACEHOLDERS.map((p) => (
             <Button
               key={p.token}
@@ -86,7 +88,7 @@ const MacroForm = ({ macro, isDirty, isNew, onChange, onSave, onDiscard }: Props
 
       <Form.Group className="macroFormField">
         <Form.Label>Button color</Form.Label>
-        <div className="macroFormColors">
+        <div className={"macroFormColors" + groupClass}>
           {MACRO_COLOR_PRESETS.map((color) => (
             <button
               key={color}
@@ -118,7 +120,7 @@ const MacroForm = ({ macro, isDirty, isNew, onChange, onSave, onDiscard }: Props
 
       <Form.Group className="macroFormField">
         <Form.Label>Icon</Form.Label>
-        <div className="macroFormIcons">
+        <div className={"macroFormIcons" + groupClass}>
           {MACRO_ICON_KEYS.map((key) => (
             <button
               key={key}

@@ -36,7 +36,14 @@ type PendingConfirm = {
   run: () => void;
 };
 
-const MacroEditor = () => {
+type Props = {
+  // True when rendered inside a split pane (half-width) rather than the
+  // full center panel - trims a few layouts (button groups to two rows) so
+  // the form stays usable at roughly half the normal width.
+  compact?: boolean;
+};
+
+const MacroEditor = ({ compact = false }: Props) => {
   const dispatch = useAppDispatch();
   const macros = useAppSelector((state) => state.macros.macros);
   const loaded = useAppSelector((state) => state.macros.loaded);
@@ -185,7 +192,7 @@ const MacroEditor = () => {
 
   return (
     <div className="macroEditor">
-      <div className="macroEditorList">
+      <div className={"macroEditorList" + (compact ? " compact" : "")}>
         <div className="macroEditorListHeader">
           <Button size="sm" variant="outline-secondary" onClick={startNewMacro} title="New macro">
             <FontAwesomeIcon icon={faPlus} /> New
@@ -301,6 +308,7 @@ const MacroEditor = () => {
             macro={draft}
             isDirty={isDirty}
             isNew={isNewDraft}
+            compact={compact}
             onChange={setDraft}
             onSave={saveDraft}
             onDiscard={discardDraft}
