@@ -83,12 +83,24 @@
     }
   }
 
+  .centerPanelConsoleHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    flex: 0 0 auto;
+  }
+
   .centerPanelHeading {
     color: #8a8f92;
     text-transform: uppercase;
     font-size: 0.75rem;
     letter-spacing: 0.05em;
-    margin-bottom: 6px;
-    flex: 0 0 auto;
+    margin-bottom: 0;
+  }
+
+  .centerPanelConsoleHeader .form-check-label {
+    color: #c3c8cb;
+    font-size: 0.85rem;
   }
 }

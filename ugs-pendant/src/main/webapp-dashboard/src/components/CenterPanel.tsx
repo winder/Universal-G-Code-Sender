@@ -1,8 +1,11 @@
 import { useRef, useState } from "react";
-import { Nav } from "react-bootstrap";
+import { Nav, Form } from "react-bootstrap";
 import Visualizer3D from "./Visualizer3D";
 import GcodeEditor from "./GcodeEditor";
 import ConsolePanel from "./ConsolePanel";
+import { useAppSelector } from "../hooks/useAppSelector";
+import { useAppDispatch } from "../hooks/useAppDispatch";
+import { consoleActions } from "../store/consoleSlice";
 import "./CenterPanel.scss";
 
 type View = "visualize" | "edit" | "split";
@@ -11,6 +14,8 @@ const CONSOLE_MIN_HEIGHT = 100;
 const CONSOLE_MAX_HEIGHT = 640;
 
 const CenterPanel = () => {
+  const dispatch = useAppDispatch();
+  const verboseEnabled = useAppSelector((state) => state.console.verboseEnabled);
   const [view, setView] = useState<View>("visualize");
   const [consoleHeight, setConsoleHeight] = useState(220);
   const dragStartRef = useRef({ y: 0, height: 0 });
@@ -64,7 +69,20 @@ const CenterPanel = () => {
         title="Drag to resize the console"
       />
       <div className="centerPanelConsole" style={{ flexBasis: consoleHeight }}>
-        <h6 className="centerPanelHeading">Console</h6>
+        <div className="centerPanelConsoleHeader">
+          <h6 className="centerPanelHeading">Console</h6>
+          <Form.Check
+            type="switch"
+            id="verbose-toggle"
+            label="Verbose"
+            checked={verboseEnabled}
+            // Gated server-side too (EventsSocket.java only forwards
+            // MessageType.VERBOSE traffic to sessions that asked for it) -
+            // toggling this off actually stops the extra traffic at the
+            // source, not just hides it here.
+            onChange={(e) => dispatch(consoleActions.setVerboseEnabled(e.target.checked))}
+          />
+        </div>
         <ConsolePanel />
       </div>
     </div>

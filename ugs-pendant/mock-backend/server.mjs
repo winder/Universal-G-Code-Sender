@@ -324,6 +324,7 @@ function broadcast(event) {
 
 wss.on("connection", (ws) => {
   console.log("WS connected");
+  let verboseEnabled = false;
   const timer = setInterval(() => {
     // Debug-only pause (see /debug/pauseStatusBroadcast) for exercising the
     // connection-health dot with no status traffic at all, matching how a
@@ -338,16 +339,37 @@ wss.on("connection", (ws) => {
       })
     );
   }, 500);
+  // Mirrors EventsSocket.java's MessageType.VERBOSE stream - a real
+  // connection's raw status-poll traffic, only sent to this session while it
+  // has asked for it (see the "verbose:on"/"verbose:off" handling below).
+  const verboseTimer = setInterval(() => {
+    if (!verboseEnabled) return;
+    const { x, y, z } = status.machineCoord;
+    ws.send(
+      JSON.stringify({
+        eventType: "ConsoleMessageEvent",
+        event: { message: `<${status.state}|MPos:${x.toFixed(3)},${y.toFixed(3)},${z.toFixed(3)}|FS:${status.feedSpeed},${status.spindleSpeed}>` },
+      })
+    );
+  }, 300);
   ws.on("message", (msg) => {
-    if (msg.toString() === "ping") {
+    const text = msg.toString();
+    if (text === "ping") {
       // Mirrors EventsSocket.java's new pong reply, so the connection-health
       // dot has a heartbeat independent of status pushes to test against.
       ws.send(JSON.stringify({ eventType: "Pong" }));
+    } else if (text === "verbose:on") {
+      verboseEnabled = true;
+    } else if (text === "verbose:off") {
+      verboseEnabled = false;
     } else {
-      console.log("WS msg", msg.toString());
+      console.log("WS msg", text);
     }
   });
-  ws.on("close", () => clearInterval(timer));
+  ws.on("close", () => {
+    clearInterval(timer);
+    clearInterval(verboseTimer);
+  });
 });
 
 server.listen(8080, () => console.log("Mock UGS backend on :8080"));

@@ -17,6 +17,12 @@ import {consoleActions} from "./consoleSlice.ts";
 import {CommandEvent} from "../model/CommandEvent.ts";
 import {alarmActions} from "./alarmSlice.ts";
 import {AlarmEvent} from "../model/AlarmEvent.ts";
+import {ConsoleMessageEvent} from "../model/ConsoleMessageEvent.ts";
+
+// The currently-connected socket, if any - lets setVerboseEnabled (dispatched
+// well after the "connect" action that created this) reach it directly,
+// since the socket itself only exists inside this middleware's closure.
+let activeSocket: Socket | undefined;
 
 let fetchStatusTimer: number;
 let debounceTime = 500;
@@ -39,12 +45,22 @@ const fetchSettingsDebounce = (
  */
 export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
     (store) => (next) => (action) => {
+        // Toggling verbose output just needs to tell the already-open socket
+        // about it - not something that opens/closes a connection, so it's
+        // handled here instead of going through consoleSlice's own reducer
+        // path unassisted.
+        if (consoleActions.setVerboseEnabled.match(action)) {
+            activeSocket?.send(action.payload ? "verbose:on" : "verbose:off");
+            return next(action);
+        }
+
         // Not a socket action
         if (!socketActions.connect.match(action)) {
             return next(action);
         }
 
         const socket = new Socket();
+        activeSocket = socket;
         socket.connect("ws://" + location.host + "/ws/v1/events");
 
         socket.on("open", () => {
@@ -57,6 +73,12 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
             // already connected could get stuck showing "disconnected" until
             // something on the machine changed.
             store.dispatch(fetchStatus());
+            // Verbose opt-in is per-connection on the server (EventsSocket.java
+            // forgets it on close) - re-assert it after every reconnect so the
+            // setting doesn't silently revert to off from the user's perspective.
+            if (store.getState().console.verboseEnabled) {
+                socket.send("verbose:on");
+            }
 
             const timer = setInterval(() => {
                 if (!socket.isConnected()) {
@@ -85,6 +107,13 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
             } else if (ugsEvent.eventType === "Pong") {
                 // No-op - messageReceived() above already recorded this as a
                 // live heartbeat, which is the only reason it's sent.
+            } else if (ugsEvent.eventType === "ConsoleMessageEvent") {
+                store.dispatch(
+                    consoleActions.addMessage({
+                        type: "verbose",
+                        text: (ugsEvent.event as ConsoleMessageEvent).message,
+                    }),
+                );
             } else if (ugsEvent.eventType === "AlarmEvent") {
                 store.dispatch(alarmActions.setAlarm((ugsEvent.event as AlarmEvent).alarm));
             } else if (ugsEvent.eventType === "FileStateEvent") {

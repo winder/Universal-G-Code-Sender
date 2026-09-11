@@ -21,8 +21,11 @@ package com.willwinder.universalgcodesender.pendantui.v1.ws;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -40,22 +43,29 @@ import jakarta.websocket.server.ServerEndpoint;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ClientEndpoint
 @ServerEndpoint(value = "/events")
-public class EventsSocket implements UGSEventListener {
+public class EventsSocket implements UGSEventListener, MessageListener {
 
     private static final Logger LOGGER = Logger.getLogger(EventsSocket.class.getSimpleName());
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
+    // Sessions that opted into verbose console output (see onWebSocketMessage).
+    // Off by default and per-session, not global - a client that never asks
+    // for it should never receive the high-frequency VERBOSE traffic (raw
+    // status polls, parser feedback) that a real connection generates.
+    private final Set<String> verboseSessionIds = ConcurrentHashMap.newKeySet();
     private final Gson gson;
 
     public EventsSocket() {
         gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
         if (BackendProvider.getBackendAPI() != null) {
             BackendProvider.getBackendAPI().addUGSEventListener(this);
+            BackendProvider.getBackendAPI().addMessageListener(this);
         }
     }
 
@@ -75,12 +85,14 @@ public class EventsSocket implements UGSEventListener {
     @OnClose
     public void onWebSocketClose(Session session) {
         sessions.remove(session.getId());
+        verboseSessionIds.remove(session.getId());
         LOGGER.info("WebSocket Closed: " + session.getId());
     }
 
     @OnError
     public void onWebSocketError(Session session, Throwable cause) {
         sessions.remove(session.getId());
+        verboseSessionIds.remove(session.getId());
         LOGGER.log(Level.WARNING, cause, () -> "WebSocket Closed: " + session.getId());
     }
 
@@ -91,15 +103,21 @@ public class EventsSocket implements UGSEventListener {
     // skip dispatching a ControllerStatusEvent when the status hasn't
     // changed, so a genuinely idle machine can go a while with no status
     // traffic at all even on a perfectly healthy connection.
+    //
+    // "verbose:on"/"verbose:off" opts this specific session in or out of the
+    // MessageType.VERBOSE stream forwarded from onMessage() below.
     @OnMessage
     public void onWebSocketMessage(Session session, String message) {
-        if (!"ping".equals(message)) {
-            return;
-        }
-        try {
-            session.getBasicRemote().sendText("{\"eventType\":\"Pong\"}");
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, e, () -> "Could not send pong to session: " + session.getId());
+        if ("ping".equals(message)) {
+            try {
+                session.getBasicRemote().sendText("{\"eventType\":\"Pong\"}");
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, e, () -> "Could not send pong to session: " + session.getId());
+            }
+        } else if ("verbose:on".equals(message)) {
+            verboseSessionIds.add(session.getId());
+        } else if ("verbose:off".equals(message)) {
+            verboseSessionIds.remove(session.getId());
         }
     }
 
@@ -117,6 +135,37 @@ public class EventsSocket implements UGSEventListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // MessageListener: the console-message stream (distinct from the
+    // UGSEvent bus above) - this is where raw controller protocol traffic
+    // (status polls, parser feedback, connection messages) flows. Only
+    // VERBOSE is forwarded, and only to sessions that asked for it - INFO/
+    // ERROR already reach the dashboard through CommandEvent/AlarmEvent.
+    @Override
+    public void onMessage(MessageType messageType, String message) {
+        if (messageType != MessageType.VERBOSE || verboseSessionIds.isEmpty()) {
+            return;
+        }
+
+        JsonObject event = new JsonObject();
+        event.addProperty("message", message.stripTrailing());
+        JsonObject wrapper = new JsonObject();
+        wrapper.addProperty("eventType", "ConsoleMessageEvent");
+        wrapper.add("event", event);
+        String data = gson.toJson(wrapper);
+
+        verboseSessionIds.forEach(sessionId -> {
+            Session session = sessions.get(sessionId);
+            if (session == null) {
+                return;
+            }
+            try {
+                session.getBasicRemote().sendText(data);
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, e, () -> "Could not send verbose message to session: " + sessionId);
+            }
+        });
     }
 
     private String getEventAsJsonString(UGSEvent evt) {

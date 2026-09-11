@@ -53,7 +53,9 @@ const ConsolePanel = () => {
                     ? "#ff6b6b"
                     : line.type === "ok"
                       ? "#7bdcff"
-                      : "#ddd",
+                      : line.type === "verbose"
+                        ? "#6b7280"
+                        : "#ddd",
               }}
             >
               {line.text}
