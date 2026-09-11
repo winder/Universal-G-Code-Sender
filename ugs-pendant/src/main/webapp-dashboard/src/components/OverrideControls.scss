@@ -47,11 +47,12 @@
     border-right: 1px solid #2f3132 !important;
   }
 
-  // No background fill of its own - a distinct fill color here reads as a
-  // hole cut out of the unified rectangle (see the .btn-group comment
-  // above). Only the icon color marks it as the reset/current-value segment.
+  // No background override here - Bootstrap's outline-secondary is already
+  // transparent by default, and forcing it with !important (as before) also
+  // blocked the same class's own :hover fill, since !important ignores the
+  // hover pseudo-class's higher specificity. Only the icon color marks this
+  // as the reset/current-value segment.
   .overrideCurrent {
-    background-color: transparent !important;
     color: #4ade80 !important;
   }
 
