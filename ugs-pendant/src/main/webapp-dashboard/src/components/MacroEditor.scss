@@ -5,15 +5,19 @@
 }
 
 .macroEditorList {
-  flex: 0 0 260px;
+  flex: 0 0 300px;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  // Safety net: the list's own declared width should already hold (see
+  // .macroEditorRow's min-width: 0), but this guarantees nothing it
+  // contains can ever visually bleed into the form pane next to it.
+  overflow-x: hidden;
   border-right: 1px solid #2f3132;
   padding: 10px;
   gap: 8px;
 
-  // At split-pane width, 260px for the list leaves too little room for the
+  // At split-pane width, 300px for the list leaves too little room for the
   // form itself (the button/icon rows below need it more) - narrower here.
   &.compact {
     flex-basis: 160px;
@@ -54,6 +58,13 @@
   border-radius: 6px;
   cursor: pointer;
   border: 1px solid transparent;
+  // Without this, a row's own min-content (icon + name + actions all at
+  // their natural size) can force it - and everything depending on the
+  // list column's width being exactly what CSS declares, like the split
+  // header's alignment spacer - wider than intended once actions become
+  // visible on hover. min-width: 0 lets the row (and its name label, which
+  // already shrinks via its own min-width: 0) actually respect that.
+  min-width: 0;
 
   &:hover {
     background-color: #1c1d1e;
@@ -88,8 +99,14 @@
 
 .macroEditorRowActions {
   flex: 0 0 auto;
-  display: none;
+  display: flex;
   gap: 4px;
+  // Reserve this row's space always (rather than display: none) and just
+  // hide it visually until hover/selected - toggling display made the
+  // actions' width appear/disappear on hover, which reflowed the row (and,
+  // via the list column filling with that reflowed content, everything
+  // that assumes the list has a fixed width) on every mouse-over.
+  visibility: hidden;
 
   button {
     border: none;
@@ -115,7 +132,7 @@
 
 .macroEditorRow:hover .macroEditorRowActions,
 .macroEditorRow.selected .macroEditorRowActions {
-  display: flex;
+  visibility: visible;
 }
 
 .macroEditorFormPane {

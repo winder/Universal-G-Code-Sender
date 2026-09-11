@@ -116,11 +116,22 @@ const CenterPanel = () => {
     <div className="centerPanel">
       <div className="centerPanelTop">
         {/* Left-pane selector, right-pane selector (only while split), and
-            the Split toggle all sit on one row - the right selector's
-            leading spacer matches the left pane's current width so it
-            lines up directly above the right pane, not on a row of its own. */}
+            the Split toggle all sit on one row. The left/right nav groups
+            get the exact same order/flex-basis as the content panes below
+            (contentStyle()) - not a spacer sized to "match" the left pane,
+            which drifted out of alignment by however wide the left nav's
+            own labels happened to render (a real bug: a spacer can't know
+            that width without measuring it, so it never actually matched).
+            Reusing the identical values guarantees the right nav starts at
+            precisely the same x as the right pane, unconditionally. */}
         <div className="centerPanelNavRow">
-          <Nav variant="pills" activeKey={isSplit ? splitLeft : view} onSelect={onSelectMainNav} className="centerPanelMainNav">
+          <Nav
+            variant="pills"
+            activeKey={isSplit ? splitLeft : view}
+            onSelect={onSelectMainNav}
+            className="centerPanelMainNav"
+            style={isSplit ? { order: 1, flex: `0 0 ${leftBasis}` } : undefined}
+          >
             {PANE_LABELS.map((p) => (
               <Nav.Item key={p.content}>
                 <Nav.Link eventKey={p.content}>{p.label}</Nav.Link>
@@ -130,12 +141,13 @@ const CenterPanel = () => {
 
           {isSplit && (
             <>
-              <div className="centerPanelRightNavSpacer" style={{ flexBasis: leftBasis }} />
+              <div className="centerPanelNavRowResizerSpace" style={{ order: 2 }} />
               <Nav
                 variant="pills"
                 activeKey={splitRight}
                 onSelect={(key) => key && dispatch(uiActions.setSplitRight(key as PaneContent))}
                 className="centerPanelRightNav"
+                style={{ order: 3, flex: "1 1 auto" }}
               >
                 {PANE_LABELS.map((p) => (
                   <Nav.Item key={p.content}>
@@ -148,7 +160,13 @@ const CenterPanel = () => {
 
           {/* Never shows as "active" itself - isSplit ? splitLeft : view
               never equals "split", by construction (see onSelectMainNav). */}
-          <Nav variant="pills" activeKey={isSplit ? splitLeft : view} onSelect={onSelectMainNav} className="centerPanelSplitNav">
+          <Nav
+            variant="pills"
+            activeKey={isSplit ? splitLeft : view}
+            onSelect={onSelectMainNav}
+            className="centerPanelSplitNav"
+            style={isSplit ? { order: 4 } : undefined}
+          >
             <Nav.Item>
               <Nav.Link eventKey="split">Split</Nav.Link>
             </Nav.Item>

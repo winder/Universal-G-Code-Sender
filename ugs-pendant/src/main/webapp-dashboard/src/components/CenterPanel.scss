@@ -31,8 +31,12 @@
     }
   }
 
-  // Left-pane selector, the right-pane selector's leading spacer + nav (only
-  // while split), and the Split toggle all live on this one row.
+  // Left-pane selector, a resizer-width spacer + right-pane selector (only
+  // while split), and the Split toggle all live on this one row. While
+  // split, the main/right nav's order + flex-basis are set inline to the
+  // exact same values as the content panes below (contentStyle() in
+  // CenterPanel.tsx) so the right nav lines up with the right pane exactly,
+  // not "as close as a guessed spacer width gets it."
   .centerPanelNavRow {
     display: flex;
     align-items: center;
@@ -45,16 +49,14 @@
     flex: 0 0 auto;
   }
 
-  .centerPanelRightNavSpacer {
-    flex: 0 0 auto;
-  }
-
-  .centerPanelRightNav {
-    margin-left: 10px;
+  // Matches the content row's resizer's own effective footprint (visually
+  // 14px wide but -6px margins either side net it to 2px of flex space).
+  .centerPanelNavRowResizerSpace {
+    flex: 0 0 2px;
   }
 
   // Pushes Split to the far right of the row regardless of what's before it
-  // (just the main nav, or main nav + spacer + right nav while split).
+  // (just the main nav, or main nav + resizer-space + right nav while split).
   .centerPanelSplitNav {
     margin-left: auto;
   }
