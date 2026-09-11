@@ -4,6 +4,8 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 ## 2026-09-11
 
+- Added Full Screen and Zoom +/- controls to the top bar, for easier one-tap use on a touchscreen (zoom level is remembered between visits).
+- Fixed the macro editor list rows changing height when selected (the name wrapping from one line to two once the reorder/delete icons appeared) - every row now always reserves 2 lines' worth of height, so selecting one doesn't shift the others.
 - Fixed the Probe panel's Run button floating on top of the settings fields in a narrow split pane - same root cause as the earlier macro Gcode field fix (a flex child was allowed to collapse to 0 height while its content kept rendering at full size).
 - Restored the macro list's reorder/delete icons in the compact (split) list - widened the column and gave the name text room to shrink around them on hover/select, instead of removing the icons there entirely.
 - Long macro names now wrap instead of truncating with an ellipsis - a second line on the run buttons, up to two lines in the macro editor's list.
