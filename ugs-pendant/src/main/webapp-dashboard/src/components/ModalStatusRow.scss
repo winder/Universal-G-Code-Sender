@@ -2,7 +2,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin-bottom: 8px;
 }
 
@@ -13,6 +13,16 @@
   border-color: #2f3132;
   color: #4ade80;
   font-weight: 700;
+  font-size: 0.78rem;
+  // Bootstrap's .form-select-sm still reserves its full default padding/
+  // icon size for the dropdown arrow, which on a value this short (G54,
+  // G59.1) is most of the control's width - shrunk to just enough room for
+  // a smaller arrow so this doesn't dominate the row every other chip has
+  // to share space on.
+  padding: 2px 18px 2px 6px;
+  background-size: 12px 10px;
+  background-position: right 4px center;
+  min-height: unset;
 
   &:focus {
     background-color: #111213;
@@ -32,8 +42,8 @@
   background-color: #111213;
   border: 1px solid #2f3132;
   border-radius: 4px;
-  padding: 3px 8px;
-  font-size: 0.78rem;
+  padding: 2px 6px;
+  font-size: 0.72rem;
   font-weight: 700;
   color: #8a8f92;
 }
