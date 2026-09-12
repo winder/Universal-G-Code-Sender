@@ -1,3 +1,5 @@
+@import "../_scrollbar";
+
 .probePanel {
   display: flex;
   flex-direction: column;
@@ -6,6 +8,7 @@
   gap: 12px;
   padding: 12px;
   overflow-y: auto;
+  @include darkScrollbar;
 }
 
 .probePanelOperations {

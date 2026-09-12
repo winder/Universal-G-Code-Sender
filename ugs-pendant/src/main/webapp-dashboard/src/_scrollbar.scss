@@ -1,0 +1,21 @@
+// Shared dark, slim scrollbar treatment for internal scroll areas - the same
+// look already used by .dashboardLeft/.rightRail/.consolePanel, pulled out
+// here so the split-mode content panes (Macros, Probe, macro editor) that
+// were missing it can share the exact same rules instead of redrifting.
+@mixin darkScrollbar($width: 8px) {
+  scrollbar-width: thin;
+  scrollbar-color: #3a3d3e transparent;
+
+  &::-webkit-scrollbar {
+    width: $width;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #3a3d3e;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}

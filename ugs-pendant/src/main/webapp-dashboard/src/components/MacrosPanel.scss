@@ -1,3 +1,5 @@
+@import "../_scrollbar";
+
 .macrosPanel {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -6,6 +8,7 @@
   gap: 8px;
   overflow-y: auto;
   min-width: 0;
+  @include darkScrollbar;
 }
 
 .macroButton {
