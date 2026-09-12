@@ -2,6 +2,10 @@
 
 Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. The classic pendant (`/`) is unaffected unless noted.
 
+## 2026-09-12
+
+- Added "Run from here" to the gcode editor - tap a line, confirm, and the job's next Start will skip to it while restoring position/spindle/coolant/work offset state, the same as the desktop app's "Start program here."
+
 ## 2026-09-11
 
 - Opening, closing, and editing a gcode file no longer require being connected to the machine - only actually running a job does.
