@@ -40,25 +40,28 @@ const createAxisLabel = (text: string, color: string) => {
   return new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false }));
 };
 
-// armedRunFromLine/highlightLine are the dashboard's 1-based editor line
-// numbers (0 = none); ToolpathSegment.lineNumber is the backend's 0-based
-// GcodeParser command index - the same numbering RunFromProcessor itself
-// compares against (GcodeParserUtils sets state.commandNumber = line, and
-// GcodeParser.addCommand pre-increments from -1, so editor line N is
-// command index N-1). Converting once here keeps that mapping in one place
-// rather than repeating "- 1" at every call site.
-const buildToolpathGeometry = (segments: ToolpathSegment[], armedRunFromLine: number, highlightLine: number) => {
-  // The segment at the resume command gets the special "replay state" preamble
-  // in RunFromProcessor and still runs - only strictly earlier commands are
-  // skipped - so segments are kept from resumeCommand onward, not past it.
-  const resumeCommand = armedRunFromLine - 1;
+// getToolpath() already reflects an armed "run from" line - the backend
+// reads the processed file (see VisualizerResource.getToolpath), which
+// applyCommandProcessor/RunFromProcessor itself rewrites, skipped commands
+// dropped and the resume preamble included - so no client-side filtering
+// belongs here, just coloring.
+//
+// highlightLine is the dashboard's 1-based editor line number (0 = none);
+// ToolpathSegment.lineNumber is the backend's 0-based GcodeParser command
+// index - editor line N is command index N-1 (GcodeParserUtils sets
+// state.commandNumber = line, pre-incremented from -1 in
+// GcodeParser.addCommand). That mapping only holds while nothing's armed,
+// though: once the processed file has commands removed/inserted, its line
+// numbers no longer correspond to the original editor's - so callers pass
+// highlightLine=0 (no highlight) whenever a line is armed, rather than
+// risk highlighting the wrong segment.
+const buildToolpathGeometry = (segments: ToolpathSegment[], highlightLine: number) => {
   const highlightCommand = highlightLine - 1;
-  const visible = armedRunFromLine > 0 ? segments.filter((s) => s.lineNumber >= resumeCommand) : segments;
 
-  const positions = new Float32Array(visible.length * 6);
-  const colors = new Float32Array(visible.length * 6);
+  const positions = new Float32Array(segments.length * 6);
+  const colors = new Float32Array(segments.length * 6);
 
-  visible.forEach((segment, i) => {
+  segments.forEach((segment, i) => {
     const offset = i * 6;
     positions[offset] = segment.start.x;
     positions[offset + 1] = segment.start.y;
@@ -102,9 +105,10 @@ const Visualizer3D = () => {
   const controlsRef = useRef<OrbitControls | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const toolpathLinesRef = useRef<THREE.LineSegments | null>(null);
-  // The last-fetched, unfiltered segments - cached so the "run from"/cursor
-  // highlight effect below can rebuild just the geometry (recolor/refilter)
-  // without re-fetching the toolpath from the server on every cursor move.
+  // The last-fetched segments (already reflecting any armed "run from" line,
+  // per getToolpath()) - cached so the cursor-highlight effect below can
+  // recolor without re-fetching the toolpath from the server on every cursor
+  // move, which doesn't change what the server would return anyway.
   const segmentsRef = useRef<ToolpathSegment[]>([]);
   const boundsSphereRef = useRef<THREE.Sphere | null>(null);
   const gridRef = useRef<THREE.GridHelper | null>(null);
@@ -139,23 +143,25 @@ const Visualizer3D = () => {
     }
     if (segments.length === 0) return;
 
-    const geometry = buildToolpathGeometry(segments, armedRunFromLine, editorCursorLine);
+    // See buildToolpathGeometry's comment - only meaningful to highlight the
+    // cursor's line while nothing's armed, since arming renumbers the
+    // processed file's lines out from under the editor's own numbering.
+    const geometry = buildToolpathGeometry(segments, armedRunFromLine > 0 ? 0 : editorCursorLine);
     const material = new THREE.LineBasicMaterial({ vertexColors: true });
     const toolpathLines = new THREE.LineSegments(geometry, material);
     scene.add(toolpathLines);
     toolpathLinesRef.current = toolpathLines;
   };
 
-  // Re-applies the toolpath geometry (recolor/refilter only, no re-fetch)
-  // whenever the armed "run from" line or the editor's cursor line changes -
-  // both independent of which file is loaded, so they don't belong in the
-  // fetch effect below.
+  // Re-applies the toolpath geometry (recolor only, no re-fetch) whenever the
+  // editor's cursor line changes - cursor position doesn't change what the
+  // server would return, only which segment (if any) gets highlighted.
   useEffect(() => {
     if (segmentsRef.current.length > 0) {
       applyToolpathGeometry(segmentsRef.current);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [armedRunFromLine, editorCursorLine]);
+  }, [editorCursorLine]);
 
   useEffect(() => {
     if (toolMarkerRef.current) {
@@ -379,10 +385,14 @@ const Visualizer3D = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Re-fetches and rebuilds just the toolpath geometry whenever a different file
-  // is opened (this used to be folded into the one-time setup effect above, which
-  // meant it only ever ran once - opening a new file after the first one never
-  // updated the visualizer).
+  // Re-fetches and rebuilds the toolpath geometry whenever a different file is
+  // opened, or the armed "run from" line changes - the latter rewrites the
+  // processed file server-side (see VisualizerResource.getToolpath's doc
+  // comment), so arming/resetting needs a fresh fetch to pick that up, the
+  // same way opening a different file does. Framing/bounds intentionally
+  // follow whatever's actually visible (the now-server-filtered set), so the
+  // camera reframes on arming too - confirmed that's what desktop's own
+  // visualizer does as well, since it reloads the processed file the same way.
   useEffect(() => {
     const scene = sceneRef.current;
     if (!scene) return;
@@ -398,9 +408,6 @@ const Visualizer3D = () => {
     }
 
     getToolpath().then((segments) => {
-      // Cached unfiltered, regardless of any armed "run from" line - framing
-      // below and the recolor effect's filtering both intentionally read
-      // from the FULL set, not whatever happens to currently be visible.
       segmentsRef.current = segments;
       if (segments.length === 0) {
         setIsEmpty(true);
@@ -459,7 +466,7 @@ const Visualizer3D = () => {
       applyGridExtentRef.current(DEFAULT_GRID_SIZE, 0, 0);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fileName]);
+  }, [fileName, armedRunFromLine]);
 
   return (
     <div className="visualizer3D">

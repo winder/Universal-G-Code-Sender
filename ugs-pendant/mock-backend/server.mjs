@@ -70,6 +70,12 @@ G0 Z5
 };
 
 let activeFile = "yeheart.gcode";
+// Mirrors RunFromProcessor's lineNumber (0-based command index, <=0 =
+// disabled) - approximates the real backend's "processed file" swap by
+// having gcodeToSegments itself skip/synthesize a preamble when armed, so
+// /api/v1/visualizer/getToolpath reflects arming the same way the real one
+// does via VisualizerResource reading the processed file.
+let armedRunFromCommand = 0;
 
 const fileStatus = {
   fileName: activeFile,
@@ -86,7 +92,7 @@ const fileStatus = {
  * backend's GcodeViewParse, just enough to visualize real-world files while iterating
  * on the dashboard UI without a Java build.
  */
-function gcodeToSegments(text) {
+function gcodeToSegments(text, armedFromCommand = 0) {
   const segments = [];
   let x = 0, y = 0, z = 0;
   let lastG = null;
@@ -97,6 +103,31 @@ function gcodeToSegments(text) {
   // files in dev, but not a guarantee of matching the real parser exactly
   // (see the real backend verification step in the plan for that).
   let lineNumber = -1;
+  // Position is tracked through every command regardless of arming (needed
+  // to know where a skipped run's state ends up), but segments before the
+  // armed command are simply not pushed - approximating the real backend
+  // reading the processed file, which drops them entirely. The first
+  // pushed segment gets a synthesized vertical "plunge" line ahead of it,
+  // a rough stand-in for RunFromProcessor's real clearance-height-then-
+  // plunge preamble, just enough to see *something* retracts/re-plunges
+  // in dev before checking the real thing.
+  let plungeInserted = armedFromCommand <= 0;
+
+  const pushSegment = (segment) => {
+    if (segment.lineNumber < armedFromCommand) return;
+    if (!plungeInserted) {
+      const clearance = segment.start.z + 10;
+      segments.push({
+        start: { x: segment.start.x, y: segment.start.y, z: clearance },
+        end: { x: segment.start.x, y: segment.start.y, z: segment.start.z },
+        rapid: false,
+        arc: false,
+        lineNumber: segment.lineNumber,
+      });
+      plungeInserted = true;
+    }
+    segments.push(segment);
+  };
 
   const getNum = (line, letter) => {
     const m = line.match(new RegExp(letter + "(-?[0-9.]+)"));
@@ -127,7 +158,7 @@ function gcodeToSegments(text) {
     const targetZ = nz !== null ? nz : z;
 
     if (g === 0 || g === 1) {
-      segments.push({
+      pushSegment({
         start: { x, y, z },
         end: { x: targetX, y: targetY, z: targetZ },
         rapid: g === 0,
@@ -155,7 +186,7 @@ function gcodeToSegments(text) {
         const sx = cx + radius * Math.cos(a);
         const sy = cy + radius * Math.sin(a);
         const sz = z + (targetZ - z) * (s / steps);
-        segments.push({
+        pushSegment({
           start: { x: px, y: py, z: pz },
           end: { x: sx, y: sy, z: sz },
           rapid: false,
@@ -287,8 +318,13 @@ const server = createServer((req, res) => {
       fileStatus.rowCount = files[file].split(/\r?\n/).length;
       fileStatus.completedRowCount = 0;
       fileStatus.remainingRowCount = fileStatus.rowCount;
+      armedRunFromCommand = 0;
       broadcast({ eventType: "FileStateEvent", event: {} });
     }
+    return json(res, {});
+  }
+  if (p === "/api/v1/files/runFromLine" && req.method === "POST") {
+    armedRunFromCommand = parseInt(url.searchParams.get("line"), 10) || 0;
     return json(res, {});
   }
   if (p === "/api/v1/files/getFileContent") {
@@ -317,6 +353,7 @@ const server = createServer((req, res) => {
       fileStatus.rowCount = body.split(/\r?\n/).length;
       fileStatus.completedRowCount = 0;
       fileStatus.remainingRowCount = fileStatus.rowCount;
+      armedRunFromCommand = 0;
       broadcast({ eventType: "FileStateEvent", event: {} });
       json(res, {});
     });
@@ -328,6 +365,7 @@ const server = createServer((req, res) => {
     fileStatus.rowCount = 0;
     fileStatus.completedRowCount = 0;
     fileStatus.remainingRowCount = 0;
+    armedRunFromCommand = 0;
     broadcast({ eventType: "FileStateEvent", event: {} });
     return json(res, {});
   }
@@ -378,7 +416,7 @@ const server = createServer((req, res) => {
     });
     return;
   }
-  if (p === "/api/v1/visualizer/getToolpath") return json(res, gcodeToSegments(files[activeFile] ?? ""));
+  if (p === "/api/v1/visualizer/getToolpath") return json(res, gcodeToSegments(files[activeFile] ?? "", armedRunFromCommand));
 
   json(res, { error: "not found" }, 404);
 });

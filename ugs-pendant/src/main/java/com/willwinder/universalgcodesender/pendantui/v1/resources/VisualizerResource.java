@@ -63,7 +63,16 @@ public class VisualizerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Get the toolpath line segments for the currently loaded gcode file")
     public List<ToolpathSegment> getToolpath() throws IOException, GcodeParserException {
-        File gcodeFile = backendAPI.getGcodeFile();
+        // Prefers the processed file over the raw one, exactly like the desktop 3D view does
+        // (VisualizationPanel.makeWindow()) - the processed file is what applyCommandProcessor
+        // (and so RunFromService.runFromLine) actually rewrites, with skipped commands dropped
+        // and the resume preamble (clearance-height move, XY move, accessory restore, plunge)
+        // inserted. Reading it here rather than the raw file means an armed "run from" line is
+        // reflected automatically, from the same authoritative source used for streaming - no
+        // separate skip logic needs to be reimplemented against the raw file.
+        File gcodeFile = backendAPI.getProcessedGcodeFile() != null
+                ? backendAPI.getProcessedGcodeFile()
+                : backendAPI.getGcodeFile();
         if (gcodeFile == null) {
             return Collections.emptyList();
         }
