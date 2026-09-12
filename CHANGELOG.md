@@ -4,6 +4,7 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 ## 2026-09-12
 
+- Fixed the 3D visualizer showing "No file loaded" the first time a file was opened, only working after reloading the page - it was fetching the toolpath before the backend had actually finished writing the file it reads, with nothing left to retry once it was ready.
 - Added a Reset link next to "Run from line N" in the editor toolbar, in addition to the one already in the job bar.
 
 - Fixed the visualizer's yellow cursor highlight pointing at the wrong segment - it needs its own conversion from editor line to gcode command number, not the same one "run from" uses (confirmed by comparing against desktop, which uses different math for each of those two features internally).
