@@ -32,4 +32,18 @@ public class PendantUITest {
         assertTrue(test.startsWith("http://"));
         assertTrue(test.contains("8080"));
 	}
+
+	@Test
+	public void testGetUrlListSortsVirtualAdaptersLast() {
+        java.util.List<PendantURLBean> urls = pendantUI.getUrlList();
+        boolean sawVirtual = false;
+        for (PendantURLBean url : urls) {
+            boolean isVirtual = url.getDisplayName().toLowerCase(java.util.Locale.ROOT).matches(".*(virtual|hyper-v|vethernet|vmware|virtualbox|docker|wsl|loopback|tailscale|zerotier|vpn|tap-|tun-|bluetooth).*");
+            if (isVirtual) {
+                sawVirtual = true;
+            } else {
+                assertTrue("A non-virtual adapter (" + url.getDisplayName() + ") appeared after a virtual one - sort order is broken", !sawVirtual);
+            }
+        }
+	}
 }

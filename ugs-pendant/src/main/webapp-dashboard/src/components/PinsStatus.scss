@@ -1,0 +1,25 @@
+.pinsStatus {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.pinBadge {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 6px;
+  border: 1px solid #dc3545;
+  border-radius: 4px;
+  color: #dc3545;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background-color 100ms ease, color 100ms ease;
+
+  &.active {
+    background-color: #dc3545;
+    color: #fff;
+  }
+}

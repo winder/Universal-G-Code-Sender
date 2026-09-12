@@ -48,6 +48,7 @@ public class SettingsResource {
         response.setPortRate(settings.getPortRate());
         response.setFirmwareVersion(settings.getFirmwareVersion());
         response.setUseZStepSize(settings.useZStepSize());
+        response.setWorkspaceDirectory(settings.getWorkspaceDirectory());
         return response;
     }
 

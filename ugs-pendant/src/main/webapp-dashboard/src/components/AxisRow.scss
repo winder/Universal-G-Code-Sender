@@ -1,0 +1,69 @@
+@font-face {
+  font-family: "lcd";
+  src: url(/fonts/LCD.ttf);
+}
+
+.axisRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #111213;
+  border: 1px solid #2f3132;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  transition: background-color 150ms ease;
+
+  &.axisChanging {
+    background-color: #1c2e1c;
+  }
+
+  &.limitPin {
+    border-color: #dc3545;
+  }
+
+  .axisLabel {
+    font-family: "lcd", monospace;
+    font-size: 1.4rem;
+    color: #8a8f92;
+    width: 1.2ch;
+  }
+
+  .axisValues {
+    flex: 1;
+    text-align: right;
+  }
+
+  .axisValue {
+    font-family: "lcd", monospace;
+    line-height: 1;
+
+    &.work {
+      font-size: 2.2rem;
+      color: #4ade80;
+    }
+
+    &.machine {
+      font-size: 1.1rem;
+      color: #5b8a99;
+      margin-top: 2px;
+    }
+  }
+
+  .axisValue.work .axisUnits {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-left: 6px;
+  }
+
+  .axisValue.machine .axisUnits {
+    font-size: 0.75rem;
+    color: #4b5a60;
+    margin-left: 4px;
+  }
+
+  .axisZeroButton {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

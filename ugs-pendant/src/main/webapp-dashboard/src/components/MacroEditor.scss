@@ -1,0 +1,240 @@
+@import "../_scrollbar";
+
+.macroEditor {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+
+.macroEditorList {
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  // Safety net: the list's own declared width should already hold (see
+  // .macroEditorRow's min-width: 0), but this guarantees nothing it
+  // contains can ever visually bleed into the form pane next to it.
+  overflow-x: hidden;
+  border-right: 1px solid #2f3132;
+  padding: 10px;
+  gap: 8px;
+
+  // At split-pane width, 300px for the list leaves too little room for the
+  // form itself (the button/icon rows below need it more) - narrower here.
+  // 220px (not narrower) so the reorder/delete icons below still have
+  // somewhere to go without covering the name entirely.
+  &.compact {
+    flex-basis: 220px;
+  }
+}
+
+.macroEditorListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.macroEditorListHeaderRight {
+  display: flex;
+  gap: 6px;
+}
+
+.macroEditorEmpty {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.macroEditorRows {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  @include darkScrollbar;
+}
+
+.macroEditorRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  // Without this, a row's own min-content (icon + name) can force it - and
+  // everything depending on the list column's width being exactly what CSS
+  // declares, like the split header's alignment spacer - wider than
+  // intended. min-width: 0 lets the row (and its name label, which already
+  // shrinks via its own min-width: 0) actually respect that.
+  min-width: 0;
+  // Anchor for .macroEditorRowActions, which is positioned absolutely (see
+  // below) rather than taking up real layout space.
+  position: relative;
+
+  &:hover {
+    background-color: #1c1d1e;
+  }
+
+  &.selected {
+    background-color: #1c1d1e;
+    border-color: #4ade80;
+  }
+}
+
+.macroEditorRowSwatch {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  border: 1px solid #3a3d3e;
+}
+
+.macroEditorRowName {
+  flex: 1 1 auto;
+  min-width: 0;
+  // Wraps up to 2 lines instead of a single truncated line - most macro
+  // names fit in two short lines without any truncation at all this way.
+  // -webkit-line-clamp is the standard (if oddly-prefixed) way to ellipsize
+  // after N lines rather than N characters; well supported in the
+  // Chromium-based runtime this dashboard actually renders in.
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  line-height: 1.25;
+  font-size: 0.9rem;
+  // Reserves 2 lines' height unconditionally (not just once wrapped) so
+  // selecting/hovering a row - which shrinks its max-width below and can
+  // push a name from 1 line to 2 - never changes that row's height and
+  // shifts every row below it. A short name just ends up vertically
+  // centered in the extra space instead.
+  min-height: 2.25rem;
+  // The actions overlay on top of the row rather than taking layout space
+  // (see .macroEditorRowActions), which is fine for a short name that
+  // doesn't reach that far - but a longer name fills the row's full width
+  // and its tail just gets covered by the (opaque) action buttons once
+  // they appear, rather than properly truncating. Shrinking max-width here
+  // - only for the row actually being hovered/selected, not every row -
+  // makes it ellipsize/wrap around them instead. padding-right does NOT
+  // work for this: -webkit-box (needed for the 2-line clamp above) doesn't
+  // factor padding into its internal line-wrapping width at all - measured
+  // zero effect on where text actually wraps when tried. max-width, an
+  // explicit shrink of the box itself rather than inset padding, does.
+  // Smaller reservation in the compact list (see .macroEditorList.compact
+  // below) since there's less width to spare there to begin with.
+  transition: max-width 0.1s ease-out;
+}
+
+// Absolute pixel values, not calc(100% - Npx): percentage widths on a flex
+// item resolve against the flex CONTAINER's full width (the whole row,
+// including the space the swatch icon already claims), not "however much
+// space this item currently has" - so calc(100%-Npx) reserved less than
+// intended and still let the actions overlap the tail of the text.
+// Measured against each list's actual layout (300px / 220px minus the
+// list's own padding, the row's padding, and the swatch+gap).
+.macroEditorRow:hover .macroEditorRowName,
+.macroEditorRow.selected .macroEditorRowName {
+  max-width: 110px;
+}
+
+.macroEditorList.compact .macroEditorRow:hover .macroEditorRowName,
+.macroEditorList.compact .macroEditorRow.selected .macroEditorRowName {
+  max-width: 55px;
+}
+
+.macroEditorRowActions {
+  // Positioned absolutely (out of normal flow) rather than taking up real
+  // width in the row: this row previously toggled the actions with
+  // display: none, which reflowed the row's width on every hover; making
+  // them permanently reserve that width instead (visibility: hidden) fixed
+  // the reflow but meant every row permanently lost that much space to the
+  // name - fine at the full 300px list width, but it left ~0px for the
+  // name at the compact 160px split width, making names disappear
+  // entirely. Being out of flow means the name always gets the row's full
+  // width, and the actions just overlay on top (behind a fading gradient)
+  // when shown - no layout impact either way, at any list width.
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 20px;
+  background: linear-gradient(to right, transparent, #1c1d1e 12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease-out;
+
+  button {
+    border: none;
+    background: none;
+    color: #9aa0a4;
+    padding: 2px 4px;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      color: #e5e7eb;
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+  }
+
+  .macroEditorRowDelete:hover:not(:disabled) {
+    color: #f87171;
+  }
+}
+
+// The compact list has less width to spare (see .macroEditorList.compact),
+// so the buttons themselves shrink a bit too, to fit the smaller reserved
+// space on .macroEditorRowName above without getting clipped.
+.macroEditorList.compact .macroEditorRowActions {
+  gap: 2px;
+  padding-left: 12px;
+
+  button {
+    padding: 2px 3px;
+    font-size: 0.85em;
+  }
+}
+
+.macroEditorRow:hover .macroEditorRowActions,
+.macroEditorRow.selected .macroEditorRowActions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.macroEditorFormPane {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 12px;
+  overflow-y: auto;
+  position: relative;
+  @include darkScrollbar;
+}
+
+.macroEditorNoSelection {
+  color: #6b7280;
+  font-size: 0.9rem;
+  padding-top: 20px;
+  text-align: center;
+}
+
+.macroEditorSaving {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  color: #6b7280;
+  font-size: 0.8rem;
+}

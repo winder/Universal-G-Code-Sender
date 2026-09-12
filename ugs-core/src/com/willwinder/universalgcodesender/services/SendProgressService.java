@@ -118,6 +118,7 @@ public class SendProgressService implements UGSEventListener {
     private final AtomicInteger sentRows = new AtomicInteger(0);
     private final AtomicInteger dispatchedRows = new AtomicInteger(0);
     private final AtomicInteger completedRows = new AtomicInteger(0);
+    private final AtomicInteger lastCompletedCommandNumber = new AtomicInteger(-1);
 
     private final Deque<Sample> samples = new ArrayDeque<>();
 
@@ -184,6 +185,19 @@ public class SendProgressService implements UGSEventListener {
      */
     public int getNumRemainingRows() {
         return Math.max(0, numRows - completedRows.get());
+    }
+
+    /**
+     * Unlike {@link #getNumCompletedRows()}, which simply counts how many commands this stream has
+     * completed from zero, this is the original file's own command number (see
+     * {@link GcodeCommand#getCommandNumber()}, preserved through a processed file's metadata even
+     * when only part of the file is being streamed, e.g. by "run from here") - the two only agree
+     * when a stream starts at the beginning of the file.
+     *
+     * @return the command number of the most recently completed row, or -1 if none has completed
+     */
+    public int getLastCompletedCommandNumber() {
+        return lastCompletedCommandNumber.get();
     }
 
     /**
@@ -406,6 +420,7 @@ public class SendProgressService implements UGSEventListener {
         if (event.getCommandEventType() == CommandEventType.COMMAND_SKIPPED) {
             dispatchedRows.incrementAndGet();
             completedRows.incrementAndGet();
+            updateLastCompletedCommandNumber(command);
             sampleProgress();
         } else if (command.isImmediate()) {
             // Immediate commands such as jogs aren't part of the program
@@ -414,7 +429,17 @@ public class SendProgressService implements UGSEventListener {
             dispatchedRows.incrementAndGet();
         } else if (event.getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
             completedRows.incrementAndGet();
+            updateLastCompletedCommandNumber(command);
             sampleProgress();
+        }
+    }
+
+    // Mirrors RendererInputHandler's own gate on the 3D visualizer's equivalent signal - a
+    // generated command (e.g. an injected offset restore) doesn't correspond to a real row in the
+    // original file, so it has no meaningful command number to publish here.
+    private void updateLastCompletedCommandNumber(GcodeCommand command) {
+        if (!command.isGenerated()) {
+            lastCompletedCommandNumber.set(command.getCommandNumber());
         }
     }
 
@@ -431,6 +456,7 @@ public class SendProgressService implements UGSEventListener {
         sentRows.set(0);
         dispatchedRows.set(0);
         completedRows.set(0);
+        lastCompletedCommandNumber.set(-1);
         isSending = false;
         hasFinishedSending = false;
         correction = 1;

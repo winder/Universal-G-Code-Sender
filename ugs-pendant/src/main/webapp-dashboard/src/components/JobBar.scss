@@ -1,0 +1,68 @@
+.jobBar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 16px;
+  background-color: #2a2c2d;
+  border-top: 1px solid #3a3d3e;
+
+  .jobFile {
+    font-weight: 600;
+    min-width: 160px;
+  }
+
+  .jobProgress {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+
+    .progress {
+      height: 1.5rem;
+    }
+
+    .jobSendStatus {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 20px;
+      color: #c3c8cb;
+      font-size: 1rem;
+
+      .jobSendStatusLabel {
+        color: #ffffff;
+        font-weight: 700;
+      }
+
+      // Stands out from the rest of jobSendStatus's routine info - this one
+      // means the next Start press won't run the whole file, worth noticing.
+      .jobRunFromArmed {
+        color: #f0ad4e;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .jobRunFromReset {
+        border: none;
+        background: none;
+        color: #f0ad4e;
+        font-weight: 400;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 0;
+      }
+    }
+  }
+
+  .jobActions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+
+    .btn {
+      min-height: 48px;
+    }
+  }
+}

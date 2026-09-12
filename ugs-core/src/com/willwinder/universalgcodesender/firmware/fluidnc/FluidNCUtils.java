@@ -65,14 +65,33 @@ public class FluidNCUtils {
         return GrblUtils.isAlarmResponse(response) || ALARM_MESSAGE_PATTERN.matcher(response).find();
     }
 
+    // FluidNC logs alarms as free text (e.g. "[MSG:INFO: ALARM: Soft Limit]") rather
+    // than always using GRBL's numeric codes, so match on the wording it actually uses.
     public static Alarm parseAlarmResponse(String response) {
         Matcher matcher = ALARM_MESSAGE_PATTERN.matcher(response);
         if (!matcher.find()) {
             return GrblUtils.parseAlarmResponse(response);
         }
 
-        if (StringUtils.containsIgnoreCase(matcher.group("alarm"), "hard limit")) {
+        String alarm = matcher.group("alarm");
+        if (StringUtils.containsIgnoreCase(alarm, "hard limit")) {
             return Alarm.HARD_LIMIT;
+        } else if (StringUtils.containsIgnoreCase(alarm, "soft limit")) {
+            return Alarm.SOFT_LIMIT;
+        } else if (StringUtils.containsIgnoreCase(alarm, "abort during cycle")) {
+            return Alarm.ABORT_DURING_CYCLE;
+        } else if (StringUtils.containsIgnoreCase(alarm, "probe fail") && StringUtils.containsIgnoreCase(alarm, "initial")) {
+            return Alarm.PROBE_FAIL_INITIAL;
+        } else if (StringUtils.containsIgnoreCase(alarm, "probe fail")) {
+            return Alarm.PROBE_FAIL_CONTACT;
+        } else if (StringUtils.containsIgnoreCase(alarm, "homing fail") && StringUtils.containsIgnoreCase(alarm, "reset")) {
+            return Alarm.HOMING_FAIL_RESET;
+        } else if (StringUtils.containsIgnoreCase(alarm, "homing fail") && StringUtils.containsIgnoreCase(alarm, "door")) {
+            return Alarm.HOMING_FAIL_DOOR;
+        } else if (StringUtils.containsIgnoreCase(alarm, "homing fail") && StringUtils.containsIgnoreCase(alarm, "pulloff")) {
+            return Alarm.HOMING_FAIL_PULLOFF;
+        } else if (StringUtils.containsIgnoreCase(alarm, "homing fail")) {
+            return Alarm.HOMING_FAIL_APPROACH;
         }
         return Alarm.UNKONWN;
     }

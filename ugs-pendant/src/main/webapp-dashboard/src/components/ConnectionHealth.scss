@@ -1,0 +1,18 @@
+.connectionHealth {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.live {
+    background-color: #4ade80;
+  }
+
+  &.stale {
+    background-color: #ff970b;
+  }
+
+  &.lost {
+    background-color: #dc3545;
+  }
+}

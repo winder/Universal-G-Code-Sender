@@ -1,0 +1,140 @@
+.macroForm {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 10px;
+  padding: 4px 2px;
+}
+
+.macroFormField {
+  flex: 0 0 auto;
+}
+
+// The only field allowed to shrink - everything else (name, description,
+// color/icon pickers, the action buttons) keeps its natural size so Save/
+// Discard stay visible without scrolling; the gcode editor gives up height
+// to make room instead, down to its own 70px floor.
+//
+// Deliberately NOT min-height: 0 here - that would let the outer flex
+// column (.macroForm) shrink this whole group all the way to 0px when
+// space is tight (a split pane, or a short window), while its children
+// (the 70px-floor editor, the placeholder row) don't respect that and
+// render at their natural size anyway - the result was those children
+// overflowing outside their own collapsed 0-height parent and overlapping
+// the next field below. Leaving min-height at its default (auto) makes
+// this group's own floor the label + editor's 70px + placeholder row, so
+// once content doesn't fit at all, .macroEditorFormPane's overflow-y:auto
+// scrolls the whole form instead of overlapping.
+.macroFormGcode {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+
+  .macroGcodeEditor {
+    flex: 1 1 auto;
+    min-height: 70px;
+  }
+}
+
+.macroFormPlaceholders {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.macroFormColors,
+.macroFormIcons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+// At half-width (a split pane), wrapping naturally could land on any number
+// of rows depending on exact width - force exactly two, letting the grid
+// add as many columns as needed, so the layout stays predictable rather
+// than however flex-wrap happens to break at a given pane width.
+.macroFormPlaceholders.compact,
+.macroFormColors.compact,
+.macroFormIcons.compact {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: max-content;
+  align-items: center;
+  flex-wrap: unset;
+  overflow-x: auto;
+}
+
+.macroColorSwatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+
+  &.selected {
+    border-color: #111827;
+  }
+}
+
+.macroColorCustom {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.macroIconSwatch {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+
+  &.selected {
+    border-width: 2px;
+  }
+}
+
+// Puts Clear next to the field's own label instead of amid the swatches -
+// there, as just another item in a wrapping row, it could land alone on
+// its own trailing line and add a whole extra row of height for one word.
+.macroFormLabelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.macroFormClear {
+  border: none;
+  background: none;
+  color: #6b7280;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.macroFormActions {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #3a3d3e;
+}
+
+.macroFormActionsRight {
+  display: flex;
+  gap: 8px;
+}

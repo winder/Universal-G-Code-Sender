@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-test:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     runs-on: ubuntu-24.04
 
     steps:
@@ -34,7 +34,7 @@ jobs:
         overwrite: true
 
   build-ugs-platform-macosx-aarch64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: macos-latest
 
@@ -61,11 +61,12 @@ jobs:
         with:
           file: "ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg"
           prerelease: true
+          draft: false
           tag_name: "nightly"
           overwrite: true
 
   build-ugs-platform-macosx-x64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: macos-latest
 
@@ -92,12 +93,13 @@ jobs:
         with:
           file: "ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg"
           prerelease: true
+          draft: false
           tag_name: "nightly"
           overwrite: true
 
 
   build-fx-linux-x64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: ubuntu-24.04
 
@@ -118,11 +120,12 @@ jobs:
         with:
           file: "ugs-fx/target/installer/ugs-*.deb;ugs-fx/target/installer/ugs-*.rpm"
           prerelease: true
+          draft: false
           tag_name: "nightly"
           overwrite: true
 
   build-fx-linux-aarch64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: ubuntu-24.04-arm
 
@@ -143,11 +146,12 @@ jobs:
         with:
           file: "ugs-fx/target/installer/ugs-*.deb;ugs-fx/target/installer/ugs-*.rpm"
           prerelease: true
+          draft: false
           tag_name: "nightly"
           overwrite: true
 
   build-fx-macosx-x64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: macos-14
 
@@ -168,11 +172,12 @@ jobs:
         with:
           file: "ugs-fx/target/installer/ugs-*.dmg"
           prerelease: true
+          draft: false
           tag_name: "nightly"
           overwrite: true
 
   build-fx-macosx-aarch64:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: macos-latest
 
@@ -193,11 +198,12 @@ jobs:
         with:
           file: "ugs-fx/target/installer/ugs-*.dmg"
           prerelease: true
+          draft: false
           tag_name: "nightly"
           overwrite: true
 
   build-fx-windows:
-    if: github.repository_owner == 'winder'
+    if: github.repository_owner == 'zanymutt'
     needs: build-and-test
     runs-on: windows-latest
     steps:
@@ -217,5 +223,6 @@ jobs:
         with:
           file: "ugs-fx/target/installer/ugs-*.exe;ugs-fx/target/installer/ugs-*.msi"
           prerelease: true
+          draft: false
           tag_name: "nightly"
           overwrite: true

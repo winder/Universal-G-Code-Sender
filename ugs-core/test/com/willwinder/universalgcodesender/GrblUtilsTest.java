@@ -637,6 +637,10 @@ public class GrblUtilsTest {
 
     @Test
     public void getStatusFromStringVersion1WithoutAccessoryStatusString() {
+        // GRBL/FluidNC only include the "A:" field at all when something is
+        // actually active, so an override report ("Ov:") with no "A:" field
+        // means every accessory is genuinely off - not "unknown, assume the
+        // spindle is running", which was the previous (unsafe) default.
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
@@ -645,7 +649,7 @@ public class GrblUtilsTest {
 
         assertFalse(controllerStatus.getAccessoryStates().flood());
         assertFalse(controllerStatus.getAccessoryStates().mist());
-        assertTrue(controllerStatus.getAccessoryStates().spindleCW());
+        assertFalse(controllerStatus.getAccessoryStates().spindleCW());
     }
 
     @Test

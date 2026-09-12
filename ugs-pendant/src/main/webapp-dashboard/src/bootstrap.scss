@@ -1,0 +1,75 @@
+@import "bootstrap/scss/bootstrap";
+
+// Touchscreens simulate ":hover" on tap and don't clear it until the next tap
+// lands elsewhere on the page, so every Bootstrap button (view presets,
+// override buttons, etc.) stays visually "pressed" - filled with its hover
+// background - after the finger lifts. Tried gating this behind
+// @media (hover: none) first, but that didn't actually fix it on the real
+// touchscreen - Windows + Chrome/Chromium is known to report (hover: hover)
+// for a touch-only display anyway (it reflects what the *system* supports,
+// not how a given interaction happened), so the media query silently never
+// matched. Disarming the hover styling unconditionally instead - a touch
+// dashboard has no real use for a hover state regardless of device - by
+// pointing each button's hover custom properties back at its own resting
+// ones instead of overriding colors variant-by-variant.
+.btn {
+  --bs-btn-hover-color: var(--bs-btn-color);
+  --bs-btn-hover-bg: var(--bs-btn-bg);
+  --bs-btn-hover-border-color: var(--bs-btn-border-color);
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #353a40;
+  border-color: #c2c2c2;
+}
+
+.btn-secondary.btn:hover {
+  background-color: #f7f7f7;
+  color: #353a40;
+  border-color: #c2c2c2;
+}
+
+.btn-secondary.btn:disabled {
+  background-color: #f7f7f7;
+  color: #353a40;
+  border-color: #c2c2c2;
+}
+
+.bg-dark {
+  background-color: #2a2c2d !important;
+}
+
+// Bootstrap's form-control defaults to a white input on every theme - jarring
+// against this dashboard's otherwise-dark UI. Scoped here (not per-component)
+// since it's a handful of plain text inputs scattered around (macro name/
+// description, the console command box, connection settings).
+.form-control {
+  background-color: #1c1e1f;
+  border-color: #3a3d3e;
+  color: #e5e7eb;
+
+  &::placeholder {
+    color: #6b7280;
+  }
+
+  &:focus {
+    background-color: #1c1e1f;
+    border-color: #4ade80;
+    color: #e5e7eb;
+    box-shadow: 0 0 0 0.2rem rgba(74, 222, 128, 0.25);
+  }
+
+  &:disabled,
+  &[readonly] {
+    background-color: #151617;
+    color: #6b7280;
+  }
+}
+
+@media (min-width: 576px) {
+  .container-sm,
+  .container {
+    max-width: 100%;
+  }
+}

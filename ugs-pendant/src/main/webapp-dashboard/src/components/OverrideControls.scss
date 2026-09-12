@@ -1,0 +1,102 @@
+.overrideControls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.overrideRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+
+  .overrideLabel {
+    color: #c3c8cb;
+    font-size: 0.85rem;
+    font-weight: 700;
+    min-width: 50px;
+  }
+
+  // One unified rounded rectangle instead of 3 separate bordered boxes - the
+  // group owns the outer border/radius, and each button is borderless except
+  // for a thin divider between segments, so the reset button in the middle
+  // reads as part of the same shape instead of a gap cut out of it.
+  .btn-group {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 1px solid #2f3132;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  // Same fix as StepSize/FeedRate: pin every button to an equal share of the
+  // row instead of Bootstrap's default, which stretches whichever button
+  // lands alone if the group ever wraps.
+  .btn-group .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 36px;
+    padding: 4px 2px;
+    font-size: 0.78rem;
+    border: none !important;
+    border-radius: 0 !important;
+    // Bootstrap's default hover fade takes 150ms - long enough that a
+    // re-render triggered by the live bar/value next to it (both update on
+    // every status tick, as often as every 200ms with $Report/Interval set)
+    // can catch it mid-fade and make the hover look like it isn't working.
+    // Applying it instantly removes that timing window.
+    transition: none !important;
+  }
+
+  .btn-group .btn:not(:last-child) {
+    border-right: 1px solid #2f3132 !important;
+  }
+
+  // No background override here - Bootstrap's outline-secondary is already
+  // transparent by default, and forcing it with !important (as before) also
+  // blocked the same class's own :hover fill, since !important ignores the
+  // hover pseudo-class's higher specificity. Only the icon color marks this
+  // as the reset/current-value segment.
+  .overrideCurrent {
+    color: #4ade80 !important;
+  }
+
+  .overrideActive {
+    background-color: #4ade80 !important;
+    color: #111213 !important;
+  }
+
+  // Forces the bar onto its own line below the label + button row, spanning
+  // the full row width (label's min-width is excluded via the row's own gap,
+  // matching how the buttons line up above it).
+  .overrideBar {
+    flex: 1 1 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .overrideBarTrack {
+    flex: 1 1 auto;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #111213;
+    border: 1px solid #2f3132;
+    overflow: hidden;
+  }
+
+  .overrideBarFill {
+    height: 100%;
+    background-color: #4ade80;
+    border-radius: 4px;
+    transition: width 150ms ease;
+  }
+
+  .overrideBarValue {
+    min-width: 3.5ch;
+    text-align: right;
+    font-weight: 700;
+    color: #4ade80;
+  }
+}

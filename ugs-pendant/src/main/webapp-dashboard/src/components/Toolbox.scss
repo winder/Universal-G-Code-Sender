@@ -1,0 +1,38 @@
+.toolbox {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-auto-rows: min-content;
+  align-content: start;
+  gap: 8px;
+
+  .btn {
+    min-height: 48px;
+    height: auto;
+    padding: 6px 8px;
+    white-space: normal;
+    line-height: 1.2;
+    // Bootstrap's default btn-secondary is solid white - jarring against the
+    // rest of this dark UI. Dark fill instead, with a green accent border on
+    // hover/focus (matching the app's accent color elsewhere) so these stay
+    // clearly legible/prominent rather than fading into the panel background.
+    background-color: #232526;
+    color: #e5e7eb;
+    border-color: #3a3d3e;
+
+    &:hover:not(:disabled) {
+      background-color: #2c2f30;
+      border-color: #4ade80;
+      color: #e5e7eb;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(74, 222, 128, 0.25);
+    }
+
+    &:disabled {
+      background-color: #1a1b1c;
+      color: #55595c;
+      border-color: #2f3132;
+    }
+  }
+}

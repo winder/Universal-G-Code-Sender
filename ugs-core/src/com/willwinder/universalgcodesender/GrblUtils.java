@@ -682,11 +682,29 @@ public class GrblUtils {
         return StringUtils.startsWith(response, "ALARM");
     }
 
+    // Standard GRBL v1.1 numeric alarm codes - see
+    // https://github.com/gnea/grbl/wiki/Grbl-v1.1-Interface#alarm-codes
     public static Alarm parseAlarmResponse(String response) {
         String alarmCode = StringUtils.substringAfter(response.toLowerCase(), "alarm:");
         switch (alarmCode) {
             case "1":
                 return Alarm.HARD_LIMIT;
+            case "2":
+                return Alarm.SOFT_LIMIT;
+            case "3":
+                return Alarm.ABORT_DURING_CYCLE;
+            case "4":
+                return Alarm.PROBE_FAIL_INITIAL;
+            case "5":
+                return Alarm.PROBE_FAIL_CONTACT;
+            case "6":
+                return Alarm.HOMING_FAIL_RESET;
+            case "7":
+                return Alarm.HOMING_FAIL_DOOR;
+            case "8":
+                return Alarm.HOMING_FAIL_PULLOFF;
+            case "9":
+                return Alarm.HOMING_FAIL_APPROACH;
             default:
                 return Alarm.UNKONWN;
         }

@@ -1,0 +1,54 @@
+@import "../_scrollbar";
+
+.macrosPanel {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-auto-rows: min-content;
+  align-content: start;
+  gap: 8px;
+  overflow-y: auto;
+  min-width: 0;
+  @include darkScrollbar;
+}
+
+.macroButton {
+  min-height: 48px;
+  height: auto;
+  // A grid item's default min-width is its content's min-content size, which
+  // for one long unbroken word (no spaces to wrap at) can exceed the 110px
+  // track - since auto-fill shares column width across the whole grid, that
+  // one long name would widen every other button's column too. min-width: 0
+  // plus the label's own ellipsis truncation below keeps every button's
+  // width locked to its grid track regardless of name length.
+  min-width: 0;
+  padding: 6px 8px;
+  line-height: 1.2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  // Only takes effect when macroColorStyle() sets these via inline style
+  // (i.e. the macro has a color) - otherwise falls back to Bootstrap's
+  // normal outline-secondary look untouched.
+  &[style*="border-color"] {
+    border-width: 2px;
+  }
+}
+
+.macroButtonLabel {
+  max-width: 100%;
+  // Wraps to a second line instead of truncating - the button already
+  // grows taller for it (min-height: 48px; height: auto above), so a
+  // two-line label is cheap and reads better than clipping the name.
+  // overflow-wrap is the backstop for one long unbroken word (no spaces to
+  // wrap at) - min-width: 0 on .macroButton keeps that from widening the
+  // grid track even when a word has to break mid-word.
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.macrosEmpty {
+  color: #6b7280;
+  font-size: 0.9rem;
+}

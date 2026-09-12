@@ -1,0 +1,84 @@
+.gcodeEditor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 8px;
+}
+
+.gcodeEditorToolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .gcodeEditorFileName {
+    font-weight: 600;
+  }
+
+  .gcodeEditorLocked {
+    color: #f0ad4e;
+    font-size: 0.8rem;
+  }
+
+  .gcodeEditorError {
+    color: #ff6b6b;
+    font-size: 0.8rem;
+  }
+
+  // Both get margin-left: auto (not just the first) so this whole group -
+  // Run from/Save as/Save - sits right-aligned together, rather than only
+  // Run from getting pushed over and leaving a gap before the rest. Reset
+  // (between them) doesn't need its own - it just rides along right after
+  // Run from in normal flow.
+  .gcodeEditorRunFrom,
+  .gcodeEditorSave {
+    margin-left: auto;
+  }
+
+  // Mirrors .jobRunFromReset in JobBar.scss - same reset, same styling,
+  // just reachable next to Run from too instead of only down in the job bar.
+  .gcodeEditorRunFromReset {
+    border: none;
+    background: none;
+    color: #f0ad4e;
+    font-size: 0.85rem;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+  }
+}
+
+.gcodeEditorContent {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  border: 1px solid #2f3132;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.gcodeEditorCodeMirror {
+  height: 100%;
+
+  // Marks lines that won't actually run next - already sent during a job,
+  // or skipped by an armed "run from" line (see dimThroughField).
+  .cm-dimmedLine {
+    opacity: 0.4;
+  }
+}
+
+.gcodeEditorLoading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  background: #111213;
+  z-index: 1;
+}
+
+.gcodeEditorEmpty {
+  color: #6b7280;
+  padding: 16px;
+}

@@ -1,0 +1,18 @@
+.connectionWidget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .form-select,
+  .form-control {
+    width: auto;
+  }
+
+  .connectionWidgetPort {
+    width: 140px;
+  }
+
+  .connectionWidgetBaud {
+    width: 80px;
+  }
+}

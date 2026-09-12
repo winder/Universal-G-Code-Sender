@@ -84,11 +84,21 @@ public class GrblProbeCommand extends ProbeGcodeCommand {
         return Arrays.stream(lines)
                 .filter(line -> line.startsWith("[PRB:"))
                 .map(line -> {
-                    // Response in format: [PRB:-259.579,-149.578,-55.614:1]
-                    String coordinate = StringUtils.substringBetween(line, "[PRB:", ":");
-                    String[] split = StringUtils.split(coordinate, ",");
-                    return new Position(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), MM);
+                    // Response in format: [PRB:-259.579,-149.578,-55.614:1] - the trailing 1/0
+                    // says whether the probe actually made contact. Some firmwares (FluidNC
+                    // confirmed) still emit a [PRB:...] line with real, non-NaN coordinates for
+                    // a *failed* probe (just wherever the configured travel ran out) - ignoring
+                    // that flag, as this used to, would silently report a failed probe as if it
+                    // were a real contact position.
+                    String body = StringUtils.substringBetween(line, "[PRB:", "]");
+                    String[] parts = StringUtils.split(body, ":");
+                    if (parts.length > 1 && !"1".equals(parts[1])) {
+                        return null;
+                    }
+                    String[] coordinate = StringUtils.split(parts[0], ",");
+                    return new Position(Double.parseDouble(coordinate[0]), Double.parseDouble(coordinate[1]), Double.parseDouble(coordinate[2]), MM);
                 })
+                .filter(java.util.Objects::nonNull)
                 .findFirst();
 
     }

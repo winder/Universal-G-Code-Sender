@@ -1,0 +1,174 @@
+.centerPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 10px;
+
+  .centerPanelTop {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .centerPanelContentRow {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    // Width for the left/right panes comes from the inline order/flex style
+    // set per-pane in CenterPanel.tsx (contentStyle()) - this just switches
+    // the row itself to lay its children out side by side.
+    &.split {
+      flex-direction: row;
+
+      .centerPanelContent {
+        min-width: 0;
+      }
+    }
+  }
+
+  // Left-pane selector, a resizer-width spacer + right-pane selector (only
+  // while split), and the Split toggle all live on this one row. While
+  // split, the main/right nav's order + flex-basis are set inline to the
+  // exact same values as the content panes below (contentStyle() in
+  // CenterPanel.tsx) so the right nav lines up with the right pane exactly,
+  // not "as close as a guessed spacer width gets it."
+  .centerPanelNavRow {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+
+  .centerPanelMainNav,
+  .centerPanelRightNav,
+  .centerPanelSplitNav {
+    flex: 0 0 auto;
+  }
+
+  // Matches the content row's resizer's own effective footprint (visually
+  // 14px wide but -6px margins either side net it to 2px of flex space).
+  .centerPanelNavRowResizerSpace {
+    flex: 0 0 2px;
+  }
+
+  // Pushes Split to the far right of the row regardless of what's before it
+  // (just the main nav, or main nav + resizer-space + right nav while split).
+  .centerPanelSplitNav {
+    margin-left: auto;
+  }
+
+  .centerPanelSplitResizer {
+    flex: 0 0 auto;
+    width: 14px;
+    margin: 0 -6px;
+    cursor: ew-resize;
+    position: relative;
+    z-index: 1;
+    touch-action: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 48px;
+      width: 4px;
+      border-radius: 2px;
+      background-color: #3a3d3e;
+    }
+
+    &:hover::after,
+    &:active::after {
+      background-color: #4ade80;
+    }
+  }
+
+  .centerPanelContent {
+    flex: 1 1 auto;
+    min-height: 0;
+    background-color: #111213;
+    border: 1px solid #2f3132;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  // Height comes from the inline flexBasis style (dragged via .centerPanelResizer
+  // above it) - flex-grow/shrink stay off so it holds exactly that height.
+  .centerPanelConsole {
+    flex: 0 0 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    .consolePanel {
+      flex: 1 1 auto;
+      height: auto;
+      min-height: 0;
+    }
+  }
+
+  .centerPanelResizer {
+    flex: 0 0 auto;
+    height: 14px;
+    margin: -6px 0;
+    cursor: ns-resize;
+    position: relative;
+    z-index: 1;
+    // Without this, dragging on a touchscreen scrolls the page instead of
+    // resizing the console.
+    touch-action: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 4px;
+      border-radius: 2px;
+      background-color: #3a3d3e;
+    }
+
+    &:hover::after,
+    &:active::after {
+      background-color: #4ade80;
+    }
+  }
+
+  .centerPanelConsoleHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    flex: 0 0 auto;
+  }
+
+  .centerPanelHeading {
+    color: #8a8f92;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0;
+  }
+
+  .centerPanelConsoleHeader .form-check-label {
+    color: #c3c8cb;
+    font-size: 0.85rem;
+  }
+
+  // Bootstrap's switch defaults to its own blue when checked - swap it for
+  // the same green used as the accent color everywhere else in the
+  // dashboard. Scoped to this one toggle for now rather than every
+  // .form-check-input, since there's no theme system yet to route this
+  // through consistently.
+  #verbose-toggle:checked {
+    background-color: #4ade80;
+    border-color: #4ade80;
+  }
+}

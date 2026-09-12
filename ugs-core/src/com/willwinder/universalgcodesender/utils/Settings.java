@@ -95,6 +95,7 @@ public class Settings {
     private int pendantPort = 8080;
 
     private final AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
+    private final ProbeSettings probeSettings = new ProbeSettings();
 
     private FileStats fileStats = new FileStats();
 
@@ -178,6 +179,7 @@ public class Settings {
     public void addSettingChangeListener(SettingChangeListener listener) {
         listeners.add(listener);
         autoLevelSettings.addSettingChangeListener(listener);
+        probeSettings.addSettingChangeListener(listener);
     }
 
     private void changed() {
@@ -495,6 +497,17 @@ public class Settings {
 
     public AutoLevelSettings getAutoLevelSettings() {
         return this.autoLevelSettings;
+    }
+
+    public void setProbeSettings(ProbeSettings settings) {
+        if (!settings.equals(this.probeSettings)) {
+            this.probeSettings.apply(settings);
+            changed();
+        }
+    }
+
+    public ProbeSettings getProbeSettings() {
+        return this.probeSettings;
     }
 
     public void setFileStats(FileStats settings) {
