@@ -14,12 +14,18 @@ type UiState = {
   centerView: CenterView;
   splitLeft: PaneContent;
   splitRight: PaneContent;
+  // The 1-based editor line "Run from here" last armed on the backend, or 0
+  // for a normal full run. Lives here (not in GcodeEditor's own state)
+  // because the job bar - always visible, regardless of which center tab is
+  // active - needs to show it and offer a way to clear it back to 0.
+  runFromLine: number;
 };
 
 const initialState: UiState = {
   centerView: "visualize",
   splitLeft: "visualize",
   splitRight: "edit",
+  runFromLine: 0,
 };
 
 const uiSlice = createSlice({
@@ -43,6 +49,9 @@ const uiSlice = createSlice({
         state.splitLeft = state.splitRight;
       }
       state.splitRight = action.payload;
+    },
+    setRunFromLine: (state, action: { payload: number }) => {
+      state.runFromLine = action.payload;
     },
   },
 });

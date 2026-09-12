@@ -33,6 +33,26 @@
         color: #ffffff;
         font-weight: 700;
       }
+
+      // Stands out from the rest of jobSendStatus's routine info - this one
+      // means the next Start press won't run the whole file, worth noticing.
+      .jobRunFromArmed {
+        color: #f0ad4e;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .jobRunFromReset {
+        border: none;
+        background: none;
+        color: #f0ad4e;
+        font-weight: 400;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 0;
+      }
     }
   }
 

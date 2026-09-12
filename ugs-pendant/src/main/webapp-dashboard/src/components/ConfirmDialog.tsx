@@ -16,7 +16,10 @@ const ConfirmDialog = ({ show, title, message, confirmLabel, confirmVariant, onC
       <Modal.Header closeButton>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>{message}</Modal.Body>
+      {/* pre-line: some callers pass multi-line messages (e.g. quoting a line
+          of gcode) - plain text collapses \n, this preserves it without
+          affecting the single-line messages every other caller passes */}
+      <Modal.Body style={{ whiteSpace: "pre-line" }}>{message}</Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onCancel}>
           Cancel

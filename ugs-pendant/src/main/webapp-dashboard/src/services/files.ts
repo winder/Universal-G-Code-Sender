@@ -23,6 +23,15 @@ export const send = () => {
   return fetch(url, request).then();
 };
 
+// Only primes the backend to skip to this line next time send() is called -
+// doesn't itself start anything. line <= 0 clears it back to a normal full run.
+export const runFromLine = (line: number): Promise<void> => {
+  const request = {
+    method: "POST",
+  };
+  return fetch(`/api/v1/files/runFromLine?line=${line}`, request).then();
+};
+
 export const stop = () => {
   return fetch("/api/v1/files/cancel").then();
 };

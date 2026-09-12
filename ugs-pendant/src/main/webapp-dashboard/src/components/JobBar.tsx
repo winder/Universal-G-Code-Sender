@@ -11,7 +11,8 @@ import { useAppSelector } from "../hooks/useAppSelector";
 import { useEffect, useState } from "react";
 import { fetchFileStatus } from "../store/fileStatusSlice";
 import { useAppDispatch } from "../hooks/useAppDispatch";
-import { closeFile, pause, send, stop } from "../services/files";
+import { closeFile, pause, runFromLine, send, stop } from "../services/files";
+import { uiActions } from "../store/uiSlice";
 import OpenFileModal from "./OpenFileModal";
 import "./JobBar.scss";
 
@@ -41,7 +42,12 @@ const JobBar = () => {
   const dispatch = useAppDispatch();
   const fileStatus = useAppSelector((state) => state.fileStatus);
   const status = useAppSelector((state) => state.status);
+  const armedRunFromLine = useAppSelector((state) => state.ui.runFromLine);
   const [showOpenFile, setShowOpenFile] = useState(false);
+
+  const resetRunFromLine = () => {
+    runFromLine(0).then(() => dispatch(uiActions.setRunFromLine(0)));
+  };
 
   useEffect(() => {
     dispatch(fetchFileStatus());
@@ -86,6 +92,14 @@ const JobBar = () => {
             <span>{fileStatus.remainingRowCount} remaining</span>
             <span>elapsed {formatTime(fileStatus.sendDuration)}</span>
             <span>{formatTime(fileStatus.sendRemainingDuration)} left</span>
+            {armedRunFromLine > 0 && (
+              <span className="jobRunFromArmed">
+                Will run from line {armedRunFromLine}
+                <button type="button" className="jobRunFromReset" onClick={resetRunFromLine}>
+                  Reset
+                </button>
+              </span>
+            )}
           </div>
         </div>
       )}

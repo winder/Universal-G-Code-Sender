@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.pendantui.v1.resources;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.RunFromService;
 import com.willwinder.universalgcodesender.services.SendProgressService;
 import com.willwinder.universalgcodesender.pendantui.v1.model.FileStatus;
 import com.willwinder.universalgcodesender.pendantui.v1.model.WorkspaceFileList;
@@ -84,6 +85,15 @@ public class FilesResource {
         } else {
             backendAPI.send();
         }
+    }
+
+    @POST
+    @Path("runFromLine")
+    @Operation(summary = "Prepare the currently loaded file to start streaming from a given line, skipping " +
+            "everything before it while replaying position/spindle/coolant/work offset state - " +
+            "does not itself start anything, a separate call to send() does that")
+    public void runFromLine(@QueryParam("line") int line) {
+        LookupService.lookup(RunFromService.class).runFromLine(line);
     }
 
     @GET

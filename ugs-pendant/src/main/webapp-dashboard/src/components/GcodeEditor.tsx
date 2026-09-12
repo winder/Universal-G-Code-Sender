@@ -5,11 +5,15 @@ import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { searchKeymap } from "@codemirror/search";
 import { Button, Spinner } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFloppyDisk, faFileExport } from "@fortawesome/free-solid-svg-icons";
+import { faFloppyDisk, faFileExport, faForward } from "@fortawesome/free-solid-svg-icons";
 import { useAppSelector } from "../hooks/useAppSelector";
+import { useAppDispatch } from "../hooks/useAppDispatch";
 import { getFileContent, saveFileContent, saveFileContentAs } from "../services/fileContent";
+import { runFromLine } from "../services/files";
+import { uiActions } from "../store/uiSlice";
 import { gcodeLanguage, gcodeSyntaxHighlighting } from "./gcodeLanguage";
 import SaveAsModal from "./SaveAsModal";
+import ConfirmDialog from "./ConfirmDialog";
 import "./GcodeEditor.scss";
 
 const editorTheme = EditorView.theme(
@@ -27,6 +31,7 @@ const editorTheme = EditorView.theme(
 const getFileName = (filePath: string) => filePath.replace(/^.*[\\/]/, "");
 
 const GcodeEditor = () => {
+  const dispatch = useAppDispatch();
   const fileStatus = useAppSelector((state) => state.fileStatus);
   const currentState = useAppSelector((state) => state.status.state);
   const fileName = useMemo(() => getFileName(fileStatus.fileName), [fileStatus.fileName]);
@@ -35,6 +40,11 @@ const GcodeEditor = () => {
   // unsafe, since the file being sent could then no longer match what's open
   // here.
   const isEditable = currentState !== "RUN" && currentState !== "HOLD" && currentState !== "CHECK";
+  // "Run from here" only arms a line on the backend (see runFromLine) - it
+  // doesn't send anything itself - but mirrors the desktop app's own gate
+  // for that action (connected and not already sending) rather than editing's
+  // looser one, since arming a line while disconnected/running isn't useful.
+  const canRunFrom = currentState === "IDLE";
 
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -47,6 +57,10 @@ const GcodeEditor = () => {
   const [isDirty, setIsDirty] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSaveAs, setShowSaveAs] = useState(false);
+  // 1-based, matching what the gutter shows - defaults to the first line so
+  // the button always has a sensible target even before anyone taps a line.
+  const [cursorLine, setCursorLine] = useState(1);
+  const [showRunFromConfirm, setShowRunFromConfirm] = useState(false);
 
   useEffect(() => {
     if (!editorContainerRef.current || !fileName) {
@@ -56,6 +70,11 @@ const GcodeEditor = () => {
     setIsLoading(true);
     setError(null);
     setIsDirty(false);
+    setCursorLine(1);
+    // Mirrors the backend's own auto-reset-on-open (RunFromService resets to
+    // a normal full run whenever a new file is opened) so the job bar's
+    // armed-line badge doesn't keep pointing at a line from a previous file.
+    dispatch(uiActions.setRunFromLine(0));
 
     let cancelled = false;
     getFileContent()
@@ -77,6 +96,9 @@ const GcodeEditor = () => {
               editableCompartmentRef.current.of(EditorView.editable.of(isEditable)),
               EditorView.updateListener.of((update) => {
                 if (update.docChanged) setIsDirty(true);
+                if (update.selectionSet || update.docChanged) {
+                  setCursorLine(update.state.doc.lineAt(update.state.selection.main.head).number);
+                }
               }),
             ],
           }),
@@ -119,6 +141,17 @@ const GcodeEditor = () => {
     return saveFileContentAs(newFilename, viewRef.current.state.doc.toString()).then(() => setIsDirty(false));
   };
 
+  // CodeMirror's line numbers are already 1-based; the backend's line number
+  // is a 0-based command index into the same file, so line 1 (index 0) maps
+  // to "don't skip anything" - matching runFromLine's own <= 0 = disabled
+  // convention, this needs no special-casing here.
+  const handleConfirmRunFrom = () => {
+    runFromLine(cursorLine - 1).then(() => dispatch(uiActions.setRunFromLine(cursorLine)));
+    setShowRunFromConfirm(false);
+  };
+
+  const cursorLineText = viewRef.current?.state.doc.line(cursorLine).text ?? "";
+
   if (!fileName) {
     return <div className="gcodeEditorEmpty">No file loaded. Open a file from the Run tab first.</div>;
   }
@@ -134,10 +167,32 @@ const GcodeEditor = () => {
         />
       )}
 
+      <ConfirmDialog
+        show={showRunFromConfirm}
+        title="Run from here?"
+        message={
+          `This only prepares line ${cursorLine} as the job's new starting point - it won't move the ` +
+          `machine yet. The machine will restore position, spindle, coolant, and work offset before ` +
+          `continuing from:\n\n${cursorLineText}\n\nPress Start afterward to actually begin.`
+        }
+        confirmLabel="Run from here"
+        onConfirm={handleConfirmRunFrom}
+        onCancel={() => setShowRunFromConfirm(false)}
+      />
+
       <div className="gcodeEditorToolbar">
         <span className="gcodeEditorFileName">{fileName}</span>
         {!isEditable && <span className="gcodeEditorLocked">Read-only while a job is running</span>}
         {error && <span className="gcodeEditorError">{error}</span>}
+        <Button
+          className="gcodeEditorRunFrom"
+          variant="outline-secondary"
+          disabled={!canRunFrom}
+          title={canRunFrom ? undefined : "Connect and be idle to arm a starting line"}
+          onClick={() => setShowRunFromConfirm(true)}
+        >
+          <FontAwesomeIcon icon={faForward} /> Run from line {cursorLine}
+        </Button>
         <Button
           className="gcodeEditorSave"
           variant="outline-secondary"

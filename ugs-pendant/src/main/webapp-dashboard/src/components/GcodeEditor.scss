@@ -25,6 +25,10 @@
     font-size: 0.8rem;
   }
 
+  // Both get margin-left: auto (not just the first) so this whole group -
+  // Run from/Save as/Save - sits right-aligned together, rather than only
+  // Run from getting pushed over and leaving a gap before the rest.
+  .gcodeEditorRunFrom,
   .gcodeEditorSave {
     margin-left: auto;
   }
