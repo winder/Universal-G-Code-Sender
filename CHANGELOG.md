@@ -6,7 +6,7 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 - Fixed a probe operation leaving the machine in relative coordinate mode (G91) afterward instead of restoring absolute mode (G90) - every probe move switches to relative, but nothing ever switched back.
 - Fixed the Top/Left/Right/Bottom/3D and override buttons staying visually "pressed" (gray background) after releasing a touch - a touchscreen quirk where the browser simulates hover on tap and doesn't clear it until the next tap elsewhere.
-- The 3D visualizer now grays out toolpath segments that have already run during a job, matching desktop and the editor's own "already sent" dimming.
+- The 3D visualizer now grays out toolpath segments that have already run during a job (matching desktop and the editor's own "already sent" dimming) and auto-tracks the yellow highlight to the currently-running line, the same way desktop's default-on Follow feature does.
 - Fixed the 3D visualizer showing "No file loaded" the first time a file was opened, only working after reloading the page - it was fetching the toolpath before the backend had actually finished writing the file it reads, with nothing left to retry once it was ready.
 - Added a Reset link next to "Run from line N" in the editor toolbar, in addition to the one already in the job bar.
 
