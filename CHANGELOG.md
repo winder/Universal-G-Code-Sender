@@ -4,6 +4,8 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 ## 2026-09-12
 
+- Added a Reset link next to "Run from line N" in the editor toolbar, in addition to the one already in the job bar.
+
 - Fixed the visualizer's yellow cursor highlight pointing at the wrong segment - it needs its own conversion from editor line to gcode command number, not the same one "run from" uses (confirmed by comparing against desktop, which uses different math for each of those two features internally).
 - Fixed the gcode editor not dimming the line immediately before an armed "run from" point, and restored the visualizer's yellow cursor highlight while a line is armed (it was being disabled unnecessarily).
 - Fixed "run from" resuming one command later than intended (skipping one extra command past the selected line) - confirmed and corrected against a side-by-side comparison with desktop's own visualizer.
