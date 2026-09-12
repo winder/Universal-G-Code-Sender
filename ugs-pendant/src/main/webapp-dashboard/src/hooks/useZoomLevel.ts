@@ -25,6 +25,11 @@ export function useZoomLevel() {
 
   useEffect(() => {
     document.documentElement.style.setProperty("--dashboard-zoom", String(zoom / 100));
+    // Only promotes .app to a composited layer (see the App.scss comment on
+    // this class) once zoom actually differs from 100% - so the untouched,
+    // by-far-most-common case has no transform on it at all, not merely a
+    // numeric no-op scale(1).
+    document.documentElement.classList.toggle("dashboard-zoomed", zoom !== DEFAULT_ZOOM);
     localStorage.setItem(STORAGE_KEY, String(zoom));
   }, [zoom]);
 
