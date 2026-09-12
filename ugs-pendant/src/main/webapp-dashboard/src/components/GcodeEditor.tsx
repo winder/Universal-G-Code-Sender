@@ -214,6 +214,14 @@ const GcodeEditor = () => {
     setShowRunFromConfirm(false);
   };
 
+  // Same reset the job bar's own "Reset" link does (see JobBar.tsx) - kept
+  // here too so it's reachable right next to Run from line without having
+  // to look down at the job bar, which may not even be in view depending on
+  // layout.
+  const resetRunFromLine = () => {
+    runFromLine(0).then(() => dispatch(uiActions.setRunFromLine(0)));
+  };
+
   const cursorLineText = viewRef.current?.state.doc.line(cursorLine).text ?? "";
 
   if (!fileName) {
@@ -257,6 +265,11 @@ const GcodeEditor = () => {
         >
           <FontAwesomeIcon icon={faForward} /> Run from line {cursorLine}
         </Button>
+        {armedRunFromLine > 0 && (
+          <button type="button" className="gcodeEditorRunFromReset" onClick={resetRunFromLine}>
+            Reset
+          </button>
+        )}
         <Button
           className="gcodeEditorSave"
           variant="outline-secondary"

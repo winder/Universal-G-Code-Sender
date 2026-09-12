@@ -27,10 +27,24 @@
 
   // Both get margin-left: auto (not just the first) so this whole group -
   // Run from/Save as/Save - sits right-aligned together, rather than only
-  // Run from getting pushed over and leaving a gap before the rest.
+  // Run from getting pushed over and leaving a gap before the rest. Reset
+  // (between them) doesn't need its own - it just rides along right after
+  // Run from in normal flow.
   .gcodeEditorRunFrom,
   .gcodeEditorSave {
     margin-left: auto;
+  }
+
+  // Mirrors .jobRunFromReset in JobBar.scss - same reset, same styling,
+  // just reachable next to Run from too instead of only down in the job bar.
+  .gcodeEditorRunFromReset {
+    border: none;
+    background: none;
+    color: #f0ad4e;
+    font-size: 0.85rem;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
   }
 }
 
