@@ -95,12 +95,12 @@ const JobBar = () => {
           briefly puts the controller in "JOG", which used to hide every button here
           at once and made the whole bar visibly resize. */}
       <div className="jobActions">
-        <Button variant="secondary" disabled={status.state !== "IDLE"} onClick={() => setShowOpenFile(true)}>
+        <Button variant="secondary" disabled={isRunning} onClick={() => setShowOpenFile(true)}>
           <FontAwesomeIcon icon={faFile} /> Open
         </Button>
         <Button
           variant="secondary"
-          disabled={fileStatus.fileName === "" || status.state !== "IDLE"}
+          disabled={fileStatus.fileName === "" || isRunning}
           onClick={() => closeFile()}
         >
           <FontAwesomeIcon icon={faXmark} /> Close

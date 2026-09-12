@@ -30,7 +30,11 @@ const GcodeEditor = () => {
   const fileStatus = useAppSelector((state) => state.fileStatus);
   const currentState = useAppSelector((state) => state.status.state);
   const fileName = useMemo(() => getFileName(fileStatus.fileName), [fileStatus.fileName]);
-  const isEditable = currentState === "IDLE";
+  // Editing the file on disk doesn't touch the controller, so it doesn't need
+  // a connection (or even IDLE) - only actually streaming a job makes editing
+  // unsafe, since the file being sent could then no longer match what's open
+  // here.
+  const isEditable = currentState !== "RUN" && currentState !== "HOLD" && currentState !== "CHECK";
 
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -132,7 +136,7 @@ const GcodeEditor = () => {
 
       <div className="gcodeEditorToolbar">
         <span className="gcodeEditorFileName">{fileName}</span>
-        {!isEditable && <span className="gcodeEditorLocked">Read-only while the machine isn't idle</span>}
+        {!isEditable && <span className="gcodeEditorLocked">Read-only while a job is running</span>}
         {error && <span className="gcodeEditorError">{error}</span>}
         <Button
           className="gcodeEditorSave"
