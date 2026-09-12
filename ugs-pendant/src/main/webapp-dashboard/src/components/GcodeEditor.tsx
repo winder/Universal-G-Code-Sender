@@ -86,7 +86,7 @@ const GcodeEditor = () => {
     currentState === "RUN" || currentState === "HOLD" || currentState === "CHECK"
       ? fileStatus.completedRowCount
       : armedRunFromLine > 0
-        ? armedRunFromLine - 1
+        ? armedRunFromLine - 2
         : 0;
 
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
@@ -192,12 +192,17 @@ const GcodeEditor = () => {
     return saveFileContentAs(newFilename, viewRef.current.state.doc.toString()).then(() => setIsDirty(false));
   };
 
-  // CodeMirror's line numbers are already 1-based; the backend's line number
-  // is a 0-based command index into the same file, so line 1 (index 0) maps
-  // to "don't skip anything" - matching runFromLine's own <= 0 = disabled
-  // convention, this needs no special-casing here.
+  // CodeMirror's line numbers are 1-based. Desktop's own "Start program
+  // here" (RunFromHere.java) computes root.getElementIndex(caretPosition) -
+  // 1, where getElementIndex is *already* a 0-based line index on its own -
+  // so its net result is two less than the 1-based line number, not one
+  // less. Confirmed empirically against the real backend: sending only
+  // "- 1" resumed one command later than desktop did for the identical
+  // selected line (skipped one extra command) - matching "- 2" here fixed
+  // it. line <= 1 lands at 0 or below, matching runFromLine's own <= 0 =
+  // disabled convention, so no special-casing needed for the first line.
   const handleConfirmRunFrom = () => {
-    runFromLine(cursorLine - 1).then(() => dispatch(uiActions.setRunFromLine(cursorLine)));
+    runFromLine(cursorLine - 2).then(() => dispatch(uiActions.setRunFromLine(cursorLine)));
     setShowRunFromConfirm(false);
   };
 

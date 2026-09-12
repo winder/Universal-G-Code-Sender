@@ -48,13 +48,16 @@ const createAxisLabel = (text: string, color: string) => {
 //
 // highlightLine is the dashboard's 1-based editor line number (0 = none);
 // ToolpathSegment.lineNumber is the backend's 0-based GcodeParser command
-// index - editor line N is command index N-1 (GcodeParserUtils sets
-// state.commandNumber = line, pre-incremented from -1 in
-// GcodeParser.addCommand). That mapping only holds while nothing's armed,
-// though: once the processed file has commands removed/inserted, its line
-// numbers no longer correspond to the original editor's - so callers pass
-// highlightLine=0 (no highlight) whenever a line is armed, rather than
-// risk highlighting the wrong segment.
+// index. Assumed here to be editor line N = command index N-1, but take
+// that with a grain of salt - the equivalent assumption for "run from"
+// turned out to actually be N-2 once checked against the real backend
+// (see GcodeEditor.tsx's handleConfirmRunFrom), so this one hasn't been
+// independently confirmed and could have the same kind of off-by-one.
+// Only matters while nothing's armed anyway: once the processed file has
+// commands removed/inserted, its line numbers no longer correspond to the
+// original editor's, so callers pass highlightLine=0 (no highlight)
+// whenever a line is armed, rather than risk highlighting the wrong
+// segment on top of any unverified offset here.
 const buildToolpathGeometry = (segments: ToolpathSegment[], highlightLine: number) => {
   const highlightCommand = highlightLine - 1;
 
