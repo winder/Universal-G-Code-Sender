@@ -4,6 +4,7 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 ## 2026-09-11
 
+- Opening, closing, and editing a gcode file no longer require being connected to the machine - only actually running a job does.
 - Fixed the top bar's Zoom +/- shrinking/growing the page in place instead of actually filling the window the way a real browser zoom does (confirmed against an actual ctrl+/- zoom).
 - Moved the macro editor's Button color/Icon "Clear" links up next to their labels, so they can't wrap onto their own trailing line and add extra scroll height.
 - Added Full Screen and Zoom +/- controls to the top bar, for easier one-tap use on a touchscreen (zoom level is remembered between visits).
