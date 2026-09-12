@@ -19,14 +19,17 @@
 package com.willwinder.universalgcodesender.fx;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.willwinder.universalgcodesender.fx.actions.StartAction;
+import com.willwinder.universalgcodesender.fx.actions.ToggleRightPaneAction;
+import com.willwinder.universalgcodesender.fx.actions.ToggleLeftPaneAction;
+import com.willwinder.universalgcodesender.fx.component.MachinePane;
 import com.willwinder.universalgcodesender.fx.component.MainMenuBar;
 import com.willwinder.universalgcodesender.fx.component.ToolBarMenu;
+import com.willwinder.universalgcodesender.fx.component.WorkspaceTools;
 import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
-import com.willwinder.universalgcodesender.fx.component.dro.MachineStatusPane;
-import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
+import com.willwinder.universalgcodesender.fx.component.sidepane.CollapsibleSidePane;
+import com.willwinder.universalgcodesender.fx.component.sidepane.SidePane;
+import com.willwinder.universalgcodesender.fx.component.sidepane.SidePaneAlignment;
 import com.willwinder.universalgcodesender.fx.component.visualizer.VisualizerPane;
-import com.willwinder.universalgcodesender.fx.component.designer.InspectorPane;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.FxBackend;
 import com.willwinder.universalgcodesender.fx.service.FxEventDispatcher;
@@ -36,7 +39,6 @@ import com.willwinder.universalgcodesender.fx.helper.BrowserHelper;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
-import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
 import com.willwinder.universalgcodesender.fx.interceptor.InterceptorDialogService;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
@@ -53,12 +55,10 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -72,10 +72,13 @@ import java.util.logging.Logger;
 
 public class Main extends Application {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
-    private SplitPane motionSplitPane;
+    private SidePane leftPane;
+    private SidePane rightPane;
     private SplitPane contentSplitPane;
     private StackPane contentPanel;
     private VisualizerPane visualizerPane;
+    private CollapsibleSidePane leftSidePane;
+    private CollapsibleSidePane rightSidePane;
 
     @Override
     public void init() throws Exception {
@@ -111,9 +114,18 @@ public class Main extends Application {
         MainMenuBar mainMenuBar = new MainMenuBar();
         ToolBarMenu toolBarMenu = new ToolBarMenu();
         createLeftPane();
+        createRightPane();
         createContentPanel();
         createContentPane();
-        VBox.setVgrow(contentSplitPane, Priority.ALWAYS);
+
+        // The collapse ears float over the split pane on its dividers, and the collapsed rails sit
+        // outside it so a collapsed side leaves no divider behind
+        Pane earLayer = new Pane(leftSidePane.getEar(), rightSidePane.getEar());
+        earLayer.setPickOnBounds(false);
+        StackPane splitArea = new StackPane(contentSplitPane, earLayer);
+        HBox workArea = new HBox(leftSidePane.getRail(), splitArea, rightSidePane.getRail());
+        HBox.setHgrow(splitArea, Priority.ALWAYS);
+        VBox.setVgrow(workArea, Priority.ALWAYS);
 
         VBox root = new VBox();
         Scene scene = new Scene(root);
@@ -124,19 +136,19 @@ public class Main extends Application {
 
         scene.getStylesheets().add(Objects.requireNonNull(Main.class.getResource("/styles/root.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(Main.class.getResource("/styles/menu-bar.css")).toExternalForm());
-        root.getChildren().addAll(mainMenuBar, toolBarMenu, contentSplitPane);
+        root.getChildren().addAll(mainMenuBar, toolBarMenu, workArea);
 
         primaryStage.setTitle("Universal G-code Sender - " + Version.getVersion());
         SvgLoader.loadIcon("icons/ugs.svg", 128).ifPresent(icon -> primaryStage.getIcons().add(icon));
         primaryStage.setScene(scene);
+        restoreWindowSize(primaryStage);
         primaryStage.show();
-        registerShortCuts(scene);
         registerInterceptorDialogs(primaryStage);
 
         Parameters params = getParameters();
         if (!params.getUnnamed().isEmpty()) {
             try {
-                File file = new File(params.getUnnamed().get(0));
+                File file = new File(params.getUnnamed().getFirst());
                 WorkspaceManager.getInstance().openWorkspace(file);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -171,18 +183,25 @@ public class Main extends Application {
         primaryStage.yProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionYProperty().set(newValue.doubleValue()));
     }
 
+    // Applied before the window is shown so the scene is laid out at its final size from the
+    // start. Restoring the dividers against a scene that is resized right afterwards would apply
+    // the fractions to the wrong width and then save the resized positions back over the settings.
+    // The position is applied after showing instead, since window managers may ignore a position
+    // requested before the window exists.
+    private static void restoreWindowSize(Stage primaryStage) {
+        primaryStage.setWidth(Settings.getInstance().windowWidthProperty().get());
+        primaryStage.setHeight(Settings.getInstance().windowHeightProperty().get());
+    }
+
     private void registerListeners(Stage primaryStage) {
         primaryStage.setOnShown(event -> {
             primaryStage.setX(Settings.getInstance().windowPositionXProperty().get());
             primaryStage.setY(Settings.getInstance().windowPositionYProperty().get());
-            primaryStage.setWidth(Settings.getInstance().windowWidthProperty().get());
-            primaryStage.setHeight(Settings.getInstance().windowHeightProperty().get());
             registerWindowBoundsListeners(primaryStage);
 
             Platform.runLater(() -> {
-                SplitPaneDividerPersistence.install(motionSplitPane, 0, Settings.getInstance().windowDividerLeftProperty());
-                SplitPaneDividerPersistence.install(contentSplitPane, 0, Settings.getInstance().windowDividerContentProperty());
-                SplitPaneDividerPersistence.install(contentSplitPane, 1, Settings.getInstance().windowDividerInspectorProperty());
+                SplitPaneDividerPersistence.install(contentSplitPane, leftPane, Settings.getInstance().windowDividerContentProperty());
+                SplitPaneDividerPersistence.install(contentSplitPane, contentPanel, Settings.getInstance().windowDividerInspectorProperty());
             });
         });
 
@@ -198,7 +217,8 @@ public class Main extends Application {
 
     private void createContentPanel() {
         contentPanel = new StackPane();
-        contentPanel.getChildren().add(createVisualizer());
+        visualizerPane = new VisualizerPane();
+        contentPanel.getChildren().add(visualizerPane);
 
         DrawerPane drawerPane = new DrawerPane();
         contentPanel.getChildren().add(drawerPane);
@@ -206,34 +226,31 @@ public class Main extends Application {
     }
 
 
-    private Node createVisualizer() {
-        visualizerPane = new VisualizerPane();
-        return visualizerPane;
-    }
-
     private void createContentPane() {
         contentSplitPane = new SplitPane();
         contentSplitPane.setMinWidth(200);
         contentSplitPane.setOrientation(Orientation.HORIZONTAL);
-        contentSplitPane.getItems().addAll(motionSplitPane, contentPanel);
+        contentSplitPane.getItems().add(contentPanel);
         SplitPane.setResizableWithParent(contentSplitPane, false);
-        new InspectorPane(contentSplitPane);
+
+        // The side panes add themselves to the split pane around the content while expanded
+        leftSidePane = new CollapsibleSidePane(contentSplitPane, leftPane,
+                Settings.getInstance().windowLeftPaneCollapsedProperty(), ToggleLeftPaneAction.class);
+        rightSidePane = new CollapsibleSidePane(contentSplitPane, rightPane,
+                Settings.getInstance().windowRightPaneCollapsedProperty(), ToggleRightPaneAction.class);
     }
 
     private void createLeftPane() {
-        motionSplitPane = new SplitPane();
-
-        motionSplitPane.setOrientation(Orientation.VERTICAL);
-        motionSplitPane.getItems().addAll(new MachineStatusPane(), new JogPane());
-        motionSplitPane.setMinWidth(200);
-        SplitPane.setResizableWithParent(motionSplitPane, false);
+        leftPane = new SidePane(SidePaneAlignment.LEFT);
+        leftPane.titleProperty().set(Localization.getString("actions.category.machine"));
+        leftPane.setContent(new MachinePane());
     }
 
-    private void registerShortCuts(Scene scene) {
-        KeyCombination kc = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
-        scene.getAccelerators().put(kc, () -> ActionRegistry.getInstance()
-                .getAction(StartAction.class.getCanonicalName())
-                .ifPresent(a -> a.handle(null)));
+    private void createRightPane() {
+        WorkspaceTools workspaceTools = new WorkspaceTools();
+        rightPane = new SidePane(SidePaneAlignment.RIGHT);
+        rightPane.titleProperty().bind(workspaceTools.titleProperty());
+        rightPane.contentProperty().bind(workspaceTools.contentProperty());
     }
 
     public static void main(String[] args) {

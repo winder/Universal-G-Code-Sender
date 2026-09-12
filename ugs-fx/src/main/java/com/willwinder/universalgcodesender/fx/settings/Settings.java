@@ -43,6 +43,8 @@ public class Settings {
     private static final String SHOW_MACHINE_POSITION = "window.showMachinePosition";
     private static final String DRAWER_SELECTED_INDEX = "drawer.selectedIndex";
     private static final String DRAWER_EXPANDED = "drawer.expanded";
+    private static final String WINDOW_LEFT_PANE_COLLAPSED = "window.leftPaneCollapsed";
+    private static final String WINDOW_RIGHT_PANE_COLLAPSED = "window.rightPaneCollapsed";
 
     private static final Preferences preferences = Preferences.userNodeForPackage(Settings.class);
     private static Settings instance;
@@ -60,6 +62,8 @@ public class Settings {
     private final BooleanProperty showMachinePosition = new SimpleBooleanProperty(loadBoolean(SHOW_MACHINE_POSITION, false));
     private final IntegerProperty drawerSelectedIndex = new SimpleIntegerProperty(loadInt(DRAWER_SELECTED_INDEX, 0));
     private final BooleanProperty drawerExpanded = new SimpleBooleanProperty(loadBoolean(DRAWER_EXPANDED, true));
+    private final BooleanProperty windowLeftPaneCollapsed = new SimpleBooleanProperty(loadBoolean(WINDOW_LEFT_PANE_COLLAPSED, false));
+    private final BooleanProperty windowRightPaneCollapsed = new SimpleBooleanProperty(loadBoolean(WINDOW_RIGHT_PANE_COLLAPSED, false));
 
     public Settings() {
         windowWidth.addListener((obs, oldVal, newVal) -> saveDouble(WINDOW_WIDTH, newVal.doubleValue()));
@@ -75,6 +79,8 @@ public class Settings {
         showMachinePosition.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE_POSITION, newVal));
         drawerSelectedIndex.addListener((obs, oldVal, newVal) -> saveInt(DRAWER_SELECTED_INDEX, newVal.intValue()));
         drawerExpanded.addListener((obs, oldVal, newVal) -> saveBoolean(DRAWER_EXPANDED, newVal));
+        windowLeftPaneCollapsed.addListener((obs, oldVal, newVal) -> saveBoolean(WINDOW_LEFT_PANE_COLLAPSED, newVal));
+        windowRightPaneCollapsed.addListener((obs, oldVal, newVal) -> saveBoolean(WINDOW_RIGHT_PANE_COLLAPSED, newVal));
     }
 
     public static Settings getInstance() {
@@ -136,6 +142,20 @@ public class Settings {
 
     public BooleanProperty drawerExpandedProperty() {
         return drawerExpanded;
+    }
+
+    /**
+     * Whether the left machine pane (status and jogging) is collapsed to a rail.
+     */
+    public BooleanProperty windowLeftPaneCollapsedProperty() {
+        return windowLeftPaneCollapsed;
+    }
+
+    /**
+     * Whether the right pane (designer inspector or program pane) is collapsed to a rail.
+     */
+    public BooleanProperty windowRightPaneCollapsedProperty() {
+        return windowRightPaneCollapsed;
     }
 
     private double loadDouble(String key, double defaultVal) {

@@ -280,3 +280,62 @@
 .corner {
     -fx-background-color: transparent;
 }
+/**
+ * Collapsible side panes
+ */
+/* Modena frames every split pane with a one pixel box border; the panes here are laid out edge to edge */
+.split-pane {
+    -fx-background-color: -fx-background;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* A small tab hanging from the top edge next to a divider, open towards the divider so it reads as
+   part of the content beside it: a left pane's ear is bordered right and bottom, a right pane's
+   left and bottom */
+.side-pane-ear {
+    -fx-background-color: -ugs-border-color, -fx-background;
+}
+
+.side-pane-ear.left {
+    -fx-background-insets: 0, 0 1 1 0;
+    -fx-background-radius: 0 0 8 0, 0 0 7 0;
+    -fx-padding: 4 4 4 0;
+}
+
+.side-pane-ear.right {
+    -fx-background-insets: 0, 0 0 1 1;
+    -fx-background-radius: 0 0 0 8, 0 0 0 7;
+    -fx-padding: 4 0 4 4;
+}
+
+.side-pane-rail .title {
+    -fx-font-weight: bold;
+    -fx-text-fill: #444444;
+}
+
+.side-pane-rail {
+    -fx-alignment: top-center;
+    -fx-spacing: 8;
+    -fx-padding: 4 2 4 2;
+    -fx-background-color: derive(-ugs-border-color, 70%);
+    -fx-border-color: -ugs-border-color;
+}
+
+.side-pane-rail.left {
+    -fx-border-width: 0 1 0 0;
+}
+
+.side-pane-rail.right {
+    -fx-border-width: 0 0 0 1;
+}
+
+.side-pane-toggle {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 3;
+}
+
+.side-pane-toggle:hover {
+    -fx-background-color: rgb(189, 205, 214);
+}
