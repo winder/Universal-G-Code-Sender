@@ -48,21 +48,26 @@ const createAxisLabel = (text: string, color: string) => {
 //
 // highlightLine is the dashboard's 1-based editor line number (0 = none);
 // ToolpathSegment.lineNumber is the backend's 0-based GcodeParser command
-// index - editor line N is command index N-2, confirmed against the real
-// backend via "run from" (see GcodeEditor.tsx's handleConfirmRunFrom: line
-// N only actually becomes the resume point when N-2 is what's sent).
+// index. NOT the same "- 2" conversion "run from" needs - traced desktop's
+// two features separately and they use different arithmetic:
+// RunFromHere.java computes root.getElementIndex(caret) - 1 (elementIndex
+// is already 0-based, so that's editorLine - 2 net). EditorListener.java
+// passes the raw elementIndex (no extra - 1) to Highlight.setHighlightedLines,
+// whose filter (lineNumber > start && lineNumber - 1 <= end) - worked
+// through for a single cursor position - reduces to lineNumber == editorLine
+// exactly, no offset at all. Confirmed empirically too: applying the run-
+// from -2 here highlighted a visibly different segment than desktop did for
+// the identical selected line.
 //
-// This keeps working even once a line's armed: GcodeStreamWriter embeds
-// each command's original commandNumber as metadata in the processed file
-// (see addLine's commandNumber param), and GcodeStreamReader reads that
-// same number back rather than recounting from scratch - so
-// ToolpathSegment.lineNumber still reflects the *original* file's command
-// index even for a command that only survived because RunFromProcessor's
-// preamble carried it through, not a fresh renumbering of the filtered
-// file. Confirmed against desktop, whose own cursor highlight keeps working
-// post-arm for the same reason.
+// The correlation itself keeps working even once a line's armed:
+// GcodeStreamWriter embeds each command's original commandNumber as
+// metadata in the processed file (see addLine's commandNumber param), and
+// GcodeStreamReader reads that same number back rather than recounting
+// from scratch - so ToolpathSegment.lineNumber still reflects the
+// *original* file's command index even for a command that only survived
+// because RunFromProcessor's preamble carried it through.
 const buildToolpathGeometry = (segments: ToolpathSegment[], highlightLine: number) => {
-  const highlightCommand = highlightLine - 2;
+  const highlightCommand = highlightLine;
 
   const positions = new Float32Array(segments.length * 6);
   const colors = new Float32Array(segments.length * 6);
