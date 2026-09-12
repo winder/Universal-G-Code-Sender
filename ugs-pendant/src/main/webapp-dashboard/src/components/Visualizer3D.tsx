@@ -48,18 +48,21 @@ const createAxisLabel = (text: string, color: string) => {
 //
 // highlightLine is the dashboard's 1-based editor line number (0 = none);
 // ToolpathSegment.lineNumber is the backend's 0-based GcodeParser command
-// index. Assumed here to be editor line N = command index N-1, but take
-// that with a grain of salt - the equivalent assumption for "run from"
-// turned out to actually be N-2 once checked against the real backend
-// (see GcodeEditor.tsx's handleConfirmRunFrom), so this one hasn't been
-// independently confirmed and could have the same kind of off-by-one.
-// Only matters while nothing's armed anyway: once the processed file has
-// commands removed/inserted, its line numbers no longer correspond to the
-// original editor's, so callers pass highlightLine=0 (no highlight)
-// whenever a line is armed, rather than risk highlighting the wrong
-// segment on top of any unverified offset here.
+// index - editor line N is command index N-2, confirmed against the real
+// backend via "run from" (see GcodeEditor.tsx's handleConfirmRunFrom: line
+// N only actually becomes the resume point when N-2 is what's sent).
+//
+// This keeps working even once a line's armed: GcodeStreamWriter embeds
+// each command's original commandNumber as metadata in the processed file
+// (see addLine's commandNumber param), and GcodeStreamReader reads that
+// same number back rather than recounting from scratch - so
+// ToolpathSegment.lineNumber still reflects the *original* file's command
+// index even for a command that only survived because RunFromProcessor's
+// preamble carried it through, not a fresh renumbering of the filtered
+// file. Confirmed against desktop, whose own cursor highlight keeps working
+// post-arm for the same reason.
 const buildToolpathGeometry = (segments: ToolpathSegment[], highlightLine: number) => {
-  const highlightCommand = highlightLine - 1;
+  const highlightCommand = highlightLine - 2;
 
   const positions = new Float32Array(segments.length * 6);
   const colors = new Float32Array(segments.length * 6);
@@ -146,10 +149,10 @@ const Visualizer3D = () => {
     }
     if (segments.length === 0) return;
 
-    // See buildToolpathGeometry's comment - only meaningful to highlight the
-    // cursor's line while nothing's armed, since arming renumbers the
-    // processed file's lines out from under the editor's own numbering.
-    const geometry = buildToolpathGeometry(segments, armedRunFromLine > 0 ? 0 : editorCursorLine);
+    // Highlights the cursor's line regardless of whether anything's armed -
+    // see buildToolpathGeometry's comment: original command numbers survive
+    // into the processed file's segments too, not just the unfiltered one.
+    const geometry = buildToolpathGeometry(segments, editorCursorLine);
     const material = new THREE.LineBasicMaterial({ vertexColors: true });
     const toolpathLines = new THREE.LineSegments(geometry, material);
     scene.add(toolpathLines);

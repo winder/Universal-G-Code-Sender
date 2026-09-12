@@ -82,11 +82,19 @@ const GcodeEditor = () => {
   // (completedRowCount tracks that live); otherwise, whatever's armed to be
   // skipped by "run from" - the two never apply at once, since arming is
   // itself blocked while a job is running (see canRunFrom above).
+  //
+  // armedRunFromLine - 1, not - 2: this is purely an editor-line fact ("dim
+  // everything before the line that was selected"), not a conversion to the
+  // backend's command-index argument - confirmed armedRunFromLine itself
+  // does become the actual resume point (see handleConfirmRunFrom), so
+  // there's no offset to apply here at all. Don't "helpfully" re-apply the
+  // -2 fix from there - that was already tried here and was wrong, it left
+  // the line right before the resume point undimmed.
   const dimThroughLine =
     currentState === "RUN" || currentState === "HOLD" || currentState === "CHECK"
       ? fileStatus.completedRowCount
       : armedRunFromLine > 0
-        ? armedRunFromLine - 2
+        ? armedRunFromLine - 1
         : 0;
 
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
