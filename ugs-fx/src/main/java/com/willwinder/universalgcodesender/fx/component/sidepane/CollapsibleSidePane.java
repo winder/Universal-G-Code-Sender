@@ -147,8 +147,8 @@ public class CollapsibleSidePane {
         box.layoutXProperty().bind(Bindings.createDoubleBinding(() -> {
             double dividerWidth = dividerWidth();
             double x = alignment == SidePaneAlignment.LEFT
-                    ? splitPane.getInsets().getLeft() + pane.getWidth() + dividerWidth - 1
-                    : splitPane.getWidth() - splitPane.getInsets().getRight() - pane.getWidth() - dividerWidth - box.getWidth() + 1;
+                    ? splitPane.getInsets().getLeft() + pane.getWidth() + dividerWidth - 6
+                    : splitPane.getWidth() - splitPane.getInsets().getRight() - pane.getWidth() - dividerWidth - box.getWidth() + 6;
             return (double) Math.round(x);
         }, pane.widthProperty(), splitPane.widthProperty(), box.widthProperty()));
         return box;

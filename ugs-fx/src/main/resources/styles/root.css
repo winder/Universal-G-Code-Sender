@@ -294,7 +294,7 @@
    part of the content beside it: a left pane's ear is bordered right and bottom, a right pane's
    left and bottom */
 .side-pane-ear {
-    -fx-background-color: -ugs-border-color, derive(-ugs-border-color, 70%);
+    -fx-background-color: -ugs-border-color, -fx-background;
 }
 
 .side-pane-ear.left {
