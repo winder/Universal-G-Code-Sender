@@ -148,7 +148,7 @@ public class Main extends Application {
         Parameters params = getParameters();
         if (!params.getUnnamed().isEmpty()) {
             try {
-                File file = new File(params.getUnnamed().get(0));
+                File file = new File(params.getUnnamed().getFirst());
                 WorkspaceManager.getInstance().openWorkspace(file);
             } catch (Exception e) {
                 throw new RuntimeException(e);

@@ -25,7 +25,6 @@ import com.willwinder.universalgcodesender.fx.settings.Settings;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.Border;
 
 /**
  * The machine status and the jogging controls, stacked in a vertical split whose divider
