@@ -19,6 +19,12 @@ type UiState = {
   // because the job bar - always visible, regardless of which center tab is
   // active - needs to show it and offer a way to clear it back to 0.
   runFromLine: number;
+  // The 1-based line the editor's cursor is currently on, or 0 for none -
+  // unlike runFromLine this updates live on every cursor move, not just on
+  // confirm. Lives here so Visualizer3D can highlight the matching toolpath
+  // segment without GcodeEditor and Visualizer3D needing to know about each
+  // other directly.
+  editorCursorLine: number;
 };
 
 const initialState: UiState = {
@@ -26,6 +32,7 @@ const initialState: UiState = {
   splitLeft: "visualize",
   splitRight: "edit",
   runFromLine: 0,
+  editorCursorLine: 0,
 };
 
 const uiSlice = createSlice({
@@ -52,6 +59,9 @@ const uiSlice = createSlice({
     },
     setRunFromLine: (state, action: { payload: number }) => {
       state.runFromLine = action.payload;
+    },
+    setEditorCursorLine: (state, action: { payload: number }) => {
+      state.editorCursorLine = action.payload;
     },
   },
 });

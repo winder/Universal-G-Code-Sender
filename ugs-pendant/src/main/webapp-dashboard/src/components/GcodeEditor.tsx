@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Compartment, EditorState } from "@codemirror/state";
-import { EditorView, keymap, lineNumbers, highlightActiveLine } from "@codemirror/view";
+import { Compartment, EditorState, StateEffect, StateField } from "@codemirror/state";
+import { Decoration, DecorationSet, EditorView, keymap, lineNumbers, highlightActiveLine } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { searchKeymap } from "@codemirror/search";
 import { Button, Spinner } from "react-bootstrap";
@@ -30,6 +30,37 @@ const editorTheme = EditorView.theme(
 
 const getFileName = (filePath: string) => filePath.replace(/^.*[\\/]/, "");
 
+// Dims lines 1..N (1-based, inclusive) to show what won't actually run next -
+// either because they've already been sent (live during a job) or because
+// they're being skipped by an armed "run from" line. A StateField (rather
+// than the Compartment used for the editable toggle below) is the more
+// natural CM6 fit here: it reacts to a dispatched effect on its own, no
+// explicit reconfigure() call needed, and every plain edit transaction just
+// remaps its existing ranges via tr.changes like any other decoration.
+const setDimThroughLine = StateEffect.define<number>();
+const dimmedLineMark = Decoration.line({ class: "cm-dimmedLine" });
+
+const dimThroughField = StateField.define<DecorationSet>({
+  create() {
+    return Decoration.none;
+  },
+  update(decorations, tr) {
+    for (const effect of tr.effects) {
+      if (!effect.is(setDimThroughLine)) continue;
+      if (effect.value <= 0) return Decoration.none;
+
+      const lastLine = Math.min(effect.value, tr.state.doc.lines);
+      const ranges = [];
+      for (let line = 1; line <= lastLine; line++) {
+        ranges.push(dimmedLineMark.range(tr.state.doc.line(line).from));
+      }
+      return Decoration.set(ranges);
+    }
+    return decorations.map(tr.changes);
+  },
+  provide: (field) => EditorView.decorations.from(field),
+});
+
 const GcodeEditor = () => {
   const dispatch = useAppDispatch();
   const fileStatus = useAppSelector((state) => state.fileStatus);
@@ -41,10 +72,22 @@ const GcodeEditor = () => {
   // here.
   const isEditable = currentState !== "RUN" && currentState !== "HOLD" && currentState !== "CHECK";
   // "Run from here" only arms a line on the backend (see runFromLine) - it
-  // doesn't send anything itself - but mirrors the desktop app's own gate
-  // for that action (connected and not already sending) rather than editing's
-  // looser one, since arming a line while disconnected/running isn't useful.
-  const canRunFrom = currentState === "IDLE";
+  // doesn't send anything itself, so - like opening/editing - it doesn't
+  // need a connection either. Only Start (separately, in the job bar) needs
+  // one. Same gate as isEditable: blocked only while a job is actually
+  // streaming.
+  const canRunFrom = isEditable;
+  const armedRunFromLine = useAppSelector((state) => state.ui.runFromLine);
+  // What to dim: while a job is actually streaming, everything already sent
+  // (completedRowCount tracks that live); otherwise, whatever's armed to be
+  // skipped by "run from" - the two never apply at once, since arming is
+  // itself blocked while a job is running (see canRunFrom above).
+  const dimThroughLine =
+    currentState === "RUN" || currentState === "HOLD" || currentState === "CHECK"
+      ? fileStatus.completedRowCount
+      : armedRunFromLine > 0
+        ? armedRunFromLine - 1
+        : 0;
 
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -71,6 +114,7 @@ const GcodeEditor = () => {
     setError(null);
     setIsDirty(false);
     setCursorLine(1);
+    dispatch(uiActions.setEditorCursorLine(1));
     // Mirrors the backend's own auto-reset-on-open (RunFromService resets to
     // a normal full run whenever a new file is opened) so the job bar's
     // armed-line badge doesn't keep pointing at a line from a previous file.
@@ -94,10 +138,13 @@ const GcodeEditor = () => {
               gcodeSyntaxHighlighting,
               editorTheme,
               editableCompartmentRef.current.of(EditorView.editable.of(isEditable)),
+              dimThroughField,
               EditorView.updateListener.of((update) => {
                 if (update.docChanged) setIsDirty(true);
                 if (update.selectionSet || update.docChanged) {
-                  setCursorLine(update.state.doc.lineAt(update.state.selection.main.head).number);
+                  const line = update.state.doc.lineAt(update.state.selection.main.head).number;
+                  setCursorLine(line);
+                  dispatch(uiActions.setEditorCursorLine(line));
                 }
               }),
             ],
@@ -126,6 +173,10 @@ const GcodeEditor = () => {
       effects: editableCompartmentRef.current.reconfigure(EditorView.editable.of(isEditable)),
     });
   }, [isEditable]);
+
+  useEffect(() => {
+    viewRef.current?.dispatch({ effects: setDimThroughLine.of(dimThroughLine) });
+  }, [dimThroughLine]);
 
   const handleSave = () => {
     if (!viewRef.current || !fileName) return;
@@ -188,7 +239,7 @@ const GcodeEditor = () => {
           className="gcodeEditorRunFrom"
           variant="outline-secondary"
           disabled={!canRunFrom}
-          title={canRunFrom ? undefined : "Connect and be idle to arm a starting line"}
+          title={canRunFrom ? undefined : "Can't arm a starting line while a job is running"}
           onClick={() => setShowRunFromConfirm(true)}
         >
           <FontAwesomeIcon icon={faForward} /> Run from line {cursorLine}

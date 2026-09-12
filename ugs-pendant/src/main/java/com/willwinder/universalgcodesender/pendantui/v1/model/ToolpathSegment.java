@@ -1,4 +1,4 @@
 package com.willwinder.universalgcodesender.pendantui.v1.model;
 
-public record ToolpathSegment(ToolpathPoint start, ToolpathPoint end, boolean rapid, boolean arc) {
+public record ToolpathSegment(ToolpathPoint start, ToolpathPoint end, boolean rapid, boolean arc, int lineNumber) {
 }

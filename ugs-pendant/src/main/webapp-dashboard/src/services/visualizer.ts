@@ -5,6 +5,7 @@ export type ToolpathSegment = {
   end: ToolpathPoint;
   rapid: boolean;
   arc: boolean;
+  lineNumber: number;
 };
 
 export const getToolpath = (): Promise<ToolpathSegment[]> => {

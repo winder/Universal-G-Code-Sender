@@ -90,6 +90,13 @@ function gcodeToSegments(text) {
   const segments = [];
   let x = 0, y = 0, z = 0;
   let lastG = null;
+  // Best-effort stand-in for the real backend's 0-based GcodeParser
+  // commandNumber (one non-blank/non-comment source line = one command,
+  // incremented whether or not it ends up producing a segment) - good
+  // enough to exercise the dashboard's run-from/highlight UI against real
+  // files in dev, but not a guarantee of matching the real parser exactly
+  // (see the real backend verification step in the plan for that).
+  let lineNumber = -1;
 
   const getNum = (line, letter) => {
     const m = line.match(new RegExp(letter + "(-?[0-9.]+)"));
@@ -99,6 +106,7 @@ function gcodeToSegments(text) {
   for (const raw of text.split(/\r?\n/)) {
     const line = raw.replace(/;.*/, "").replace(/\([^)]*\)/g, "").trim();
     if (!line || /^#/.test(line) || /^o\d/i.test(line)) continue;
+    lineNumber++;
 
     const gMatch = line.match(/G(\d+)/);
     const g = gMatch ? parseInt(gMatch[1], 10) : lastG;
@@ -119,7 +127,13 @@ function gcodeToSegments(text) {
     const targetZ = nz !== null ? nz : z;
 
     if (g === 0 || g === 1) {
-      segments.push({ start: { x, y, z }, end: { x: targetX, y: targetY, z: targetZ }, rapid: g === 0, arc: false });
+      segments.push({
+        start: { x, y, z },
+        end: { x: targetX, y: targetY, z: targetZ },
+        rapid: g === 0,
+        arc: false,
+        lineNumber,
+      });
       x = targetX; y = targetY; z = targetZ;
     } else if (g === 2 || g === 3) {
       const cx = x + (i || 0);
@@ -141,7 +155,13 @@ function gcodeToSegments(text) {
         const sx = cx + radius * Math.cos(a);
         const sy = cy + radius * Math.sin(a);
         const sz = z + (targetZ - z) * (s / steps);
-        segments.push({ start: { x: px, y: py, z: pz }, end: { x: sx, y: sy, z: sz }, rapid: false, arc: true });
+        segments.push({
+          start: { x: px, y: py, z: pz },
+          end: { x: sx, y: sy, z: sz },
+          rapid: false,
+          arc: true,
+          lineNumber,
+        });
         px = sx; py = sy; pz = sz;
       }
       x = targetX; y = targetY; z = targetZ;

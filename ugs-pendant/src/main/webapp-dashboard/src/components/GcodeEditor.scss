@@ -45,6 +45,12 @@
 
 .gcodeEditorCodeMirror {
   height: 100%;
+
+  // Marks lines that won't actually run next - already sent during a job,
+  // or skipped by an armed "run from" line (see dimThroughField).
+  .cm-dimmedLine {
+    opacity: 0.4;
+  }
 }
 
 .gcodeEditorLoading {

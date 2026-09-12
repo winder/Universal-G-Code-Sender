@@ -104,6 +104,7 @@ public class VisualizerResource {
                 new ToolpathPoint(lineSegment.getStart().x, lineSegment.getStart().y, lineSegment.getStart().z),
                 new ToolpathPoint(lineSegment.getEnd().x, lineSegment.getEnd().y, lineSegment.getEnd().z),
                 lineSegment.isFastTraverse(),
-                lineSegment.isArc());
+                lineSegment.isArc(),
+                lineSegment.getLineNumber());
     }
 }
