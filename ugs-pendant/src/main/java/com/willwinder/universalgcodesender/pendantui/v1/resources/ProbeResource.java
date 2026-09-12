@@ -128,6 +128,19 @@ public class ProbeResource {
             return ProbeResult.failed("Probe was interrupted");
         } catch (Exception e) {
             return ProbeResult.failed(e.getMessage() != null ? e.getMessage() : "Probe failed");
+        } finally {
+            // Every probe move above is sent in relative mode (see relativeMoveGcode) and never
+            // switched back - restore absolute mode here, regardless of how the operation above
+            // ended, so a probe never silently leaves the machine in G91 for whatever runs next.
+            restoreAbsoluteMode(controller);
+        }
+    }
+
+    private void restoreAbsoluteMode(IController controller) {
+        try {
+            sendSync(controller, "G90");
+        } catch (Exception e) {
+            // Best-effort: the probe's own result/error above is what matters here.
         }
     }
 

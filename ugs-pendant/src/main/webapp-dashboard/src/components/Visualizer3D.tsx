@@ -12,6 +12,10 @@ const CUT_COLOR = new THREE.Color("#4ade80");
 const ARC_COLOR = new THREE.Color("#7bdcff");
 // Matches desktop UGS's own selected-segment highlight (VisualizerUtils.Color.YELLOW).
 const HIGHLIGHT_COLOR = new THREE.Color("rgb(237, 255, 0)");
+// Matches desktop's GcodeLineColorizer "completed" color (VISUALIZER_OPTION_COMPLETE,
+// default rgb(190,190,190) - its alpha isn't reproduced here since this material isn't
+// transparent, but the gray-out itself is the part that matters).
+const COMPLETED_COLOR = new THREE.Color("rgb(190, 190, 190)");
 
 // The grid with nothing loaded: a fixed 200x200mm square, 10mm per cell.
 const DEFAULT_GRID_SIZE = 200;
@@ -66,7 +70,16 @@ const createAxisLabel = (text: string, color: string) => {
 // from scratch - so ToolpathSegment.lineNumber still reflects the
 // *original* file's command index even for a command that only survived
 // because RunFromProcessor's preamble carried it through.
-const buildToolpathGeometry = (segments: ToolpathSegment[], highlightLine: number) => {
+// completedThroughLine mirrors desktop's GcodeLineColorizer.getColor: any segment whose
+// lineNumber is less than it is already-run and gets grayed out (0 = nothing completed
+// yet / not currently running, matching GcodeEditor.tsx's own dimThroughLine gate on
+// RUN/HOLD/CHECK). It uses the same lineNumber space as highlightLine - see the comment
+// above - so no separate offset is needed here either.
+const buildToolpathGeometry = (
+  segments: ToolpathSegment[],
+  highlightLine: number,
+  completedThroughLine: number
+) => {
   const highlightCommand = highlightLine;
 
   const positions = new Float32Array(segments.length * 6);
@@ -84,11 +97,13 @@ const buildToolpathGeometry = (segments: ToolpathSegment[], highlightLine: numbe
     const color =
       segment.lineNumber === highlightCommand
         ? HIGHLIGHT_COLOR
-        : segment.rapid
-          ? RAPID_COLOR
-          : segment.arc
-            ? ARC_COLOR
-            : CUT_COLOR;
+        : segment.lineNumber < completedThroughLine
+          ? COMPLETED_COLOR
+          : segment.rapid
+            ? RAPID_COLOR
+            : segment.arc
+              ? ARC_COLOR
+              : CUT_COLOR;
     colors[offset] = color.r;
     colors[offset + 1] = color.g;
     colors[offset + 2] = color.b;
@@ -132,12 +147,19 @@ const Visualizer3D = () => {
   const [isEmpty, setIsEmpty] = useState(false);
   const [bounds, setBounds] = useState<Bounds | null>(null);
   const workCoord = useAppSelector((state) => state.status.workCoord);
+  const currentState = useAppSelector((state) => state.status.state);
   const isIdle = useAppSelector((state) => state.status.state === "IDLE");
   // Only used to notice "a different file is now loaded" and re-fetch the
   // toolpath - the fetch itself always reads whatever's currently open.
   const fileName = useAppSelector((state) => state.fileStatus.fileName);
+  const completedRowCount = useAppSelector((state) => state.fileStatus.completedRowCount);
   const armedRunFromLine = useAppSelector((state) => state.ui.runFromLine);
   const editorCursorLine = useAppSelector((state) => state.ui.editorCursorLine);
+  // Same RUN/HOLD/CHECK gate as GcodeEditor.tsx's dimThroughLine - only gray
+  // out "already sent" segments while a job's actually streaming, since
+  // completedRowCount is otherwise just left over from the last job.
+  const completedThroughLine =
+    currentState === "RUN" || currentState === "HOLD" || currentState === "CHECK" ? completedRowCount : 0;
   // Bumped specifically once the backend's processed file is actually ready
   // (see uiSlice.ts's comment) - fileName alone isn't enough to re-trigger a
   // fetch here, since it's already set well before that file exists on disk.
@@ -161,7 +183,7 @@ const Visualizer3D = () => {
     // Highlights the cursor's line regardless of whether anything's armed -
     // see buildToolpathGeometry's comment: original command numbers survive
     // into the processed file's segments too, not just the unfiltered one.
-    const geometry = buildToolpathGeometry(segments, editorCursorLine);
+    const geometry = buildToolpathGeometry(segments, editorCursorLine, completedThroughLine);
     const material = new THREE.LineBasicMaterial({ vertexColors: true });
     const toolpathLines = new THREE.LineSegments(geometry, material);
     scene.add(toolpathLines);
@@ -169,14 +191,15 @@ const Visualizer3D = () => {
   };
 
   // Re-applies the toolpath geometry (recolor only, no re-fetch) whenever the
-  // editor's cursor line changes - cursor position doesn't change what the
-  // server would return, only which segment (if any) gets highlighted.
+  // editor's cursor line or the live "already run" progress changes - neither
+  // changes what the server would return, only which segments get highlighted
+  // or grayed out.
   useEffect(() => {
     if (segmentsRef.current.length > 0) {
       applyToolpathGeometry(segmentsRef.current);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editorCursorLine]);
+  }, [editorCursorLine, completedThroughLine]);
 
   useEffect(() => {
     if (toolMarkerRef.current) {
