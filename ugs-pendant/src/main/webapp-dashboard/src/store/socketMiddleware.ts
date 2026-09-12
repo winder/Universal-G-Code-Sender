@@ -18,6 +18,8 @@ import {CommandEvent} from "../model/CommandEvent.ts";
 import {alarmActions} from "./alarmSlice.ts";
 import {AlarmEvent} from "../model/AlarmEvent.ts";
 import {ConsoleMessageEvent} from "../model/ConsoleMessageEvent.ts";
+import {FileStateEvent} from "../model/FileStateEvent.ts";
+import {uiActions} from "./uiSlice.ts";
 
 // The currently-connected socket, if any - lets setVerboseEnabled (dispatched
 // well after the "connect" action that created this) reach it directly,
@@ -118,6 +120,14 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
                 store.dispatch(alarmActions.setAlarm((ugsEvent.event as AlarmEvent).alarm));
             } else if (ugsEvent.eventType === "FileStateEvent") {
                 store.dispatch(fetchFileStatus());
+                // FILE_LOADED specifically (not OPENING_FILE/FILE_LOADING,
+                // which fire earlier) is when the backend's own doc comment
+                // says the processed file is actually ready - see
+                // VisualizerResource.getToolpath, which reads that file and
+                // otherwise races ahead of it existing.
+                if ((ugsEvent.event as FileStateEvent).fileState === "FILE_LOADED") {
+                    store.dispatch(uiActions.bumpToolpathVersion());
+                }
             } else if (ugsEvent.eventType === "SettingChangedEvent") {
                 fetchSettingsDebounce(store);
             } else if (ugsEvent.eventType === "CommandEvent") {

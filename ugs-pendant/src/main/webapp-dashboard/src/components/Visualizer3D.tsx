@@ -138,6 +138,10 @@ const Visualizer3D = () => {
   const fileName = useAppSelector((state) => state.fileStatus.fileName);
   const armedRunFromLine = useAppSelector((state) => state.ui.runFromLine);
   const editorCursorLine = useAppSelector((state) => state.ui.editorCursorLine);
+  // Bumped specifically once the backend's processed file is actually ready
+  // (see uiSlice.ts's comment) - fileName alone isn't enough to re-trigger a
+  // fetch here, since it's already set well before that file exists on disk.
+  const toolpathVersion = useAppSelector((state) => state.ui.toolpathVersion);
 
   // Disposes/replaces just the toolpath geometry in the scene, from whatever
   // segments are passed in - shared by the fetch effect (fresh segments) and
@@ -397,13 +401,19 @@ const Visualizer3D = () => {
   }, []);
 
   // Re-fetches and rebuilds the toolpath geometry whenever a different file is
-  // opened, or the armed "run from" line changes - the latter rewrites the
-  // processed file server-side (see VisualizerResource.getToolpath's doc
-  // comment), so arming/resetting needs a fresh fetch to pick that up, the
-  // same way opening a different file does. Framing/bounds intentionally
-  // follow whatever's actually visible (the now-server-filtered set), so the
-  // camera reframes on arming too - confirmed that's what desktop's own
-  // visualizer does as well, since it reloads the processed file the same way.
+  // opened, the armed "run from" line changes, or the backend reports the
+  // processed file is actually ready (toolpathVersion - see its comment in
+  // uiSlice.ts). fileName alone used to be the only trigger, but it's set as
+  // soon as the file starts opening, well before VisualizerResource's
+  // processed file exists on disk - a fetch right then could come back
+  // empty with nothing left to retry it once the file was actually ready,
+  // which is exactly what made the very first open of a file (but not a
+  // subsequent reload) fail to visualize. Arming/resetting a "run from" line
+  // needs a fresh fetch too, since that rewrites the processed file the same
+  // way (see VisualizerResource.getToolpath's doc comment) - and framing/
+  // bounds intentionally follow whatever's actually visible (the now-
+  // server-filtered set), so the camera reframes on arming too, confirmed
+  // that's what desktop's own visualizer does as well.
   useEffect(() => {
     const scene = sceneRef.current;
     if (!scene) return;
@@ -477,7 +487,7 @@ const Visualizer3D = () => {
       applyGridExtentRef.current(DEFAULT_GRID_SIZE, 0, 0);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fileName, armedRunFromLine]);
+  }, [fileName, armedRunFromLine, toolpathVersion]);
 
   return (
     <div className="visualizer3D">

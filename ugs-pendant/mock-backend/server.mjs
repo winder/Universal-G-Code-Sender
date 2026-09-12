@@ -319,7 +319,7 @@ const server = createServer((req, res) => {
       fileStatus.completedRowCount = 0;
       fileStatus.remainingRowCount = fileStatus.rowCount;
       armedRunFromCommand = 0;
-      broadcast({ eventType: "FileStateEvent", event: {} });
+      broadcast({ eventType: "FileStateEvent", event: { fileState: "FILE_LOADED" } });
     }
     return json(res, {});
   }
@@ -338,6 +338,11 @@ const server = createServer((req, res) => {
     req.on("data", (c) => (body += c));
     req.on("end", () => {
       files[file] = body;
+      // The real backend's saveFileContent re-opens the file after writing
+      // it (FilesResource.saveFileContent calls fileLoader.openFile), which
+      // triggers the same FILE_LOADED sequence a fresh open does - matched
+      // here so the visualizer picking up an edit-then-save is testable too.
+      broadcast({ eventType: "FileStateEvent", event: { fileState: "FILE_LOADED" } });
       json(res, {});
     });
     return;
@@ -354,7 +359,7 @@ const server = createServer((req, res) => {
       fileStatus.completedRowCount = 0;
       fileStatus.remainingRowCount = fileStatus.rowCount;
       armedRunFromCommand = 0;
-      broadcast({ eventType: "FileStateEvent", event: {} });
+      broadcast({ eventType: "FileStateEvent", event: { fileState: "FILE_LOADED" } });
       json(res, {});
     });
     return;
@@ -366,7 +371,7 @@ const server = createServer((req, res) => {
     fileStatus.completedRowCount = 0;
     fileStatus.remainingRowCount = 0;
     armedRunFromCommand = 0;
-    broadcast({ eventType: "FileStateEvent", event: {} });
+    broadcast({ eventType: "FileStateEvent", event: { fileState: "FILE_UNLOADED" } });
     return json(res, {});
   }
   if (p.startsWith("/api/v1/files/")) return json(res, {});

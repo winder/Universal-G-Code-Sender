@@ -25,6 +25,14 @@ type UiState = {
   // segment without GcodeEditor and Visualizer3D needing to know about each
   // other directly.
   editorCursorLine: number;
+  // Bumped by socketMiddleware specifically on FileState.FILE_LOADED (see
+  // its comment) - Visualizer3D watches this instead of (well, in addition
+  // to) fileStatus.fileName, since fileName already updates on the much
+  // earlier OPENING_FILE event, before the processed file getToolpath()
+  // reads has actually been written - fetching right then can race ahead
+  // of that file existing and come back empty, with nothing left to
+  // trigger a retry once it's actually ready.
+  toolpathVersion: number;
 };
 
 const initialState: UiState = {
@@ -33,6 +41,7 @@ const initialState: UiState = {
   splitRight: "edit",
   runFromLine: 0,
   editorCursorLine: 0,
+  toolpathVersion: 0,
 };
 
 const uiSlice = createSlice({
@@ -62,6 +71,9 @@ const uiSlice = createSlice({
     },
     setEditorCursorLine: (state, action: { payload: number }) => {
       state.editorCursorLine = action.payload;
+    },
+    bumpToolpathVersion: (state) => {
+      state.toolpathVersion += 1;
     },
   },
 });
