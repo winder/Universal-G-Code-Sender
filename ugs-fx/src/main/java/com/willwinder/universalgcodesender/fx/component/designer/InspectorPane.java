@@ -1,9 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.designer;
 
 import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
-import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
-import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
-import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
@@ -14,14 +11,15 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+/**
+ * The designer side panel with the drawing toolbars, the selected entity's settings and the
+ * entity tree. Shown in the right pane while a design workspace is active.
+ */
 public class InspectorPane extends VBox {
-    private final SplitPane parent;
     private final SplitPane inspectorSplit;
     private boolean sectionsDividerPersisted;
 
-    public InspectorPane(SplitPane parent) {
-        this.parent = parent;
-
+    public InspectorPane() {
         ScrollPane entityScroll = new ScrollPane(new EntitySettingsPanel());
         entityScroll.getStyleClass().add("inspector-scroll");
         entityScroll.setFitToWidth(true);
@@ -36,22 +34,14 @@ public class InspectorPane extends VBox {
         VBox.setVgrow(inspectorSplit, Priority.ALWAYS);
 
         getChildren().addAll(new DesignToolbar(), new DesignAlignToolbar(), new DesignOperationToolbar(), inspectorSplit);
-        setMinWidth(200);
-        SplitPane.setResizableWithParent(this, false);
 
-        WorkspaceManager.getInstance().addListener(new WorkspaceManager.WorkspaceListener() {
-            @Override
-            public void onWorkspaceOpened(WorkspaceContext workspace) {
-                setDocked(workspace instanceof UgsdWorkspaceContext);
-            }
-
-            @Override
-            public void onWorkspaceClosed() {
-                setDocked(false);
-            }
-
-            @Override
-            public void onWorkspaceDirtyStateChanged(WorkspaceContext workspace, boolean dirty) {
+        // The sections divider can only be positioned once the pane is in a scene, and the
+        // persistence keeps following the divider afterwards even while the pane is collapsed.
+        sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene != null && !sectionsDividerPersisted) {
+                sectionsDividerPersisted = true;
+                Platform.runLater(() -> SplitPaneDividerPersistence.install(
+                        inspectorSplit, settingsSection, Settings.getInstance().windowDividerInspectorSectionsProperty()));
             }
         });
     }
@@ -69,22 +59,5 @@ public class InspectorPane extends VBox {
         VBox box = new VBox(header, content);
         box.setMinHeight(0);
         return box;
-    }
-
-    private void setDocked(boolean docked) {
-        Platform.runLater(() -> {
-            boolean shown = parent.getItems().contains(this);
-            if (docked && !shown) {
-                parent.getItems().add(this);
-
-                if (!sectionsDividerPersisted) {
-                    sectionsDividerPersisted = true;
-                    Platform.runLater(() -> SplitPaneDividerPersistence.install(
-                            inspectorSplit, 0, Settings.getInstance().windowDividerInspectorSectionsProperty()));
-                }
-            } else if (!docked && shown) {
-                parent.getItems().remove(this);
-            }
-        });
     }
 }
