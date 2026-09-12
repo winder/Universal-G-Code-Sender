@@ -20,6 +20,16 @@ export type Status = {
   // WebSocket status push, so statusSlice preserves the last known value
   // across WS updates instead of resetting it.
   floodCoolantOn?: boolean;
+  // The rest of the gcode parser's modal state - same "REST-only, preserved
+  // across WS updates" caveat as floodCoolantOn above.
+  motionMode?: string;
+  coordinateSystem?: string;
+  plane?: string;
+  distanceMode?: string;
+  feedMode?: string;
+  units?: string;
+  spindleMode?: string;
+  toolNumber?: number;
   state: string;
   pins: {
     x: boolean;

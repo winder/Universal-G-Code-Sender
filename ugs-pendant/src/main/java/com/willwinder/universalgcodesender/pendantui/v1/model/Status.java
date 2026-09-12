@@ -20,6 +20,18 @@ public class Status implements Serializable {
     // "$G" query - unlike accessoryStates, this isn't pushed on every status
     // report, so it's only as fresh as the last "$G" response received.
     private boolean floodCoolantOn = false;
+    // The rest of the gcode parser's modal state (see GcodeState) - same
+    // "only as fresh as the last fetch" caveat as floodCoolantOn above, and
+    // for the same reason: none of this is part of the WebSocket status
+    // push, only a REST getStatus() response carries it.
+    private String motionMode = "";
+    private String coordinateSystem = "";
+    private String plane = "";
+    private String distanceMode = "";
+    private String feedMode = "";
+    private String units = "";
+    private String spindleMode = "";
+    private int toolNumber = 0;
     private ControllerState state = ControllerState.DISCONNECTED;
     private long rowCount;
     private long completedRowCount;
@@ -77,6 +89,70 @@ public class Status implements Serializable {
 
     public void setFloodCoolantOn(boolean floodCoolantOn) {
         this.floodCoolantOn = floodCoolantOn;
+    }
+
+    public String getMotionMode() {
+        return motionMode;
+    }
+
+    public void setMotionMode(String motionMode) {
+        this.motionMode = motionMode;
+    }
+
+    public String getCoordinateSystem() {
+        return coordinateSystem;
+    }
+
+    public void setCoordinateSystem(String coordinateSystem) {
+        this.coordinateSystem = coordinateSystem;
+    }
+
+    public String getPlane() {
+        return plane;
+    }
+
+    public void setPlane(String plane) {
+        this.plane = plane;
+    }
+
+    public String getDistanceMode() {
+        return distanceMode;
+    }
+
+    public void setDistanceMode(String distanceMode) {
+        this.distanceMode = distanceMode;
+    }
+
+    public String getFeedMode() {
+        return feedMode;
+    }
+
+    public void setFeedMode(String feedMode) {
+        this.feedMode = feedMode;
+    }
+
+    public String getUnits() {
+        return units;
+    }
+
+    public void setUnits(String units) {
+        this.units = units;
+    }
+
+    public String getSpindleMode() {
+        return spindleMode;
+    }
+
+    public void setSpindleMode(String spindleMode) {
+        this.spindleMode = spindleMode;
+    }
+
+    public int getToolNumber() {
+        return toolNumber;
+    }
+
+    public void setToolNumber(int toolNumber) {
+        this.toolNumber = toolNumber;
     }
 
     public ControllerState getState() {

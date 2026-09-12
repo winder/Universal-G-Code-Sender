@@ -28,6 +28,14 @@ const status = {
   accessoryStates: { spindleCW: false, flood: false, mist: false },
   overrides: { feed: 100, rapid: 100, spindle: 100 },
   floodCoolantOn: false,
+  motionMode: "G0",
+  coordinateSystem: "G54",
+  plane: "G17",
+  distanceMode: "G90",
+  feedMode: "G94",
+  units: "G21",
+  spindleMode: "M5",
+  toolNumber: 0,
   state: "IDLE",
   pins: {
     x: false, y: false, z: false, a: false, b: false, c: false,
@@ -259,6 +267,21 @@ const server = createServer((req, res) => {
         status.accessoryStates.mist = false;
         status.floodCoolantOn = false;
       }
+      // Enough modal-state parsing to exercise the WCS dropdown/modal chip
+      // row against the mock - not a real gcode parser, just recognizes one
+      // relevant code per line the same way the buttons that send them do.
+      const wcsMatch = commands.match(/\bG5(4|5|6|7|8|9)(\.[123])?\b/);
+      if (wcsMatch) status.coordinateSystem = wcsMatch[0].replace(/^G0*/, "G");
+      if (/\bG90\b/.test(commands)) status.distanceMode = "G90";
+      else if (/\bG91\b/.test(commands)) status.distanceMode = "G91";
+      if (/\bG20\b/.test(commands)) status.units = "G20";
+      else if (/\bG21\b/.test(commands)) status.units = "G21";
+      if (/\bG17\b/.test(commands)) status.plane = "G17";
+      else if (/\bG18\b/.test(commands)) status.plane = "G18";
+      else if (/\bG19\b/.test(commands)) status.plane = "G19";
+      if (/\bM0?3\b/.test(commands)) status.spindleMode = "M3";
+      else if (/\bM0?4\b/.test(commands)) status.spindleMode = "M4";
+      else if (/\bM0?5\b/.test(commands)) status.spindleMode = "M5";
       // Mirrors the real backend's CommandEvent push - the dashboard's
       // console panel and its "refresh coolant state on M7/M8/M9" logic
       // (socketMiddleware.ts) both depend on this arriving over the socket,

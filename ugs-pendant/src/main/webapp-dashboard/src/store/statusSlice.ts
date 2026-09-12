@@ -36,6 +36,14 @@ const initialState: Status = {
     spindle: 100,
   },
   floodCoolantOn: false,
+  motionMode: "",
+  coordinateSystem: "",
+  plane: "",
+  distanceMode: "",
+  feedMode: "",
+  units: "",
+  spindleMode: "",
+  toolNumber: 0,
   state: "DISCONNECTED",
   pins: {
     x: false,
@@ -73,8 +81,16 @@ const statusSlice = createSlice({
       };
       // Not carried by the WebSocket push (only the REST getStatus response
       // has it) - preserve whatever was last fetched instead of resetting to
-      // false on every WS tick.
+      // false/empty on every WS tick.
       state.floodCoolantOn = action.payload.floodCoolantOn ?? state.floodCoolantOn;
+      state.motionMode = action.payload.motionMode ?? state.motionMode;
+      state.coordinateSystem = action.payload.coordinateSystem ?? state.coordinateSystem;
+      state.plane = action.payload.plane ?? state.plane;
+      state.distanceMode = action.payload.distanceMode ?? state.distanceMode;
+      state.feedMode = action.payload.feedMode ?? state.feedMode;
+      state.units = action.payload.units ?? state.units;
+      state.spindleMode = action.payload.spindleMode ?? state.spindleMode;
+      state.toolNumber = action.payload.toolNumber ?? state.toolNumber;
       state.state = action.payload.state;
       state.pins = {
         x: action.payload.pins.x,

@@ -1,0 +1,39 @@
+.modalStatusRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.modalStatusWcs {
+  width: auto;
+  flex: 0 0 auto;
+  background-color: #111213;
+  border-color: #2f3132;
+  color: #4ade80;
+  font-weight: 700;
+
+  &:focus {
+    background-color: #111213;
+    border-color: #4ade80;
+    color: #4ade80;
+    box-shadow: 0 0 0 0.2rem rgba(74, 222, 128, 0.25);
+  }
+
+  &:disabled {
+    background-color: #111213;
+    color: #6b7280;
+  }
+}
+
+.modalStatusChip {
+  flex: 0 0 auto;
+  background-color: #111213;
+  border: 1px solid #2f3132;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #8a8f92;
+}

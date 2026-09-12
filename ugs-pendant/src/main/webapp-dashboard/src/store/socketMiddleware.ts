@@ -140,15 +140,17 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
                             text: ugsEvent.event.command.response,
                         }),
                     );
-                    // Coolant state isn't in the WebSocket status push (see
-                    // Status.floodCoolantOn on the Java side), so it's only as
-                    // fresh as the last getStatus() fetch. Refresh on ANY
-                    // completed M7/M8/M9 - not just ones sent from this
-                    // dashboard - so a command typed into the native UGS
+                    // None of the gcode parser's modal state (coolant, WCS,
+                    // units, distance/feed mode, plane, spindle, tool) is in
+                    // the WebSocket status push (see Status.java's floodCoolantOn/
+                    // coordinateSystem/etc.), so it's only as fresh as the last
+                    // getStatus() fetch. Refresh on ANY completed command that
+                    // could have changed one of them - not just ones sent from
+                    // this dashboard - so a command typed into the native UGS
                     // console (or sent by any other client) still keeps the
-                    // Coolant button in sync instead of going stale until the
-                    // next click here.
-                    if (/\bM0?[789]\b/i.test(commandEvent.command.command)) {
+                    // WCS dropdown/modal row/Coolant button in sync instead of
+                    // going stale until the next click here.
+                    if (/\bM0?[3-9]\b|\bG5[4-9](\.[1-3])?\b|\bG9[0134]\b|\bG2[01]\b|\bG1[789]\b|\bT\d+\b/i.test(commandEvent.command.command)) {
                         store.dispatch(fetchStatus());
                     }
                 } else if (commandEvent.commandEventType === "COMMAND_SENT") {
