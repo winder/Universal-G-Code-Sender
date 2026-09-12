@@ -4,6 +4,7 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 ## 2026-09-12
 
+- Fixed the new modal status row (WCS dropdown + G/M code chips) not showing anything but the WCS dropdown's fallback and tool number right after connecting, only filling in once a work offset was changed or the page was reloaded - the very first status fetch could race the controller's own connection handshake.
 - Added a work offset (WCS) dropdown next to the coordinate display, and a row of chips showing the rest of the active gcode modal state (motion mode, units, distance/feed mode, plane, spindle mode, tool number) - similar to what FluidNC's own web UI shows, restyled to this dashboard's theme.
 - Fixed the Macros/Probe tabs, the macro editor, and both gcode editors falling back to a plain white scrollbar instead of matching the rest of the dark dashboard - most noticeable in Split mode.
 - Fixed the 3D visualizer's gray-out and yellow "currently running" highlight not appearing at all when a job was started with "Run from here" - they were comparing against the wrong progress number, one that only happened to line up correctly for a normal, start-to-finish run.
