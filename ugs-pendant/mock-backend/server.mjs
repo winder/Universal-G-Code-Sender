@@ -84,6 +84,7 @@ const fileStatus = {
   remainingRowCount: files[activeFile].split(/\r?\n/).length,
   sendDuration: 0,
   sendRemainingDuration: 0,
+  lastCompletedLineNumber: -1,
 };
 
 /**
@@ -318,6 +319,7 @@ const server = createServer((req, res) => {
       fileStatus.rowCount = files[file].split(/\r?\n/).length;
       fileStatus.completedRowCount = 0;
       fileStatus.remainingRowCount = fileStatus.rowCount;
+      fileStatus.lastCompletedLineNumber = -1;
       armedRunFromCommand = 0;
       broadcast({ eventType: "FileStateEvent", event: { fileState: "FILE_LOADED" } });
     }
@@ -358,6 +360,7 @@ const server = createServer((req, res) => {
       fileStatus.rowCount = body.split(/\r?\n/).length;
       fileStatus.completedRowCount = 0;
       fileStatus.remainingRowCount = fileStatus.rowCount;
+      fileStatus.lastCompletedLineNumber = -1;
       armedRunFromCommand = 0;
       broadcast({ eventType: "FileStateEvent", event: { fileState: "FILE_LOADED" } });
       json(res, {});
@@ -370,6 +373,7 @@ const server = createServer((req, res) => {
     fileStatus.rowCount = 0;
     fileStatus.completedRowCount = 0;
     fileStatus.remainingRowCount = 0;
+    fileStatus.lastCompletedLineNumber = -1;
     armedRunFromCommand = 0;
     broadcast({ eventType: "FileStateEvent", event: { fileState: "FILE_UNLOADED" } });
     return json(res, {});

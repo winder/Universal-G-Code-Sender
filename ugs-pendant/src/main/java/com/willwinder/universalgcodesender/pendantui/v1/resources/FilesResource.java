@@ -137,7 +137,8 @@ public class FilesResource {
                 sendProgress.getNumCompletedRows(),
                 sendProgress.getNumRemainingRows(),
                 sendProgress.getDuration(),
-                sendProgress.getRemainingDuration());
+                sendProgress.getRemainingDuration(),
+                sendProgress.getLastCompletedCommandNumber());
     }
 
     @GET

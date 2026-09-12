@@ -78,10 +78,18 @@ const GcodeEditor = () => {
   // streaming.
   const canRunFrom = isEditable;
   const armedRunFromLine = useAppSelector((state) => state.ui.runFromLine);
-  // What to dim: while a job is actually streaming, everything already sent
-  // (completedRowCount tracks that live); otherwise, whatever's armed to be
-  // skipped by "run from" - the two never apply at once, since arming is
-  // itself blocked while a job is running (see canRunFrom above).
+  // What to dim: while a job is actually streaming, everything already sent;
+  // otherwise, whatever's armed to be skipped by "run from" - the two never
+  // apply at once, since arming is itself blocked while a job is running
+  // (see canRunFrom above).
+  //
+  // lastCompletedLineNumber, not completedRowCount: the latter just counts
+  // rows from zero for whatever's currently streaming, which undercounts
+  // badly once "run from" starts a stream partway through the file (it'd
+  // read 1, 2, 3... instead of the actual line numbers) - lastCompletedLineNumber
+  // is the original file's own line number instead, correct either way. It's
+  // already inclusive (see dimThroughField's own comment), so dims exactly
+  // through the line that just completed, no further adjustment needed.
   //
   // armedRunFromLine - 1, not - 2: this is purely an editor-line fact ("dim
   // everything before the line that was selected"), not a conversion to the
@@ -92,7 +100,7 @@ const GcodeEditor = () => {
   // the line right before the resume point undimmed.
   const dimThroughLine =
     currentState === "RUN" || currentState === "HOLD" || currentState === "CHECK"
-      ? fileStatus.completedRowCount
+      ? fileStatus.lastCompletedLineNumber
       : armedRunFromLine > 0
         ? armedRunFromLine - 1
         : 0;

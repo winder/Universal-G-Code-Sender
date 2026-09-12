@@ -155,25 +155,34 @@ const Visualizer3D = () => {
   // Only used to notice "a different file is now loaded" and re-fetch the
   // toolpath - the fetch itself always reads whatever's currently open.
   const fileName = useAppSelector((state) => state.fileStatus.fileName);
-  const completedRowCount = useAppSelector((state) => state.fileStatus.completedRowCount);
+  // Not completedRowCount: that's just a count of rows from zero for
+  // whatever's currently streaming, which badly undercounts once "run from"
+  // starts a stream partway through the file - it'd read 1, 2, 3... while
+  // segments keep the original file's line numbers (81, 82, 83...), so
+  // nothing would ever compare equal/less-than and neither gray-out nor the
+  // live highlight below would show at all. lastCompletedLineNumber is the
+  // original file's own line number instead (see FileStatus.ts), correct
+  // either way - -1 (nothing completed yet) safely matches/grays nothing.
+  const lastCompletedLineNumber = useAppSelector((state) => state.fileStatus.lastCompletedLineNumber);
   const armedRunFromLine = useAppSelector((state) => state.ui.runFromLine);
   const editorCursorLine = useAppSelector((state) => state.ui.editorCursorLine);
   // Same RUN/HOLD/CHECK gate as GcodeEditor.tsx's dimThroughLine - only gray
   // out "already sent" segments while a job's actually streaming, since
-  // completedRowCount is otherwise just left over from the last job.
+  // lastCompletedLineNumber is otherwise just left over from the last job.
   const completedThroughLine =
-    currentState === "RUN" || currentState === "HOLD" || currentState === "CHECK" ? completedRowCount : 0;
+    currentState === "RUN" || currentState === "HOLD" || currentState === "CHECK" ? lastCompletedLineNumber : 0;
   // Desktop's "yellow = currently transmitted" isn't a separate color at all -
   // it's this same cursor highlight, auto-driven to the just-completed line on
   // every CommandEvent by its (default-on) Follow feature (FollowLineUpdater,
   // SourceMultiviewElement.java) instead of the user's own click. Reproduce
-  // that here: while running, the highlight tracks completedRowCount live
-  // instead of the last manual click - the two never apply at once, since
-  // completedRowCount === completedThroughLine in that state, so this line is
-  // exactly the boundary (equal, not less-than) between gray and normal.
+  // that here: while running, the highlight tracks lastCompletedLineNumber
+  // live instead of the last manual click - the two never apply at once,
+  // since lastCompletedLineNumber === completedThroughLine in that state, so
+  // this line is exactly the boundary (equal, not less-than) between gray
+  // and normal.
   const liveHighlightLine =
     currentState === "RUN" || currentState === "HOLD" || currentState === "CHECK"
-      ? completedRowCount
+      ? lastCompletedLineNumber
       : editorCursorLine;
   // Bumped specifically once the backend's processed file is actually ready
   // (see uiSlice.ts's comment) - fileName alone isn't enough to re-trigger a

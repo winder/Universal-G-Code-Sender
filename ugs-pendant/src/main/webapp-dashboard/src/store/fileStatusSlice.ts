@@ -14,6 +14,7 @@ const initialState: FileStatus = {
   remainingRowCount: 0,
   sendDuration: 0,
   sendRemainingDuration: 0,
+  lastCompletedLineNumber: -1,
 };
 
 const statusSlice = createSlice({
@@ -27,6 +28,7 @@ const statusSlice = createSlice({
       state.remainingRowCount = action.payload.remainingRowCount;
       state.sendDuration = action.payload.sendDuration;
       state.sendRemainingDuration = action.payload.sendRemainingDuration;
+      state.lastCompletedLineNumber = action.payload.lastCompletedLineNumber;
     },
   },
   extraReducers(builder) {

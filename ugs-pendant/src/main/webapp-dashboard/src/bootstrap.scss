@@ -3,16 +3,19 @@
 // Touchscreens simulate ":hover" on tap and don't clear it until the next tap
 // lands elsewhere on the page, so every Bootstrap button (view presets,
 // override buttons, etc.) stays visually "pressed" - filled with its hover
-// background - after the finger lifts. Real pointer devices that can
-// actually hover are unaffected; this only disarms it where hovering isn't
-// possible, by pointing each button's hover custom properties back at its
-// own resting ones instead of overriding colors variant-by-variant.
-@media (hover: none) {
-  .btn {
-    --bs-btn-hover-color: var(--bs-btn-color);
-    --bs-btn-hover-bg: var(--bs-btn-bg);
-    --bs-btn-hover-border-color: var(--bs-btn-border-color);
-  }
+// background - after the finger lifts. Tried gating this behind
+// @media (hover: none) first, but that didn't actually fix it on the real
+// touchscreen - Windows + Chrome/Chromium is known to report (hover: hover)
+// for a touch-only display anyway (it reflects what the *system* supports,
+// not how a given interaction happened), so the media query silently never
+// matched. Disarming the hover styling unconditionally instead - a touch
+// dashboard has no real use for a hover state regardless of device - by
+// pointing each button's hover custom properties back at its own resting
+// ones instead of overriding colors variant-by-variant.
+.btn {
+  --bs-btn-hover-color: var(--bs-btn-color);
+  --bs-btn-hover-bg: var(--bs-btn-bg);
+  --bs-btn-hover-border-color: var(--bs-btn-border-color);
 }
 
 .btn-secondary {
