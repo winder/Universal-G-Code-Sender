@@ -58,6 +58,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -117,9 +118,13 @@ public class Main extends Application {
         createContentPanel();
         createContentPane();
 
-        // The collapsed rails sit outside the split pane so a collapsed side leaves no divider behind
-        HBox workArea = new HBox(leftSidePane.getRail(), contentSplitPane, rightSidePane.getRail());
-        HBox.setHgrow(contentSplitPane, Priority.ALWAYS);
+        // The collapse ears float over the split pane on its dividers, and the collapsed rails sit
+        // outside it so a collapsed side leaves no divider behind
+        Pane earLayer = new Pane(leftSidePane.getEar(), rightSidePane.getEar());
+        earLayer.setPickOnBounds(false);
+        StackPane splitArea = new StackPane(contentSplitPane, earLayer);
+        HBox workArea = new HBox(leftSidePane.getRail(), splitArea, rightSidePane.getRail());
+        HBox.setHgrow(splitArea, Priority.ALWAYS);
         VBox.setVgrow(workArea, Priority.ALWAYS);
 
         VBox root = new VBox();
@@ -236,14 +241,14 @@ public class Main extends Application {
     }
 
     private void createLeftPane() {
-        leftPane = new SidePane(SidePaneAlignment.LEFT, ToggleLeftPaneAction.class);
+        leftPane = new SidePane(SidePaneAlignment.LEFT);
         leftPane.titleProperty().set(Localization.getString("actions.category.machine"));
         leftPane.setContent(new MachinePane());
     }
 
     private void createRightPane() {
         WorkspaceTools workspaceTools = new WorkspaceTools();
-        rightPane = new SidePane(SidePaneAlignment.RIGHT, ToggleRightPaneAction.class);
+        rightPane = new SidePane(SidePaneAlignment.RIGHT);
         rightPane.titleProperty().bind(workspaceTools.titleProperty());
         rightPane.contentProperty().bind(workspaceTools.contentProperty());
     }

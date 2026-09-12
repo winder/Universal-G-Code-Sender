@@ -96,6 +96,7 @@ import java.util.logging.Logger;
  * for one through {@link #requestRender()}, and the pulse renders at most one frame.
  */
 public class VisualizerPane extends Pane {
+    private static final double TOOLBAR_RIGHT_MARGIN = 48;
     private static final Logger LOGGER = Logger.getLogger(VisualizerPane.class.getName());
     private static final double ORIENTATION_CUBE_SIZE = 130;
     private static final double MARGIN = 2;
@@ -321,8 +322,9 @@ public class VisualizerPane extends Pane {
                 .add(MARGIN + ORIENTATION_CUBE_SIZE / 2));
         orientationToolbar.setLayoutY(MARGIN + ORIENTATION_CUBE_SIZE + MARGIN);
 
+        // Kept clear of the right side pane's collapse ear, which hangs over the top right corner
         VisualizerToolbar toolbar = new VisualizerToolbar();
-        toolbar.layoutXProperty().bind(widthProperty().subtract(toolbar.widthProperty()).subtract(10));
+        toolbar.layoutXProperty().bind(widthProperty().subtract(toolbar.widthProperty()).subtract(TOOLBAR_RIGHT_MARGIN));
         toolbar.setLayoutY(9);
 
         ToolButton toolButton = new ToolButton();
@@ -446,7 +448,7 @@ public class VisualizerPane extends Pane {
         // Under the visualizer toolbar, clear of the drawer buttons along the right edge.
         graphics.fillText("%s — %dx MSAA — %.2f ms/frame"
                         .formatted(renderer.deviceName(), renderer.sampleCount(), lastFrameMillis),
-                width - 12, 52);
+                width - TOOLBAR_RIGHT_MARGIN, 52);
     }
 
     /**

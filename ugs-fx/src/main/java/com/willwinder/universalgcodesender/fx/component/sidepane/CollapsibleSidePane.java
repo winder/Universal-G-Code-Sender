@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividers;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
@@ -31,6 +32,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.util.HashMap;
@@ -50,8 +52,10 @@ import java.util.Optional;
  * has something to show again; its collapsed state is kept for when it returns.
  * <p>
  * The collapsed state is driven by a boolean property, typically a persisted setting, and toggled
- * through an {@link Action} so the same behaviour is reachable from the rail, the pane header, the
- * menu and a shortcut.
+ * through an {@link Action} so the same behaviour is reachable from the rail, the menu and a
+ * shortcut. While the pane is shown the same action sits in a small {@linkplain #getEar() ear}
+ * hanging from the top of the split pane, straddling the divider next to the pane, so the pane
+ * needs no header row of its own. The owner places the ear in a layer over the split pane.
  * <p>
  * Showing or hiding the content makes JavaFX rebuild the dividers, which would hand the freed space
  * to every remaining item. Items marked {@link SplitPane#setResizableWithParent not resizable with
@@ -66,6 +70,7 @@ public class CollapsibleSidePane {
     private final SidePane pane;
     private final BooleanProperty collapsed;
     private final VBox rail;
+    private final StackPane ear;
     private double expandedWidth;
 
     /**
@@ -79,6 +84,7 @@ public class CollapsibleSidePane {
         this.pane = pane;
         this.collapsed = collapsed;
         this.rail = createRail(toggleAction);
+        this.ear = createEar(toggleAction);
 
         collapsed.addListener(observable -> update());
         pane.contentProperty().addListener(observable -> update());
@@ -91,6 +97,15 @@ public class CollapsibleSidePane {
      */
     public Node getRail() {
         return rail;
+    }
+
+    /**
+     * The small tab with the collapse button. Add it to a pane laid over the split pane, in the
+     * split pane's coordinate space; it positions itself on the divider and is only visible while
+     * the pane is shown.
+     */
+    public Node getEar() {
+        return ear;
     }
 
     /**
@@ -123,6 +138,24 @@ public class CollapsibleSidePane {
         return box;
     }
 
+    private StackPane createEar(Class<? extends Action> toggleAction) {
+        SidePaneAlignment alignment = pane.getSideAlignment();
+        StackPane box = new StackPane();
+        box.getStyleClass().addAll("side-pane-ear", alignment == SidePaneAlignment.LEFT ? "left" : "right");
+        createToggleButton(toggleAction).ifPresent(box.getChildren()::add);
+
+        // The ear sits on the centre content, flush against the divider that follows a left pane or
+        // precedes a right one, so it reads as a tab growing out of that edge
+        box.layoutXProperty().bind(Bindings.createDoubleBinding(() -> {
+            double dividerWidth = dividerWidth();
+            double x = alignment == SidePaneAlignment.LEFT
+                    ? splitPane.getInsets().getLeft() + pane.getWidth() + dividerWidth - 1
+                    : splitPane.getWidth() - splitPane.getInsets().getRight() - pane.getWidth() - dividerWidth - box.getWidth() + 1;
+            return (double) Math.round(x);
+        }, pane.widthProperty(), splitPane.widthProperty(), box.widthProperty()));
+        return box;
+    }
+
     private void update() {
         boolean hasContent = pane.getContent() != null;
         boolean showPane = hasContent && !collapsed.get();
@@ -147,6 +180,8 @@ public class CollapsibleSidePane {
         boolean showRail = hasContent && collapsed.get();
         rail.setVisible(showRail);
         rail.setManaged(showRail);
+        ear.setVisible(showPane);
+        ear.setManaged(showPane);
     }
 
     private Map<Node, Double> captureSidePaneWidths() {
