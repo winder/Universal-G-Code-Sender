@@ -64,6 +64,18 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
         const socket = new Socket();
         activeSocket = socket;
         socket.connect("ws://" + location.host + "/ws/v1/events");
+        // The very first fetchStatus() below (dispatched the instant the socket
+        // opens) can race the controller's own connection handshake - if it
+        // lands before the controller has a real ControllerStatus yet,
+        // StatusResource.getStatus() skips its whole modal-state block (see
+        // its "if (controllerStatus != null)" gate) and every modal field
+        // comes back empty, which is why the WCS dropdown falls back to its
+        // hardcoded default and the rest of ModalStatusRow's chips just don't
+        // render until something else (a WCS change, a page reload once the
+        // connection has settled) happens to trigger another fetch. Refetch
+        // once more on the first real ControllerStatusEvent this connection
+        // receives - a guaranteed-real status, unlike the immediate one above.
+        let hasRefetchedStatusAfterConnect = false;
 
         socket.on("open", () => {
             console.log("Established connection");
@@ -75,6 +87,7 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
             // already connected could get stuck showing "disconnected" until
             // something on the machine changed.
             store.dispatch(fetchStatus());
+            hasRefetchedStatusAfterConnect = false;
             // Verbose opt-in is per-connection on the server (EventsSocket.java
             // forgets it on close) - re-assert it after every reconnect so the
             // setting doesn't silently revert to off from the user's perspective.
@@ -106,6 +119,10 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
                         (ugsEvent.event as ControllerStatusEvent).status,
                     ),
                 );
+                if (!hasRefetchedStatusAfterConnect) {
+                    hasRefetchedStatusAfterConnect = true;
+                    store.dispatch(fetchStatus());
+                }
             } else if (ugsEvent.eventType === "Pong") {
                 // No-op - messageReceived() above already recorded this as a
                 // live heartbeat, which is the only reason it's sent.
