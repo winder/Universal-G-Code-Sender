@@ -50,10 +50,13 @@ const createAxisLabel = (text: string, color: string) => {
 // dropped and the resume preamble included - so no client-side filtering
 // belongs here, just coloring.
 //
-// highlightLine is the dashboard's 1-based editor line number (0 = none);
-// ToolpathSegment.lineNumber is the backend's 0-based GcodeParser command
-// index. NOT the same "- 2" conversion "run from" needs - traced desktop's
-// two features separately and they use different arithmetic:
+// highlightLine is either the dashboard's 1-based editor line number (the
+// user's manual cursor position, 0 = none) or, while a job is running,
+// completedRowCount standing in for it (see liveHighlightLine) - both compare
+// directly against ToolpathSegment.lineNumber, the backend's 0-based
+// GcodeParser command index, with no offset. NOT the same "- 2" conversion
+// "run from" needs - traced desktop's two features separately and they use
+// different arithmetic:
 // RunFromHere.java computes root.getElementIndex(caret) - 1 (elementIndex
 // is already 0-based, so that's editorLine - 2 net). EditorListener.java
 // passes the raw elementIndex (no extra - 1) to Highlight.setHighlightedLines,
@@ -160,6 +163,18 @@ const Visualizer3D = () => {
   // completedRowCount is otherwise just left over from the last job.
   const completedThroughLine =
     currentState === "RUN" || currentState === "HOLD" || currentState === "CHECK" ? completedRowCount : 0;
+  // Desktop's "yellow = currently transmitted" isn't a separate color at all -
+  // it's this same cursor highlight, auto-driven to the just-completed line on
+  // every CommandEvent by its (default-on) Follow feature (FollowLineUpdater,
+  // SourceMultiviewElement.java) instead of the user's own click. Reproduce
+  // that here: while running, the highlight tracks completedRowCount live
+  // instead of the last manual click - the two never apply at once, since
+  // completedRowCount === completedThroughLine in that state, so this line is
+  // exactly the boundary (equal, not less-than) between gray and normal.
+  const liveHighlightLine =
+    currentState === "RUN" || currentState === "HOLD" || currentState === "CHECK"
+      ? completedRowCount
+      : editorCursorLine;
   // Bumped specifically once the backend's processed file is actually ready
   // (see uiSlice.ts's comment) - fileName alone isn't enough to re-trigger a
   // fetch here, since it's already set well before that file exists on disk.
@@ -183,7 +198,7 @@ const Visualizer3D = () => {
     // Highlights the cursor's line regardless of whether anything's armed -
     // see buildToolpathGeometry's comment: original command numbers survive
     // into the processed file's segments too, not just the unfiltered one.
-    const geometry = buildToolpathGeometry(segments, editorCursorLine, completedThroughLine);
+    const geometry = buildToolpathGeometry(segments, liveHighlightLine, completedThroughLine);
     const material = new THREE.LineBasicMaterial({ vertexColors: true });
     const toolpathLines = new THREE.LineSegments(geometry, material);
     scene.add(toolpathLines);
@@ -191,15 +206,15 @@ const Visualizer3D = () => {
   };
 
   // Re-applies the toolpath geometry (recolor only, no re-fetch) whenever the
-  // editor's cursor line or the live "already run" progress changes - neither
-  // changes what the server would return, only which segments get highlighted
-  // or grayed out.
+  // editor's cursor line or the live "already run"/"currently transmitting"
+  // progress changes - none of these change what the server would return,
+  // only which segments get highlighted or grayed out.
   useEffect(() => {
     if (segmentsRef.current.length > 0) {
       applyToolpathGeometry(segmentsRef.current);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editorCursorLine, completedThroughLine]);
+  }, [liveHighlightLine, completedThroughLine]);
 
   useEffect(() => {
     if (toolMarkerRef.current) {
