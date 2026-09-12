@@ -4,6 +4,7 @@ Notable changes to the touchscreen dashboard (`/dashboard`), most recent first. 
 
 ## 2026-09-12
 
+- Fixed the gcode editor not dimming the line immediately before an armed "run from" point, and restored the visualizer's yellow cursor highlight while a line is armed (it was being disabled unnecessarily).
 - Fixed "run from" resuming one command later than intended (skipping one extra command past the selected line) - confirmed and corrected against a side-by-side comparison with desktop's own visualizer.
 - The 3D visualizer now reads the same processed gcode file the sender actually streams from (matching desktop), so arming a "run from" line shows the real resume preamble (retract + plunge) instead of just a plain cut, and the view reframes to match.
 - Fixed "Run from here" still requiring a connection to arm a line - like opening/editing, it doesn't touch the controller, so it now works disconnected too.
