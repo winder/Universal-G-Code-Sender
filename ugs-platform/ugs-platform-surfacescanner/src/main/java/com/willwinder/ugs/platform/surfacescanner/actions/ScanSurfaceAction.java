@@ -19,6 +19,7 @@
 package com.willwinder.ugs.platform.surfacescanner.actions;
 
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
+import com.willwinder.ugs.platform.surfacescanner.SurfaceScannerListener;
 import com.willwinder.ugs.platform.surfacescanner.Utils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -32,7 +33,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
-public class ScanSurfaceAction extends AbstractAction implements UGSEventListener {
+public class ScanSurfaceAction extends AbstractAction implements UGSEventListener, SurfaceScannerListener {
 
     public static final String ICON_BASE = "com/willwinder/ugs/platform/surfacescanner/icons/scan.svg";
     private final SurfaceScanner surfaceScanner;
@@ -43,6 +44,7 @@ public class ScanSurfaceAction extends AbstractAction implements UGSEventListene
         this.backend.addUGSEventListener(this);
 
         this.surfaceScanner = surfaceScanner;
+        this.surfaceScanner.addListener(this);
         String title = Localization.getString("autoleveler.panel.scan-surface");
         putValue(NAME, title);
         putValue("menuText", title);
@@ -54,7 +56,7 @@ public class ScanSurfaceAction extends AbstractAction implements UGSEventListene
 
     @Override
     public boolean isEnabled() {
-        return backend != null && backend.isConnected() && backend.isIdle();
+        return backend != null && backend.isConnected() && backend.isIdle() && !surfaceScanner.isScanning();
     }
 
     @Override
@@ -63,6 +65,7 @@ public class ScanSurfaceAction extends AbstractAction implements UGSEventListene
         if (!Utils.removeProbeData(surfaceScanner)) {
             return;
         }
+        surfaceScanner.reset();
         surfaceScanner.scan();
     }
 
@@ -71,5 +74,10 @@ public class ScanSurfaceAction extends AbstractAction implements UGSEventListene
         if (evt instanceof ControllerStatusEvent) {
             setEnabled(isEnabled());
         }
+    }
+
+    @Override
+    public void onScannerUpdate() {
+        setEnabled(isEnabled());
     }
 }

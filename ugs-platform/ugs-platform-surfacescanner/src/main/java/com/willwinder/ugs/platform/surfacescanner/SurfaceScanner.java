@@ -19,7 +19,9 @@
 package com.willwinder.ugs.platform.surfacescanner;
 
 import com.google.common.collect.ImmutableList;
+import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
@@ -33,6 +35,7 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -42,6 +45,14 @@ import java.util.logging.Logger;
  * @author wwinder
  */
 public class SurfaceScanner {
+    public enum ScanState {
+        IDLE,
+        SCANNING,
+        COMPLETED,
+        ABORTED,
+        ERROR
+    }
+
     private static final Logger logger = Logger.getLogger(SurfaceScanner.class.getSimpleName());
 
     private final BackendAPI backend;
@@ -52,8 +63,11 @@ public class SurfaceScanner {
     private Position minXYZ = Position.ZERO;
     private Position maxXYZ = Position.ZERO;
     private Position machineWorkOffset = new Position(Units.MM);
+    private final CopyOnWriteArrayList<Position> measurements = new CopyOnWriteArrayList<>();
 
     private final AtomicBoolean isScanning = new AtomicBoolean(false);
+    private volatile ScanState scanState = ScanState.IDLE;
+    private volatile int totalProbePoints;
 
     public SurfaceScanner(BackendAPI backend) {
         this.backend = backend;
@@ -98,7 +112,7 @@ public class SurfaceScanner {
 
         Position probeMachinePosition = evt.getProbePosition();
         if (!Double.isFinite(probeMachinePosition.getZ())) {
-            reset();
+            markScanError();
             throw new RuntimeException("Probe returned invalid position");
         }
 
@@ -115,6 +129,9 @@ public class SurfaceScanner {
         if (pendingPositions.isEmpty()) {
             // The probing is done!
             moveToSafeStartPoint(probePosition);
+            isScanning.set(false);
+            scanState = ScanState.COMPLETED;
+            notifyListeners();
         } else {
             double retractedZ = retract(probePosition.getZ());
             probeNextPoint(retractedZ);
@@ -144,10 +161,13 @@ public class SurfaceScanner {
 
     public void reset() {
         isScanning.set(false);
+        scanState = ScanState.IDLE;
+        measurements.clear();
         double resolution = getStepResolution();
 
         int xAxisPoints = (int) (Math.ceil((maxXYZ.getX() - minXYZ.getX()) / resolution)) + 1;
         int yAxisPoints = (int) (Math.ceil((maxXYZ.getY() - minXYZ.getY()) / resolution)) + 1;
+        totalProbePoints = xAxisPoints * yAxisPoints;
         this.probePositionGrid = new Position[xAxisPoints][yAxisPoints];
 
         // Calculate probe locations.
@@ -176,7 +196,7 @@ public class SurfaceScanner {
             yIndex += yIncrement;
         }
 
-        listeners.forEach(SurfaceScannerListener::onScannerUpdate);
+        notifyListeners();
     }
 
     public void probeEvent(final Position p) {
@@ -187,14 +207,20 @@ public class SurfaceScanner {
         expectedProbePosition.setX(expectedProbePosition.getX() + settingsOffset.getX());
         expectedProbePosition.setY(expectedProbePosition.getY() + settingsOffset.getY());
         expectedProbePosition.setZ(probedPosition.getZ() + settingsOffset.getZ());
-        listeners.forEach(SurfaceScannerListener::onScannerUpdate);
+        measurements.add(new Position(expectedProbePosition));
+        notifyListeners();
     }
 
     /**
      * Begin a scan the surface {@link #handleEvent(ProbeEvent)} must be called to properly progress through the scan.
      */
     public void scan() {
-        isScanning.set(true);
+        if (!isScanning.compareAndSet(false, true)) {
+            return;
+        }
+
+        scanState = ScanState.SCANNING;
+        notifyListeners();
         Position work = backend.getWorkPosition();
         Position machine = backend.getMachinePosition();
         machineWorkOffset = new Position(work.getUnits());
@@ -236,7 +262,7 @@ public class SurfaceScanner {
             logger.log(Level.INFO, "Move to start height {0}", new Object[]{startHeight});
             backend.sendGcodeCommand(true, cmd);
         } catch (Exception e) {
-            reset();
+            markScanError();
             throw new RuntimeException(e);
         }
     }
@@ -265,7 +291,7 @@ public class SurfaceScanner {
             logger.log(Level.INFO, "Probe {0}", probeDistance);
             backend.probe("Z", getProbeSpeed(), probeDistance, getPreferredUnits());
         } catch (Exception e) {
-            reset();
+            markScanError();
             throw new RuntimeException(e);
         }
     }
@@ -300,7 +326,7 @@ public class SurfaceScanner {
             logger.log(Level.INFO, "Retract to {0} {1}", new Object[]{safeZ, retractCommand});
             backend.sendGcodeCommand(true, retractCommand);
         } catch (Exception e) {
-            reset();
+            markScanError();
             throw new RuntimeException(e);
         }
         return zBackoff;
@@ -347,6 +373,92 @@ public class SurfaceScanner {
 
     public boolean isValid() {
         return probePositionGrid.length > 0 && pendingPositions.isEmpty();
+    }
+
+    public boolean isScanning() {
+        return isScanning.get();
+    }
+
+    public ScanState getScanState() {
+        return scanState;
+    }
+
+    public int getTotalProbePoints() {
+        return totalProbePoints;
+    }
+
+    public int getCompletedProbePoints() {
+        return measurements.size();
+    }
+
+    /**
+     * Returns measured positions in scan order and in working coordinates. The configured probe
+     * offset has already been applied, so these are the values stored in the height map.
+     */
+    public ImmutableList<Position> getMeasurements() {
+        return ImmutableList.copyOf(measurements);
+    }
+
+    /**
+     * Stops a scan requested by the operator. If a command is already executing, a soft reset is
+     * sent after clearing the UGS queue so that the physical movement stops as well.
+     */
+    public void abort() {
+        stopScan(ScanState.ABORTED, true);
+    }
+
+    /**
+     * Stops the AutoLeveler state machine after the controller has entered ALARM. No additional
+     * reset is sent because the controller has already stopped the movement.
+     */
+    public void abortDueToAlarm() {
+        stopScan(ScanState.ERROR, false);
+    }
+
+    private void stopScan(ScanState finalState, boolean stopActiveMotion) {
+        if (!isScanning.getAndSet(false)) {
+            return;
+        }
+
+        scanState = finalState;
+        IController controller = backend.getController();
+        if (controller != null) {
+            ControllerState controllerState = backend.getControllerState();
+            boolean hasActiveCommand = controller.getActiveCommand().isPresent();
+
+            controller.cancelCommands();
+            try {
+                if (stopActiveMotion && isMotionActive(controllerState, hasActiveCommand)) {
+                    backend.issueSoftReset();
+                }
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Could not stop active AutoLeveler movement", e);
+                throw new RuntimeException("Could not stop active AutoLeveler movement", e);
+            } finally {
+                controller.resetBuffers();
+                notifyListeners();
+            }
+        } else {
+            notifyListeners();
+        }
+    }
+
+    private static boolean isMotionActive(ControllerState state, boolean hasActiveCommand) {
+        return hasActiveCommand || state == ControllerState.RUN || state == ControllerState.JOG
+                || state == ControllerState.HOLD || state == ControllerState.DOOR;
+    }
+
+    private void markScanError() {
+        if (isScanning.get()) {
+            stopScan(ScanState.ERROR, false);
+        } else {
+            scanState = ScanState.ERROR;
+            notifyListeners();
+        }
+    }
+
+    private void notifyListeners() {
+        listeners.forEach(SurfaceScannerListener::onScannerUpdate);
     }
 
     public void addListener(SurfaceScannerListener listener) {

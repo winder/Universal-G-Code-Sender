@@ -1,5 +1,7 @@
 package com.willwinder.ugs.platform.surfacescanner;
 
+import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -16,8 +18,10 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -337,12 +341,80 @@ public class SurfaceScannerTest {
         return settings;
     }
 
+    @Test
+    public void scanShouldExposeProgressMeasurementsAndCompletedState() throws Exception {
+        Settings settings = createScanSettings();
+        SurfaceScanner surfaceScanner = createScanner(settings);
+
+        surfaceScanner.scan();
+
+        assertTrue(surfaceScanner.isScanning());
+        assertEquals(SurfaceScanner.ScanState.SCANNING, surfaceScanner.getScanState());
+        assertEquals(4, surfaceScanner.getTotalProbePoints());
+
+        for (int i = 0; i < 4; i++) {
+            Position probePosition = new Position(surfaceScanner.getNextProbePoint().get());
+            probePosition.setZ(i * 0.01);
+            surfaceScanner.handleEvent(new ProbeEvent(probePosition));
+        }
+
+        assertFalse(surfaceScanner.isScanning());
+        assertEquals(SurfaceScanner.ScanState.COMPLETED, surfaceScanner.getScanState());
+        assertEquals(4, surfaceScanner.getCompletedProbePoints());
+        assertEquals(4, surfaceScanner.getMeasurements().size());
+        assertEquals(0.03, surfaceScanner.getMeasurements().get(3).getZ(), 0.0001);
+    }
+
+    @Test
+    public void abortShouldClearControllerQueueAndStopActiveMotion() throws Exception {
+        Settings settings = createScanSettings();
+        IController controller = org.mockito.Mockito.mock(IController.class);
+        when(backendAPI.getController()).thenReturn(controller);
+        when(backendAPI.getControllerState()).thenReturn(ControllerState.RUN);
+        SurfaceScanner surfaceScanner = createScanner(settings);
+
+        surfaceScanner.scan();
+        surfaceScanner.abort();
+
+        assertFalse(surfaceScanner.isScanning());
+        assertEquals(SurfaceScanner.ScanState.ABORTED, surfaceScanner.getScanState());
+        verify(controller).cancelCommands();
+        verify(controller).resetBuffers();
+        verify(backendAPI).issueSoftReset();
+    }
+
+    @Test
+    public void alarmAbortShouldClearQueueWithoutAnotherSoftReset() throws Exception {
+        Settings settings = createScanSettings();
+        IController controller = org.mockito.Mockito.mock(IController.class);
+        when(backendAPI.getController()).thenReturn(controller);
+        when(backendAPI.getControllerState()).thenReturn(ControllerState.ALARM);
+        SurfaceScanner surfaceScanner = createScanner(settings);
+
+        surfaceScanner.scan();
+        surfaceScanner.abortDueToAlarm();
+
+        assertFalse(surfaceScanner.isScanning());
+        assertEquals(SurfaceScanner.ScanState.ERROR, surfaceScanner.getScanState());
+        verify(controller).cancelCommands();
+        verify(controller).resetBuffers();
+        verify(backendAPI, never()).issueSoftReset();
+    }
+
+    private Settings createScanSettings() {
+        Settings settings = new Settings();
+        AutoLevelSettings autoLevelSettings = settings.getAutoLevelSettings();
+        autoLevelSettings.setMin(new Position(0, 0, -1, UnitUtils.Units.MM));
+        autoLevelSettings.setMax(new Position(1, 1, 1, UnitUtils.Units.MM));
+        autoLevelSettings.setStepResolution(1);
+        return settings;
+    }
+
     private SurfaceScanner createScanner(Settings settings) throws Exception {
         when(backendAPI.getSettings()).thenReturn(settings);
         when(backendAPI.getWorkPosition()).thenReturn(new Position(0, 0, 0, settings.getPreferredUnits()));
         when(backendAPI.getMachinePosition()).thenReturn(new Position(0, 0, 0, settings.getPreferredUnits()));
         doNothing().when(backendAPI).sendGcodeCommand(anyBoolean(), sentGcodeCommands.capture());
-
         SurfaceScanner surfaceScanner = new SurfaceScanner(backendAPI);
         surfaceScanner.reset();
         return surfaceScanner;
