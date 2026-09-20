@@ -43,6 +43,7 @@ import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
 import org.openide.windows.TopComponent;
 
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
@@ -93,12 +94,19 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
             }
         } else if (evt instanceof AlarmEvent) {
             if (scanner.isScanning()) {
-                scanner.abortDueToAlarm();
+                // Defer queue cleanup until GrblController has associated the ALARM response with
+                // its active command. Clearing it from inside the event callback makes the later
+                // response look like an unexpected command.
+                SwingUtilities.invokeLater(scanner::abortDueToAlarm);
             }
         } else if (evt instanceof ControllerStatusEvent) {
             ControllerStatusEvent statusEvent = (ControllerStatusEvent) evt;
-            if (scanner.isScanning() && statusEvent.getStatus().getState() == ControllerState.ALARM) {
-                scanner.abortDueToAlarm();
+            if (statusEvent.getStatus().getState() == ControllerState.ALARM) {
+                if (scanner.isScanning()) {
+                    SwingUtilities.invokeLater(scanner::abortDueToAlarm);
+                }
+            } else {
+                scanner.handleControllerStatus(statusEvent.getStatus());
             }
 
             boolean isIdle = (backend.isConnected() && backend.isIdle()) || !backend.isConnected();

@@ -2,6 +2,7 @@ package com.willwinder.ugs.platform.surfacescanner;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -366,21 +367,41 @@ public class SurfaceScannerTest {
     }
 
     @Test
-    public void abortShouldClearControllerQueueAndStopActiveMotion() throws Exception {
+    public void abortShouldWaitForFeedHoldBeforeResettingController() throws Exception {
         Settings settings = createScanSettings();
         IController controller = org.mockito.Mockito.mock(IController.class);
         when(backendAPI.getController()).thenReturn(controller);
-        when(backendAPI.getControllerState()).thenReturn(ControllerState.RUN);
+        when(controller.getControllerStatus()).thenReturn(controllerStatus(ControllerState.RUN, ""));
         SurfaceScanner surfaceScanner = createScanner(settings);
 
         surfaceScanner.scan();
         surfaceScanner.abort();
 
+        assertTrue(surfaceScanner.isScanning());
+        assertTrue(surfaceScanner.isStopping());
+        assertEquals(SurfaceScanner.ScanState.STOPPING, surfaceScanner.getScanState());
+        verify(controller).pauseStreaming();
+        verify(controller, never()).cancelCommands();
+        verify(controller, never()).resetBuffers();
+        verify(backendAPI, never()).issueSoftReset();
+
+        // Hold:1 means that GRBL is still decelerating.
+        surfaceScanner.handleControllerStatus(controllerStatus(ControllerState.HOLD, "1"));
+        verify(backendAPI, never()).issueSoftReset();
+
+        // A probe report racing with Stop must not advance the AutoLevel state machine.
+        surfaceScanner.handleEvent(new ProbeEvent(new Position(0, 0, 0, UnitUtils.Units.MM)));
+        assertEquals(0, surfaceScanner.getCompletedProbePoints());
+
+        // Hold:0 means that motion has fully stopped and a reset is now position-safe.
+        surfaceScanner.handleControllerStatus(controllerStatus(ControllerState.HOLD, "0"));
+
         assertFalse(surfaceScanner.isScanning());
+        assertFalse(surfaceScanner.isStopping());
         assertEquals(SurfaceScanner.ScanState.ABORTED, surfaceScanner.getScanState());
+        verify(backendAPI).issueSoftReset();
         verify(controller).cancelCommands();
         verify(controller).resetBuffers();
-        verify(backendAPI).issueSoftReset();
     }
 
     @Test
@@ -424,5 +445,10 @@ public class SurfaceScannerTest {
         Position probePoint = new Position(position.getPositionIn(units));
         probePoint.setZ(z);
         return probePoint;
+    }
+
+    private static ControllerStatus controllerStatus(ControllerState state, String subState) {
+        return new ControllerStatus(state, subState, Position.ZERO, Position.ZERO, 0d,
+                UnitUtils.Units.MM, 0d, null, Position.ZERO, null, null);
     }
 }

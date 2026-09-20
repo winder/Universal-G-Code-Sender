@@ -30,7 +30,7 @@ public class StopSurfaceScanAction extends AbstractAction implements SurfaceScan
         putValue(NAME, title);
         putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(SurfaceScanner.class, "StopScanTooltip"));
         surfaceScanner.addListener(this);
-        setEnabled(surfaceScanner.isScanning());
+        setEnabled(surfaceScanner.isScanning() && !surfaceScanner.isStopping());
     }
 
     @Override
@@ -45,6 +45,6 @@ public class StopSurfaceScanAction extends AbstractAction implements SurfaceScan
 
     @Override
     public void onScannerUpdate() {
-        SwingUtilities.invokeLater(() -> setEnabled(surfaceScanner.isScanning()));
+        SwingUtilities.invokeLater(() -> setEnabled(surfaceScanner.isScanning() && !surfaceScanner.isStopping()));
     }
 }

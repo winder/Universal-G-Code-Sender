@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
@@ -48,6 +49,7 @@ public class SurfaceScanner {
     public enum ScanState {
         IDLE,
         SCANNING,
+        STOPPING,
         COMPLETED,
         ABORTED,
         ERROR
@@ -66,6 +68,7 @@ public class SurfaceScanner {
     private final CopyOnWriteArrayList<Position> measurements = new CopyOnWriteArrayList<>();
 
     private final AtomicBoolean isScanning = new AtomicBoolean(false);
+    private final AtomicBoolean stopRequested = new AtomicBoolean(false);
     private volatile ScanState scanState = ScanState.IDLE;
     private volatile int totalProbePoints;
 
@@ -108,7 +111,7 @@ public class SurfaceScanner {
     }
 
     public void handleEvent(ProbeEvent evt) {
-        if (pendingPositions.isEmpty() || !isScanning.get()) return;
+        if (pendingPositions.isEmpty() || !isScanning.get() || stopRequested.get()) return;
 
         Position probeMachinePosition = evt.getProbePosition();
         if (!Double.isFinite(probeMachinePosition.getZ())) {
@@ -161,6 +164,7 @@ public class SurfaceScanner {
 
     public void reset() {
         isScanning.set(false);
+        stopRequested.set(false);
         scanState = ScanState.IDLE;
         measurements.clear();
         double resolution = getStepResolution();
@@ -219,6 +223,7 @@ public class SurfaceScanner {
             return;
         }
 
+        stopRequested.set(false);
         scanState = ScanState.SCANNING;
         notifyListeners();
         Position work = backend.getWorkPosition();
@@ -379,6 +384,10 @@ public class SurfaceScanner {
         return isScanning.get();
     }
 
+    public boolean isStopping() {
+        return stopRequested.get();
+    }
+
     public ScanState getScanState() {
         return scanState;
     }
@@ -400,11 +409,54 @@ public class SurfaceScanner {
     }
 
     /**
-     * Stops a scan requested by the operator. If a command is already executing, a soft reset is
-     * sent after clearing the UGS queue so that the physical movement stops as well.
+     * Starts a controlled stop requested by the operator. Motion is first feed-held. The reset
+     * which discards the active probe/move is sent only after the controller reports Hold:0, when
+     * deceleration has completed. This avoids GRBL ALARM:3 and preserves the machine position.
      */
     public void abort() {
-        stopScan(ScanState.ABORTED, true);
+        if (!isScanning.get() || !stopRequested.compareAndSet(false, true)) {
+            return;
+        }
+
+        scanState = ScanState.STOPPING;
+        notifyListeners();
+
+        IController controller = backend.getController();
+        if (controller == null) {
+            finishStop(ScanState.ABORTED, false);
+            return;
+        }
+
+        ControllerStatus status = controller.getControllerStatus();
+        if (isFullyHeld(status)) {
+            finishStop(ScanState.ABORTED, true);
+        } else if (isIdleAndCommandComplete(controller, status)) {
+            finishStop(ScanState.ABORTED, false);
+        } else {
+            try {
+                controller.pauseStreaming();
+            } catch (Exception e) {
+                stopRequested.set(false);
+                scanState = ScanState.SCANNING;
+                notifyListeners();
+                throw new RuntimeException("Could not feed-hold AutoLeveler movement", e);
+            }
+        }
+    }
+
+    /** Completes a pending operator stop in response to controller status reports. */
+    public void handleControllerStatus(ControllerStatus status) {
+        if (!stopRequested.get()) {
+            return;
+        }
+
+        IController controller = backend.getController();
+        if (isFullyHeld(status)) {
+            finishStop(ScanState.ABORTED, true);
+        } else if (controller == null || status.getState() == ControllerState.DISCONNECTED
+                || isIdleAndCommandComplete(controller, status)) {
+            finishStop(ScanState.ABORTED, false);
+        }
     }
 
     /**
@@ -412,29 +464,39 @@ public class SurfaceScanner {
      * reset is sent because the controller has already stopped the movement.
      */
     public void abortDueToAlarm() {
-        stopScan(ScanState.ERROR, false);
-    }
-
-    private void stopScan(ScanState finalState, boolean stopActiveMotion) {
         if (!isScanning.getAndSet(false)) {
             return;
         }
 
+        stopRequested.set(false);
+        scanState = ScanState.ERROR;
+        IController controller = backend.getController();
+        if (controller != null) {
+            controller.cancelCommands();
+            controller.resetBuffers();
+        }
+        notifyListeners();
+    }
+
+    private void finishStop(ScanState finalState, boolean resetController) {
+        if (!stopRequested.getAndSet(false)) {
+            return;
+        }
+
+        isScanning.set(false);
         scanState = finalState;
         IController controller = backend.getController();
         if (controller != null) {
-            ControllerState controllerState = backend.getControllerState();
-            boolean hasActiveCommand = controller.getActiveCommand().isPresent();
-
-            controller.cancelCommands();
             try {
-                if (stopActiveMotion && isMotionActive(controllerState, hasActiveCommand)) {
+                if (resetController) {
                     backend.issueSoftReset();
                 }
             } catch (Exception e) {
-                logger.log(Level.WARNING, "Could not stop active AutoLeveler movement", e);
-                throw new RuntimeException("Could not stop active AutoLeveler movement", e);
+                scanState = ScanState.ERROR;
+                logger.log(Level.WARNING, "Could not reset held AutoLeveler movement", e);
+                throw new RuntimeException("Could not reset held AutoLeveler movement", e);
             } finally {
+                controller.cancelCommands();
                 controller.resetBuffers();
                 notifyListeners();
             }
@@ -443,14 +505,24 @@ public class SurfaceScanner {
         }
     }
 
-    private static boolean isMotionActive(ControllerState state, boolean hasActiveCommand) {
-        return hasActiveCommand || state == ControllerState.RUN || state == ControllerState.JOG
-                || state == ControllerState.HOLD || state == ControllerState.DOOR;
+    private static boolean isFullyHeld(ControllerStatus status) {
+        if (status == null || status.getState() != ControllerState.HOLD) {
+            return false;
+        }
+
+        String subState = status.getSubState();
+        return subState == null || subState.isEmpty() || "0".equals(subState);
+    }
+
+    private static boolean isIdleAndCommandComplete(IController controller, ControllerStatus status) {
+        return status != null && status.getState() == ControllerState.IDLE
+                && controller.getActiveCommand().isEmpty();
     }
 
     private void markScanError() {
         if (isScanning.get()) {
-            stopScan(ScanState.ERROR, false);
+            stopRequested.set(true);
+            finishStop(ScanState.ERROR, false);
         } else {
             scanState = ScanState.ERROR;
             notifyListeners();

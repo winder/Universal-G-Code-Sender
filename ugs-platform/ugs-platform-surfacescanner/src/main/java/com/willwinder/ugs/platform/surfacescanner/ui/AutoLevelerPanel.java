@@ -206,6 +206,7 @@ public class AutoLevelerPanel extends JPanel {
 
             String statusKey = switch (surfaceScanner.getScanState()) {
                 case SCANNING -> "StatusScanning";
+                case STOPPING -> "StatusStopping";
                 case COMPLETED -> "StatusCompleted";
                 case ABORTED -> "StatusAborted";
                 case ERROR -> "StatusError";
