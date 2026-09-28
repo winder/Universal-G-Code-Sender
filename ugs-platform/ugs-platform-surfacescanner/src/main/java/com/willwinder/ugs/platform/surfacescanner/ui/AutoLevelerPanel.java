@@ -22,6 +22,7 @@ import com.willwinder.ugs.platform.surfacescanner.MeshLevelManager;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
 import com.willwinder.ugs.platform.surfacescanner.Utils;
 import com.willwinder.ugs.platform.surfacescanner.actions.ScanSurfaceAction;
+import com.willwinder.ugs.platform.surfacescanner.actions.StopSurfaceScanAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.ToggleApplyToGcodeAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.TogglePreviewAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.ToggleTouchPlateAction;
@@ -35,14 +36,23 @@ import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import net.miginfocom.swing.MigLayout;
+import org.openide.util.NbBundle;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
+import javax.swing.table.DefaultTableModel;
+import java.awt.Dimension;
+import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -62,6 +72,11 @@ public class AutoLevelerPanel extends JPanel {
     private PercentSpinner zRetract;
     private UnitSpinner zSurface;
     private boolean updatingControls = false;
+    private JLabel scanStatus;
+    private JProgressBar scanProgress;
+    private JTable measurementsTable;
+    private DefaultTableModel measurementsTableModel;
+    private UnitUtils.Units displayUnits = UnitUtils.Units.MM;
 
     public AutoLevelerPanel(SurfaceScanner surfaceScanner, MeshLevelManager meshLevelManager, AutoLevelPreview autoLevelPreview, AutoLevelSettings autoLevelSettings, UnitUtils.Units units) {
         this.surfaceScanner = surfaceScanner;
@@ -73,7 +88,9 @@ public class AutoLevelerPanel extends JPanel {
 
         initComponents();
         registerListeners();
+        surfaceScanner.addListener(this::updateScanStatus);
         setUnits(units);
+        updateScanStatus();
     }
 
     private void initComponents() {
@@ -130,6 +147,28 @@ public class AutoLevelerPanel extends JPanel {
         JPanel jPanel3 = new JPanel(new MigLayout("fill"));
         jPanel3.add(new JLabel(" "), "growx, spanx, wrap");
         jPanel3.add(new JButton(new ScanSurfaceAction(surfaceScanner)), "growx, wrap");
+        jPanel3.add(new JButton(new StopSurfaceScanAction(surfaceScanner)), "growx, wrap");
+
+        scanStatus = new JLabel();
+        jPanel3.add(scanStatus, "growx, wrap");
+
+        scanProgress = new JProgressBar();
+        scanProgress.setStringPainted(true);
+        jPanel3.add(scanProgress, "growx, wrap");
+
+        measurementsTableModel = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        measurementsTable = new JTable(measurementsTableModel);
+        measurementsTable.setFillsViewportHeight(true);
+        JScrollPane measurementsScrollPane = new JScrollPane(measurementsTable);
+        measurementsScrollPane.setPreferredSize(new Dimension(300, 140));
+        jPanel3.add(new JLabel(NbBundle.getMessage(SurfaceScanner.class, "ResultsTitle")), "growx, wrap");
+        jPanel3.add(measurementsScrollPane, "grow, push, wrap");
+
         jPanel3.add(new JLabel(" "), "growx, spanx, wrap");
         jPanel3.add(new JCheckBox(new TogglePreviewAction(autoLevelPreview)), "growx, wrap");
         jPanel3.add(new JCheckBox(new ToggleTouchPlateAction(autoLevelPreview)), "growx, wrap");
@@ -153,6 +192,66 @@ public class AutoLevelerPanel extends JPanel {
         zMin.addChangeListener((ChangeEvent e) -> syncControlsToSettings());
         zMax.addChangeListener((ChangeEvent e) -> syncControlsToSettings());
         zSurface.addChangeListener((ChangeEvent e) -> syncControlsToSettings());
+    }
+
+    private void updateScanStatus() {
+        Runnable updater = () -> {
+            int total = surfaceScanner.getTotalProbePoints();
+            int completed = surfaceScanner.getCompletedProbePoints();
+
+            scanProgress.setMinimum(0);
+            scanProgress.setMaximum(Math.max(1, total));
+            scanProgress.setValue(Math.min(completed, total));
+            scanProgress.setString(completed + " / " + total);
+
+            String statusKey = switch (surfaceScanner.getScanState()) {
+                case SCANNING -> "StatusScanning";
+                case STOPPING -> "StatusStopping";
+                case COMPLETED -> "StatusCompleted";
+                case ABORTED -> "StatusAborted";
+                case ERROR -> "StatusError";
+                case IDLE -> "StatusIdle";
+            };
+            scanStatus.setText(NbBundle.getMessage(SurfaceScanner.class, statusKey));
+
+            updateMeasurementsTable();
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            updater.run();
+        } else {
+            SwingUtilities.invokeLater(updater);
+        }
+    }
+
+    private void updateMeasurementsTable() {
+        String unitsLabel = displayUnits == UnitUtils.Units.MM ? "mm" : "in";
+        measurementsTableModel.setColumnIdentifiers(new Object[]{
+                NbBundle.getMessage(SurfaceScanner.class, "ResultsIndex"),
+                "X (" + unitsLabel + ")",
+                "Y (" + unitsLabel + ")",
+                "Z (" + unitsLabel + ")"
+        });
+        measurementsTableModel.setRowCount(0);
+
+        DecimalFormat formatter = new DecimalFormat(
+                displayUnits == UnitUtils.Units.MM ? "0.000" : "0.0000",
+                Localization.dfs);
+        List<Position> measurements = surfaceScanner.getMeasurements();
+        for (int i = 0; i < measurements.size(); i++) {
+            Position position = measurements.get(i).getPositionIn(displayUnits);
+            measurementsTableModel.addRow(new Object[]{
+                    i + 1,
+                    formatter.format(position.getX()),
+                    formatter.format(position.getY()),
+                    formatter.format(position.getZ())
+            });
+        }
+
+        if (!measurements.isEmpty()) {
+            int lastRow = measurementsTableModel.getRowCount() - 1;
+            measurementsTable.scrollRectToVisible(measurementsTable.getCellRect(lastRow, 0, true));
+        }
     }
 
     private void syncControlsToSettings() {
@@ -260,6 +359,7 @@ public class AutoLevelerPanel extends JPanel {
     }
 
     public void setUnits(UnitUtils.Units units) {
+        displayUnits = units;
         Unit spinnerUnit = units == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
         updatingControls = true;
         try {
@@ -276,5 +376,6 @@ public class AutoLevelerPanel extends JPanel {
         }
 
         syncSettingsToControls(autoLevelSettings);
+        updateScanStatus();
     }
 }

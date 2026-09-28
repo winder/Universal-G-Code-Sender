@@ -26,9 +26,11 @@ import com.willwinder.ugs.platform.surfacescanner.renderable.AutoLevelPreview;
 import com.willwinder.ugs.platform.surfacescanner.ui.AutoLevelerPanel;
 import com.willwinder.ugs.platform.surfacescanner.ui.AutoLevelerToolbar;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.AlarmEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
@@ -41,6 +43,7 @@ import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
 import org.openide.windows.TopComponent;
 
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
@@ -89,7 +92,23 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
                 // (despite what the javadoc for applyCommandProcessor would suggest)
                 updatePreview();
             }
+        } else if (evt instanceof AlarmEvent) {
+            if (scanner.isScanning()) {
+                // Defer queue cleanup until GrblController has associated the ALARM response with
+                // its active command. Clearing it from inside the event callback makes the later
+                // response look like an unexpected command.
+                SwingUtilities.invokeLater(scanner::abortDueToAlarm);
+            }
         } else if (evt instanceof ControllerStatusEvent) {
+            ControllerStatusEvent statusEvent = (ControllerStatusEvent) evt;
+            if (statusEvent.getStatus().getState() == ControllerState.ALARM) {
+                if (scanner.isScanning()) {
+                    SwingUtilities.invokeLater(scanner::abortDueToAlarm);
+                }
+            } else {
+                scanner.handleControllerStatus(statusEvent.getStatus());
+            }
+
             boolean isIdle = (backend.isConnected() && backend.isIdle()) || !backend.isConnected();
             autoLevelerPanel.setEnabled(isIdle);
         }
