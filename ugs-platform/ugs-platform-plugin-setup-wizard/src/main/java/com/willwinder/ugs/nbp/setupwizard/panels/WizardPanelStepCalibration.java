@@ -247,18 +247,18 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
             public void keyReleased(KeyEvent event) {
                 JTextField source = (JTextField) event.getSource();
                 if (source != null) {
-                    updateEstimationFromMesurement(source, axis, label);
+                    updateEstimationFromMesurement(source, axis, label, getWorkPositionInMillimeters());
                 }
             }
         };
     }
 
-    private void updateEstimationFromMesurement(JTextField textFieldMesurement, Axis axis, JLabel label) {
-        if (getBackend().getWorkPosition() != null) {
+    private void updateEstimationFromMesurement(JTextField textFieldMesurement, Axis axis, JLabel label, Position workPositionInMillimeters) {
+        if (workPositionInMillimeters != null) {
             try {
                 DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT_PATTERN, Localization.dfs);
                 double measured = decimalFormat.parse(textFieldMesurement.getText()).doubleValue();
-                double real = getBackend().getWorkPosition().getPositionIn(Units.MM).get(axis);
+                double real = workPositionInMillimeters.get(axis);
                 double stepsPerMM = getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(axis);
 
                 double computed = (real / measured) * stepsPerMM;
@@ -328,6 +328,11 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         labelPositionZ.setText(StringUtils.leftPad(decimalFormat.format(currentPositionInMillimeters.get(Axis.Z)) + " mm", 8, ' '));
         updateMeasurementEstimatesFields();
         navigationButtons.refresh(machinePositionInMillimeters);
+    }
+
+    private Position getWorkPositionInMillimeters() {
+        Position workPosition = getBackend().getWorkPosition();
+        return workPosition == null ? null : workPosition.getPositionIn(Units.MM);
     }
 
     /**
@@ -446,9 +451,10 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
     private void updateMeasurementEstimatesFields() {
         if (getBackend().getController() != null && getBackend().getController().getFirmwareSettings() != null) {
-            updateEstimationFromMesurement(textFieldMeasuredX, Axis.X, labelEstimatedStepsX);
-            updateEstimationFromMesurement(textFieldMeasuredY, Axis.Y, labelEstimatedStepsY);
-            updateEstimationFromMesurement(textFieldMeasuredZ, Axis.Z, labelEstimatedStepsZ);
+            Position workPositionInMillimeters = getWorkPositionInMillimeters();
+            updateEstimationFromMesurement(textFieldMeasuredX, Axis.X, labelEstimatedStepsX, workPositionInMillimeters);
+            updateEstimationFromMesurement(textFieldMeasuredY, Axis.Y, labelEstimatedStepsY, workPositionInMillimeters);
+            updateEstimationFromMesurement(textFieldMeasuredZ, Axis.Z, labelEstimatedStepsZ, workPositionInMillimeters);
         }
     }
 

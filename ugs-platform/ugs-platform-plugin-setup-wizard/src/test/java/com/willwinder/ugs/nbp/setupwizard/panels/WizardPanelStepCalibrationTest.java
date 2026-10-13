@@ -25,13 +25,16 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.ugs.nbp.setupwizard.NavigationButtons;
 import org.junit.Test;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -52,6 +55,8 @@ public class WizardPanelStepCalibrationTest {
         when(controller.getFirmwareSettings()).thenReturn(firmwareSettings);
         when(backend.getWorkPosition()).thenReturn(oneInch);
         when(firmwareSettings.getStepsPerMillimeter(Axis.X)).thenReturn(80.0);
+        when(firmwareSettings.isSoftLimitsEnabled()).thenReturn(true);
+        when(firmwareSettings.getSoftLimit(Axis.X)).thenReturn(20.0);
 
         WizardPanelStepCalibration panel = new WizardPanelStepCalibration(backend);
         invoke(panel, "updatePosition", new Class<?>[]{Position.class, Position.class}, oneInch, oneInch);
@@ -62,9 +67,15 @@ public class WizardPanelStepCalibrationTest {
         JTextField measurementField = field(panel, "textFieldMeasuredX", JTextField.class);
         measurementField.setText("25.4");
         JLabel estimateLabel = field(panel, "labelEstimatedStepsX", JLabel.class);
-        invoke(panel, "updateEstimationFromMesurement", new Class<?>[]{JTextField.class, Axis.class, JLabel.class}, measurementField, Axis.X, estimateLabel);
+        invoke(panel, "updateMeasurementEstimatesFields", new Class<?>[0]);
 
         assertTrue(estimateLabel.getText(), estimateLabel.getText().startsWith("80 steps/mm"));
+
+        Position machinePosition = new Position(-0.75, 0, 0, UnitUtils.Units.INCH);
+        invoke(panel, "updatePosition", new Class<?>[]{Position.class, Position.class}, oneInch, machinePosition);
+        NavigationButtons navigationButtons = field(panel, "navigationButtons", NavigationButtons.class);
+        JButton negativeXButton = navigationButtons.getButtonXneg();
+        assertFalse("Negative X jog must stop at the 20 mm soft limit", negativeXButton.isEnabled());
     }
 
     private static void invoke(Object target, String name, Class<?>[] parameterTypes, Object... arguments) throws Exception {
