@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.AlarmEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
@@ -257,7 +258,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
             try {
                 DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT_PATTERN, Localization.dfs);
                 double measured = decimalFormat.parse(textFieldMesurement.getText()).doubleValue();
-                double real = getBackend().getWorkPosition().get(axis);
+                double real = getBackend().getWorkPosition().getPositionIn(Units.MM).get(axis);
                 double stepsPerMM = getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(axis);
 
                 double computed = (real / measured) * stepsPerMM;
@@ -320,11 +321,13 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
     private void updatePosition(Position currentPosition, Position machinePosition) {
         DecimalFormat decimalFormat = new DecimalFormat("0.0", Localization.dfs);
-        labelPositionX.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.X)) + " mm", 8, ' '));
-        labelPositionY.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.Y)) + " mm", 8, ' '));
-        labelPositionZ.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.Z)) + " mm", 8, ' '));
+        Position currentPositionInMillimeters = currentPosition.getPositionIn(Units.MM);
+        Position machinePositionInMillimeters = machinePosition.getPositionIn(Units.MM);
+        labelPositionX.setText(StringUtils.leftPad(decimalFormat.format(currentPositionInMillimeters.get(Axis.X)) + " mm", 8, ' '));
+        labelPositionY.setText(StringUtils.leftPad(decimalFormat.format(currentPositionInMillimeters.get(Axis.Y)) + " mm", 8, ' '));
+        labelPositionZ.setText(StringUtils.leftPad(decimalFormat.format(currentPositionInMillimeters.get(Axis.Z)) + " mm", 8, ' '));
         updateMeasurementEstimatesFields();
-        navigationButtons.refresh(machinePosition);
+        navigationButtons.refresh(machinePositionInMillimeters);
     }
 
     /**
