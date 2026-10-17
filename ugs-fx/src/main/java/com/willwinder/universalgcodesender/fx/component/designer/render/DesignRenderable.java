@@ -140,9 +140,9 @@ public final class DesignRenderable implements Renderable {
             Platform.runLater(this::invalidate);
         }
     };
-    private final SelectionListener selectionListener = event -> Platform.runLater(this::requestRender);
+    private final SelectionListener selectionListener = _ -> Platform.runLater(this::requestRender);
     private final SettingsListener settingsListener = () -> Platform.runLater(this::invalidate);
-    private final ChangeListener<Object> redrawListener = (observable, oldValue, newValue) -> requestRender();
+    private final ChangeListener<Object> redrawListener = (_, _, _) -> requestRender();
     private final WorkspaceManager.WorkspaceListener workspaceListener = new WorkspaceManager.WorkspaceListener() {
         @Override
         public void onWorkspaceOpened(WorkspaceContext workspace) {
@@ -359,7 +359,7 @@ public final class DesignRenderable implements Renderable {
      */
     private void appendTabs(LineMeshBuilder builder, Cuttable cuttable) {
         Shape tabShape = TabShapes.create(cuttable, controller.getSettings());
-        if (tabShape == null || tabShape.getPathIterator(null).isDone()) {
+        if (tabShape.getPathIterator(null).isDone()) {
             return;
         }
         float[] segments = DesignTessellator.outline(tabShape, Colors.ORANGE);
@@ -379,7 +379,11 @@ public final class DesignRenderable implements Renderable {
                 .build();
     }
 
-    private static float[] surfacingArrows(Rectangle2D bounds, Cuttable cuttable) {
+    /**
+     * Arrows showing which way the surfacing passes run. The first segment of each arrow is the
+     * shaft, from tail to tip.
+     */
+    static float[] surfacingArrows(Rectangle2D bounds, Cuttable cuttable) {
         LineMeshBuilder builder = new LineMeshBuilder(6);
         double angle = cuttable.getToolPathDirection() == ToolPathDirection.VERTICAL ? 90 : 0;
         double length = Math.min(bounds.getWidth(), bounds.getHeight());
@@ -391,7 +395,9 @@ public final class DesignRenderable implements Renderable {
     }
 
     private static void appendArrow(LineMeshBuilder builder, double centerX, double centerY, double angleDegrees, double length) {
-        double angle = Math.toRadians(angleDegrees);
+        // The tool path angle is measured clockwise, like in GeometryUtils.generateLineString which
+        // lays out the actual passes, so a vertical pass runs towards negative Y.
+        double angle = Math.toRadians(-angleDegrees);
         double half = length / 2;
         double headSize = length * 0.2;
         double tipX = centerX + Math.cos(angle) * half;
