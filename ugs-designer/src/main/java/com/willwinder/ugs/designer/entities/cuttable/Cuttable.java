@@ -261,6 +261,21 @@ public interface Cuttable extends Entity {
     double getStockToLeave();
 
     /**
+     * Sets the direction that the finishing pass travels in, which may differ from the direction
+     * of the roughing passes to leave a cleaner surface.
+     *
+     * @param finishingPassDirection the direction the finishing pass should move
+     */
+    void setFinishingPassDirection(ToolPathDirection finishingPassDirection);
+
+    /**
+     * Returns the direction that the finishing pass travels in.
+     *
+     * @return the finishing pass direction
+     */
+    ToolPathDirection getFinishingPassDirection();
+
+    /**
      * Sets how far apart the lines filling a shape should be. Values that are too small to draw
      * are raised to the smallest spacing that still moves the tool path forward.
      *

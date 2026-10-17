@@ -84,6 +84,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     private JCheckBox roughingCheckBox;
     private JCheckBox finishingPassCheckBox;
     private UnitSpinner stockToLeaveSpinner;
+    private ToolPathDirectionCombo finishingPassDirectionCombo;
     private JCheckBox tabsCheckBox;
     private JSlider tabCountSlider;
 
@@ -121,6 +122,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         finishingPassCheckBox = new JCheckBox();
         finishingPassCheckBox.setSelected(false);
         stockToLeaveSpinner = new UnitSpinner(Cuttable.DEFAULT_STOCK_TO_LEAVE, Unit.MM, 0d, 10000d, 0.1d);
+        finishingPassDirectionCombo = new ToolPathDirectionCombo();
         lineSpacingSpinner = new UnitSpinner(Cuttable.DEFAULT_LINE_SPACING, Unit.MM, 0.01d, 10000d, 0.1d);
 
         tabsCheckBox = new JCheckBox();
@@ -156,6 +158,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         addLabeledComponent(EntitySetting.ROUGHING, "Roughing", roughingCheckBox);
         addLabeledComponent(EntitySetting.FINISHING_PASS, "Finishing Pass", finishingPassCheckBox);
         addLabeledComponent(EntitySetting.STOCK_TO_LEAVE, "Stock to Leave", stockToLeaveSpinner);
+        addLabeledComponent(EntitySetting.FINISHING_PASS_DIRECTION, "Finishing Pass Direction", finishingPassDirectionCombo);
         addLabeledComponent(EntitySetting.TABS, "Tabs", tabsCheckBox);
         addLabeledSlider(EntitySetting.TAB_COUNT, "Number of Tabs", tabCountSlider);
         addLabeledComponent(EntitySetting.INCLUDE_IN_EXPORT, "Include in Export", includeInExport);
@@ -176,40 +179,41 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     }
 
     private void setupListeners() {
-        cutTypeComboBox.addActionListener(e -> {
+        cutTypeComboBox.addActionListener(_ -> {
             firePropertyChange(EntitySetting.CUT_TYPE, cutTypeComboBox.getSelectedItem());
             // Update layout when cut type changes
             setEnabled(isEnabled());
         });
-        startDepthSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.START_DEPTH, startDepthSpinner.getValue()));
-        targetDepthSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.TARGET_DEPTH, targetDepthSpinner.getValue()));
-        spindleSpeedSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.SPINDLE_SPEED, (int) (((Double)spindleSpeedSpinner.getValue()) * 100)));
-        feedRateSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.FEED_RATE, ((Double)feedRateSpinner.getValue()).intValue()));
-        passesSlider.addChangeListener(e -> firePropertyChange(EntitySetting.PASSES, passesSlider.getValue()));
-        leadInPercentSlider.addChangeListener(e -> firePropertyChange(EntitySetting.LEAD_IN_PERCENT, leadInPercentSlider.getValue()));
-        toolPathAngleSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_ANGLE, toolPathAngleSpinner.getValue()));
-        includeInExport.addActionListener(e -> firePropertyChange(EntitySetting.INCLUDE_IN_EXPORT, includeInExport.isSelected()));
-        roughingCheckBox.addActionListener(e -> {
+        startDepthSpinner.addChangeListener(_ -> firePropertyChange(EntitySetting.START_DEPTH, startDepthSpinner.getValue()));
+        targetDepthSpinner.addChangeListener(_ -> firePropertyChange(EntitySetting.TARGET_DEPTH, targetDepthSpinner.getValue()));
+        spindleSpeedSpinner.addChangeListener(_ -> firePropertyChange(EntitySetting.SPINDLE_SPEED, (int) (((Double)spindleSpeedSpinner.getValue()) * 100)));
+        feedRateSpinner.addChangeListener(_ -> firePropertyChange(EntitySetting.FEED_RATE, ((Double)feedRateSpinner.getValue()).intValue()));
+        passesSlider.addChangeListener(_ -> firePropertyChange(EntitySetting.PASSES, passesSlider.getValue()));
+        leadInPercentSlider.addChangeListener(_ -> firePropertyChange(EntitySetting.LEAD_IN_PERCENT, leadInPercentSlider.getValue()));
+        toolPathAngleSpinner.addChangeListener(_ -> firePropertyChange(EntitySetting.TOOL_PATH_ANGLE, toolPathAngleSpinner.getValue()));
+        includeInExport.addActionListener(_ -> firePropertyChange(EntitySetting.INCLUDE_IN_EXPORT, includeInExport.isSelected()));
+        roughingCheckBox.addActionListener(_ -> {
             firePropertyChange(EntitySetting.ROUGHING, roughingCheckBox.isSelected());
             // Show or hide the stock to leave setting depending on the roughing state
             setEnabled(isEnabled());
         });
-        finishingPassCheckBox.addActionListener(e -> {
+        finishingPassCheckBox.addActionListener(_ -> {
             firePropertyChange(EntitySetting.FINISHING_PASS, finishingPassCheckBox.isSelected());
             // Show or hide the stock to leave setting depending on the finishing pass state
             setEnabled(isEnabled());
         });
-        stockToLeaveSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.STOCK_TO_LEAVE, stockToLeaveSpinner.getValue()));
-        lineSpacingSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.LINE_SPACING, lineSpacingSpinner.getValue()));
-        tabsCheckBox.addActionListener(e -> {
+        stockToLeaveSpinner.addChangeListener(_ -> firePropertyChange(EntitySetting.STOCK_TO_LEAVE, stockToLeaveSpinner.getValue()));
+        finishingPassDirectionCombo.addActionListener(_ -> firePropertyChange(EntitySetting.FINISHING_PASS_DIRECTION, finishingPassDirectionCombo.getSelectedDirection()));
+        lineSpacingSpinner.addChangeListener(_ -> firePropertyChange(EntitySetting.LINE_SPACING, lineSpacingSpinner.getValue()));
+        tabsCheckBox.addActionListener(_ -> {
             firePropertyChange(EntitySetting.TABS, tabsCheckBox.isSelected());
             // Show or hide the number of tabs depending on whether tabs are used at all
             setEnabled(isEnabled());
         });
-        tabCountSlider.addChangeListener(e -> firePropertyChange(EntitySetting.TAB_COUNT, tabCountSlider.getValue()));
-        directionCombo.addActionListener(e -> firePropertyChange(EntitySetting.DIRECTION, directionCombo.getSelectedDirection()));
-        plungeTypeCombo.addActionListener(e -> firePropertyChange(EntitySetting.PLUNGE_TYPE, plungeTypeCombo.getSelectedPlungeType()));
-        toolPathDirectionCombo.addActionListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_DIRECTION, toolPathDirectionCombo.getSelectedDirection()));
+        tabCountSlider.addChangeListener(_ -> firePropertyChange(EntitySetting.TAB_COUNT, tabCountSlider.getValue()));
+        directionCombo.addActionListener(_ -> firePropertyChange(EntitySetting.DIRECTION, directionCombo.getSelectedDirection()));
+        plungeTypeCombo.addActionListener(_ -> firePropertyChange(EntitySetting.PLUNGE_TYPE, plungeTypeCombo.getSelectedPlungeType()));
+        toolPathDirectionCombo.addActionListener(_ -> firePropertyChange(EntitySetting.TOOL_PATH_DIRECTION, toolPathDirectionCombo.getSelectedDirection()));
     }
 
     private void firePropertyChange(EntitySetting entitySetting, Object newValue) {
@@ -237,6 +241,10 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         // Add only the components that are relevant for the selected cut type
         selectedCutType.getSettings().forEach(setting -> {
             if (setting == EntitySetting.STOCK_TO_LEAVE && !isStockToLeaveVisible(selectedCutType)) {
+                return;
+            }
+
+            if (setting == EntitySetting.FINISHING_PASS_DIRECTION && !finishingPassCheckBox.isSelected()) {
                 return;
             }
 
@@ -319,6 +327,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 roughingCheckBox.setSelected((Boolean) firstCuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.FALSE));
                 finishingPassCheckBox.setSelected(firstCuttable.isFinishingPass());
                 stockToLeaveSpinner.setValue(firstCuttable.getStockToLeave());
+                finishingPassDirectionCombo.setSelectedItem(firstCuttable.getFinishingPassDirection());
                 lineSpacingSpinner.setValue(firstCuttable.getLineSpacing());
                 tabsCheckBox.setSelected(firstCuttable.hasTabs());
                 tabCountSlider.setValue(firstCuttable.getTabCount());
@@ -385,6 +394,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             cuttable.setFinishingPass((Boolean) newValue);
         } else if (EntitySetting.STOCK_TO_LEAVE.equals(setting)) {
             cuttable.setStockToLeave(((Number) newValue).doubleValue());
+        } else if (EntitySetting.FINISHING_PASS_DIRECTION.equals(setting)) {
+            cuttable.setFinishingPassDirection((ToolPathDirection) newValue);
         } else if (EntitySetting.LINE_SPACING.equals(setting)) {
             cuttable.setLineSpacing(((Number) newValue).doubleValue());
         } else if (EntitySetting.TABS.equals(setting)) {

@@ -25,7 +25,6 @@ import javax.swing.ImageIcon;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.util.Objects;
 
 public class ToolPathDirectionIcon extends ImageIcon {
     private final ImageIcon icon;
@@ -43,13 +42,17 @@ public class ToolPathDirectionIcon extends ImageIcon {
     }
 
     public ToolPathDirectionIcon(ToolPathDirection direction, Size size) {
-        if (Objects.requireNonNull(direction) == ToolPathDirection.VERTICAL) {
-            icon = SvgIconLoader.loadImageIcon("img/vertical.svg", size.value).orElse(null);
-            setDescription(direction.getLabel());
-        } else {
-            icon = SvgIconLoader.loadImageIcon("img/horizontal.svg", size.value).orElse(null);
-            setDescription(direction.getLabel());
-        }
+        icon = SvgIconLoader.loadImageIcon(resource(direction), size.value).orElse(null);
+        setDescription(direction.getLabel());
+    }
+
+    private static String resource(ToolPathDirection direction) {
+        return switch (direction) {
+            case LEFT_RIGHT -> "img/arrow-right.svg";
+            case RIGHT_LEFT -> "img/arrow-left.svg";
+            case TOP_BOTTOM -> "img/arrow-down.svg";
+            case BOTTOM_TOP -> "img/arrow-up.svg";
+        };
     }
 
     @Override

@@ -34,9 +34,9 @@ public class DesignRenderableTest {
     private static final int FLOATS_PER_VERTEX = VertexLayout.LINE.floatsPerVertex();
 
     @Test
-    public void surfacingArrows_shouldPointTowardsNegativeYForVerticalPasses() {
+    public void surfacingArrows_shouldPointTowardsNegativeYForTopToBottomPasses() {
         Rectangle2D bounds = new Rectangle2D.Double(0, 0, 10, 20);
-        Rectangle rectangle = surfaceRectangle(ToolPathDirection.VERTICAL, Direction.CLIMB);
+        Rectangle rectangle = surfaceRectangle(ToolPathDirection.TOP_BOTTOM, Direction.CLIMB);
 
         float[] vertices = DesignRenderable.surfacingArrows(bounds, rectangle);
 
@@ -45,9 +45,9 @@ public class DesignRenderableTest {
     }
 
     @Test
-    public void surfacingArrows_shouldPointTowardsPositiveXForHorizontalPasses() {
+    public void surfacingArrows_shouldPointTowardsPositiveXForLeftToRightPasses() {
         Rectangle2D bounds = new Rectangle2D.Double(0, 0, 10, 20);
-        Rectangle rectangle = surfaceRectangle(ToolPathDirection.HORIZONTAL, Direction.CLIMB);
+        Rectangle rectangle = surfaceRectangle(ToolPathDirection.LEFT_RIGHT, Direction.CLIMB);
 
         float[] vertices = DesignRenderable.surfacingArrows(bounds, rectangle);
 
@@ -56,9 +56,31 @@ public class DesignRenderableTest {
     }
 
     @Test
+    public void surfacingArrows_shouldPointTowardsNegativeXForRightToLeftPasses() {
+        Rectangle2D bounds = new Rectangle2D.Double(0, 0, 10, 20);
+        Rectangle rectangle = surfaceRectangle(ToolPathDirection.RIGHT_LEFT, Direction.CLIMB);
+
+        float[] vertices = DesignRenderable.surfacingArrows(bounds, rectangle);
+
+        assertThat(shaftTipX(vertices)).isLessThan(shaftTailX(vertices));
+        assertThat(shaftTipY(vertices)).isCloseTo(shaftTailY(vertices), within(1e-6f));
+    }
+
+    @Test
+    public void surfacingArrows_shouldPointTowardsPositiveYForBottomToTopPasses() {
+        Rectangle2D bounds = new Rectangle2D.Double(0, 0, 10, 20);
+        Rectangle rectangle = surfaceRectangle(ToolPathDirection.BOTTOM_TOP, Direction.CLIMB);
+
+        float[] vertices = DesignRenderable.surfacingArrows(bounds, rectangle);
+
+        assertThat(shaftTipY(vertices)).isGreaterThan(shaftTailY(vertices));
+        assertThat(shaftTipX(vertices)).isCloseTo(shaftTailX(vertices), within(1e-6f));
+    }
+
+    @Test
     public void surfacingArrows_shouldDrawTwoArrowsWhenCuttingInBothDirections() {
         Rectangle2D bounds = new Rectangle2D.Double(0, 0, 10, 20);
-        Rectangle rectangle = surfaceRectangle(ToolPathDirection.HORIZONTAL, Direction.BOTH);
+        Rectangle rectangle = surfaceRectangle(ToolPathDirection.LEFT_RIGHT, Direction.BOTH);
 
         float[] vertices = DesignRenderable.surfacingArrows(bounds, rectangle);
 

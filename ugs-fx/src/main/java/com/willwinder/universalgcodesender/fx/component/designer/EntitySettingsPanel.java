@@ -117,6 +117,7 @@ public class EntitySettingsPanel extends VBox {
             EntitySetting.PLUNGE_TYPE,
             EntitySetting.FINISHING_PASS,
             EntitySetting.STOCK_TO_LEAVE,
+            EntitySetting.FINISHING_PASS_DIRECTION,
             EntitySetting.TABS,
             EntitySetting.TAB_COUNT);
 
@@ -209,6 +210,7 @@ public class EntitySettingsPanel extends VBox {
         }
         if (cuttables.stream().noneMatch(Cuttable::isFinishingPass)) {
             cutSettings.remove(EntitySetting.STOCK_TO_LEAVE);
+            cutSettings.remove(EntitySetting.FINISHING_PASS_DIRECTION);
         }
         VBox cutRows = buildRows(CUT_KEYS, cutSettings, cuttables, labelWidth);
         if (!cutRows.getChildren().isEmpty()) {
@@ -574,6 +576,8 @@ public class EntitySettingsPanel extends VBox {
             case FINISHING_PASS -> rebuildingSwitch(Cuttable::isFinishingPass, Cuttable::setFinishingPass, entities);
             case STOCK_TO_LEAVE ->
                     controls.doubleField(Cuttable::getStockToLeave, Cuttable::setStockToLeave, entities, Unit.MM);
+            case FINISHING_PASS_DIRECTION -> controls.enumCombo(ToolPathDirection.values(), ToolPathDirection::getLabel,
+                    EntitySettingIcons::toolPathDirection, Cuttable::getFinishingPassDirection, Cuttable::setFinishingPassDirection, entities);
             case LINE_SPACING ->
                     controls.doubleField(Cuttable::getLineSpacing, Cuttable::setLineSpacing, entities, Unit.MM);
             case TABS -> rebuildingSwitch(Cuttable::hasTabs, Cuttable::setTabs, entities);
