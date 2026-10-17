@@ -127,7 +127,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         labelInstructions.setVisible(false);
 
         checkboxEnableHardLimits = new JCheckBox("Enable limit switches");
-        checkboxEnableHardLimits.addActionListener(event -> onHardLimitsClicked());
+        checkboxEnableHardLimits.addActionListener(_ -> onHardLimitsClicked());
 
         labelHardLimitsNotSupported = new JLabel("<html><body>" + Localization.getString("platform.plugin.setupwizard.limit-switches.not-available") + "</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), SwingConstants.LEFT);
         labelHardLimitsNotSupported.setVisible(false);
@@ -162,7 +162,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         
         checkboxInvertLimitPins = new JCheckBox(Localization.getString("platform.plugin.setupwizard.limit-switches.invert"));
         checkboxInvertLimitPins.setVisible(false);
-        checkboxInvertLimitPins.addActionListener(event -> {
+        checkboxInvertLimitPins.addActionListener(_ -> {
             if (getBackend().getController() != null) {
                 try {
                     getBackend().getController().getFirmwareSettings().setHardLimitsInverted(checkboxInvertLimitPins.isSelected());
@@ -254,8 +254,9 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                     int yAxisEndstopCount = (firmwareSettings.hasY0() ? 1 : 0) + (firmwareSettings.hasY1() ? 2 : 0);
                     int zAxisEndstopCount = (firmwareSettings.hasZ0() ? 1 : 0) + (firmwareSettings.hasZ1() ? 2 : 0);
                     int maxEndstopCount = Math.max(xAxisEndstopCount,Math.max(yAxisEndstopCount,zAxisEndstopCount));
-                    boolean showSingleEndstopMode = firmwareSettings.isHardLimitsEnabled() && (maxEndstopCount == 1);
-                    boolean showDualEndstopMode = firmwareSettings.isHardLimitsEnabled() && (maxEndstopCount != 1);
+                    boolean hasDualEndstops = maxEndstopCount > 1;
+                    boolean showSingleEndstopMode = firmwareSettings.isHardLimitsEnabled() && !hasDualEndstops;
+                    boolean showDualEndstopMode = firmwareSettings.isHardLimitsEnabled() && hasDualEndstops;
                     
                     labelLimitX.setVisible(showSingleEndstopMode);
                     labelLimitY.setVisible(showSingleEndstopMode);
@@ -266,14 +267,14 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                     labelLimitY0.setVisible(showDualEndstopMode && (firmwareSettings.hasY0()) );
                     pnlY0Spacer.setVisible(showDualEndstopMode && (!firmwareSettings.hasY0()));                    
                     labelLimitZ0.setVisible(showDualEndstopMode && (firmwareSettings.hasZ0()));
-                    pnlZ0Spacer.setVisible(showDualEndstopMode && (firmwareSettings.hasZ0()));
+                    pnlZ0Spacer.setVisible(showDualEndstopMode && (!firmwareSettings.hasZ0()));
                     
                     labelLimitX1.setVisible(showDualEndstopMode && (firmwareSettings.hasX1()));
                     pnlX1Spacer.setVisible(showDualEndstopMode && (!firmwareSettings.hasX1()));   
                     labelLimitY1.setVisible(showDualEndstopMode && (firmwareSettings.hasY1()) );
                     pnlY1Spacer.setVisible(showDualEndstopMode && (!firmwareSettings.hasY1()));                      
                     labelLimitZ1.setVisible(showDualEndstopMode && (firmwareSettings.hasZ1()));
-                    pnlZ1Spacer.setVisible(showDualEndstopMode && (firmwareSettings.hasZ1()));
+                    pnlZ1Spacer.setVisible(showDualEndstopMode && (!firmwareSettings.hasZ1()));
                     
                     labelHardLimitsNotSupported.setVisible(false);
                 } else {
@@ -289,6 +290,12 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                     labelLimitX1.setVisible(false);
                     labelLimitY1.setVisible(false);
                     labelLimitZ1.setVisible(false);
+                    pnlX0Spacer.setVisible(false);
+                    pnlY0Spacer.setVisible(false);
+                    pnlZ0Spacer.setVisible(false);
+                    pnlX1Spacer.setVisible(false);
+                    pnlY1Spacer.setVisible(false);
+                    pnlZ1Spacer.setVisible(false);
                     
                     labelHardLimitsNotSupported.setVisible(true);
                 }
