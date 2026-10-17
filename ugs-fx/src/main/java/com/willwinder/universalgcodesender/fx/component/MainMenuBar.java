@@ -26,6 +26,9 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -38,12 +41,16 @@ import java.util.stream.Collectors;
  * the items are ordered by their menu order; the top level menus themselves are ordered by the
  * lowest menu order found in each category.
  *
- * <p>On macOS the menu is rendered in the native system menu bar at the top of the screen, on other
- * platforms it is shown in-window at the top.
+ * <p>Categories whose lowest menu order is at or above {@link #RIGHT_ALIGNED_MENU_ORDER} are shown
+ * right-aligned, which is where the help menu lives.
+ *
+ * <p>On macOS the menus are rendered in the native system menu bar at the top of the screen, on
+ * other platforms they are shown in-window at the top.
  */
-public class MainMenuBar extends MenuBar {
+public class MainMenuBar extends HBox {
 
     private static final int ICON_SIZE = 16;
+    private static final int RIGHT_ALIGNED_MENU_ORDER = 1000;
 
     /**
      * Items are grouped into visually separated sections by the hundreds digit of their menu
@@ -52,28 +59,46 @@ public class MainMenuBar extends MenuBar {
     private static final int MENU_SECTION_SIZE = 100;
 
     public MainMenuBar() {
-        setUseSystemMenuBar(true);
         build();
     }
 
     private void build() {
-        Map<String, List<Action>> actionsByCategory = ActionRegistry.getInstance().getActions().stream()
+        Map<Boolean, List<Menu>> menusByAlignment = ActionRegistry.getInstance().getActions().stream()
                 .filter(Action::isMenuVisible)
                 .filter(action -> action.getCategory() != null && !action.getCategory().isBlank())
-                .collect(Collectors.groupingBy(Action::getCategory));
-
-        actionsByCategory.entrySet().stream()
+                .collect(Collectors.groupingBy(Action::getCategory))
+                .entrySet().stream()
                 .sorted(Comparator
                         .comparingInt((Map.Entry<String, List<Action>> entry) -> lowestOrder(entry.getValue()))
                         .thenComparing(Map.Entry::getKey))
-                .map(entry -> createMenu(entry.getKey(), entry.getValue()))
-                .forEach(getMenus()::add);
+                .collect(Collectors.partitioningBy(
+                        entry -> lowestOrder(entry.getValue()) >= RIGHT_ALIGNED_MENU_ORDER,
+                        Collectors.mapping(entry -> createMenu(entry.getKey(), entry.getValue()), Collectors.toList())));
+
+        List<Menu> leftMenus = menusByAlignment.get(false);
+        List<Menu> rightMenus = menusByAlignment.get(true);
+
+        // Only a single menu bar per stage may use the system menu bar, so on macOS all menus go
+        // into the same bar. There is no right alignment in the native menu bar anyway.
+        MenuBar leftMenuBar = new MenuBar();
+        leftMenuBar.setUseSystemMenuBar(true);
+        leftMenuBar.getMenus().addAll(leftMenus);
+        leftMenuBar.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(leftMenuBar, Priority.ALWAYS);
+        getChildren().add(leftMenuBar);
+
+        if (SystemUtils.IS_OS_MAC) {
+            leftMenuBar.getMenus().addAll(rightMenus);
+        } else if (!rightMenus.isEmpty()) {
+            MenuBar rightMenuBar = new MenuBar();
+            rightMenuBar.getMenus().addAll(rightMenus);
+            getChildren().add(rightMenuBar);
+        }
     }
 
     private int lowestOrder(List<Action> actions) {
         return actions.stream().mapToInt(Action::getMenuOrder).min().orElse(Integer.MAX_VALUE);
     }
-
     private Menu createMenu(String category, List<Action> actions) {
         Menu menu = new Menu(category);
         List<Action> sortedActions = actions.stream()
@@ -97,11 +122,11 @@ public class MainMenuBar extends MenuBar {
         menuItem.textProperty().bind(action.titleProperty());
         menuItem.disableProperty().bind(action.enabledProperty().not());
         setIcon(menuItem, action.getIcon());
-        action.iconProperty().addListener((observable, oldValue, newValue) -> setIcon(menuItem, newValue));
+        action.iconProperty().addListener((_, _, newValue) -> setIcon(menuItem, newValue));
 
         // Use the menu bar as the event source so actions that resolve the owning window from the
         // event (open, save, settings) keep working when triggered from the menu.
-        menuItem.setOnAction(event -> action.handle(new ActionEvent(this, null)));
+        menuItem.setOnAction(_ -> action.handle(new ActionEvent(this, null)));
         return menuItem;
     }
 

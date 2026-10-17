@@ -23,7 +23,10 @@ import com.willwinder.universalgcodesender.fx.model.WorkspaceBounds;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -38,6 +41,7 @@ public class VisualizerService {
     private final ObservableList<Renderable> renderables = FXCollections.observableArrayList();
     private volatile Consumer<WorkspaceBounds> centerOnBoundsHandler;
     private final BooleanProperty toolpathLoading = new SimpleBooleanProperty(false);
+    private final StringProperty rendererDescription = new SimpleStringProperty("");
 
     public static VisualizerService getInstance() {
         return INSTANCE;
@@ -56,6 +60,23 @@ public class VisualizerService {
             toolpathLoading.set(loading);
         } else {
             Platform.runLater(() -> toolpathLoading.set(loading));
+        }
+    }
+
+    /**
+     * Describes the graphics device and settings the visualizer renders with, for example
+     * {@code "NVIDIA GeForce RTX 3060 (Vulkan, 4x MSAA)"}. Empty until a visualizer has been
+     * created, and holds the failure reason if the renderer could not be initialized.
+     */
+    public ReadOnlyStringProperty rendererDescriptionProperty() {
+        return rendererDescription;
+    }
+
+    public void setRendererDescription(String description) {
+        if (Platform.isFxApplicationThread()) {
+            rendererDescription.set(description);
+        } else {
+            Platform.runLater(() -> rendererDescription.set(description));
         }
     }
 

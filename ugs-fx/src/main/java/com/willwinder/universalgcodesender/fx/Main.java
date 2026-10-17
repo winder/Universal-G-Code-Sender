@@ -33,6 +33,7 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.VisualizerPan
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.FxBackend;
 import com.willwinder.universalgcodesender.fx.service.FxEventDispatcher;
+import com.willwinder.universalgcodesender.fx.service.InMemoryLogHandler;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.BrowserHelper;
@@ -82,6 +83,7 @@ public class Main extends Application {
 
     @Override
     public void init() throws Exception {
+        InMemoryLogHandler.install();
         LookupService.initialize(new FxBackend(new FxEventDispatcher()));
         LookupService.register(new WorkspaceFileLoader());
 
@@ -177,10 +179,10 @@ public class Main extends Application {
     }
 
     private void registerWindowBoundsListeners(Stage primaryStage) {
-        primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowWidthProperty().set(newValue.doubleValue()));
-        primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowHeightProperty().set(newValue.doubleValue()));
-        primaryStage.xProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionXProperty().set(newValue.doubleValue()));
-        primaryStage.yProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionYProperty().set(newValue.doubleValue()));
+        primaryStage.widthProperty().addListener((_, _, newValue) -> Settings.getInstance().windowWidthProperty().set(newValue.doubleValue()));
+        primaryStage.heightProperty().addListener((_, _, newValue) -> Settings.getInstance().windowHeightProperty().set(newValue.doubleValue()));
+        primaryStage.xProperty().addListener((_, _, newValue) -> Settings.getInstance().windowPositionXProperty().set(newValue.doubleValue()));
+        primaryStage.yProperty().addListener((_, _, newValue) -> Settings.getInstance().windowPositionYProperty().set(newValue.doubleValue()));
     }
 
     // Applied before the window is shown so the scene is laid out at its final size from the
@@ -194,7 +196,7 @@ public class Main extends Application {
     }
 
     private void registerListeners(Stage primaryStage) {
-        primaryStage.setOnShown(event -> {
+        primaryStage.setOnShown(_ -> {
             primaryStage.setX(Settings.getInstance().windowPositionXProperty().get());
             primaryStage.setY(Settings.getInstance().windowPositionYProperty().get());
             registerWindowBoundsListeners(primaryStage);
@@ -205,7 +207,7 @@ public class Main extends Application {
             });
         });
 
-        primaryStage.setOnCloseRequest(event -> {
+        primaryStage.setOnCloseRequest(_ -> {
             if (visualizerPane != null) {
                 visualizerPane.dispose();
             }
