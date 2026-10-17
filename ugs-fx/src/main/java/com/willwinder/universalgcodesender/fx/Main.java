@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.fx.component.MainMenuBar;
 import com.willwinder.universalgcodesender.fx.component.ToolBarMenu;
 import com.willwinder.universalgcodesender.fx.component.WorkspaceTools;
 import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
+import com.willwinder.universalgcodesender.fx.component.drawer.TerminalDrawer;
 import com.willwinder.universalgcodesender.fx.component.sidepane.CollapsibleSidePane;
 import com.willwinder.universalgcodesender.fx.component.sidepane.SidePane;
 import com.willwinder.universalgcodesender.fx.component.sidepane.SidePaneAlignment;
@@ -40,10 +41,12 @@ import com.willwinder.universalgcodesender.fx.helper.BrowserHelper;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
+import com.willwinder.universalgcodesender.fx.service.ControllerErrorNotifier;
 import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
 import com.willwinder.universalgcodesender.fx.interceptor.InterceptorDialogService;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
 import com.willwinder.universalgcodesender.fx.service.ShortcutService;
+import com.willwinder.universalgcodesender.fx.service.ToastService;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceFileLoader;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
@@ -78,6 +81,7 @@ public class Main extends Application {
     private SplitPane contentSplitPane;
     private StackPane contentPanel;
     private VisualizerPane visualizerPane;
+    private DrawerPane drawerPane;
     private CollapsibleSidePane leftSidePane;
     private CollapsibleSidePane rightSidePane;
 
@@ -130,7 +134,7 @@ public class Main extends Application {
         VBox.setVgrow(workArea, Priority.ALWAYS);
 
         VBox root = new VBox();
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(new StackPane(root, ToastService.getInstance().getToastPane()));
 
         ShortcutService.registerListener(scene);
         FontRegistry.registerFonts();
@@ -176,6 +180,7 @@ public class Main extends Application {
     private void registerInterceptorDialogs(Stage primaryStage) {
         BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(new InterceptorDialogService(backend, primaryStage));
+        ControllerErrorNotifier.register(backend, () -> drawerPane.open(TerminalDrawer.class));
     }
 
     private void registerWindowBoundsListeners(Stage primaryStage) {
@@ -222,7 +227,7 @@ public class Main extends Application {
         visualizerPane = new VisualizerPane();
         contentPanel.getChildren().add(visualizerPane);
 
-        DrawerPane drawerPane = new DrawerPane();
+        drawerPane = new DrawerPane();
         contentPanel.getChildren().add(drawerPane);
         StackPane.setAlignment(drawerPane, Pos.BOTTOM_RIGHT);
     }

@@ -245,7 +245,7 @@ public class GrblHalController extends AbstractController {
         } else {
             String message = String.format(Localization.getString("controller.exception.unexpectedError"),
                     codes.lookupCode(response)).replaceAll("\\.\\.", ".");
-            dispatchConsoleMessage(MessageType.INFO, message + "\n");
+            dispatchConsoleMessage(MessageType.ERROR, message + "\n");
         }
         checkStreamFinished();
     }

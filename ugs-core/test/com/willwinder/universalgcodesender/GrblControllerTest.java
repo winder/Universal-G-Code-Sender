@@ -256,7 +256,7 @@ public class GrblControllerTest {
         instance.issueSoftReset();
         assertEquals(1, mgc.numCancelSendCalls);
         assertEquals(1, mgc.sentBytes.size());
-        assertEquals(Byte.valueOf(GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size() - 1));
+        assertEquals(Byte.valueOf(GRBL_RESET_COMMAND), mgc.sentBytes.getLast());
         verify(initializer, times(0)).reset();
         verify(initializer, times(0)).initialize();
     }
@@ -486,7 +486,7 @@ public class GrblControllerTest {
         instance.pauseStreaming();
 
         assertEquals(1,  mgc.sentBytes.size());
-        assertEquals(Byte.valueOf(GRBL_PAUSE_COMMAND), mgc.sentBytes.get(0));
+        assertEquals(Byte.valueOf(GRBL_PAUSE_COMMAND), mgc.sentBytes.getFirst());
         assertEquals(1, mgc.numPauseSendCalls);
     }
     @Test
@@ -520,7 +520,7 @@ public class GrblControllerTest {
         GrblController instance  = initializeAndConnectController(VERSION_GRBL_0_8C);
         instance.resumeStreaming();
         assertEquals(1, mgc.numResumeSendCalls);
-        assertEquals(Byte.valueOf(GRBL_RESUME_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size() - 1));
+        assertEquals(Byte.valueOf(GRBL_RESUME_COMMAND), mgc.sentBytes.getLast());
     }
 
     private static void wrapUp(GrblController gc) throws UnexpectedCommand {
@@ -680,7 +680,7 @@ public class GrblControllerTest {
         assertEquals(0, instance.rowsRemaining());
         assertEquals(2, mgc.numCancelSendCalls);
         assertEquals(1, mgc.numPauseSendCalls);
-        assertEquals(Byte.valueOf(GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size() - 1));
+        assertEquals(Byte.valueOf(GRBL_RESET_COMMAND), mgc.sentBytes.getLast());
         instance.resumeStreaming();
     }
 
@@ -1069,7 +1069,7 @@ public class GrblControllerTest {
 
         // Then
         String genericErrorMessage = "An unexpected error was detected: (error:1) G-code words consist of a letter and a value. Letter was not found.\n";
-        verify(messageService, times(1)).dispatchMessage(MessageType.INFO, genericErrorMessage);
+        verify(messageService, times(1)).dispatchMessage(MessageType.ERROR, genericErrorMessage);
         verify(messageService, times(1)).dispatchMessage(any(), anyString());
 
         assertFalse(instance.getActiveCommand().isPresent());
@@ -1359,7 +1359,7 @@ public class GrblControllerTest {
         File f = new File(tempDir, "beginStreamingShouldQueueTheCommandsInTheStream");
         try {
             try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
-                commands.forEach(c -> gsw.addLine("blah", command, null, -1));
+                commands.forEach(_ -> gsw.addLine("blah", command, null, -1));
             }
 
             reset(mgc);

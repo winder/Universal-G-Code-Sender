@@ -248,13 +248,13 @@ public class FluidNCControllerTest {
         inOrder.verifyNoMoreInteractions();
 
         messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "> G0 X1\n");
-        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.ERROR, "An error was detected while sending 'G0 X1': error:20. Streaming has been paused.\n");
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.ERROR, "An error was detected while sending 'G0 X1': (error:20) Unsupported or invalid g-code command found in block. Streaming has been paused.\n");
         messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.VERBOSE, "<Idle>\n");
         messagesInOrder.verifyNoMoreInteractions();
     }
 
     @Test
-    public void rawResponseListenerShouldNotReportErrorOnCommandIfOnlyOneActiveCommands() throws IOException, InterruptedException {
+    public void rawResponseListenerShouldReportErrorWithoutPausedStreamIfOnlyOneActiveCommand() throws IOException, InterruptedException {
         ControllerListener listener = mock(ControllerListener.class);
         InOrder messagesInOrder = inOrder(messageService);
         InOrder inOrder = inOrder(listener);
@@ -282,7 +282,7 @@ public class FluidNCControllerTest {
         inOrder.verifyNoMoreInteractions();
 
         messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "> G0 X1\n");
-        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "error:20\n");
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.ERROR, "An error was detected while sending 'G0 X1': (error:20) Unsupported or invalid g-code command found in block.\n");
         messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.VERBOSE, "<Idle>\n");
         messagesInOrder.verifyNoMoreInteractions();
     }
@@ -356,7 +356,7 @@ public class FluidNCControllerTest {
     }
 
     @Test
-    public void communicatorPausedOnError_shouldPauseStreamWhenControllerIsRunning() throws Exception {
+    public void communicatorPausedOnError_shouldPauseStreamWhenControllerIsRunning() {
         target.queueStream(new SimpleGcodeStreamReader("G0 X1", "G0 X0"));
         target.beginStreaming();
 

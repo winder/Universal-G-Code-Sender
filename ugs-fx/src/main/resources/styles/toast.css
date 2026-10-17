@@ -1,0 +1,21 @@
+@import "root.css";
+
+.toast-pane {
+    -fx-padding: 0 0 20 0;
+    -fx-spacing: 8;
+}
+
+.toast {
+    -fx-background-color: -ugs-blackish-color;
+    -fx-text-fill: white;
+    -fx-font-size: 1.2em;
+    -fx-padding: 10 16 10 16;
+    -fx-background-radius: 8;
+    -fx-graphic-text-gap: 10;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 12, 0.4, 0, 2);
+}
+
+.toast-error {
+    -fx-background-color: #c62828;
+}
