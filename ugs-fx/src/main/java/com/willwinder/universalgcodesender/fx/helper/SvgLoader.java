@@ -23,6 +23,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.Optional;
 
 public class SvgLoader {
@@ -43,7 +44,7 @@ public class SvgLoader {
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-        svgDocument.renderWithPlatform(new NullPlatformSupport(), g2d, new ViewBox(0, 0, size, size));
+        Objects.requireNonNull(svgDocument).renderWithPlatform(NullPlatformSupport.INSTANCE, g2d, new ViewBox(0, 0, size, size));
         g2d.dispose();
 
 
@@ -56,21 +57,23 @@ public class SvgLoader {
 
 
     public static Optional<ImageView> loadImageIcon(String icon, int size, Color color) {
-        return loadIcon(icon, size).map(i -> {
-            ImageView imageView = new ImageView(i);
+        return loadIcon(icon, size).map(i -> tinted(i, color));
+    }
 
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setBrightness(1.0);  // Make black white
+    public static ImageView tinted(Image image, Color color) {
+        ImageView imageView = new ImageView(image);
 
-            Blend blend = new Blend(
-                    BlendMode.SRC_ATOP,
-                    colorAdjust,
-                    new ColorInput(0, 0, i.getWidth(), i.getHeight(), color)
-            );
+        ColorAdjust colorAdjust = new ColorAdjust();
+        colorAdjust.setBrightness(1.0);  // Make black white
 
-            imageView.setEffect(blend);
-            return imageView;
-        });
+        Blend blend = new Blend(
+                BlendMode.SRC_ATOP,
+                colorAdjust,
+                new ColorInput(0, 0, image.getWidth(), image.getHeight(), color)
+        );
+
+        imageView.setEffect(blend);
+        return imageView;
     }
 
     public static Optional<SVGDocument> loadSvgResource(String icon) {

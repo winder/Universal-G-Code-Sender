@@ -48,7 +48,7 @@ public enum EntitySetting {
     TOOL_PATH_ANGLE("Tool path angle"),
     LINE_SPACING("Line spacing"),
     TOOL_PATH_DIRECTION("Tool path direction"),
-    DIRECTION("Tool path direction"),
+    DIRECTION("Cut direction"),
     PLUNGE_TYPE("Plunge type"),
     CORNER_RADIUS("Corner radius"),
     RASTER_INVERT("Invert"),

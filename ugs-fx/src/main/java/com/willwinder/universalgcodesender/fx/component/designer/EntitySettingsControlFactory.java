@@ -28,13 +28,16 @@ import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitValue;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.util.StringConverter;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -96,16 +99,23 @@ class EntitySettingsControlFactory {
         for (int i = 1; i < entities.size(); i++) {
             available.retainAll(entities.get(i).getAvailableCutTypes());
         }
-        return enumCombo(available.toArray(new CutType[0]), CutType::getName,
+        return enumCombo(available.toArray(new CutType[0]), CutType::getName, EntitySettingIcons::cutType,
                 Cuttable::getCutType, Cuttable::setCutType, entities);
     }
 
+    /**
+     * @param iconFn the icon shown in front of each value's label, both in the list and for the
+     *               selected value
+     */
     <E> ComboBox<E> enumCombo(E[] values,
                               Function<E, String> labelFn,
+                              Function<E, Optional<ImageView>> iconFn,
                               Function<Cuttable, E> getter,
                               BiConsumer<Cuttable, E> setter,
                               List<Cuttable> entities) {
         ComboBox<E> combo = new ComboBox<>(FXCollections.observableArrayList(values));
+        combo.setCellFactory(_ -> iconCell(labelFn, iconFn));
+        combo.setButtonCell(iconCell(labelFn, iconFn));
         boolean mixed = entities.stream().map(getter).distinct().count() > 1;
         combo.setValue(mixed ? null : getter.apply(entities.getFirst()));
         combo.setPromptText(mixed ? MIXED_VALUE_PROMPT : "");
@@ -120,12 +130,28 @@ class EntitySettingsControlFactory {
                 return null;
             }
         });
-        combo.valueProperty().addListener((obs, oldVal, newVal) -> {
+        combo.valueProperty().addListener((_, oldVal, newVal) -> {
             if (newVal != null && newVal != oldVal) {
                 applyToAll(entities, e -> setter.accept(e, newVal));
             }
         });
         return combo;
+    }
+
+    private static <E> ListCell<E> iconCell(Function<E, String> labelFn, Function<E, Optional<ImageView>> iconFn) {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(E value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(labelFn.apply(value));
+                setGraphic(iconFn.apply(value).orElse(null));
+            }
+        };
     }
 
     SwitchButton switchControl(Function<Cuttable, Boolean> getter,
@@ -135,7 +161,7 @@ class EntitySettingsControlFactory {
         boolean mixed = entities.stream().map(getter).distinct().count() > 1;
         // SwitchButton has no tri-state; show as off when mixed.
         sw.selectedProperty().set(!mixed && getter.apply(entities.getFirst()));
-        sw.selectedProperty().addListener((obs, oldVal, newVal) ->
+        sw.selectedProperty().addListener((_, _, newVal) ->
                 applyToAll(entities, e -> setter.accept(e, newVal)));
         return sw;
     }
@@ -162,12 +188,12 @@ class EntitySettingsControlFactory {
         Map<T, Double> originalValues = new HashMap<>();
 
         // Live preview: push every valid value straight to the entities (no undo entry yet).
-        field.unitValueProperty().addListener((obs, oldVal, newVal) -> {
+        field.unitValueProperty().addListener((_, _, newVal) -> {
             if (guard.isActive() || newVal == null) return;
             applyToAll(entities, e -> setter.set(e, newVal.value().doubleValue()));
         });
 
-        field.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+        field.focusedProperty().addListener((_, _, isFocused) -> {
             if (Boolean.TRUE.equals(isFocused)) {
                 captureOriginalValues(getter, entities, originalValues);
             } else {
@@ -176,7 +202,7 @@ class EntitySettingsControlFactory {
         });
 
         // Enter commits without waiting for the field to lose focus, then starts a fresh session.
-        field.setOnAction(e -> {
+        field.setOnAction(_ -> {
             commitEdit(setter, entities, originalValues, field.getValue(), undo);
             captureOriginalValues(getter, entities, originalValues);
         });
@@ -231,8 +257,8 @@ class EntitySettingsControlFactory {
             } catch (NumberFormatException ignore) {
             }
         };
-        field.setOnAction(e -> doCommit.run());
-        field.focusedProperty().addListener((obs, oldVal, newVal) -> {
+        field.setOnAction(_ -> doCommit.run());
+        field.focusedProperty().addListener((_, _, newVal) -> {
             if (Boolean.FALSE.equals(newVal)) doCommit.run();
         });
     }

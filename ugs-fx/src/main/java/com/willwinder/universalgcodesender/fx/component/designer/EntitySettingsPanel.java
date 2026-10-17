@@ -78,7 +78,9 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Stream;
@@ -113,6 +115,8 @@ public class EntitySettingsPanel extends VBox {
             EntitySetting.DIRECTION,
             EntitySetting.TOOL_PATH_DIRECTION,
             EntitySetting.PLUNGE_TYPE,
+            EntitySetting.FINISHING_PASS,
+            EntitySetting.STOCK_TO_LEAVE,
             EntitySetting.TABS,
             EntitySetting.TAB_COUNT);
 
@@ -153,7 +157,7 @@ public class EntitySettingsPanel extends VBox {
         setPadding(new javafx.geometry.Insets(12));
 
         this.selectionManager = ControllerFactory.getController().getSelectionManager();
-        SelectionListener selectionListener = event -> Platform.runLater(this::rebuild);
+        SelectionListener selectionListener = _ -> Platform.runLater(this::rebuild);
         selectionManager.addSelectionListener(selectionListener);
 
         // Refresh values (not structure) when the entities themselves change.
@@ -198,10 +202,13 @@ public class EntitySettingsPanel extends VBox {
             getChildren().add(new CollapsibleTitledPane("Text", textRows));
         }
 
-        Set<EntitySetting> cutSettings = new LinkedHashSet<>(common);
-        cutSettings.retainAll(commonCutTypeSettings(cuttables));
+        // Which cut settings apply is decided by the cut type alone, as in the classic designer.
+        Set<EntitySetting> cutSettings = commonCutTypeSettings(cuttables);
         if (cuttables.stream().noneMatch(Cuttable::hasTabs)) {
             cutSettings.remove(EntitySetting.TAB_COUNT);
+        }
+        if (cuttables.stream().noneMatch(Cuttable::isFinishingPass)) {
+            cutSettings.remove(EntitySetting.STOCK_TO_LEAVE);
         }
         VBox cutRows = buildRows(CUT_KEYS, cutSettings, cuttables, labelWidth);
         if (!cutRows.getChildren().isEmpty()) {
@@ -321,8 +328,8 @@ public class EntitySettingsPanel extends VBox {
             }
             applyTextChange(texts, text -> value.equals(text.getText()) ? null : new ChangeTextAction(text, value));
         };
-        field.setOnAction(event -> commit.run());
-        field.focusedProperty().addListener((observable, wasFocused, isFocused) -> {
+        field.setOnAction(_ -> commit.run());
+        field.focusedProperty().addListener((_, _, isFocused) -> {
             if (Boolean.FALSE.equals(isFocused)) {
                 commit.run();
             }
@@ -334,12 +341,12 @@ public class EntitySettingsPanel extends VBox {
         ComboBox<String> combo = new ComboBox<>(FXCollections.observableArrayList(
                 GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()));
         combo.setMaxWidth(Double.MAX_VALUE);
-        combo.setCellFactory(list -> new FontListCell());
+        combo.setCellFactory(_ -> new FontListCell());
         combo.setButtonCell(new FontListCell());
         String shared = sharedValue(texts, Text::getFontFamily);
         combo.setValue(shared);
         combo.setPromptText(shared == null ? MIXED_VALUE_PROMPT : "");
-        combo.valueProperty().addListener((observable, oldValue, newValue) -> {
+        combo.valueProperty().addListener((_, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 applyTextChange(texts, text -> newValue.equals(text.getFontFamily()) ? null : new ChangeFontAction(text, newValue));
             }
@@ -349,14 +356,14 @@ public class EntitySettingsPanel extends VBox {
 
     private static <T> T sharedValue(List<Text> texts, Function<Text, T> getter) {
         List<T> distinct = texts.stream().map(getter).distinct().toList();
-        return distinct.size() == 1 ? distinct.get(0) : null;
+        return distinct.size() == 1 ? distinct.getFirst() : null;
     }
 
     /**
      * Applies one change per text that actually changes and records them as a single undo step.
      */
     private void applyTextChange(List<Text> texts, Function<Text, UndoableAction> actionFor) {
-        List<UndoableAction> actions = texts.stream().map(actionFor).filter(action -> action != null).toList();
+        List<UndoableAction> actions = texts.stream().map(actionFor).filter(Objects::nonNull).toList();
         if (actions.isEmpty()) {
             return;
         }
@@ -409,7 +416,7 @@ public class EntitySettingsPanel extends VBox {
         // just refresh the displayed values to the new reference point.
         AnchorSelector anchorSelector = new AnchorSelector();
         anchorSelector.setAnchor(positionAnchor);
-        anchorSelector.anchorProperty().addListener((obs, oldAnchor, newAnchor) -> {
+        anchorSelector.anchorProperty().addListener((_, _, newAnchor) -> {
             positionAnchor = newAnchor;
             refreshFieldValue(xField, entities, e -> e.getPosition(newAnchor).getX());
             refreshFieldValue(yField, entities, e -> e.getPosition(newAnchor).getY());
@@ -458,9 +465,9 @@ public class EntitySettingsPanel extends VBox {
 
         // When locked, editing one dimension resizes the other in the model. Mirror that change in
         // the sibling field so its displayed value stays correct while typing.
-        widthField.unitValueProperty().addListener((obs, oldVal, newVal) ->
+        widthField.unitValueProperty().addListener((_, _, _) ->
                 syncSibling(heightField, e -> e.getSize().getHeight(), entities));
-        heightField.unitValueProperty().addListener((obs, oldVal, newVal) ->
+        heightField.unitValueProperty().addListener((_, _, _) ->
                 syncSibling(widthField, e -> e.getSize().getWidth(), entities));
 
         EntitySettingsRow widthRow = new EntitySettingsRow(labelWidth, EntitySetting.WIDTH.getLabel(), widthField);
@@ -483,7 +490,7 @@ public class EntitySettingsPanel extends VBox {
         // leaking listeners across rebuilds. Re-capture the ratios whenever it is switched on so it
         // uses the sizes as they currently are.
         toggle.setSelected(aspectRatioLocked.get());
-        toggle.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+        toggle.selectedProperty().addListener((_, _, isSelected) -> {
             aspectRatioLocked.set(isSelected);
             if (isSelected) {
                 captureAspectRatios(entities);
@@ -559,18 +566,17 @@ public class EntitySettingsPanel extends VBox {
             case TOOL_PATH_ANGLE ->
                     controls.doubleField(Cuttable::getToolPathAngle, Cuttable::setToolPathAngle, entities, Unit.DEGREE);
             case DIRECTION -> controls.enumCombo(Direction.values(), Direction::getLabel,
-                    Cuttable::getDirection, Cuttable::setDirection, entities);
-            case TOOL_PATH_DIRECTION -> controls.enumCombo(ToolPathDirection.values(),
-                    ToolPathDirection::getLabel, Cuttable::getToolPathDirection, Cuttable::setToolPathDirection, entities);
+                    EntitySettingIcons::direction, Cuttable::getDirection, Cuttable::setDirection, entities);
+            case TOOL_PATH_DIRECTION -> controls.enumCombo(ToolPathDirection.values(), ToolPathDirection::getLabel,
+                    EntitySettingIcons::toolPathDirection, Cuttable::getToolPathDirection, Cuttable::setToolPathDirection, entities);
             case PLUNGE_TYPE -> controls.enumCombo(availablePlungeTypes(entities), PlungeType::getLabel,
-                    Cuttable::getPlungeType, Cuttable::setPlungeType, entities);
-            case FINISHING_PASS ->
-                    leftAligned(controls.switchControl(Cuttable::isFinishingPass, Cuttable::setFinishingPass, entities));
+                    EntitySettingIcons::plungeType, Cuttable::getPlungeType, Cuttable::setPlungeType, entities);
+            case FINISHING_PASS -> rebuildingSwitch(Cuttable::isFinishingPass, Cuttable::setFinishingPass, entities);
             case STOCK_TO_LEAVE ->
                     controls.doubleField(Cuttable::getStockToLeave, Cuttable::setStockToLeave, entities, Unit.MM);
             case LINE_SPACING ->
                     controls.doubleField(Cuttable::getLineSpacing, Cuttable::setLineSpacing, entities, Unit.MM);
-            case TABS -> tabsControl(entities);
+            case TABS -> rebuildingSwitch(Cuttable::hasTabs, Cuttable::setTabs, entities);
             case TAB_COUNT -> controls.intField(Cuttable::getTabCount, Cuttable::setTabCount, entities, Unit.TIMES);
             default -> null;
         };
@@ -593,12 +599,15 @@ public class EntitySettingsPanel extends VBox {
     }
 
     /**
-     * Turning the tabs off leaves nothing to spread out, so the number of tabs is only shown when
-     * they are on. That means the rows have to be rebuilt when the switch is flipped.
+     * A switch whose state decides which other rows are shown: the number of tabs is only shown
+     * while tabs are on, and stock to leave only while a finishing pass is on. That means the rows
+     * have to be rebuilt when the switch is flipped.
      */
-    private Region tabsControl(List<Cuttable> entities) {
-        SwitchButton control = controls.switchControl(Cuttable::hasTabs, Cuttable::setTabs, entities);
-        control.selectedProperty().addListener((obs, wasSelected, isSelected) -> Platform.runLater(this::rebuild));
+    private Region rebuildingSwitch(Function<Cuttable, Boolean> getter,
+                                    BiConsumer<Cuttable, Boolean> setter,
+                                    List<Cuttable> entities) {
+        SwitchButton control = controls.switchControl(getter, setter, entities);
+        control.selectedProperty().addListener((_, _, _) -> Platform.runLater(this::rebuild));
         return leftAligned(control);
     }
 
@@ -607,7 +616,7 @@ public class EntitySettingsPanel extends VBox {
         // The cut type determines which cut settings apply, so rebuild the rows when it changes.
         // The value is applied by the factory's own listener (under the edit guard, which suppresses
         // the entity-change rebuild), so we trigger the structural rebuild explicitly here.
-        combo.valueProperty().addListener((obs, oldType, newType) -> {
+        combo.valueProperty().addListener((_, oldType, newType) -> {
             if (newType != null && newType != oldType) {
                 Platform.runLater(this::rebuild);
             }
@@ -635,7 +644,7 @@ public class EntitySettingsPanel extends VBox {
                 return null;
             }
             return (targets, before, value) -> {
-                double delta = value - before.get(targets.get(0));
+                double delta = value - before.get(targets.getFirst());
                 return new MoveAction(selected, isX ? new java.awt.geom.Point2D.Double(delta, 0) : new java.awt.geom.Point2D.Double(0, delta));
             };
         }
@@ -654,7 +663,7 @@ public class EntitySettingsPanel extends VBox {
             if (selected == null) {
                 return null;
             }
-            return (targets, before, value) -> {
+            return (targets, before, _) -> {
                 Entity target = targets.getFirst();
                 Size after = target.getSize();
                 double original = before.get(target);

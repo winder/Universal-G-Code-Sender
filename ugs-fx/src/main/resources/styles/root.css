@@ -33,7 +33,6 @@
 }
 
 .button:focused,
-.combo-box:focused,
 .toggle-button:focused {
     -fx-border-color: -fx-focus-border-color;
     -fx-border-width: 1;
@@ -107,10 +106,33 @@
 
 /**
  * Combo box
+ *
+ * Styled like a text field (modena's .text-input) with the drop down arrow on the right, so a
+ * combo lines up with the text fields it sits next to in forms.
  */
+.combo-box-base {
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
+        linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background);
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 3, 2;
+}
+
 .combo-box-base:focused {
-    -fx-background-color: -fx-focus-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
-    -fx-border-radius: 0;
+    -fx-background-color: -fx-focus-color, -fx-control-inner-background, -fx-faint-focus-color,
+        linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background);
+    -fx-background-insets: -0.2, 1, -1.4, 3;
+    -fx-background-radius: 3, 2, 4, 0;
+}
+
+/* The arrow button's own right padding keeps the text clear of the arrow */
+.combo-box > .list-cell {
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-padding: 4 0 4 7;
+}
+
+/* A text field does not light up on hover, so neither does the value shown in the box */
+.combo-box > .list-cell:hover {
+    -fx-background-color: transparent;
 }
 
 .combo-box .list-cell:selected {
