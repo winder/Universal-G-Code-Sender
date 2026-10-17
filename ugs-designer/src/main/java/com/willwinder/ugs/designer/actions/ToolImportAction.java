@@ -18,35 +18,23 @@
  */
 package com.willwinder.ugs.designer.actions;
 
-import com.willwinder.ugs.designer.entities.cuttable.Raster;
-import com.willwinder.ugs.designer.io.c2d.C2dReader;
-import com.willwinder.ugs.designer.io.dxf.DxfReader;
-import com.willwinder.ugs.designer.io.eagle.EaglePnpReader;
-import com.willwinder.ugs.designer.io.excellon.ExcellonReader;
-import com.willwinder.ugs.designer.io.gerber.GerberReader;
-import com.willwinder.ugs.designer.io.kicad.KiCadPosReader;
-import com.willwinder.ugs.designer.io.stl.StlReader;
-import com.willwinder.ugs.designer.io.svg.SvgReader;
-import com.willwinder.ugs.designer.io.ugsd.UgsDesignReader;
+import com.willwinder.ugs.designer.io.DesignFileImporter;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
-import com.willwinder.ugs.designer.logic.Tool;
-import com.willwinder.ugs.designer.model.Design;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * @author Joacim Breiler
@@ -54,21 +42,11 @@ import java.util.logging.Logger;
 public class ToolImportAction extends AbstractDesignAction {
     private static final Logger LOGGER = Logger.getLogger(ToolImportAction.class.getName());
 
-    public static final FileNameExtensionFilter[] FILE_NAME_EXTENSION_FILTERS = new FileNameExtensionFilter[]{
-            new FileNameExtensionFilter("All supported formats", "svg", "dxf", "c2d", "mnt", "mnb", "drl", "pos", "gbr", "ugsd", "stl", "png", "jpg", "jpeg"),
-            new FileNameExtensionFilter("Scalable Vector Graphics (.svg)", "svg"),
-            new FileNameExtensionFilter("Autodesk CAD (.dxf)", "dxf"),
-            new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"),
-            new FileNameExtensionFilter("Eagle (.mnt, .mnb)", "mnt", "mnb"),
-            new FileNameExtensionFilter("Excellon (.drl)", "drl"),
-            new FileNameExtensionFilter("KiCad (.pos)", "pos"),
-            new FileNameExtensionFilter("Gerber (.gbr)", "gbr"),
-            new FileNameExtensionFilter("UGS design (.ugsd)", "ugsd"),
-            new FileNameExtensionFilter("Stereolithography (.stl)", "stl"),
-            new FileNameExtensionFilter("Portable Network Graphics (.png)", "png"),
-            new FileNameExtensionFilter("JPEG (.jpg)", "jpg", "jpeg"),
-            new FileNameExtensionFilter("Bitmap (.bmp)", "bmp"),
-    };
+    public static final FileNameExtensionFilter[] FILE_NAME_EXTENSION_FILTERS = Stream.concat(
+                    Stream.of(DesignFileImporter.ALL_SUPPORTED_FORMATS),
+                    DesignFileImporter.FILE_FORMATS.stream())
+            .map(format -> new FileNameExtensionFilter(format.description(), format.extensions().toArray(new String[0])))
+            .toArray(FileNameExtensionFilter[]::new);
 
     public static final String SMALL_ICON_PATH = "img/import.svg";
     public static final String LARGE_ICON_PATH = "img/import24.svg";
@@ -81,53 +59,6 @@ public class ToolImportAction extends AbstractDesignAction {
         putValue("menuText", "Import file");
         putValue(NAME, "Import file");
         this.controller = ControllerFactory.getController();
-    }
-
-    public static void readDesign(Controller controller, BackendAPI backend, File f) {
-        Optional<Design> optionalDesign = Optional.empty();
-        if (StringUtils.endsWithIgnoreCase(f.getName(), ".svg")) {
-            SvgReader svgReader = new SvgReader();
-            optionalDesign = svgReader.read(f);
-        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".dxf")) {
-            DxfReader reader = new DxfReader(backend.getSettings());
-            optionalDesign = reader.read(f);
-        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".c2d")) {
-            C2dReader reader = new C2dReader();
-            optionalDesign = reader.read(f);
-        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".mnt") ||
-                StringUtils.endsWithIgnoreCase(f.getName(), ".mnb")) {
-            EaglePnpReader reader = new EaglePnpReader();
-            optionalDesign = reader.read(f);
-        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".pos")) {
-            KiCadPosReader reader = new KiCadPosReader();
-            optionalDesign = reader.read(f);
-        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".ugsd")) {
-            UgsDesignReader reader = new UgsDesignReader();
-            optionalDesign = reader.read(f);
-        } else if (StringUtils.endsWithIgnoreCase(f.getName(), "-drl.gbr")) {
-            // Treat as a KiCad drill file
-            GerberReader reader = new GerberReader(true);
-            optionalDesign = reader.read(f);
-        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".gbr")) {
-            GerberReader reader = new GerberReader();
-            optionalDesign = reader.read(f);
-        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".drl")) {
-            ExcellonReader reader = new ExcellonReader();
-            optionalDesign = reader.read(f);
-        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".stl")) {
-            StlReader reader = new StlReader();
-            optionalDesign = reader.read(f);
-        }
-
-        if (optionalDesign.isPresent()) {
-            Design design = optionalDesign.get();
-            controller.setTool(Tool.SELECT);
-            controller.addEntities(design.getEntities());
-            controller.getSelectionManager().addSelection(design.getEntities());
-            controller.repaintDrawing();
-        } else {
-            throw new RuntimeException("Could not open: " + f.getName());
-        }
     }
 
     @Override
@@ -143,21 +74,12 @@ public class ToolImportAction extends AbstractDesignAction {
         ThreadHelper.invokeLater(() -> {
             File f = fileDialog.getSelectedFile();
             if (f != null) {
-                if (isRasterFile(f)) {
-                    Controller controller = ControllerFactory.getController();
-                    controller.getModel().insertEntity(new Raster(f));
-                } else {
-                    try {
-                        readDesign(controller, backend, f);
-                    } catch (Exception exception) {
-                        LOGGER.log(Level.SEVERE, "Could not import file " + f.getName(), exception);
-                    }
+                try {
+                    DesignFileImporter.importFile(controller, backend.getSettings(), f);
+                } catch (Exception exception) {
+                    LOGGER.log(Level.SEVERE, "Could not import file " + f.getName(), exception);
                 }
             }
         });
-    }
-
-    private static boolean isRasterFile(File f) {
-        return StringUtils.endsWithIgnoreCase(f.getName(), ".png") || StringUtils.endsWithIgnoreCase(f.getName(), ".jpg") || StringUtils.endsWithIgnoreCase(f.getName(), ".jpeg") || StringUtils.endsWithIgnoreCase(f.getName(), ".bmp");
     }
 }

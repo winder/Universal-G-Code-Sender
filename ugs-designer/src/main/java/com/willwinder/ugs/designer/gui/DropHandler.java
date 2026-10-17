@@ -18,12 +18,11 @@
  */
 package com.willwinder.ugs.designer.gui;
 
-import com.willwinder.ugs.designer.actions.ToolImportAction;
+import com.willwinder.ugs.designer.io.DesignFileImporter;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -35,13 +34,10 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 
-import static com.willwinder.ugs.designer.actions.ToolImportAction.FILE_NAME_EXTENSION_FILTERS;
-
 /**
- * Listens for drag'n'drop of known file types and imports it via the {@link ToolImportAction}.
+ * Listens for drag'n'drop of known file types and imports it via the {@link DesignFileImporter}.
  *
  * @author Joacim Breiler
  */
@@ -60,9 +56,7 @@ public class DropHandler implements DropTargetListener {
     }
 
     private static boolean hasCorrectExtension(String filename) {
-        return Arrays.stream(FILE_NAME_EXTENSION_FILTERS)
-                .flatMap(s -> Arrays.stream(s.getExtensions()))
-                .anyMatch(extension -> StringUtils.endsWithIgnoreCase(filename, extension));
+        return DesignFileImporter.isSupportedFile(new File(filename));
     }
 
     private Optional<String> getFilename(DropTargetDragEvent dtde) {
@@ -122,7 +116,7 @@ public class DropHandler implements DropTargetListener {
 
         ThreadHelper.invokeLater(() -> {
             File file = filename.map(File::new).get();
-            ToolImportAction.readDesign(ControllerFactory.getController(), LookupService.lookup(BackendAPI.class), file);
+            DesignFileImporter.importFile(ControllerFactory.getController(), LookupService.lookup(BackendAPI.class).getSettings(), file);
             dtde.dropComplete(true);
         });
     }
