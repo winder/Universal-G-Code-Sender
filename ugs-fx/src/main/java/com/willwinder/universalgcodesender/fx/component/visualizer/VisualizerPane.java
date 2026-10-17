@@ -111,9 +111,9 @@ public class VisualizerPane extends Pane {
     private final InputRouter inputRouter = new InputRouter(this::setCursor);
     private final Runnable renderRequestListener = this::requestRender;
     private final ChangeListener<String> backgroundColorListener =
-            (observable, oldValue, newValue) -> applyBackgroundColor();
+            (_, _, _) -> applyBackgroundColor();
     private final ChangeListener<Boolean> projectionListener =
-            (observable, oldValue, newValue) -> applyProjection(newValue);
+            (_, _, newValue) -> applyProjection(newValue);
     private final ListChangeListener<Renderable> serviceRenderablesListener = this::onServiceRenderablesChanged;
     private final UGSEventListener eventListener = this::onEvent;
 
@@ -156,9 +156,12 @@ public class VisualizerPane extends Pane {
 
         try {
             renderer = new VulkanFrameRenderer();
+            VisualizerService.getInstance().setRendererDescription(
+                    "%s (Vulkan, %dx MSAA)".formatted(renderer.deviceName(), renderer.sampleCount()));
         } catch (RuntimeException | LinkageError e) {
             LOGGER.log(Level.SEVERE, "Could not initialize the Vulkan visualizer", e);
             unavailableMessage = "Vulkan is not available: " + e.getMessage();
+            VisualizerService.getInstance().setRendererDescription(unavailableMessage);
             paintOverlays();
             return;
         }
@@ -227,6 +230,7 @@ public class VisualizerPane extends Pane {
         LookupService.lookup(BackendAPI.class).removeUGSEventListener(eventListener);
         VisualizerService.getInstance().getRenderables().removeListener(serviceRenderablesListener);
         VisualizerService.getInstance().setCenterOnBoundsHandler(null);
+        VisualizerService.getInstance().setRendererDescription("");
         VisualizerSettings.getInstance().colorBackgroundProperty().removeListener(backgroundColorListener);
         VisualizerSettings.getInstance().useParallelCameraProperty().removeListener(projectionListener);
         if (scene != null) {
@@ -415,7 +419,7 @@ public class VisualizerPane extends Pane {
         // thread is not reading the buffer. It also keeps what JavaFX holds on to a buffer we
         // own, so resizing the offscreen images can never pull mapped memory out from under
         // the render thread.
-        pixelBuffer.updateBuffer(buffer -> {
+        pixelBuffer.updateBuffer(_ -> {
             presentedPixels.put(0, renderedPixels, 0, renderedPixels.capacity());
             return null;
         });
