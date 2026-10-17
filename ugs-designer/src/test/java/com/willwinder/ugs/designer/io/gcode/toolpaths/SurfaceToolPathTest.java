@@ -184,7 +184,7 @@ public class SurfaceToolPathTest {
         rectangle.setSize(new Size(10, 10));
         rectangle.setLeadInPercent(0);
         rectangle.setDirection(Direction.CONVENTIONAL);
-        rectangle.setToolPathDirection(ToolPathDirection.VERTICAL);
+        rectangle.setToolPathDirection(ToolPathDirection.TOP_BOTTOM);
 
         Settings settings = new Settings();
         settings.setToolDiameter(8);
@@ -735,7 +735,7 @@ public class SurfaceToolPathTest {
         List<Segment> segments = gcodePath.getSegments();
 
         // Start spindle
-        Segment segment = segments.get(0);
+        Segment segment = segments.getFirst();
         assertEquals(SegmentType.SEAM, segment.type);
         assertNull(segment.point);
         assertEquals(9000, segment.getSpindleSpeed(), 0.01);
@@ -748,7 +748,7 @@ public class SurfaceToolPathTest {
         rectangle.setSize(new Size(250, 270));
         rectangle.setLeadInPercent(0);
         rectangle.setDirection(Direction.CONVENTIONAL);
-        rectangle.setToolPathDirection(ToolPathDirection.HORIZONTAL);
+        rectangle.setToolPathDirection(ToolPathDirection.LEFT_RIGHT);
 
         Settings settings = new Settings();
         settings.setToolDiameter(38);
@@ -772,5 +772,116 @@ public class SurfaceToolPathTest {
         assertEquals(SegmentType.MOVE, firstPassStart.type);
         assertXYPoint(firstPassStart.point, 19, 251);
         assertFalse(firstPassStart.point.hasZ());
+    }
+
+    @Test
+    public void toGcodePath_shouldCutFromRightToLeft() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setLeadInPercent(0);
+        rectangle.setDirection(Direction.CLIMB);
+        rectangle.setToolPathDirection(ToolPathDirection.RIGHT_LEFT);
+        Settings settings = new Settings();
+        settings.setToolDiameter(8);
+        settings.setToolStepOver(1);
+        settings.setSafeHeight(10);
+        SurfaceToolPath toolPath = new SurfaceToolPath(settings, rectangle);
+        toolPath.setStartDepth(1);
+        toolPath.setTargetDepth(1);
+
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        assertEquals(10, segments.size());
+        assertXYPoint(segments.get(2).point, 6, 6);
+        assertXYPoint(segments.get(4).point, 4, 6);
+        assertXYPoint(segments.get(6).point, 6, 4);
+        assertXYPoint(segments.get(8).point, 4, 4);
+    }
+
+    @Test
+    public void toGcodePath_shouldCutFromBottomToTop() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setLeadInPercent(0);
+        rectangle.setDirection(Direction.CLIMB);
+        rectangle.setToolPathDirection(ToolPathDirection.BOTTOM_TOP);
+        Settings settings = new Settings();
+        settings.setToolDiameter(8);
+        settings.setToolStepOver(1);
+        settings.setSafeHeight(10);
+        SurfaceToolPath toolPath = new SurfaceToolPath(settings, rectangle);
+        toolPath.setStartDepth(1);
+        toolPath.setTargetDepth(1);
+
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        assertEquals(10, segments.size());
+        assertXYPoint(segments.get(2).point, 6, 4);
+        assertXYPoint(segments.get(4).point, 6, 6);
+        assertXYPoint(segments.get(6).point, 4, 4);
+        assertXYPoint(segments.get(8).point, 4, 6);
+    }
+
+    @Test
+    public void toGcodePath_shouldKeepConventionalMillingWhenCuttingFromRightToLeft() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setLeadInPercent(0);
+        rectangle.setDirection(Direction.CONVENTIONAL);
+        rectangle.setToolPathDirection(ToolPathDirection.RIGHT_LEFT);
+        Settings settings = new Settings();
+        settings.setToolDiameter(8);
+        settings.setToolStepOver(1);
+        settings.setSafeHeight(10);
+        SurfaceToolPath toolPath = new SurfaceToolPath(settings, rectangle);
+        toolPath.setStartDepth(1);
+        toolPath.setTargetDepth(1);
+
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        assertEquals(10, segments.size());
+        assertXYPoint(segments.get(2).point, 6, 4);
+        assertXYPoint(segments.get(4).point, 4, 4);
+        assertXYPoint(segments.get(6).point, 6, 6);
+        assertXYPoint(segments.get(8).point, 4, 6);
+    }
+
+    @Test
+    public void toGcodePath_shouldCutTheFinishingPassInItsOwnDirection() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setLeadInPercent(0);
+        rectangle.setDirection(Direction.CLIMB);
+        rectangle.setToolPathDirection(ToolPathDirection.LEFT_RIGHT);
+        rectangle.setFinishingPass(true);
+        rectangle.setStockToLeave(0.5);
+        rectangle.setFinishingPassDirection(ToolPathDirection.TOP_BOTTOM);
+        Settings settings = new Settings();
+        settings.setToolDiameter(8);
+        settings.setToolStepOver(1);
+        settings.setSafeHeight(10);
+        settings.setDepthPerPass(1);
+        SurfaceToolPath toolPath = new SurfaceToolPath(settings, rectangle);
+        toolPath.setStartDepth(0.5);
+        toolPath.setTargetDepth(1);
+
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        // SEAM, two roughing passes and two finishing passes of four segments each, final retract
+        assertEquals(18, segments.size());
+        assertXYPoint(segments.get(2).point, 4, 4);
+        assertXYPoint(segments.get(4).point, 6, 4);
+        assertXYPoint(segments.get(6).point, 4, 6);
+        assertXYPoint(segments.get(8).point, 6, 6);
+        assertZPoint(segments.get(11).point, -1);
+        assertXYPoint(segments.get(10).point, 4, 6);
+        assertXYPoint(segments.get(12).point, 4, 4);
+        assertXYPoint(segments.get(14).point, 6, 6);
+        assertXYPoint(segments.get(16).point, 6, 4);
+    }
+
+    @Test
+    public void toGcodePath_shouldDefaultTheFinishingPassDirectionToLeftToRight() {
+        assertEquals(ToolPathDirection.LEFT_RIGHT, new Rectangle(0, 0).getFinishingPassDirection());
     }
 }

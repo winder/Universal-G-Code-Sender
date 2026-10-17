@@ -60,7 +60,7 @@ public class Group extends EntityGroup implements Cuttable {
                 .toList();
 
         if (!cutTypes.isEmpty()) {
-            return cutTypes.get(0);
+            return cutTypes.getFirst();
         } else {
             return CutType.NONE;
         }
@@ -297,7 +297,7 @@ public class Group extends EntityGroup implements Cuttable {
             return EnumSet.noneOf(EntitySetting.class);
         }
 
-        EnumSet<EntitySetting> sharedSettings = cuttables.get(0).getSettings();
+        EnumSet<EntitySetting> sharedSettings = cuttables.getFirst().getSettings();
         if (sharedSettings.isEmpty()) {
             return EnumSet.noneOf(EntitySetting.class);
         }
@@ -326,7 +326,7 @@ public class Group extends EntityGroup implements Cuttable {
      * value are considered shared.
      */
     private static void removeSettingsWithDifferentValues(List<Cuttable> cuttables, Set<EntitySetting> sharedSettings) {
-        Map<EntitySetting, Object> valuesToCompare = getComparableValues(cuttables.get(0), sharedSettings);
+        Map<EntitySetting, Object> valuesToCompare = getComparableValues(cuttables.getFirst(), sharedSettings);
 
         for (int i = 1; i < cuttables.size() && !valuesToCompare.isEmpty(); i++) {
             Cuttable cuttable = cuttables.get(i);
@@ -375,7 +375,7 @@ public class Group extends EntityGroup implements Cuttable {
         return getCuttableStream()
                 .findFirst()
                 .map(Cuttable::getToolPathDirection)
-                .orElse(ToolPathDirection.HORIZONTAL);
+                .orElse(ToolPathDirection.LEFT_RIGHT);
     }
 
     @Override
@@ -410,6 +410,23 @@ public class Group extends EntityGroup implements Cuttable {
                 .findFirst()
                 .map(Cuttable::getStockToLeave)
                 .orElse(DEFAULT_STOCK_TO_LEAVE);
+    }
+
+    @Override
+    public void setFinishingPassDirection(ToolPathDirection finishingPassDirection) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setFinishingPassDirection(finishingPassDirection);
+            }
+        });
+    }
+
+    @Override
+    public ToolPathDirection getFinishingPassDirection() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::getFinishingPassDirection)
+                .orElse(ToolPathDirection.LEFT_RIGHT);
     }
 
     @Override

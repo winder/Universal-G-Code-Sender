@@ -87,22 +87,17 @@ public class UgsDesignWriter implements DesignWriter {
 
     private EntityV1 convertToEntity(Entity entity) {
         EntityV1 result;
-        if (entity instanceof EntityGroup entityGroup) {
-            result = parseGroup(entityGroup);
-        } else if (entity instanceof Rectangle rectangle) {
-            result = parseRectangle(rectangle);
-        } else if (entity instanceof Ellipse) {
-            result = parseEllipse(entity);
-        } else if (entity instanceof Path) {
-            result = parsePath(entity);
-        } else if (entity instanceof Point) {
-            result = parsePoint(entity);
-        } else if (entity instanceof Text text) {
-            result = parseText(text);
-        } else if (entity instanceof Raster raster) {
-            result = parseRaster(raster);
-        } else {
-            return null;
+        switch (entity) {
+            case EntityGroup entityGroup -> result = parseGroup(entityGroup);
+            case Rectangle rectangle -> result = parseRectangle(rectangle);
+            case Ellipse _ -> result = parseEllipse(entity);
+            case Path _ -> result = parsePath(entity);
+            case Point _ -> result = parsePoint(entity);
+            case Text text -> result = parseText(text);
+            case Raster raster -> result = parseRaster(raster);
+            case null, default -> {
+                return null;
+            }
         }
 
         if (StringUtils.isNotEmpty(entity.getName())) {
@@ -125,6 +120,7 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setToolPathDirection(ToolPathDirectionTypeV1.fromDirection(cuttable.getToolPathDirection()));
             cuttableEntity.setFinishingPass(cuttable.isFinishingPass());
             cuttableEntity.setStockToLeave(cuttable.getStockToLeave());
+            cuttableEntity.setFinishingPassDirection(ToolPathDirectionTypeV1.fromDirection(cuttable.getFinishingPassDirection()));
             cuttableEntity.setLineSpacing(cuttable.getLineSpacing());
             cuttableEntity.setTabs(cuttable.hasTabs());
             cuttableEntity.setTabCount(cuttable.getTabCount());

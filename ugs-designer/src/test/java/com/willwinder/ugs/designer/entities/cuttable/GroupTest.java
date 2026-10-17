@@ -42,17 +42,17 @@ public class GroupTest {
         Rectangle rectangle = new Rectangle(1, 1);
         rectangle.setFeedRate(1234);
         rectangle.setLeadInPercent(40);
-        rectangle.setToolPathDirection(ToolPathDirection.VERTICAL);
+        rectangle.setToolPathDirection(ToolPathDirection.BOTTOM_TOP);
 
         Group group = new Group();
         group.addChild(rectangle);
 
         Group copy = (Group) group.copy();
 
-        Cuttable child = (Cuttable) copy.getChildren().get(0);
+        Cuttable child = (Cuttable) copy.getChildren().getFirst();
         assertEquals(1234, child.getFeedRate());
         assertEquals(40, child.getLeadInPercent());
-        assertEquals(ToolPathDirection.VERTICAL, child.getToolPathDirection());
+        assertEquals(ToolPathDirection.BOTTOM_TOP, child.getToolPathDirection());
     }
 
     @Test

@@ -63,9 +63,10 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private double toolPathAngle;
     private Direction direction = Direction.CLIMB;
     private PlungeType plungeType = PlungeType.LINEAR_RAMP;
-    private ToolPathDirection toolPathDirection = ToolPathDirection.HORIZONTAL;
+    private ToolPathDirection toolPathDirection = ToolPathDirection.LEFT_RIGHT;
     private boolean finishingPass = false;
     private double stockToLeave = DEFAULT_STOCK_TO_LEAVE;
+    private ToolPathDirection finishingPassDirection = ToolPathDirection.LEFT_RIGHT;
     private double lineSpacing = DEFAULT_LINE_SPACING;
     private boolean tabs = false;
     private int tabCount = DEFAULT_TAB_COUNT;
@@ -206,7 +207,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             Rectangle2D bounds = surfacingShape.getBounds2D();
             double cx = bounds.getCenterX();
             double cy = bounds.getCenterY();
-            double angleDeg = getToolPathDirection() == ToolPathDirection.VERTICAL ? 90 : 0;
+            double angleDeg = getToolPathDirection().getAngle();
             double arrowLength = Math.min(shape.getBounds2D().getWidth(), shape.getBounds2D().getHeight());
             drawArrow(drawing, graphics, cx, cy, angleDeg, arrowLength);
             if (getDirection() == Direction.BOTH) {
@@ -304,10 +305,10 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
 
     private Shape getBufferedShape(double leadInMillimeters, double leadOutMillimeters, ToolPathDirection toolPathDirection) {
         Rectangle2D shape = getShape().getBounds2D();
-        double startX = shape.getX() - (toolPathDirection == ToolPathDirection.HORIZONTAL ? leadInMillimeters : 0);
-        double startY = shape.getY() - (toolPathDirection == ToolPathDirection.VERTICAL ? leadInMillimeters : 0);
-        double width = shape.getWidth() + (toolPathDirection == ToolPathDirection.HORIZONTAL ? leadInMillimeters + leadOutMillimeters : 0);
-        double height = shape.getHeight() + (toolPathDirection == ToolPathDirection.VERTICAL ? leadInMillimeters + leadOutMillimeters : 0);
+        double startX = shape.getX() - (toolPathDirection.isVertical() ? 0 : leadInMillimeters);
+        double startY = shape.getY() - (toolPathDirection.isVertical() ? leadInMillimeters : 0);
+        double width = shape.getWidth() + (toolPathDirection.isVertical() ? 0 : leadInMillimeters + leadOutMillimeters);
+        double height = shape.getHeight() + (toolPathDirection.isVertical() ? leadInMillimeters + leadOutMillimeters : 0);
         shape.setFrame(startX, startY, width, height);
         return new Area(shape);
     }
@@ -367,7 +368,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     private Color getLaserCutColor() {
-        int color = Math.max(0, Math.min(255, (int) Math.round(255d * getLaserCutAlpha()) - 50));
+        int color = Math.clamp((int) Math.round(255d * getLaserCutAlpha()) - 50, 0, 255);
         return new Color(color, color, color);
     }
 
@@ -378,7 +379,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
 
 
     private Color getCutColor() {
-        int color = Math.max(0, Math.min(255, (int) Math.round(255d * getCutAlpha()) - 50));
+        int color = Math.clamp((int) Math.round(255d * getCutAlpha()) - 50, 0, 255);
         return new Color(color, color, color);
     }
 
@@ -411,6 +412,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         copy.setToolPathDirection(getToolPathDirection());
         copy.setFinishingPass(isFinishingPass());
         copy.setStockToLeave(getStockToLeave());
+        copy.setFinishingPassDirection(getFinishingPassDirection());
         copy.setLineSpacing(getLineSpacing());
         copy.setTabs(hasTabs());
         copy.setTabCount(getTabCount());
@@ -501,6 +503,17 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public double getStockToLeave() {
         return stockToLeave;
+    }
+
+    @Override
+    public void setFinishingPassDirection(ToolPathDirection finishingPassDirection) {
+        this.finishingPassDirection = finishingPassDirection;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public ToolPathDirection getFinishingPassDirection() {
+        return finishingPassDirection;
     }
 
     @Override
