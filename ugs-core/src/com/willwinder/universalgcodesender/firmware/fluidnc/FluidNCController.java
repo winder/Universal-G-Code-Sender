@@ -577,8 +577,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
     /**
      * Attempts to get the current version of the controller. If the controller is not a FluidNC or if the version is
      * too low this will throw an exception.
-     *
-     * @throws Exception
      */
     private void queryFirmwareVersion() throws Exception {
         // A sleep is required to make the next query reliable
@@ -605,8 +603,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     /**
      * Gathers information about the controller
-     *
-     * @throws Exception
      */
     private void queryControllerInformation() throws Exception {
         sendAndWaitForCompletion(this, new GetStartupMessagesCommand(), TIMEOUT_TIME);
@@ -796,10 +792,8 @@ public class FluidNCController implements IController, ICommunicatorListener {
                 updateParserModalState(command);
 
                 listeners.forEach(l -> l.commandComplete(command));
-                if (command.isError() && !activeCommands.isEmpty()) {
-                    String commandString = command.getCommandString();
-                    String errorMessage = String.format(Localization.getString("controller.exception.sendError"), commandString, response).replaceAll("\\.\\.", "\\.");
-                    messageService.dispatchMessage(MessageType.ERROR, errorMessage + "\n");
+                if (command.isError()) {
+                    reportCommandError(command, response);
                 } else if (command instanceof GetStatusCommand) {
                     messageService.dispatchMessage(MessageType.VERBOSE, command.getResponse() + "\n");
                 } else if (command instanceof SystemCommand) {
@@ -834,6 +828,17 @@ public class FluidNCController implements IController, ICommunicatorListener {
             Position p = FluidNCUtils.parseProbePosition(response, getFirmwareSettings().getReportingUnits());
             listeners.forEach(l -> l.probeCoordinates(p));
         }
+    }
+
+    /**
+     * The stream only pauses on an error when further commands are waiting, a single command such
+     * as a probe or a manually entered line just fails on its own.
+     */
+    private void reportCommandError(GcodeCommand command, String response) {
+        String key = activeCommands.isEmpty() ? "controller.exception.commandError" : "controller.exception.sendError";
+        String errorMessage = String.format(Localization.getString(key), command.getCommandString(), GrblUtils.lookupCode(response))
+                .replaceAll("\\.\\.", ".");
+        messageService.dispatchMessage(MessageType.ERROR, errorMessage + "\n");
     }
 
     private void handleAlarmResponse(String response) {

@@ -68,7 +68,7 @@ public class DrawerPane extends BorderPane {
         setRight(rightBox);
 
         restoreState();
-        toggleGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+        toggleGroup.selectedToggleProperty().addListener((_, _, newToggle) -> {
             boolean expanded = newToggle != null;
             Settings.getInstance().drawerExpandedProperty().set(expanded);
             if (newToggle != null) {
@@ -113,7 +113,7 @@ public class DrawerPane extends BorderPane {
     private void slideOrSet(double targetX, boolean animate, Runnable onFinished) {
         if (animate) {
             slideTransition.setToX(targetX);
-            slideTransition.setOnFinished(onFinished == null ? null : event -> onFinished.run());
+            slideTransition.setOnFinished(onFinished == null ? null : _ -> onFinished.run());
             slideTransition.play();
         } else {
             setTranslateX(targetX);
@@ -126,11 +126,30 @@ public class DrawerPane extends BorderPane {
     private Button createCollapseButton() {
         Button collapseButton = new Button("", SvgLoader.loadImageIcon("icons/caret-double-right.svg", 24).orElse(null));
         collapseButton.getStyleClass().add("collapse-button");
-        collapseButton.setOnAction(event -> toggleGroup.selectToggle(null));
+        collapseButton.setOnAction(_ -> toggleGroup.selectToggle(null));
         Tooltip tooltip = new Tooltip(Localization.getString("close"));
         tooltip.setShowDelay(Duration.millis(100));
         collapseButton.setTooltip(tooltip);
         return collapseButton;
+    }
+
+    /**
+     * Expands the drawer pane with the given drawer showing, as if its button had been clicked.
+     */
+    public void open(Class<? extends Drawer> drawerType) {
+        drawers.stream()
+                .filter(drawerType::isInstance)
+                .findFirst()
+                .ifPresent(drawer -> {
+                    showDrawer(drawer);
+                    toggleGroup.selectToggle(toggleGroup.getToggles().get(drawers.indexOf(drawer)));
+                });
+    }
+
+    private void showDrawer(Drawer drawer) {
+        drawers.forEach(d -> d.setActive(false));
+        setCenter(drawer);
+        drawer.setActive(true);
     }
 
     private void createAndAddButton(Drawer node, String icon, String tooltipText) {
@@ -139,11 +158,7 @@ public class DrawerPane extends BorderPane {
         ToggleButton button = new ToggleButton();
         button.getStyleClass().add("toggle-button");
         SvgLoader.loadImageIcon(icon, 32, Colors.BLACKISH).ifPresent(button::setGraphic);
-        button.setOnAction(event -> {
-            drawers.forEach(d -> d.setActive(false));
-            setCenter(node);
-            node.setActive(true);
-        });
+        button.setOnAction(_ -> showDrawer(node));
 
         Tooltip tooltip = new Tooltip(tooltipText);
         tooltip.setShowDelay(Duration.millis(100));

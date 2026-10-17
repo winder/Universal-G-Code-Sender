@@ -206,8 +206,8 @@ public class GrblController extends AbstractController {
                 } else {
                     String message =
                             String.format(Localization.getString("controller.exception.unexpectedError"),
-                                    lookupCode(response)).replaceAll("\\.\\.", "\\.");
-                    dispatchConsoleMessage(MessageType.INFO, message + "\n");
+                                    lookupCode(response)).replaceAll("\\.\\.", ".");
+                    dispatchConsoleMessage(MessageType.ERROR, message + "\n");
                 }
                 checkStreamFinished();
             } else if (GrblUtils.isGrblVersionString(response)) {
