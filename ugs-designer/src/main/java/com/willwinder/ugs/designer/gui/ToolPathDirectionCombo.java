@@ -35,7 +35,7 @@ import java.util.Arrays;
 public class ToolPathDirectionCombo extends JComboBox<ToolPathDirection> {
     public ToolPathDirectionCombo() {
         Arrays.stream(ToolPathDirection.values()).forEach(this::addItem);
-        setSelectedItem(ToolPathDirection.HORIZONTAL);
+        setSelectedItem(ToolPathDirection.LEFT_RIGHT);
         setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

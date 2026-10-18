@@ -53,11 +53,12 @@ public class RectangleTest {
         rectangle.setFeedRate(1234);
         rectangle.setLeadInPercent(40);
         rectangle.setToolPathAngle(45);
-        rectangle.setToolPathDirection(ToolPathDirection.VERTICAL);
+        rectangle.setToolPathDirection(ToolPathDirection.BOTTOM_TOP);
         rectangle.setDirection(Direction.CONVENTIONAL);
         rectangle.setPlungeType(PlungeType.STRAIGHT);
         rectangle.setFinishingPass(true);
         rectangle.setStockToLeave(0.3);
+        rectangle.setFinishingPassDirection(ToolPathDirection.RIGHT_LEFT);
         rectangle.setIncludeInExport(false);
         rectangle.setHidden(true);
         EnumSet<EntitySetting> settings = rectangle.getSettings();
@@ -72,11 +73,12 @@ public class RectangleTest {
         assertEquals(1234, copy.getFeedRate());
         assertEquals(40, copy.getLeadInPercent());
         assertEquals(45, copy.getToolPathAngle(), 0.1);
-        assertEquals(ToolPathDirection.VERTICAL, copy.getToolPathDirection());
+        assertEquals(ToolPathDirection.BOTTOM_TOP, copy.getToolPathDirection());
         assertEquals(Direction.CONVENTIONAL, copy.getDirection());
         assertEquals(PlungeType.STRAIGHT, copy.getPlungeType());
         assertTrue(copy.isFinishingPass());
         assertEquals(0.3, copy.getStockToLeave(), 0.1);
+        assertEquals(ToolPathDirection.RIGHT_LEFT, copy.getFinishingPassDirection());
         assertFalse(copy.getIncludeInExport());
         assertTrue(copy.isHidden());
         assertEquals(settings, copy.getSettings());

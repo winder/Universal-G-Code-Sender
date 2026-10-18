@@ -82,6 +82,7 @@ public class CuttableSettingsManager implements EntitySettingsManager {
             case ROUGHING -> cuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.FALSE);
             case FINISHING_PASS -> cuttable.isFinishingPass();
             case STOCK_TO_LEAVE -> cuttable.getStockToLeave();
+            case FINISHING_PASS_DIRECTION -> cuttable.getFinishingPassDirection();
             case LINE_SPACING -> cuttable.getLineSpacing();
             case TABS -> cuttable.hasTabs();
             case TAB_COUNT -> cuttable.getTabCount();
@@ -171,6 +172,11 @@ public class CuttableSettingsManager implements EntitySettingsManager {
                     cuttable.setStockToLeave(stockToLeave);
                 }
             }
+            case FINISHING_PASS_DIRECTION -> {
+                if (value instanceof ToolPathDirection finishingPassDirection) {
+                    cuttable.setFinishingPassDirection(finishingPassDirection);
+                }
+            }
             case LINE_SPACING -> {
                 if (value instanceof Double lineSpacing) {
                     cuttable.setLineSpacing(lineSpacing);
@@ -212,6 +218,7 @@ public class CuttableSettingsManager implements EntitySettingsManager {
         settings.add(EntitySetting.ROUGHING);
         settings.add(EntitySetting.FINISHING_PASS);
         settings.add(EntitySetting.STOCK_TO_LEAVE);
+        settings.add(EntitySetting.FINISHING_PASS_DIRECTION);
         settings.add(EntitySetting.LINE_SPACING);
         settings.add(EntitySetting.TABS);
         settings.add(EntitySetting.TAB_COUNT);

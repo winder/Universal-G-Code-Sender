@@ -24,25 +24,40 @@ import com.willwinder.ugs.designer.entities.cuttable.ToolPathDirection;
  * @author Joacim Breiler
  */
 public enum ToolPathDirectionTypeV1 {
+    /**
+     * Legacy value from designs saved before the direction of travel could be chosen,
+     * kept so that those files can still be read.
+     */
     HORIZONTAL,
-    VERTICAL;
+    /**
+     * Legacy value from designs saved before the direction of travel could be chosen,
+     * kept so that those files can still be read.
+     */
+    VERTICAL,
+    LEFT_RIGHT,
+    RIGHT_LEFT,
+    TOP_BOTTOM,
+    BOTTOM_TOP;
 
     public static ToolPathDirectionTypeV1 fromDirection(ToolPathDirection direction) {
         return switch (direction) {
-            case VERTICAL -> VERTICAL;
-            case HORIZONTAL -> HORIZONTAL;
+            case LEFT_RIGHT -> LEFT_RIGHT;
+            case RIGHT_LEFT -> RIGHT_LEFT;
+            case TOP_BOTTOM -> TOP_BOTTOM;
+            case BOTTOM_TOP -> BOTTOM_TOP;
         };
     }
 
     public static ToolPathDirection toDirection(ToolPathDirectionTypeV1 direction) {
         if (direction == null) {
-            return ToolPathDirection.HORIZONTAL;
+            return ToolPathDirection.LEFT_RIGHT;
         }
 
         return switch (direction) {
-            case HORIZONTAL -> ToolPathDirection.HORIZONTAL;
-            case VERTICAL -> ToolPathDirection.VERTICAL;
+            case HORIZONTAL, LEFT_RIGHT -> ToolPathDirection.LEFT_RIGHT;
+            case RIGHT_LEFT -> ToolPathDirection.RIGHT_LEFT;
+            case VERTICAL, TOP_BOTTOM -> ToolPathDirection.TOP_BOTTOM;
+            case BOTTOM_TOP -> ToolPathDirection.BOTTOM_TOP;
         };
     }
 }
-

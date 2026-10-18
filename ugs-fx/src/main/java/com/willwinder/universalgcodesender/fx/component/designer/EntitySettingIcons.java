@@ -84,8 +84,10 @@ final class EntitySettingIcons {
 
     static String toolPathDirectionResource(ToolPathDirection direction) {
         return switch (direction) {
-            case HORIZONTAL -> "icons/arrows-horizontal.svg";
-            case VERTICAL -> "icons/arrows-vertical.svg";
+            case LEFT_RIGHT -> "icons/arrow-right.svg";
+            case RIGHT_LEFT -> "icons/arrow-left.svg";
+            case TOP_BOTTOM -> "icons/arrow-down.svg";
+            case BOTTOM_TOP -> "icons/arrow-up.svg";
         };
     }
 

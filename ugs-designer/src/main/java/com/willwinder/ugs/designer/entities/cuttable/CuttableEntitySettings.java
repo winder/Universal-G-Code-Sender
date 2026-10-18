@@ -29,6 +29,7 @@ public class CuttableEntitySettings {
             case PLUNGE_TYPE -> Optional.of(cuttable.getPlungeType());
             case FINISHING_PASS -> Optional.of(cuttable.isFinishingPass());
             case STOCK_TO_LEAVE -> Optional.of(cuttable.getStockToLeave());
+            case FINISHING_PASS_DIRECTION -> Optional.of(cuttable.getFinishingPassDirection());
             case LINE_SPACING -> Optional.of(cuttable.getLineSpacing());
             case TABS -> Optional.of(cuttable.hasTabs());
             case TAB_COUNT -> Optional.of(cuttable.getTabCount());
@@ -52,6 +53,7 @@ public class CuttableEntitySettings {
             case PLUNGE_TYPE -> cuttable.setPlungeType((PlungeType) value);
             case FINISHING_PASS -> cuttable.setFinishingPass((Boolean) value);
             case STOCK_TO_LEAVE -> cuttable.setStockToLeave(((Number) value).doubleValue());
+            case FINISHING_PASS_DIRECTION -> cuttable.setFinishingPassDirection((ToolPathDirection) value);
             case LINE_SPACING -> cuttable.setLineSpacing(((Number) value).doubleValue());
             case TABS -> cuttable.setTabs((Boolean) value);
             case TAB_COUNT -> cuttable.setTabCount(((Number) value).intValue());
