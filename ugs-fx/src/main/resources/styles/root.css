@@ -210,6 +210,46 @@
     -fx-background-color: transparent;
 }
 
+/* The entity tree selects rows like the lists and tables: a light bar with the regular text colour. */
+.entity-tree {
+    -fx-selection-bar: -fx-focus-background-color;
+    -fx-selection-bar-non-focused: -fx-focus-background-color;
+}
+
+.entity-tree .tree-cell:selected .label,
+.entity-tree .tree-cell:hover .label {
+    -fx-text-fill: -fx-text-base-color;
+}
+
+/* The folder icon of a group row replaces the disclosure arrow. */
+.entity-tree .tree-cell > .tree-disclosure-node,
+.entity-tree .tree-cell > .tree-disclosure-node > .arrow {
+    -fx-padding: 0;
+    -fx-shape: null;
+}
+
+/* Drop markers while dragging rows: a line above or below the row, or the row filled when
+   dropping into a group. Painted as backgrounds so the rows keep their size. */
+.entity-tree .tree-cell:drop-before {
+    -fx-background-color: -ugs-blackish-color, -fx-background;
+    -fx-background-insets: 0, 2 0 0 0;
+}
+
+.entity-tree .tree-cell:drop-after {
+    -fx-background-color: -ugs-blackish-color, -fx-background;
+    -fx-background-insets: 0, 0 0 2 0;
+}
+
+.entity-tree .tree-cell:drop-into {
+    -fx-background-color: -fx-focus-background-color;
+}
+
+/* Second line of a cuttable in the entity tree: depths, feed rate and spindle speed. */
+.entity-tree .entity-tree-detail {
+    -fx-font-size: 0.85em;
+    -fx-opacity: 0.7;
+}
+
 /* Header bar that labels and separates the inspector's stacked sections. */
 .inspector-section-header {
     -fx-font-weight: bold;

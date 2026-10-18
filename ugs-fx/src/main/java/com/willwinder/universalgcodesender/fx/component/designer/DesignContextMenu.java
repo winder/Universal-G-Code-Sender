@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.fx.actions.DesignGroupAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignIntersectionAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignPasteAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignSubtractAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignToggleHiddenAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignUnionAction;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
@@ -55,6 +56,7 @@ public final class DesignContextMenu {
         addSection(menu, List.of(DesignGroupAction.class, DesignBreakApartAction.class));
         addSection(menu, List.of(DesignUnionAction.class, DesignSubtractAction.class, DesignIntersectionAction.class));
         addSection(menu, List.of(DesignFlipHorizontalAction.class, DesignFlipVerticalAction.class));
+        addSection(menu, List.of(DesignToggleHiddenAction.class));
         return menu;
     }
 
@@ -77,9 +79,9 @@ public final class DesignContextMenu {
         MenuItem item = new MenuItem();
         item.textProperty().bind(action.titleProperty());
         item.disableProperty().bind(action.enabledProperty().not());
-        item.setOnAction(event -> action.handle(new ActionEvent()));
+        item.setOnAction(_ -> action.handle(new ActionEvent()));
         setIcon(item, action.getIcon());
-        action.iconProperty().addListener((observable, oldValue, newValue) -> setIcon(item, newValue));
+        action.iconProperty().addListener((_, _, newValue) -> setIcon(item, newValue));
         return item;
     }
 
