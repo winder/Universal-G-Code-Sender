@@ -22,24 +22,15 @@ import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.EntityGroup;
 import com.willwinder.ugs.designer.entities.EntityListener;
 import com.willwinder.ugs.designer.entities.EventType;
-import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
-import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
-import com.willwinder.ugs.designer.entities.cuttable.Path;
-import com.willwinder.ugs.designer.entities.cuttable.Point;
-import com.willwinder.ugs.designer.entities.cuttable.Raster;
-import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
-import com.willwinder.ugs.designer.entities.cuttable.Text;
 import com.willwinder.ugs.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerEventType;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
-import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceBounds;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
-import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.SelectionMode;
@@ -51,28 +42,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * A JavaFX tree showing the entities of the active design. It mirrors the Swing
  * {@code EntitiesTree} from the designer module: the structure is built from the design's
  * root {@link EntityGroup} and selection is kept in sync, both ways, with the
- * {@link SelectionManager}.
+ * {@link SelectionManager}. Rows can be dragged to reorder entities or to move them into a group,
+ * see {@link EntityTreeDragSupport}. A right click opens the same {@link DesignContextMenu} as the
+ * design in the visualizer, acting on the selected entities.
  */
 public class EntityTreeView extends TreeView<Entity> {
 
-    private static final int ICON_SIZE = 16;
     private static final double ZOOM_MARGIN_FACTOR = 0.1;
     private static final double MIN_ZOOM_MARGIN = 5;
 
     // Entity-property events that should refresh the cell labels/icons without rebuilding.
     private static final EnumSet<EventType> REFRESH_EVENTS = EnumSet.of(
-            EventType.SETTINGS_CHANGED, EventType.HIDDEN);
+            EventType.SETTINGS_CHANGED, EventType.HIDDEN, EventType.PATH_CHANGED);
 
     private final Controller controller;
     private final SelectionManager selectionManager;
-    private final EntityListener rootListener;
-    private final SelectionListener selectionListener;
 
     // Maps the live design entities to their tree nodes so we can sync the selection.
     private final Map<Entity, TreeItem<Entity>> itemByEntity = new HashMap<>();
@@ -87,11 +76,17 @@ public class EntityTreeView extends TreeView<Entity> {
         getStyleClass().add("entity-tree");
         setShowRoot(false);
         getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        setCellFactory(tv -> new EntityTreeCell(this::zoomTo));
+        setContextMenu(DesignContextMenu.create());
+        EntityTreeDragSupport dragSupport = new EntityTreeDragSupport(this, controller);
+        setCellFactory(_ -> {
+            EntityTreeCell cell = new EntityTreeCell(() -> controller.getSettings().getPreferredUnits(), this::zoomTo);
+            dragSupport.install(cell);
+            return cell;
+        });
 
         rebuild();
 
-        this.rootListener = event -> Platform.runLater(() -> onEntityEvent(event.getType()));
+        EntityListener rootListener = event -> Platform.runLater(() -> onEntityEvent(event.getType()));
         controller.getModel().getRootEntity().addListener(rootListener);
 
         controller.addListener(event -> {
@@ -100,11 +95,11 @@ public class EntityTreeView extends TreeView<Entity> {
             }
         });
 
-        this.selectionListener = e -> Platform.runLater(this::syncSelectionFromManager);
+        SelectionListener selectionListener = _ -> Platform.runLater(this::syncSelectionFromManager);
         selectionManager.addSelectionListener(selectionListener);
 
         getSelectionModel().getSelectedItems().addListener(
-                (ListChangeListener<TreeItem<Entity>>) c -> syncSelectionToManager());
+                (ListChangeListener<TreeItem<Entity>>) _ -> syncSelectionToManager());
     }
 
     /**
@@ -137,7 +132,14 @@ public class EntityTreeView extends TreeView<Entity> {
         itemByEntity.clear();
         EntityGroup root = controller.getModel().getRootEntity();
         TreeItem<Entity> rootItem = buildItem(root, expanded, true);
-        setRoot(rootItem);
+
+        // Replacing the root clears the tree selection, which must not clear the manager's.
+        updatingSelection = true;
+        try {
+            setRoot(rootItem);
+        } finally {
+            updatingSelection = false;
+        }
 
         syncSelectionFromManager();
     }
@@ -226,60 +228,6 @@ public class EntityTreeView extends TreeView<Entity> {
             });
         } finally {
             updatingSelection = false;
-        }
-    }
-
-    /**
-     * Renders an entity as an icon plus its name.
-     */
-    private static class EntityTreeCell extends TreeCell<Entity> {
-        EntityTreeCell(Consumer<Entity> onDoubleClick) {
-            setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !isEmpty() && getItem() != null) {
-                    onDoubleClick.accept(getItem());
-                }
-            });
-        }
-
-        @Override
-        protected void updateItem(Entity entity, boolean empty) {
-            super.updateItem(entity, empty);
-            if (empty || entity == null) {
-                setText(null);
-                setGraphic(null);
-                return;
-            }
-
-            setText(entity.getName());
-            setGraphic(SvgLoader.loadImageIcon(iconFor(entity), ICON_SIZE).orElse(null));
-        }
-
-        private String iconFor(Entity entity) {
-            if (entity instanceof EntityGroup) {
-                return "icons/group.svg";
-            }
-            if (entity instanceof Cuttable cuttable && cuttable.isHidden()) {
-                return "icons/clear.svg";
-            }
-            if (entity instanceof Ellipse) {
-                return "icons/circle.svg";
-            }
-            if (entity instanceof Rectangle) {
-                return "icons/rectangle.svg";
-            }
-            if (entity instanceof Text) {
-                return "icons/text.svg";
-            }
-            if (entity instanceof Point) {
-                return "icons/position.svg";
-            }
-            if (entity instanceof Raster) {
-                return "icons/clipart.svg";
-            }
-            if (entity instanceof Path) {
-                return "icons/lines.svg";
-            }
-            return "icons/cube.svg";
         }
     }
 }
