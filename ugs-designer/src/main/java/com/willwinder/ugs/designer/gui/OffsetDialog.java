@@ -23,13 +23,10 @@ import com.willwinder.ugs.designer.entities.EntityGroup;
 import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.Tool;
+import com.willwinder.ugs.designer.model.OffsetDirection;
+import com.willwinder.ugs.designer.model.OffsetJoinStyle;
+import com.willwinder.ugs.designer.utils.OffsetUtils;
 import net.miginfocom.swing.MigLayout;
-import org.locationtech.jts.awt.ShapeReader;
-import org.locationtech.jts.awt.ShapeWriter;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.operation.buffer.BufferOp;
-import org.locationtech.jts.operation.buffer.BufferParameters;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -37,8 +34,6 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,8 +45,8 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
     public static final String SPINNER_COL_CONSTRAINTS = "width 60:100:100, wrap";
 
     private JSpinner offsetDistance;
-    private JComboBox<String> directionBox;
-    private JComboBox<String> joinStyleBox;
+    private JComboBox<OffsetDirection> directionBox;
+    private JComboBox<OffsetJoinStyle> joinStyleBox;
     private JCheckBox unionResultsCheckbox;
     private JButton cancelButton;
     private JButton okButton;
@@ -78,11 +73,11 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
 
     private void addEventListeners() {
         offsetDistance.addChangeListener(this);
-        directionBox.addActionListener(e -> stateChanged(null));
-        joinStyleBox.addActionListener(e -> stateChanged(null));
-        unionResultsCheckbox.addActionListener(e -> stateChanged(null));
-        cancelButton.addActionListener(e -> onCancel());
-        okButton.addActionListener(e -> onOk());
+        directionBox.addActionListener(_ -> stateChanged(null));
+        joinStyleBox.addActionListener(_ -> stateChanged(null));
+        unionResultsCheckbox.addActionListener(_ -> stateChanged(null));
+        cancelButton.addActionListener(_ -> onCancel());
+        okButton.addActionListener(_ -> onOk());
         addWindowListener(this);
     }
 
@@ -96,7 +91,7 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         offsetPanel.add(offsetDistance, SPINNER_COL_CONSTRAINTS);
 
         offsetPanel.add(new JLabel("Offset direction", SwingConstants.TRAILING), "grow");
-        directionBox = new JComboBox<>(new String[]{"Outward", "Inward", "Both"});
+        directionBox = new JComboBox<>(OffsetDirection.values());
         offsetPanel.add(directionBox, SPINNER_COL_CONSTRAINTS);
         add(offsetPanel, "grow");
 
@@ -105,7 +100,7 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
                 BorderFactory.createTitledBorder("Options"),
                 BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING)));
         optionsPanel.add(new JLabel("Join style", SwingConstants.TRAILING), "grow");
-        joinStyleBox = new JComboBox<>(new String[]{"Round", "Bevel", "Mitre"});
+        joinStyleBox = new JComboBox<>(OffsetJoinStyle.values());
         optionsPanel.add(joinStyleBox, SPINNER_COL_CONSTRAINTS);
 
         unionResultsCheckbox = new JCheckBox("Union all", false);
@@ -149,153 +144,22 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
     public void stateChanged(ChangeEvent e) {
         entityGroup.removeAll();
 
-        EntityGroup selection = new EntityGroup();
-        selection.addAll(controller.getSelectionManager().getSelection().stream()
+        List<Entity> selection = controller.getSelectionManager().getSelection().stream()
                 .map(Entity::copy)
-                .toList());
+                .toList();
 
-        float offset = ((Double) offsetDistance.getValue()).floatValue();
-        if (offset <= 0 || selection.getChildren().isEmpty()) {
+        double offset = (Double) offsetDistance.getValue();
+        if (offset <= 0 || selection.isEmpty()) {
             controller.setTool(Tool.SELECT);
             return;
         }
 
-        String direction = (String) directionBox.getSelectedItem();
-        boolean unionResults = unionResultsCheckbox.isSelected();
-
-        List<Path> allOffsetPaths = new ArrayList<>();
-        for (Entity entity : selection.getChildren()) {
-            Shape shape = getEntityShape(entity);
-            if (shape == null) continue;
-            allOffsetPaths.addAll(createDirectionalOffsetPaths(shape, offset, direction));
-        }
-
-        if (unionResults && allOffsetPaths.size() > 1) {
-            Path unionedPath = performUnionOperation(allOffsetPaths);
-            if (unionedPath != null) {
-                entityGroup.addChild(unionedPath);
-            } else {
-                allOffsetPaths.forEach(entityGroup::addChild);
-            }
-        } else {
-            allOffsetPaths.forEach(entityGroup::addChild);
-        }
+        List<Path> offsetPaths = OffsetUtils.offset(selection, offset,
+                (OffsetDirection) directionBox.getSelectedItem(),
+                (OffsetJoinStyle) joinStyleBox.getSelectedItem(),
+                unionResultsCheckbox.isSelected());
+        offsetPaths.forEach(entityGroup::addChild);
         controller.repaintDrawing();
-    }
-
-    private Path performUnionOperation(List<Path> paths) {
-        try {
-            GeometryFactory gf = new GeometryFactory();
-            ShapeReader reader = new ShapeReader(gf);
-            Geometry unionGeometry = null;
-            for (Path path : paths) {
-                Shape pathShape = path.getShape();
-                if (pathShape == null) continue;
-                Shape flattenedShape = flattenShape(pathShape);
-                Geometry geom = reader.read(flattenedShape.getPathIterator(new AffineTransform()));
-                if (geom == null || geom.isEmpty()) continue;
-                if (!geom.isValid()) geom = geom.buffer(0);
-                unionGeometry = (unionGeometry == null) ? geom : unionGeometry.union(geom);
-            }
-            if (unionGeometry != null && !unionGeometry.isEmpty()) {
-                return shapeToPath(unionGeometry);
-            }
-        } catch (Exception ignored) {}
-        return null;
-    }
-
-    private Shape getEntityShape(Entity entity) {
-        Shape shape = entity.getShape();
-        if (shape != null && shape.getBounds2D().getWidth() > 0 && shape.getBounds2D().getHeight() > 0) {
-            return shape;
-        }
-        Shape relativeShape = entity.getRelativeShape();
-        if (relativeShape != null && entity.getTransform() != null) {
-            Shape transformedShape = entity.getTransform().createTransformedShape(relativeShape);
-            if (transformedShape != null && transformedShape.getBounds2D().getWidth() > 0) {
-                return transformedShape;
-            }
-        }
-        java.awt.geom.Rectangle2D bounds = entity.getBounds();
-        if (bounds.getWidth() > 0 && bounds.getHeight() > 0) {
-            return new java.awt.geom.Rectangle2D.Double(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
-        }
-        return null;
-    }
-
-    private List<Path> createDirectionalOffsetPaths(Shape shape, float offset, String direction) {
-        List<Path> paths = new ArrayList<>();
-        try {
-            GeometryFactory gf = new GeometryFactory();
-            ShapeReader reader = new ShapeReader(gf);
-            Shape flattenedShape = flattenShape(shape);
-            Geometry geom = reader.read(flattenedShape.getPathIterator(new AffineTransform()));
-            if (geom == null || geom.isEmpty()) return paths;
-            if (!geom.isValid()) geom = geom.buffer(0);
-
-            if ("Outward".equals(direction)) {
-                Geometry buffered = createOffset(geom, offset);
-                if (buffered != null && !buffered.isEmpty()) paths.add(shapeToPath(buffered));
-            } else if ("Inward".equals(direction)) {
-                Geometry buffered = createOffset(geom, -offset);
-                if (buffered != null && !buffered.isEmpty()) paths.add(shapeToPath(buffered));
-            } else if ("Both".equals(direction)) {
-                Geometry bufferedOut = createOffset(geom, offset);
-                if (bufferedOut != null && !bufferedOut.isEmpty()) paths.add(shapeToPath(bufferedOut));
-                Geometry bufferedIn = createOffset(geom, -offset);
-                if (bufferedIn != null && !bufferedIn.isEmpty()) paths.add(shapeToPath(bufferedIn));
-            }
-        } catch (Exception ignored) {}
-        return paths;
-    }
-
-    private Shape flattenShape(Shape shape) {
-        double flatness = 0.1;
-        java.awt.geom.PathIterator pathIterator = shape.getPathIterator(new AffineTransform(), flatness);
-        java.awt.geom.Path2D.Double flattenedPath = new java.awt.geom.Path2D.Double();
-        flattenedPath.append(pathIterator, false);
-        return flattenedPath;
-    }
-
-    private Geometry createOffset(Geometry geom, float offset) {
-        try {
-            BufferParameters bufferParams = createBufferParameters();
-            return BufferOp.bufferOp(geom, offset, bufferParams);
-        } catch (Exception e) {
-            BufferParameters roundParams = new BufferParameters();
-            roundParams.setEndCapStyle(BufferParameters.CAP_ROUND);
-            roundParams.setJoinStyle(BufferParameters.JOIN_ROUND);
-            roundParams.setQuadrantSegments(16);
-            return BufferOp.bufferOp(geom, offset, roundParams);
-        }
-    }
-
-    private BufferParameters createBufferParameters() {
-        BufferParameters bufferParams = new BufferParameters();
-        bufferParams.setEndCapStyle(BufferParameters.CAP_FLAT);
-        bufferParams.setQuadrantSegments(16);
-        bufferParams.setSingleSided(false);
-
-        String joinStyle = (String) joinStyleBox.getSelectedItem();
-        if ("Round".equals(joinStyle)) {
-            bufferParams.setJoinStyle(BufferParameters.JOIN_ROUND);
-        } else if ("Bevel".equals(joinStyle)) {
-            bufferParams.setJoinStyle(BufferParameters.JOIN_BEVEL);
-        } else if ("Mitre".equals(joinStyle)) {
-            bufferParams.setJoinStyle(BufferParameters.JOIN_MITRE);
-            bufferParams.setMitreLimit(10.0);
-        } else {
-            bufferParams.setJoinStyle(BufferParameters.JOIN_ROUND);
-        }
-        return bufferParams;
-    }
-
-    private Path shapeToPath(Geometry geometry) {
-        ShapeWriter writer = new ShapeWriter();
-        Shape offsetShape = writer.toShape(geometry);
-        Path offsetPath = new Path();
-        offsetPath.append(offsetShape);
-        return offsetPath;
     }
 
     @Override

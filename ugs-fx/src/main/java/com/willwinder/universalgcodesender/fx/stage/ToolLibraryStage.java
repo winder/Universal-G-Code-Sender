@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.fx.component.toollibrary.ToolEditorPa
 import com.willwinder.universalgcodesender.fx.component.toollibrary.ToolListCell;
 import com.willwinder.universalgcodesender.fx.service.ToolLibraryProvider;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -102,13 +103,13 @@ public class ToolLibraryStage extends Stage {
         setMinHeight(400);
         refreshList(selectedToolId);
         service.addListener(libraryListener);
-        setOnHidden(event -> service.removeListener(libraryListener));
-        setOnShowing(event -> centerOnOwner());
+        setOnHidden(_ -> service.removeListener(libraryListener));
+        setOnShowing(_ -> WindowHelper.centerOnOwner(this));
     }
 
     private Scene createScene() {
-        toolList.setCellFactory(list -> new ToolListCell());
-        toolList.getSelectionModel().selectedItemProperty().addListener((observable, was, selected) -> onSelectionChanged());
+        toolList.setCellFactory(_ -> new ToolListCell());
+        toolList.getSelectionModel().selectedItemProperty().addListener((_, _, _) -> onSelectionChanged());
         if (mode == Mode.PICK) {
             toolList.setOnMouseClicked(event -> {
                 if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2 && selectedTool() != null) {
@@ -119,9 +120,9 @@ public class ToolLibraryStage extends Stage {
         VBox.setVgrow(toolList, Priority.ALWAYS);
 
         Button addButton = new Button("Add");
-        addButton.setOnAction(event -> onAdd());
-        duplicateButton.setOnAction(event -> onDuplicate());
-        deleteButton.setOnAction(event -> onDelete());
+        addButton.setOnAction(_ -> onAdd());
+        duplicateButton.setOnAction(_ -> onDuplicate());
+        deleteButton.setOnAction(_ -> onDelete());
         HBox listButtons = new HBox(6, addButton, duplicateButton, deleteButton);
         listButtons.getChildren().forEach(button -> {
             HBox.setHgrow(button, Priority.ALWAYS);
@@ -156,16 +157,16 @@ public class ToolLibraryStage extends Stage {
         if (mode == Mode.PICK) {
             Button select = new Button("Select");
             select.setDefaultButton(true);
-            select.setOnAction(event -> acceptAndClose());
+            select.setOnAction(_ -> acceptAndClose());
             select.disableProperty().bind(toolList.getSelectionModel().selectedItemProperty().isNull());
             Button cancel = new Button("Cancel");
-            cancel.setOnAction(event -> cancelAndClose());
+            cancel.setOnAction(_ -> cancelAndClose());
             ButtonBox.setButtonData(cancel, ButtonBox.ButtonData.CANCEL_CLOSE);
             ButtonBox.setButtonData(select, ButtonBox.ButtonData.OK_DONE);
             buttons.getButtons().addAll(cancel, select);
         } else {
             Button close = new Button("Close");
-            close.setOnAction(event -> cancelAndClose());
+            close.setOnAction(_ -> cancelAndClose());
             ButtonBox.setButtonData(close, ButtonBox.ButtonData.OK_DONE);
             buttons.getButtons().add(close);
         }
@@ -369,14 +370,6 @@ public class ToolLibraryStage extends Stage {
             ToolDefinition selected = selectedTool();
             refreshList(selected == null ? null : selected.getId());
         });
-    }
-
-    private void centerOnOwner() {
-        Window owner = getOwner();
-        if (owner != null) {
-            setX(owner.getX() + owner.getWidth() / 2 - getWidth() / 2);
-            setY(owner.getY() + owner.getHeight() / 2 - getHeight() / 2);
-        }
     }
 
     /**

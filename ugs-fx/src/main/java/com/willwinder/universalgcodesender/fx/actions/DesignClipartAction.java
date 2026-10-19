@@ -26,9 +26,9 @@ import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.designer.logic.Tool;
 import com.willwinder.universalgcodesender.fx.dialog.InsertClipartDialog;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
 import javafx.stage.Window;
 
 /**
@@ -44,7 +44,7 @@ public class DesignClipartAction extends BaseAction {
 
     @Override
     public void handleAction(ActionEvent event) {
-        Window owner = resolveWindow(event);
+        Window owner = WindowHelper.resolveWindow(event);
         Platform.runLater(() -> {
             InsertClipartDialog dialog = new InsertClipartDialog(owner);
             dialog.showAndWait();
@@ -60,13 +60,4 @@ public class DesignClipartAction extends BaseAction {
         controller.setTool(Tool.SELECT);
     }
 
-    private static Window resolveWindow(ActionEvent event) {
-        if (event != null && event.getSource() instanceof Node node && node.getScene() != null) {
-            return node.getScene().getWindow();
-        }
-        return Window.getWindows().stream()
-                .filter(Window::isFocused)
-                .findFirst()
-                .orElse(null);
-    }
 }

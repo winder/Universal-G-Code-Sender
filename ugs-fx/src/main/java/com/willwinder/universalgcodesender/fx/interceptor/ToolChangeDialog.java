@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.services.interceptor.InterceptorState
 import com.willwinder.universalgcodesender.services.interceptor.InterceptorStateEvent;
 import com.willwinder.universalgcodesender.services.interceptor.ToolChangeInterceptor;
 import com.willwinder.universalgcodesender.services.interceptor.UserResponse;
+import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -110,7 +111,7 @@ public class ToolChangeDialog extends Stage implements InterceptorDialog {
         Scene scene = new Scene(root, MIN_WIDTH, MIN_HEIGHT);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/root.css")).toExternalForm());
         setScene(scene);
-        setOnShown(event -> centerOnOwner());
+        setOnShown(_ -> WindowHelper.centerOnOwner(this));
     }
 
     @Override
@@ -189,7 +190,7 @@ public class ToolChangeDialog extends Stage implements InterceptorDialog {
         button.setFocusTraversable(false);
         button.setDisable(!enabled);
         button.setMinWidth(BUTTON_MIN_WIDTH);
-        button.setOnAction(event -> {
+        button.setOnAction(_ -> {
             disableButtons();
             action.run();
         });
@@ -200,15 +201,6 @@ public class ToolChangeDialog extends Stage implements InterceptorDialog {
 
     private void disableButtons() {
         buttonBox.getButtons().forEach(button -> button.setDisable(true));
-    }
-
-    private void centerOnOwner() {
-        Window owner = getOwner();
-        if (owner == null) {
-            return;
-        }
-        setX(owner.getX() + (owner.getWidth() - getWidth()) / 2);
-        setY(owner.getY() + (owner.getHeight() - getHeight()) / 2);
     }
 
     private String bodyFor(InterceptorState state, String stepId) {

@@ -561,7 +561,7 @@ public class EntitySettingsPanel extends VBox {
             case SPINDLE_SPEED ->
                     controls.intField(Cuttable::getSpindleSpeed, Cuttable::setSpindleSpeed, entities, Unit.PERCENT);
             case FEED_RATE ->
-                    controls.intField(Cuttable::getFeedRate, Cuttable::setFeedRate, entities, Unit.METERS_PER_SECOND);
+                    controls.intField(Cuttable::getFeedRate, Cuttable::setFeedRate, entities, Unit.MM_PER_MINUTE);
             case PASSES -> controls.intField(Cuttable::getPasses, Cuttable::setPasses, entities, Unit.TIMES);
             case LEAD_IN_PERCENT ->
                     controls.intField(Cuttable::getLeadInPercent, Cuttable::setLeadInPercent, entities, Unit.PERCENT);

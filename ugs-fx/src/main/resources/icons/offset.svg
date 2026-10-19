@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 16 16"
+   version="1.1"
+   width="16"
+   height="16"
+   xmlns="http://www.w3.org/2000/svg">
+  <rect
+     style="fill:none;stroke:#353a40;stroke-width:1;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:1, 2;stroke-opacity:1"
+     width="15"
+     height="15"
+     x="0.5"
+     y="0.5"
+     ry="2.5" />
+  <rect
+     style="fill:#353a40;fill-opacity:1;stroke:#353a40;stroke-width:1;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:1"
+     width="7"
+     height="7"
+     x="4.5"
+     y="4.5"
+     ry="1" />
+</svg>

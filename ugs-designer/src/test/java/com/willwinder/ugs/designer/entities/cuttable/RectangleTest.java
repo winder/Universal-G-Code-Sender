@@ -5,9 +5,12 @@ import com.willwinder.ugs.designer.entities.EventType;
 import com.willwinder.ugs.designer.model.Size;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
+import java.awt.Shape;
+import java.awt.geom.RoundRectangle2D;
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -93,5 +96,49 @@ public class RectangleTest {
         assertTrue(rectangle.getSettings().contains(EntitySetting.POSITION_X));
         assertTrue(rectangle.getSettings().contains(EntitySetting.POSITION_Y));
         assertTrue(rectangle.getSettings().contains(EntitySetting.ROTATION));
+    }
+
+    @Test
+    public void getEntitySetting_shouldReturnCornerRadius() {
+        Rectangle rectangle = new Rectangle(0, 0, 20, 10);
+        rectangle.setCornerRadius(2.5);
+
+        Object result = rectangle.getEntitySetting(EntitySetting.CORNER_RADIUS).orElseThrow();
+
+        assertEquals(2.5, (Double) result, 0.01);
+    }
+
+    @Test
+    public void setEntitySetting_shouldApplyCornerRadius() {
+        Rectangle rectangle = new Rectangle(0, 0, 20, 10);
+
+        rectangle.setEntitySetting(EntitySetting.CORNER_RADIUS, 2.5);
+
+        assertEquals(2.5, rectangle.getCornerRadius(), 0.01);
+    }
+
+    @Test
+    public void setCornerRadius_shouldReplaceRelativeShapeSoRenderersNoticeTheChange() {
+        Rectangle rectangle = new Rectangle(0, 0, 20, 10);
+        Shape before = rectangle.getRelativeShape();
+
+        rectangle.setCornerRadius(2.5);
+
+        Shape after = rectangle.getRelativeShape();
+        assertNotSame(before, after);
+        assertEquals(0.25, ((RoundRectangle2D) after).getArcWidth(), 0.001);
+        assertEquals(0.5, ((RoundRectangle2D) after).getArcHeight(), 0.001);
+    }
+
+    @Test
+    public void setSize_shouldKeepCornerRadiusAndReplaceRelativeShapeWhenStretched() {
+        Rectangle rectangle = new Rectangle(0, 0, 20, 10);
+        rectangle.setCornerRadius(2.5);
+        Shape before = rectangle.getRelativeShape();
+
+        rectangle.setSize(new Size(40, 10));
+
+        assertNotSame(before, rectangle.getRelativeShape());
+        assertEquals(2.5, rectangle.getCornerRadius(), 0.001);
     }
 }

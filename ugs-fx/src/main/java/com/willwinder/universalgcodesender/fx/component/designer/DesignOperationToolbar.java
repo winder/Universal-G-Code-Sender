@@ -21,12 +21,13 @@ package com.willwinder.universalgcodesender.fx.component.designer;
 import com.willwinder.universalgcodesender.fx.actions.DesignBreakApartAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignGroupAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignIntersectionAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignOffsetAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignStitchAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignSubtractAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignUnionAction;
 
 /**
- * A toolbar of geometric operations (union, subtract, intersection, break apart, stitch) and the
+ * A toolbar of geometric operations (union, subtract, intersection, break apart, stitch, offset) and the
  * grouping action, laid out as flowing buttons. Each action enables itself based on the current
  * selection (for example, a union needs at least two selected entities while a break apart needs
  * a single compound path).
@@ -41,6 +42,7 @@ public class DesignOperationToolbar extends AbstractDesignToolbar {
         addButton(DesignIntersectionAction.class);
         addButton(DesignBreakApartAction.class);
         addButton(DesignStitchAction.class);
+        addButton(DesignOffsetAction.class);
         addButton(DesignGroupAction.class);
     }
 }
