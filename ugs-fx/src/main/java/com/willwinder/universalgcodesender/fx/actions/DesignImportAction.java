@@ -30,9 +30,9 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -59,7 +59,7 @@ public class DesignImportAction extends BaseAction {
 
     @Override
     public void handleAction(ActionEvent event) {
-        Window owner = resolveWindow(event);
+        Window owner = WindowHelper.resolveWindow(event);
         Settings settings = LookupService.lookup(BackendAPI.class).getSettings();
 
         FileChooser fileChooser = new FileChooser();
@@ -120,13 +120,4 @@ public class DesignImportAction extends BaseAction {
         return directory.isDirectory() ? directory : null;
     }
 
-    private static Window resolveWindow(ActionEvent event) {
-        if (event != null && event.getSource() instanceof Node node && node.getScene() != null) {
-            return node.getScene().getWindow();
-        }
-        return Window.getWindows().stream()
-                .filter(Window::isFocused)
-                .findFirst()
-                .orElse(null);
-    }
 }

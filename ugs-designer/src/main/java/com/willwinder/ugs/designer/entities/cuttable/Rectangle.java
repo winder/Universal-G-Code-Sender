@@ -29,13 +29,14 @@ import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Joacim Breiler
  */
 public class Rectangle extends AbstractCuttable {
 
-    private final RoundRectangle2D.Double shape;
+    private RoundRectangle2D.Double shape;
     private double cornerRadiusPercent = 0.0;
 
     public Rectangle() {
@@ -84,13 +85,30 @@ public class Rectangle extends AbstractCuttable {
         setCornerRadiusPercent(cornerRadiusPercent);
     }
 
+    @Override
+    public Optional<Object> getEntitySetting(EntitySetting entitySetting) {
+        if (entitySetting == EntitySetting.CORNER_RADIUS) {
+            return Optional.of(getCornerRadius());
+        }
+        return super.getEntitySetting(entitySetting);
+    }
+
+    @Override
+    public void setEntitySetting(EntitySetting entitySetting, Object value) {
+        if (entitySetting == EntitySetting.CORNER_RADIUS && value instanceof Number number) {
+            setCornerRadius(number.doubleValue());
+            return;
+        }
+        super.setEntitySetting(entitySetting, value);
+    }
+
     public void setCornerRadius(Double cornerRadius) {
         if (cornerRadius == null) return;
 
         double w = getSize().getWidth();
         double h = getSize().getHeight();
         double minSide = Math.min(w, h);
-        double percent = Math.max(0d, Math.min(1d, cornerRadius / minSide));
+        double percent = Math.clamp(cornerRadius / minSide, 0d, 1d);
 
         if (!isEqual(percent, this.cornerRadiusPercent, 0.01)) {
             setCornerRadiusPercent(percent);
@@ -103,18 +121,21 @@ public class Rectangle extends AbstractCuttable {
         double h = getSize().getHeight();
         this.cornerRadiusPercent = percent;
 
+        double localArcW = 0;
+        double localArcH = 0;
         // Avoid divide-by-zero; also no meaningful rounding for degenerate sizes
-        if (w <= 0 || h <= 0) {
-            shape.setRoundRect(0, 0, 1, 1, 0, 0);
-        } else {
+        if (w > 0 && h > 0) {
             // Desired arc diameter in "world space" (after transform)
             double worldArc = (Math.min(w, h) * 2) * percent;
 
             // Convert to local arc diameters so that after scaling they become worldArc
-            double localArcW = worldArc / w;
-            double localArcH = worldArc / h;
+            localArcW = worldArc / w;
+            localArcH = worldArc / h;
+        }
 
-            shape.setRoundRect(0, 0, 1, 1, localArcW, localArcH);
+        // Renderers cache geometry by shape instance, so hand out a new shape when the rounding changes
+        if (shape.getArcWidth() != localArcW || shape.getArcHeight() != localArcH) {
+            shape = new RoundRectangle2D.Double(0, 0, 1, 1, localArcW, localArcH);
         }
     }
 

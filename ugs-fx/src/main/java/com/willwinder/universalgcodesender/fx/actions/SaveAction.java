@@ -27,11 +27,10 @@ import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.scene.Node;
 import javafx.stage.FileChooser;
-import javafx.stage.Window;
 
 import java.io.File;
 import java.util.logging.Level;
@@ -113,7 +112,7 @@ public class SaveAction extends BaseAction {
         fileChooser.setInitialFileName("design." + extension);
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UGS design files", "*." + extension));
 
-        File selectedFile = fileChooser.showSaveDialog(resolveWindow(event));
+        File selectedFile = fileChooser.showSaveDialog(WindowHelper.resolveWindow(event));
         if (selectedFile == null) {
             return null;
         }
@@ -126,10 +125,4 @@ public class SaveAction extends BaseAction {
         return selectedFile;
     }
 
-    private static Window resolveWindow(Event event) {
-        if (event != null && event.getSource() instanceof Node node && node.getScene() != null) {
-            return node.getScene().getWindow();
-        }
-        return null;
-    }
 }

@@ -35,6 +35,7 @@ import com.willwinder.universalgcodesender.fx.control.UnitTextField;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitValue;
+import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -151,10 +152,10 @@ public class ToolSettingsStage extends Stage {
         penUpSpindleSpeedRow = new SettingsRow("Pen up speed", penUpSpindleSpeed);
         penDownCommandRow = new SettingsRow("Pen down command", penDownCommand);
         penUpCommandRow = new SettingsRow("Pen up command", penUpCommand);
-        penMode.valueProperty().addListener((observable, oldValue, newValue) -> updatePenRowVisibility());
+        penMode.valueProperty().addListener((_, _, _) -> updatePenRowVisibility());
         updatePenRowVisibility();
         vBitAngleRow = new SettingsRow("V-bit angle", vBitAngle);
-        toolShape.valueProperty().addListener((observable, oldValue, newValue) -> updateVBitAngleVisibility());
+        toolShape.valueProperty().addListener((_, _, _) -> updateVBitAngleVisibility());
         updateVBitAngleVisibility();
         installDeviationHighlighting();
         updateSelectedToolLabel();
@@ -165,12 +166,12 @@ public class ToolSettingsStage extends Stage {
         setHeight(Math.min(860, Screen.getPrimary().getVisualBounds().getHeight() - 80));
         setResizable(true);
 
-        setOnShowing(event -> centerOnOwner());
+        setOnShowing(_ -> WindowHelper.centerOnOwner(this));
     }
 
     private Scene createScene() {
         Button selectToolButton = new Button("Select tool");
-        selectToolButton.setOnAction(e -> onPickFromLibrary());
+        selectToolButton.setOnAction(_ -> onPickFromLibrary());
         selectedToolLabel.setMinWidth(120);
         selectedToolLabel.setMaxWidth(220);
         HBox libraryToolBox = new HBox(6, selectedToolLabel, selectToolButton);
@@ -219,9 +220,9 @@ public class ToolSettingsStage extends Stage {
         scroll.setFitToWidth(true);
 
         Button cancelButton = new Button("Cancel");
-        cancelButton.setOnAction(e -> close());
+        cancelButton.setOnAction(_ -> close());
         Button applyButton = new Button("Apply");
-        applyButton.setOnAction(e -> onApply());
+        applyButton.setOnAction(_ -> onApply());
 
         ButtonBox buttonBox = new ButtonBox();
         ButtonBox.setButtonData(cancelButton, ButtonBox.ButtonData.CANCEL_CLOSE);
@@ -366,7 +367,7 @@ public class ToolSettingsStage extends Stage {
             Double expected = reference.get();
             paintDeviation(field, expected != null && Math.abs(field.getValue() - expected) > 1e-6);
         };
-        field.textProperty().addListener((observable, was, text) -> update.run());
+        field.textProperty().addListener((_, _, _) -> update.run());
         deviationUpdates.add(update);
         update.run();
     }
@@ -376,7 +377,7 @@ public class ToolSettingsStage extends Stage {
             T expected = reference.get();
             paintDeviation(combo, expected != null && !Objects.equals(expected, combo.getValue()));
         };
-        combo.valueProperty().addListener((observable, was, value) -> update.run());
+        combo.valueProperty().addListener((_, _, _) -> update.run());
         deviationUpdates.add(update);
         update.run();
     }
@@ -392,14 +393,6 @@ public class ToolSettingsStage extends Stage {
     private static void setRowVisible(SettingsRow row, boolean visible) {
         row.setVisible(visible);
         row.setManaged(visible);
-    }
-
-    private void centerOnOwner() {
-        Window owner = getOwner();
-        if (owner != null) {
-            setX(owner.getX() + owner.getWidth() / 2 - getWidth() / 2);
-            setY(owner.getY() + owner.getHeight() / 2 - getHeight() / 2);
-        }
     }
 
     private static UnitTextField numericField(Unit unit, double value) {

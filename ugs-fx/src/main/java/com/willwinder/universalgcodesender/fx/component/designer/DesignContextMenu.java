@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.fx.actions.DesignFlipHorizontalAction
 import com.willwinder.universalgcodesender.fx.actions.DesignFlipVerticalAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignGroupAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignIntersectionAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignOffsetAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignPasteAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignSubtractAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignToggleHiddenAction;
@@ -54,7 +55,7 @@ public final class DesignContextMenu {
         ContextMenu menu = new ContextMenu();
         addSection(menu, List.of(DesignCopyAction.class, DesignPasteAction.class, DesignDeleteAction.class));
         addSection(menu, List.of(DesignGroupAction.class, DesignBreakApartAction.class));
-        addSection(menu, List.of(DesignUnionAction.class, DesignSubtractAction.class, DesignIntersectionAction.class));
+        addSection(menu, List.of(DesignUnionAction.class, DesignSubtractAction.class, DesignIntersectionAction.class, DesignOffsetAction.class));
         addSection(menu, List.of(DesignFlipHorizontalAction.class, DesignFlipVerticalAction.class));
         addSection(menu, List.of(DesignToggleHiddenAction.class));
         return menu;

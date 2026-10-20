@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.fx.component.ButtonBox;
 import com.willwinder.universalgcodesender.fx.component.clipart.ClipartCard;
 import com.willwinder.universalgcodesender.fx.component.clipart.ClipartDetailsPane;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -85,7 +86,7 @@ public class InsertClipartDialog extends Stage {
         setMinWidth(640);
         setMinHeight(480);
 
-        setOnShown(event -> centerOnOwner());
+        setOnShown(_ -> WindowHelper.centerOnOwner(this));
         categoryList.getSelectionModel().select(defaultCategory);
     }
 
@@ -93,14 +94,14 @@ public class InsertClipartDialog extends Stage {
         categoryList.getItems().setAll(Category.values());
         categoryList.getStyleClass().add("clipart-category-list");
         categoryList.setPrefWidth(200);
-        categoryList.setCellFactory(listView -> new ListCell<>() {
+        categoryList.setCellFactory(_ -> new ListCell<>() {
             @Override
             protected void updateItem(Category item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null : item.getTitle());
             }
         });
-        categoryList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        categoryList.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
             refreshCards();
             defaultCategory = newValue;
         });
@@ -109,7 +110,7 @@ public class InsertClipartDialog extends Stage {
 
     private VBox createClipartPane() {
         searchField.setPromptText(Localization.getString("designer.clipart.search"));
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> refreshCards());
+        searchField.textProperty().addListener((_, _, _) -> refreshCards());
         HBox.setHgrow(searchField, Priority.ALWAYS);
         resultCountLabel.getStyleClass().add("clipart-result-count");
         HBox searchBar = new HBox(10, searchField, resultCountLabel);
@@ -132,12 +133,12 @@ public class InsertClipartDialog extends Stage {
     private ButtonBox createButtons() {
         Button cancelButton = new Button(Localization.getString("mainWindow.swing.cancelButton"));
         ButtonBox.setButtonData(cancelButton, ButtonBox.ButtonData.LEFT);
-        cancelButton.setOnAction(event -> close());
+        cancelButton.setOnAction(_ -> close());
 
         ButtonBox.setButtonData(insertButton, ButtonBox.ButtonData.OK_DONE);
         insertButton.setDefaultButton(true);
         insertButton.setDisable(true);
-        insertButton.setOnAction(event -> confirmSelection());
+        insertButton.setOnAction(_ -> confirmSelection());
 
         ButtonBox buttonBox = new ButtonBox();
         buttonBox.getButtons().addAll(cancelButton, insertButton);
@@ -198,14 +199,6 @@ public class InsertClipartDialog extends Stage {
         }
         result = selectedCard.getClipart();
         close();
-    }
-
-    private void centerOnOwner() {
-        Window owner = getOwner();
-        if (owner != null) {
-            setX(owner.getX() + owner.getWidth() / 2 - getWidth() / 2);
-            setY(owner.getY() + owner.getHeight() / 2 - getHeight() / 2);
-        }
     }
 
     /**

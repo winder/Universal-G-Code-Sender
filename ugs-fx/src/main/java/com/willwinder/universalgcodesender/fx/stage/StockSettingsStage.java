@@ -35,6 +35,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitValue;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -114,16 +115,16 @@ public class StockSettingsStage extends Stage {
         deepColor.setMinHeight(28);
         hint.setWrapText(true);
         hint.setStyle("-fx-opacity: 0.75;");
-        useProgramBounds.setOnAction(event -> fillFromProgram());
+        useProgramBounds.setOnAction(_ -> fillFromProgram());
 
-        mode.valueProperty().addListener((observable, was, value) -> updateMode());
+        mode.valueProperty().addListener((_, _, _) -> updateMode());
         updateMode();
 
         setScene(createScene());
         setWidth(420);
         setHeight(640);
         setResizable(true);
-        setOnShowing(event -> centerOnOwner());
+        setOnShowing(_ -> WindowHelper.centerOnOwner(this));
     }
 
     private Scene createScene() {
@@ -145,10 +146,10 @@ public class StockSettingsStage extends Stage {
         form.setPadding(new Insets(16));
 
         Button cancel = new Button("Cancel");
-        cancel.setOnAction(event -> close());
+        cancel.setOnAction(_ -> close());
         Button apply = new Button("Apply");
         apply.setDefaultButton(true);
-        apply.setOnAction(event -> onApply());
+        apply.setOnAction(_ -> onApply());
         ButtonBox buttons = new ButtonBox();
         ButtonBox.setButtonData(cancel, ButtonBox.ButtonData.CANCEL_CLOSE);
         ButtonBox.setButtonData(apply, ButtonBox.ButtonData.OK_DONE);
@@ -232,11 +233,4 @@ public class StockSettingsStage extends Stage {
         return field;
     }
 
-    private void centerOnOwner() {
-        Window owner = getOwner();
-        if (owner != null) {
-            setX(owner.getX() + owner.getWidth() / 2 - getWidth() / 2);
-            setY(owner.getY() + owner.getHeight() / 2 - getHeight() / 2);
-        }
-    }
 }

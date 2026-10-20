@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.fx.service.InMemoryLogHandler;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.Version;
+import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
@@ -102,22 +103,12 @@ public class AboutStage extends Stage {
 
     private void registerListeners() {
         setOnShowing(_ -> {
-            centerOnOwner();
+            WindowHelper.centerOnOwner(this);
             logTextArea.setText(logHandler.getLogText());
             logTextArea.positionCaret(logTextArea.getLength());
             logHandler.addListener(logListener);
         });
         setOnHidden(_ -> logHandler.removeListener(logListener));
-    }
-
-    private void centerOnOwner() {
-        Window owner = getOwner();
-        if (owner == null) {
-            centerOnScreen();
-            return;
-        }
-        setX(owner.getX() + owner.getWidth() / 2 - getWidth() / 2);
-        setY(owner.getY() + owner.getHeight() / 2 - getHeight() / 2);
     }
 
     private VBox createAboutPane() {
