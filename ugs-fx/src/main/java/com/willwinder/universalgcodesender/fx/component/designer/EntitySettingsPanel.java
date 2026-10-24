@@ -150,6 +150,7 @@ public class EntitySettingsPanel extends VBox {
             EntitySetting.DIRECTION,
             EntitySetting.TOOL_PATH_DIRECTION,
             EntitySetting.PLUNGE_TYPE,
+            EntitySetting.ROUGHING,
             EntitySetting.FINISHING_PASS,
             EntitySetting.STOCK_TO_LEAVE,
             EntitySetting.FINISHING_PASS_DIRECTION,
@@ -251,9 +252,14 @@ public class EntitySettingsPanel extends VBox {
         if (cuttables.stream().noneMatch(Cuttable::hasTabs)) {
             cutSettings.remove(EntitySetting.TAB_COUNT);
         }
-        if (cuttables.stream().noneMatch(Cuttable::isFinishingPass)) {
-            cutSettings.remove(EntitySetting.STOCK_TO_LEAVE);
+        boolean finishing = cutSettings.contains(EntitySetting.FINISHING_PASS) && cuttables.stream().anyMatch(Cuttable::isFinishingPass);
+        boolean roughing = cutSettings.contains(EntitySetting.ROUGHING) && cuttables.stream().anyMatch(EntitySettingsPanel::isRoughing);
+        if (!finishing) {
             cutSettings.remove(EntitySetting.FINISHING_PASS_DIRECTION);
+        }
+        // Stock to leave only matters when a later pass clears it, by either a finishing pass or roughing.
+        if (!finishing && !roughing) {
+            cutSettings.remove(EntitySetting.STOCK_TO_LEAVE);
         }
         VBox cutRows = buildRows(CUT_KEYS, cutSettings, cuttables, labelWidth);
         if (!cutRows.getChildren().isEmpty()) {
@@ -284,6 +290,12 @@ public class EntitySettingsPanel extends VBox {
                     strip.getChildren().add(button);
                 });
         return strip;
+    }
+
+    private static boolean isRoughing(Cuttable cuttable) {
+        return cuttable.getEntitySetting(EntitySetting.ROUGHING)
+                .map(Boolean.class::cast)
+                .orElse(Boolean.FALSE);
     }
 
     private static Set<EntitySetting> intersection(List<Cuttable> cuttables) {
@@ -641,6 +653,8 @@ public class EntitySettingsPanel extends VBox {
                     EntitySettingIcons::toolPathDirection, Cuttable::getToolPathDirection, Cuttable::setToolPathDirection, entities);
             case PLUNGE_TYPE -> controls.enumCombo(availablePlungeTypes(entities), PlungeType::getLabel,
                     EntitySettingIcons::plungeType, Cuttable::getPlungeType, Cuttable::setPlungeType, entities);
+            case ROUGHING -> rebuildingSwitch(EntitySettingsPanel::isRoughing,
+                    (entity, value) -> entity.setEntitySetting(EntitySetting.ROUGHING, value), entities);
             case FINISHING_PASS -> rebuildingSwitch(Cuttable::isFinishingPass, Cuttable::setFinishingPass, entities);
             case STOCK_TO_LEAVE ->
                     controls.doubleField(Cuttable::getStockToLeave, Cuttable::setStockToLeave, entities, Unit.MM);
