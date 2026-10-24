@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.AbstractAction;
@@ -63,7 +64,11 @@ public class ScanSurfaceAction extends AbstractAction implements UGSEventListene
         if (!Utils.removeProbeData(surfaceScanner)) {
             return;
         }
-        surfaceScanner.scan();
+        try {
+            surfaceScanner.scan();
+        } catch (IllegalStateException ex) {
+            GUIHelpers.displayErrorDialog(Localization.getString("autoleveler.scan-invalid-z"));
+        }
     }
 
     @Override
