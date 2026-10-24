@@ -419,3 +419,9 @@
 .side-pane-toggle:hover {
     -fx-background-color: rgb(189, 205, 214);
 }
+
+/* A line of text that points out a problem, like objects that do not fit when nesting. */
+.warning-label .label {
+    -fx-text-fill: rgb(255, 151, 11);
+    -fx-font-weight: bold;
+}
