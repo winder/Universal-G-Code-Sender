@@ -52,6 +52,7 @@ import com.willwinder.universalgcodesender.fx.actions.DesignFlipHorizontalAction
 import com.willwinder.universalgcodesender.fx.actions.DesignFlipVerticalAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignGroupAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignIntersectionAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignOffsetAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignStitchAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignSubtractAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignUnionAction;
@@ -123,6 +124,7 @@ public class EntitySettingsPanel extends VBox {
             DesignSubtractAction.class,
             DesignIntersectionAction.class,
             DesignBreakApartAction.class,
+            DesignOffsetAction.class,
             DesignStitchAction.class,
             DesignGroupAction.class);
 
