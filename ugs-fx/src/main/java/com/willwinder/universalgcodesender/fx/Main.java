@@ -37,6 +37,7 @@ import com.willwinder.universalgcodesender.fx.service.FxEventDispatcher;
 import com.willwinder.universalgcodesender.fx.service.InMemoryLogHandler;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.KeepAwakeUtils;
 import com.willwinder.universalgcodesender.fx.helper.BrowserHelper;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
@@ -109,6 +110,7 @@ public class Main extends Application {
         }
 
         MacroActionService.registerMacros();
+        KeepAwakeUtils.start(backend);
 
         JogActionRegistry.registerActions();
     }
