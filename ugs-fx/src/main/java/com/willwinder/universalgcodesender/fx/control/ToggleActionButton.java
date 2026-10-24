@@ -10,10 +10,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.util.Duration;
 
 public class ToggleActionButton extends ToggleButton {
     public static final int SIZE_NORMAL = 24;
@@ -47,9 +45,7 @@ public class ToggleActionButton extends ToggleButton {
         setShowText(showText);
         setSelected(action.selectedProperty().get());
 
-        Tooltip tooltip = new Tooltip(action.getTitle());
-        tooltip.setShowDelay(Duration.millis(100));
-        setTooltip(tooltip);
+        setTooltip(ActionTooltip.create(action));
     }
 
     public void setShowText(boolean show) {
@@ -63,15 +59,15 @@ public class ToggleActionButton extends ToggleButton {
     }
 
     private void registerPropertyListeners(Action action) {
-        action.titleProperty().addListener((v, o, n) -> {
+        action.titleProperty().addListener((_, _, n) -> {
             if (showText.get()) {
                 setText(n);
             }
         });
-        action.enabledProperty().addListener((v, o, n) -> setDisable(!n));
-        action.iconProperty().addListener((v, o, n) -> setIcon(n));
-        action.selectedProperty().addListener((v, o, n) -> setSelected(n));
-        iconSize.addListener((v, o, n) -> setIcon(action.getIcon()));
+        action.enabledProperty().addListener((_, _, n) -> setDisable(!n));
+        action.iconProperty().addListener((_, _, n) -> setIcon(n));
+        action.selectedProperty().addListener((_, _, n) -> setSelected(n));
+        iconSize.addListener((_, _, _) -> setIcon(action.getIcon()));
     }
 
     private void setIcon(String iconBase) {

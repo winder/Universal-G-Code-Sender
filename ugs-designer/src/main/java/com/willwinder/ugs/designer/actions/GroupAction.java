@@ -31,7 +31,7 @@ public class GroupAction extends AbstractDesignAction implements SelectionListen
     private void registerSelectionListener() {
         SelectionManager selectionManager = ControllerFactory.getController().getSelectionManager();
         selectionManager.addSelectionListener(this);
-        setEnabled(!selectionManager.getChildren().isEmpty());
+        setEnabled(selectionManager.getChildren().size() > 1);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class GroupAction extends AbstractDesignAction implements SelectionListen
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         SelectionManager selectionManager = ControllerFactory.getSelectionManager();
-        setEnabled(!selectionManager.getSelection().isEmpty());
+        setEnabled(selectionManager.getSelection().size() > 1);
     }
 
     private static class UndoableGroupAction implements UndoableAction {
@@ -59,7 +59,7 @@ public class GroupAction extends AbstractDesignAction implements SelectionListen
         @Override
         public void redo() {
             Controller controller = ControllerFactory.getController();
-            Optional<EntityGroup> parent = controller.getModel().getRootEntity().findParentFor(entities.get(0));
+            Optional<EntityGroup> parent = controller.getModel().getRootEntity().findParentFor(entities.getFirst());
 
             controller.getSelectionManager().clearSelection();
             controller.getModel().removeEntities(entities);

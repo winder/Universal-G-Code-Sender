@@ -31,22 +31,20 @@ import com.willwinder.universalgcodesender.fx.actions.DesignPasteAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignSubtractAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignToggleHiddenAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignUnionAction;
-import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
+import com.willwinder.universalgcodesender.fx.control.ActionMenuItem;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
-import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The right click menu over the design, built from the registered design actions so it stays
  * in step with the toolbar and the shortcuts.
  */
 public final class DesignContextMenu {
-    private static final int ICON_SIZE = 16;
-
 
     private DesignContextMenu() {
     }
@@ -64,8 +62,8 @@ public final class DesignContextMenu {
     private static void addSection(ContextMenu menu, List<Class<? extends Action>> actionClasses) {
         List<MenuItem> items = actionClasses.stream()
                 .map(actionClass -> ActionRegistry.getInstance().getAction(actionClass.getCanonicalName()))
-                .flatMap(java.util.Optional::stream)
-                .map(DesignContextMenu::toMenuItem)
+                .flatMap(Optional::stream)
+                .map(action -> (MenuItem) new ActionMenuItem(action))
                 .toList();
         if (items.isEmpty()) {
             return;
@@ -74,23 +72,5 @@ public final class DesignContextMenu {
             menu.getItems().add(new SeparatorMenuItem());
         }
         menu.getItems().addAll(items);
-    }
-
-    private static MenuItem toMenuItem(Action action) {
-        MenuItem item = new MenuItem();
-        item.textProperty().bind(action.titleProperty());
-        item.disableProperty().bind(action.enabledProperty().not());
-        item.setOnAction(_ -> action.handle(new ActionEvent()));
-        setIcon(item, action.getIcon());
-        action.iconProperty().addListener((_, _, newValue) -> setIcon(item, newValue));
-        return item;
-    }
-
-    private static void setIcon(MenuItem item, String icon) {
-        if (icon == null || icon.isBlank()) {
-            item.setGraphic(null);
-            return;
-        }
-        SvgLoader.loadImageIcon(icon, ICON_SIZE).ifPresent(item::setGraphic);
     }
 }

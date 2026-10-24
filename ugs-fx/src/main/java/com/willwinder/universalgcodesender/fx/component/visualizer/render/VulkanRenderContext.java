@@ -77,6 +77,7 @@ import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -364,7 +365,7 @@ final class VulkanRenderContext implements RenderContext, AutoCloseable {
         try {
             VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.allocate(temporary)
                     .flags(VkCommandBufferUsageFlags.ONE_TIME_SUBMIT);
-            Vk.check(commands.beginCommandBuffer(uploadCommands, beginInfo), "vkBeginCommandBuffer");
+            Vk.check(commands.beginCommandBuffer(Objects.requireNonNull(uploadCommands), beginInfo), "vkBeginCommandBuffer");
             recorder.accept(uploadCommands);
             Vk.check(commands.endCommandBuffer(uploadCommands), "vkEndCommandBuffer");
             VkSubmitInfo submitInfo = VkSubmitInfo.allocate(temporary)
@@ -479,10 +480,20 @@ final class VulkanRenderContext implements RenderContext, AutoCloseable {
         }
         inSubViewport = true;
         this.viewProjection = viewProjection;
-        setViewportRect(x, y, width, height);
+
+        // The viewport may start outside the frame, which keeps the projection intact, but the
+        // scissor and the depth clear have to stay inside it
+        int visibleX = Math.max(x, 0);
+        int visibleY = Math.max(y, 0);
+        int visibleWidth = Math.min(x + width, viewport.width()) - visibleX;
+        int visibleHeight = Math.min(y + height, viewport.height()) - visibleY;
+        setViewportRect(x, y, width, height, visibleX, visibleY, visibleWidth, visibleHeight);
+        if (visibleWidth <= 0 || visibleHeight <= 0) {
+            return;
+        }
         depthClearRect.at(0).rect(rect -> rect
-                .offset(offset -> offset.x(x).y(y))
-                .extent(extent -> extent.width(width).height(height)));
+                .offset(offset -> offset.x(visibleX).y(visibleY))
+                .extent(extent -> extent.width(visibleWidth).height(visibleHeight)));
         commands.cmdClearAttachments(commandBuffer, 1, depthClear, 1, depthClearRect);
     }
 
@@ -494,14 +505,15 @@ final class VulkanRenderContext implements RenderContext, AutoCloseable {
         }
         inSubViewport = false;
         viewProjection = cameraViewProjection;
-        setViewportRect(0, 0, viewport.width(), viewport.height());
+        setViewportRect(0, 0, viewport.width(), viewport.height(), 0, 0, viewport.width(), viewport.height());
     }
 
-    private void setViewportRect(int x, int y, int width, int height) {
+    private void setViewportRect(int x, int y, int width, int height,
+                                 int scissorX, int scissorY, int scissorWidth, int scissorHeight) {
         subViewport.at(0).x(x).y(y).width(width).height(height);
         subScissor.at(0)
-                .offset(offset -> offset.x(x).y(y))
-                .extent(extent -> extent.width(width).height(height));
+                .offset(offset -> offset.x(scissorX).y(scissorY))
+                .extent(extent -> extent.width(Math.max(scissorWidth, 0)).height(Math.max(scissorHeight, 0)));
         commands.cmdSetViewport(commandBuffer, 0, 1, subViewport);
         commands.cmdSetScissor(commandBuffer, 0, 1, subScissor);
     }

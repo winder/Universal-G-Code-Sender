@@ -92,7 +92,7 @@ public final class OrientationCubeRenderable implements Renderable, OverlayPaint
 
     private final Camera cubeCamera = OrientationCube.createCamera();
     private final Map<ViewOrientation, MeshHandle> faces = new EnumMap<>(ViewOrientation.class);
-    private final double left;
+    private double left;
     private final double top;
     private final double size;
     private MeshHandle edges;
@@ -109,6 +109,14 @@ public final class OrientationCubeRenderable implements Renderable, OverlayPaint
         this.left = left;
         this.top = top;
         this.size = size;
+    }
+
+    /**
+     * Moves the inset horizontally. It may start left of the frame, in which case the part
+     * outside is clipped while the cube keeps its projection.
+     */
+    public void setLeft(double left) {
+        this.left = left;
     }
 
     @Override
@@ -150,7 +158,7 @@ public final class OrientationCubeRenderable implements Renderable, OverlayPaint
         int x = (int) Math.round(viewport.toPhysical(left));
         int y = (int) Math.round(viewport.toPhysical(top));
         int extent = (int) Math.round(viewport.toPhysical(size));
-        if (x + extent > viewport.width() || y + extent > viewport.height()) {
+        if (x + extent > viewport.width() || y + extent > viewport.height() || x + extent <= 0) {
             return;
         }
         context.beginSubViewport(x, y, extent, extent, cubeCamera.viewProjection());

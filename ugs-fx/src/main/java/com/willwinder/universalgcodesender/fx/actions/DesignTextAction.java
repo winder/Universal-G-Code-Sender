@@ -26,5 +26,6 @@ public class DesignTextAction extends AbstractDesignToolAction {
 
     public DesignTextAction() {
         super(Tool.TEXT, Localization.getString("platform.designer.text"), ICON_BASE);
+        setDefaultShortcut("T");
     }
 }

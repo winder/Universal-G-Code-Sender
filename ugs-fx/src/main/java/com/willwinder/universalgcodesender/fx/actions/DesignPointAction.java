@@ -25,5 +25,6 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 public class DesignPointAction extends AbstractDesignToolAction {
     public DesignPointAction() {
         super(Tool.POINT, Localization.getString("platform.designer.point"), ToolDrawPointAction.SMALL_ICON_PATH);
+        setDefaultShortcut("P");
     }
 }

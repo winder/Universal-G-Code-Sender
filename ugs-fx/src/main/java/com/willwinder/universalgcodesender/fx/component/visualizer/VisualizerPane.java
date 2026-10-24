@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.universalgcodesender.fx.component.designer.DesignContextMenu;
+import com.willwinder.universalgcodesender.fx.component.designer.DesignToolPalette;
 import com.willwinder.universalgcodesender.fx.component.designer.TextEditOverlay;
 import com.willwinder.universalgcodesender.fx.component.designer.editor.DesignEditor;
 import com.willwinder.universalgcodesender.fx.component.designer.render.DesignRenderable;
@@ -97,12 +98,21 @@ import java.util.logging.Logger;
  */
 public class VisualizerPane extends Pane {
     private static final double TOOLBAR_RIGHT_MARGIN = 48;
+    private static final double TOOL_PALETTE_GAP = 12;
+    private static final double LEFT_MARGIN = 20;
+    private static final double FRAME_STATS_GAP = 6;
     private static final Logger LOGGER = Logger.getLogger(VisualizerPane.class.getName());
     private static final double ORIENTATION_CUBE_SIZE = 130;
     private static final double MARGIN = 2;
-    /** A right button that travels further than this before release is a drag, not a click. */
+
+    /**
+     * A right button that travels further than this before release is a drag, not a click.
+     */
     private static final double CONTEXT_MENU_DRAG_THRESHOLD_PX = 3;
-    /** A right button held longer than this is a pan or rotate, even if the mouse has not moved yet. */
+
+    /**
+     * A right button held longer than this is a pan or rotate, even if the mouse has not moved yet.
+     */
     private static final long CONTEXT_MENU_HOLD_MILLIS = 300;
 
     private final ImageView imageView = new ImageView();
@@ -121,8 +131,9 @@ public class VisualizerPane extends Pane {
     private Scene scene;
     private Camera camera;
     private CameraAnimator cameraAnimator;
+    private OrientationCubeRenderable orientationCube;
+    private VisualizerToolbar viewToolbar;
     private DesignEditor designEditor;
-    private TextEditOverlay textEditOverlay;
     private ContextMenu designContextMenu;
     private double secondaryPressX;
     private double secondaryPressY;
@@ -175,7 +186,7 @@ public class VisualizerPane extends Pane {
         scene = new Scene(renderer.context());
         scene.addRenderListener(renderRequestListener);
         RulerRenderable ruler = new RulerRenderable();
-        OrientationCubeRenderable orientationCube = new OrientationCubeRenderable(MARGIN, MARGIN, ORIENTATION_CUBE_SIZE);
+        orientationCube = new OrientationCubeRenderable(MARGIN, MARGIN, ORIENTATION_CUBE_SIZE);
         scene.add(new GridRenderable());
         scene.add(new AxesRenderable());
         scene.add(ruler);
@@ -188,7 +199,7 @@ public class VisualizerPane extends Pane {
         VisualizerService.getInstance().getRenderables().forEach(scene::add);
         VisualizerService.getInstance().getRenderables().addListener(serviceRenderablesListener);
 
-        textEditOverlay = new TextEditOverlay(camera);
+        TextEditOverlay textEditOverlay = new TextEditOverlay(camera);
         designContextMenu = DesignContextMenu.create();
         designEditor = new DesignEditor(camera, this::requestRender, textEditOverlay::edit,
                 (screenX, screenY) -> designContextMenu.show(this, screenX, screenY));
@@ -251,26 +262,9 @@ public class VisualizerPane extends Pane {
         presentedPixels = null;
     }
 
-    public Scene getScene3D() {
-        return scene;
-    }
 
     public Camera getCamera() {
         return camera;
-    }
-
-    public InputRouter getInputRouter() {
-        return inputRouter;
-    }
-
-    public void addOverlayPainter(OverlayPainter painter) {
-        overlayPainters.add(painter);
-        requestRender();
-    }
-
-    public void removeOverlayPainter(OverlayPainter painter) {
-        overlayPainters.remove(painter);
-        requestRender();
     }
 
     /**
@@ -321,15 +315,25 @@ public class VisualizerPane extends Pane {
     }
 
     private void addToolbars() {
+        // The orientation buttons, the drawing tools and the bottom bar share one left edge
         OrientationToolbar orientationToolbar = new OrientationToolbar();
-        orientationToolbar.layoutXProperty().bind(orientationToolbar.widthProperty().divide(-2)
-                .add(MARGIN + ORIENTATION_CUBE_SIZE / 2));
+        orientationToolbar.setLayoutX(LEFT_MARGIN);
         orientationToolbar.setLayoutY(MARGIN + ORIENTATION_CUBE_SIZE + MARGIN);
+        // The cube is centered on the toolbar column, so its inset reaches past the left edge
+        orientationToolbar.widthProperty().addListener((_, _, width) -> {
+            orientationCube.setLeft(LEFT_MARGIN + width.doubleValue() / 2 - ORIENTATION_CUBE_SIZE / 2);
+            requestRender();
+        });
 
         // Kept clear of the right side pane's collapse ear, which hangs over the top right corner
-        VisualizerToolbar toolbar = new VisualizerToolbar();
-        toolbar.layoutXProperty().bind(widthProperty().subtract(toolbar.widthProperty()).subtract(TOOLBAR_RIGHT_MARGIN));
-        toolbar.setLayoutY(9);
+        viewToolbar = new VisualizerToolbar();
+        viewToolbar.layoutXProperty().bind(widthProperty().subtract(viewToolbar.widthProperty()).subtract(TOOLBAR_RIGHT_MARGIN));
+        viewToolbar.setLayoutY(9);
+
+        DesignToolPalette toolPalette = new DesignToolPalette(VisualizerToolbar.BUTTON_SIZE);
+        toolPalette.setLayoutX(LEFT_MARGIN);
+        toolPalette.layoutYProperty().bind(orientationToolbar.layoutYProperty()
+                .add(orientationToolbar.heightProperty()).add(TOOL_PALETTE_GAP));
 
         ToolButton toolButton = new ToolButton();
         ProgramToolsButton programToolsButton = new ProgramToolsButton();
@@ -342,10 +346,10 @@ public class VisualizerPane extends Pane {
         HBox bottomBar = new HBox(8, toolButton, programToolsButton, stockButton, regenerationIndicator);
         bottomBar.setAlignment(Pos.CENTER_LEFT);
         bottomBar.setPickOnBounds(false);
-        bottomBar.setLayoutX(20);
+        bottomBar.setLayoutX(LEFT_MARGIN);
         bottomBar.layoutYProperty().bind(heightProperty().subtract(bottomBar.heightProperty()).subtract(20));
 
-        getChildren().addAll(orientationToolbar, toolbar, bottomBar);
+        getChildren().addAll(orientationToolbar, viewToolbar, toolPalette, bottomBar);
     }
 
     private void applyProjection(boolean parallel) {
@@ -447,12 +451,13 @@ public class VisualizerPane extends Pane {
     private void paintFrameStats(GraphicsContext graphics, Camera camera, double width, double height) {
         graphics.setFill(Color.web("#404040"));
         graphics.setFont(Font.font(11));
-        graphics.setTextAlign(TextAlignment.RIGHT);
+        graphics.setTextAlign(TextAlignment.CENTER);
         graphics.setTextBaseline(VPos.TOP);
-        // Under the visualizer toolbar, clear of the drawer buttons along the right edge.
+        // Centered under the view toolbar
         graphics.fillText("%s — %dx MSAA — %.2f ms/frame"
                         .formatted(renderer.deviceName(), renderer.sampleCount(), lastFrameMillis),
-                width - TOOLBAR_RIGHT_MARGIN, 52);
+                viewToolbar.getLayoutX() + viewToolbar.getWidth() / 2,
+                viewToolbar.getLayoutY() + viewToolbar.getHeight() + FRAME_STATS_GAP);
     }
 
     /**

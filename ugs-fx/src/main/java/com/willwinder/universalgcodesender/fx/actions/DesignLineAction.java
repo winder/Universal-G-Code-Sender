@@ -26,5 +26,6 @@ public class DesignLineAction extends AbstractDesignToolAction {
 
     public DesignLineAction() {
         super(Tool.LINE, Localization.getString("platform.designer.line"), ICON_BASE);
+        setDefaultShortcut("L");
     }
 }

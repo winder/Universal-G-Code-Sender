@@ -26,5 +26,6 @@ public class DesignSelectAction extends AbstractDesignToolAction {
 
     public DesignSelectAction() {
         super(Tool.SELECT, Localization.getString("platform.designer.select"), ICON_BASE);
+        setDefaultShortcut("V");
     }
 }
