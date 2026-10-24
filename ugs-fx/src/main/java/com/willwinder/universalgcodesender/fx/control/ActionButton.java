@@ -1,7 +1,6 @@
 package com.willwinder.universalgcodesender.fx.control;
 
 import com.willwinder.universalgcodesender.fx.actions.Action;
-import com.willwinder.universalgcodesender.fx.actions.ToggleProjectionAction;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import static com.willwinder.universalgcodesender.fx.helper.SvgLoader.loadImageIcon;
 import javafx.beans.property.BooleanProperty;
@@ -11,10 +10,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Button;
-import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.util.Duration;
 
 public class ActionButton extends Button {
 
@@ -52,9 +49,7 @@ public class ActionButton extends Button {
         setIcon(action.getIcon());
         setShowText(showText);
 
-        Tooltip tooltip = new Tooltip(action.getTitle());
-        tooltip.setShowDelay(Duration.millis(100));
-        setTooltip(tooltip);
+        setTooltip(ActionTooltip.create(action));
     }
 
     public void setShowText(boolean show) {
@@ -68,14 +63,14 @@ public class ActionButton extends Button {
     }
 
     private void registerPropertyListeners(Action action) {
-        action.titleProperty().addListener((v, o, n) -> {
+        action.titleProperty().addListener((_, _, n) -> {
             if (showText.get()) {
                 setText(n);
             }
         });
-        action.enabledProperty().addListener((v, o, n) -> setDisable(!n));
-        action.iconProperty().addListener((v, o, n) -> setIcon(n));
-        iconSize.addListener((v, o, n) -> setIcon(action.getIcon()));
+        action.enabledProperty().addListener((_, _, n) -> setDisable(!n));
+        action.iconProperty().addListener((_, _, n) -> setIcon(n));
+        iconSize.addListener((_, _, _) -> setIcon(action.getIcon()));
     }
 
     private void setIcon(String iconBase) {

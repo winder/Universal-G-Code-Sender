@@ -34,13 +34,14 @@ public class MachinePane extends SplitPane {
     private boolean dividerPersisted;
 
     public MachinePane() {
+        getStyleClass().add("machine-pane");
         MachineStatusPane machineStatusPane = new MachineStatusPane();
         getItems().addAll(machineStatusPane, new JogPane());
         setOrientation(Orientation.VERTICAL);
 
         // The divider can only be positioned once the pane is in a scene, and the persistence
         // keeps following the divider afterwards even while the pane is collapsed away.
-        sceneProperty().addListener((observable, oldScene, newScene) -> {
+        sceneProperty().addListener((_, _, newScene) -> {
             if (newScene != null && !dividerPersisted) {
                 dividerPersisted = true;
                 Platform.runLater(() -> SplitPaneDividerPersistence.install(

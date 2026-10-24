@@ -23,7 +23,9 @@ import com.willwinder.universalgcodesender.fx.model.ShortcutEvent;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.TextInputControl;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.scene.input.KeyEvent.KEY_RELEASED;
 import org.apache.commons.lang3.StringUtils;
@@ -95,11 +97,19 @@ public class ShortcutService {
                 .findFirst();
     }
 
+    /**
+     * Single keys such as "R" or "Delete" are letters and editing keys while a text field has the
+     * focus, so they are left to the field. Shortcuts with a command modifier still apply.
+     */
+    static boolean isSuppressedWhileTyping(String shortcut, Node focusOwner) {
+        return focusOwner instanceof TextInputControl && !ShortcutConverter.hasCommandModifier(shortcut);
+    }
 
     public static void registerListener(Scene scene) {
         scene.addEventFilter(KEY_PRESSED, e -> {
             String shortcut = ShortcutConverter.toString(e);
-            if (StringUtils.isEmpty(shortcut) || pressedKeys.contains(shortcut)) {
+            if (StringUtils.isEmpty(shortcut) || pressedKeys.contains(shortcut)
+                    || isSuppressedWhileTyping(shortcut, scene.getFocusOwner())) {
                 return;
             }
 
@@ -109,6 +119,7 @@ public class ShortcutService {
                     .ifPresent(a -> Platform.runLater(() -> a.handle(new ShortcutEvent(ShortcutEvent.SHORTCUT_PRESSED))));
         });
 
+        // A suppressed press never enters pressedKeys, so its release is ignored here as well
         scene.addEventFilter(KEY_RELEASED, e -> {
             String shortcut = ShortcutConverter.toString(e);
             if (StringUtils.isEmpty(shortcut) || !pressedKeys.contains(shortcut)) {

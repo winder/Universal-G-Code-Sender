@@ -1,7 +1,7 @@
 @import "root.css";
 
 .drawer-pane {
-    -fx-background-color: #f2f2f2;
+    -fx-background-color: -ugs-overlay-background;
     -fx-background-radius: 24 0 0 0;
     -fx-border-radius: 24 0 0 0;
     -fx-border-width: 1 0 0 1;

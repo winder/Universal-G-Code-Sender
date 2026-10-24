@@ -41,14 +41,27 @@ import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.designer.model.Size;
 import com.willwinder.universalgcodesender.fx.actions.Action;
+import com.willwinder.universalgcodesender.fx.actions.DesignAlignBottomAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignAlignCenterAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignAlignLeftAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignAlignMiddleAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignAlignRightAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignAlignTopAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignBreakApartAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignFlipHorizontalAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignFlipVerticalAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignGroupAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignIntersectionAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignStitchAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignSubtractAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignUnionAction;
 import com.willwinder.universalgcodesender.fx.component.CollapsibleTitledPane;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
 import com.willwinder.universalgcodesender.fx.control.UnitTextField;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
+import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.utils.Debouncer;
 import javafx.application.Platform;
@@ -64,6 +77,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -79,6 +93,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -94,6 +109,22 @@ public class EntitySettingsPanel extends VBox {
     private static final List<EntitySetting> SPECIAL_KEYS = List.of(
             EntitySetting.TEXT,
             EntitySetting.FONT_FAMILY);
+
+    private static final List<Class<? extends Action>> ALIGN_ACTIONS = List.of(
+            DesignAlignLeftAction.class,
+            DesignAlignCenterAction.class,
+            DesignAlignRightAction.class,
+            DesignAlignTopAction.class,
+            DesignAlignMiddleAction.class,
+            DesignAlignBottomAction.class);
+
+    private static final List<Class<? extends Action>> COMBINE_ACTIONS = List.of(
+            DesignUnionAction.class,
+            DesignSubtractAction.class,
+            DesignIntersectionAction.class,
+            DesignBreakApartAction.class,
+            DesignStitchAction.class,
+            DesignGroupAction.class);
 
     private static final List<EntitySetting> TRANSFORM_KEYS = List.of(
             EntitySetting.POSITION_X,
@@ -126,6 +157,8 @@ public class EntitySettingsPanel extends VBox {
     private static final EnumSet<EventType> TRANSFORM_EVENTS = EnumSet.of(
             EventType.MOVED, EventType.RESIZED, EventType.ROTATED);
     public static final int SPACING = 12;
+    private static final int ARRANGE_ICON_SIZE = 16;
+    private static final double ARRANGE_BUTTON_GAP = 4;
     private static final String MIXED_VALUE_PROMPT = "—";
 
     private final SelectionManager selectionManager;
@@ -177,17 +210,23 @@ public class EntitySettingsPanel extends VBox {
     }
 
     private void rebuild() {
-        List<Cuttable> cuttables = selectionManager.getSelection().stream()
+        List<Entity> selection = selectionManager.getSelection();
+        List<Cuttable> cuttables = selection.stream()
                 .filter(Cuttable.class::isInstance)
                 .map(Cuttable.class::cast)
                 .toList();
 
         getChildren().clear();
         valueRefreshers.clear();
-        if (cuttables.isEmpty()) {
+        if (selection.isEmpty()) {
             Label placeholder = new Label("Select a shape to edit its properties.");
             placeholder.setWrapText(true);
             getChildren().add(placeholder);
+            return;
+        }
+
+        getChildren().add(new CollapsibleTitledPane("Arrange", buildArrangeRows(labelWidth)));
+        if (cuttables.isEmpty()) {
             return;
         }
 
@@ -216,6 +255,31 @@ public class EntitySettingsPanel extends VBox {
         if (!cutRows.getChildren().isEmpty()) {
             getChildren().add(new CollapsibleTitledPane("Cut", cutRows));
         }
+    }
+
+    /**
+     * The alignment and combining operations on the selection. Each action enables itself from
+     * the selection, so the rows only lay them out.
+     */
+    private VBox buildArrangeRows(DoubleProperty labelWidth) {
+        VBox rows = new VBox(SPACING);
+        rows.getChildren().add(new EntitySettingsRow(labelWidth, "Align", actionStrip(ALIGN_ACTIONS), true));
+        rows.getChildren().add(new EntitySettingsRow(labelWidth, "Combine", actionStrip(COMBINE_ACTIONS), true));
+        return rows;
+    }
+
+    private static FlowPane actionStrip(List<Class<? extends Action>> actionClasses) {
+        FlowPane strip = new FlowPane(ARRANGE_BUTTON_GAP, ARRANGE_BUTTON_GAP);
+        strip.setAlignment(Pos.CENTER_LEFT);
+        actionClasses.stream()
+                .map(actionClass -> ActionRegistry.getInstance().getAction(actionClass.getCanonicalName()))
+                .flatMap(Optional::stream)
+                .forEach(action -> {
+                    ActionButton button = new ActionButton(action, ARRANGE_ICON_SIZE, false);
+                    button.getStyleClass().add("arrange-button");
+                    strip.getChildren().add(button);
+                });
+        return strip;
     }
 
     private static Set<EntitySetting> intersection(List<Cuttable> cuttables) {

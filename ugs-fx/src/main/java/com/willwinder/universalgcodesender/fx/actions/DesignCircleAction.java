@@ -26,5 +26,6 @@ public class DesignCircleAction extends AbstractDesignToolAction {
 
     public DesignCircleAction() {
         super(Tool.CIRCLE, Localization.getString("platform.designer.circle"), ICON_BASE);
+        setDefaultShortcut("O");
     }
 }

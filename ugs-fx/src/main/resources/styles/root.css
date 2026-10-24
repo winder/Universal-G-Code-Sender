@@ -4,6 +4,11 @@
     -ugs-border-color: #c2c2c2;
     -ugs-selected-color: rgb(189, 205, 214);
     -ugs-blackish-color: #353A40;
+    /* Panels floating over the visualizer: the toolbars, the tool and stock buttons and the drawer */
+    -ugs-overlay-background: #f8f8f8;
+    /* Header bars of the side panes and their collapse ears, which hang off the same top edge */
+    -ugs-panel-header-background: derive(-ugs-border-color, 70%);
+    -ugs-panel-header-height: 30;
 }
 
 .button,
@@ -254,8 +259,11 @@
 .inspector-section-header {
     -fx-font-weight: bold;
     -fx-text-fill: #444444;
-    -fx-padding: 6 8 6 8;
-    -fx-background-color: derive(-ugs-border-color, 70%);
+    -fx-padding: 0 8 0 8;
+    -fx-alignment: center-left;
+    -fx-min-height: -ugs-panel-header-height;
+    -fx-pref-height: -ugs-panel-header-height;
+    -fx-background-color: -ugs-panel-header-background;
     -fx-border-color: -ugs-border-color;
     -fx-border-width: 0 0 1 0;
 }
@@ -319,8 +327,9 @@
     -fx-background-radius: 3;
 }
 
-/* Flip buttons next to the rotation row. */
-.flip-button {
+/* Flip buttons next to the rotation row, and the align and combine strips. */
+.flip-button,
+.arrange-button {
     -fx-padding: 2;
     -fx-border-radius: 3;
     -fx-background-radius: 3;
@@ -352,23 +361,32 @@
     -fx-padding: 0;
 }
 
+/* The machine pane shows its controls on the same gray as the inspector's header bars */
+.machine-pane {
+    -fx-background-color: -ugs-panel-header-background;
+}
+
 /* A small tab hanging from the top edge next to a divider, open towards the divider so it reads as
    part of the content beside it: a left pane's ear is bordered right and bottom, a right pane's
    left and bottom */
 .side-pane-ear {
-    -fx-background-color: -ugs-border-color, -fx-background;
+    -fx-background-color: -ugs-border-color, -ugs-panel-header-background;
+    -fx-min-height: -ugs-panel-header-height;
+    -fx-pref-height: -ugs-panel-header-height;
+    -fx-max-height: -ugs-panel-header-height;
+    -fx-alignment: center;
 }
 
 .side-pane-ear.left {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-radius: 0 0 8 0, 0 0 7 0;
-    -fx-padding: 4 4 4 0;
+    -fx-padding: 0 4 0 0;
 }
 
 .side-pane-ear.right {
     -fx-background-insets: 0, 0 0 1 1;
     -fx-background-radius: 0 0 0 8, 0 0 0 7;
-    -fx-padding: 4 0 4 4;
+    -fx-padding: 0 0 0 4;
 }
 
 .side-pane-rail .title {
@@ -380,7 +398,7 @@
     -fx-alignment: top-center;
     -fx-spacing: 8;
     -fx-padding: 4 2 4 2;
-    -fx-background-color: derive(-ugs-border-color, 70%);
+    -fx-background-color: -ugs-panel-header-background;
     -fx-border-color: -ugs-border-color;
 }
 

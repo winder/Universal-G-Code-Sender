@@ -38,6 +38,14 @@ public class EntitySettingsRow extends HBox {
     private static final double CONTROL_MAX_WIDTH = 160;
 
     public EntitySettingsRow(DoubleProperty labelWidth, String title, Region control) {
+        this(labelWidth, title, control, false);
+    }
+
+    /**
+     * @param fillWidth whether the control takes the remaining row width instead of the fixed
+     *                  field width, for a strip of buttons that wraps rather than clips
+     */
+    public EntitySettingsRow(DoubleProperty labelWidth, String title, Region control, boolean fillWidth) {
         super(SPACING);
         setAlignment(Pos.CENTER_LEFT);
         setMinHeight(26);
@@ -50,7 +58,7 @@ public class EntitySettingsRow extends HBox {
         // label has a skin and its CSS font is resolved, i.e. after it has been laid out, so we
         // observe its width rather than measuring at construction time (where it would be 0).
         label.minWidthProperty().bind(labelWidth);
-        label.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+        label.widthProperty().addListener((_, _, _) -> {
             double naturalWidth = label.prefWidth(-1);
             if (naturalWidth > labelWidth.get()) {
                 labelWidth.set(naturalWidth);
@@ -58,8 +66,10 @@ public class EntitySettingsRow extends HBox {
         });
 
         control.setMinWidth(CONTROL_MIN_WIDTH);
-        control.setPrefWidth(CONTROL_MAX_WIDTH);
-        control.setMaxWidth(CONTROL_MAX_WIDTH);
+        if (!fillWidth) {
+            control.setPrefWidth(CONTROL_MAX_WIDTH);
+            control.setMaxWidth(CONTROL_MAX_WIDTH);
+        }
         HBox.setHgrow(control, Priority.ALWAYS);
 
         getChildren().addAll(label, control);

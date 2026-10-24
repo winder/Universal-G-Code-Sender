@@ -61,6 +61,50 @@ public class ShortcutConverter {
     }
 
     /**
+     * Whether the shortcut needs a command modifier (Ctrl, Meta or Alt). Shift alone does not
+     * count, since "SHIFT+R" is still a letter being typed.
+     */
+    public static boolean hasCommandModifier(String shortcut) {
+        if (shortcut == null || shortcut.isBlank()) {
+            return false;
+        }
+        return Arrays.stream(shortcut.toUpperCase().split("\\+"))
+                .anyMatch(part -> switch (part) {
+                    case "CTRL", "CONTROL", "ALT", "META", "COMMAND", "CMD" -> true;
+                    default -> false;
+                });
+    }
+
+    /**
+     * Formats a shortcut string like "CTRL+SHIFT+Z" for display, as "Ctrl+Shift+Z". The Meta key
+     * is shown as Cmd on macOS and the key itself by its key code name, so "DELETE" becomes "Delete".
+     */
+    public static String toDisplayString(String shortcut) {
+        if (shortcut == null || shortcut.isBlank()) {
+            return "";
+        }
+        return Arrays.stream(shortcut.toUpperCase().split("\\+"))
+                .map(ShortcutConverter::displayPart)
+                .collect(Collectors.joining("+"));
+    }
+
+    private static String displayPart(String part) {
+        return switch (part) {
+            case "CTRL", "CONTROL" -> "Ctrl";
+            case "SHIFT" -> "Shift";
+            case "ALT" -> "Alt";
+            case "META", "COMMAND", "CMD" -> SystemUtils.IS_OS_MAC ? "Cmd" : "Meta";
+            default -> {
+                try {
+                    yield KeyCode.valueOf(part).getName();
+                } catch (IllegalArgumentException e) {
+                    yield part;
+                }
+            }
+        };
+    }
+
+    /**
      * Parses a shortcut string like "CTRL+SHIFT+S" into a KeyCodeCombination.
      */
     public static KeyCodeCombination fromString(String shortcut) {
@@ -78,10 +122,7 @@ public class ShortcutConverter {
                 case "SHIFT" -> modifiers.add(KeyCombination.SHIFT_DOWN);
                 case "ALT" -> modifiers.add(KeyCombination.ALT_DOWN);
                 case "META", "COMMAND", "CMD" -> modifiers.add(KeyCombination.META_DOWN);
-                default -> {
-                    // Assume it's the main key
-                    keyCode = KeyCode.valueOf(part);
-                }
+                default -> keyCode = KeyCode.valueOf(part);
             }
         }
 

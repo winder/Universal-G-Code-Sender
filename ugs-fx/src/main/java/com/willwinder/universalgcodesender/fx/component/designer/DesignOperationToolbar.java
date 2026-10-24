@@ -27,7 +27,7 @@ import com.willwinder.universalgcodesender.fx.actions.DesignSubtractAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignUnionAction;
 
 /**
- * A toolbar of geometric operations (union, subtract, intersection, break apart, stitch, offset) and the
+ * A toolbar of geometric operations (union, subtract, intersection, break apart, stitch) and the
  * grouping action, laid out as flowing buttons. Each action enables itself based on the current
  * selection (for example, a union needs at least two selected entities while a break apart needs
  * a single compound path).

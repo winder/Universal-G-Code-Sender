@@ -23,7 +23,6 @@ import com.willwinder.universalgcodesender.fx.actions.ToggleProjectionAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 /**
  * A vertical stack of the orientation-related overlay buttons shown beneath the orientation
@@ -40,8 +39,8 @@ public class OrientationToolbar extends VBox {
 
         getChildren().addAll(
                 VisualizerToolbar.styleButton(
-                        new ActionButton(new ToggleProjectionAction(), VisualizerToolbar.BUTTON_SIZE, false, Color.WHITE)),
+                        new ActionButton(new ToggleProjectionAction(), VisualizerToolbar.BUTTON_SIZE, false)),
                 VisualizerToolbar.styleButton(
-                        new ActionButton(new CenterCameraAction(), VisualizerToolbar.BUTTON_SIZE, false, Color.WHITE)));
+                        new ActionButton(new CenterCameraAction(), VisualizerToolbar.BUTTON_SIZE, false)));
     }
 }

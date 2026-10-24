@@ -1,27 +1,97 @@
 @import "root.css";
 
+/*
+ * The toolbars floating over the visualizer share one look: a rounded card in the overlay
+ * background with a thin border and a soft shadow, holding borderless icon buttons.
+ */
+.visualizer-toolbar,
+.design-tool-palette {
+    -fx-background-color: -ugs-border-color, -ugs-overlay-background;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 10, 9;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.18), 8, 0, 0, 2);
+}
+
+.visualizer-button,
 .toggle-button.visualizer-button,
-.visualizer-button {
-    -fx-background-color: -ugs-blackish-color;
+.design-tool-palette .toggle-button,
+.design-tool-palette .insert-menu {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 6;
+}
+
+.visualizer-button:hover,
+.toggle-button.visualizer-button:hover,
+.design-tool-palette .toggle-button:hover,
+.design-tool-palette .insert-menu:hover,
+.design-tool-palette .insert-menu:showing {
+    -fx-background-color: -ugs-selected-color;
     -fx-border-color: transparent;
 }
 
+.visualizer-button:focused,
+.design-tool-palette .toggle-button:focused,
+.design-tool-palette .insert-menu:focused {
+    -fx-border-color: transparent;
+}
+
+/* View toggles fade when off and get the selection fill when on */
 .toggle-button.visualizer-button {
-    -fx-opacity: 0.55;
+    -fx-opacity: 0.45;
 }
 
 .toggle-button.visualizer-button:selected {
     -fx-opacity: 1;
+    -fx-background-color: -fx-focus-background-color;
 }
 
-.toggle-button.visualizer-button:hover,
-.visualizer-button:hover {
-    -fx-background-color: #353A40CC;
-    -fx-border-color: transparent;
+/* The active tool has the selection fill and an accent bar along its left edge */
+.design-tool-palette .toggle-button:selected {
+    -fx-background-color: -fx-focus-border-color, -fx-focus-background-color;
+    -fx-background-insets: 0, 0 0 0 3;
+    -fx-background-radius: 6, 0 6 6 0;
+}
+
+.design-tool-palette .separator {
+    -fx-padding: 3 4 3 4;
+    -fx-max-width: 36;
+}
+
+.design-tool-palette .separator .line {
+    -fx-border-color: -ugs-border-color transparent transparent transparent;
+    -fx-border-insets: 0;
+}
+
+/* Every palette button has the same footprint, the insert menu included, so the column lines up */
+.design-tool-palette .toggle-button,
+.design-tool-palette .insert-menu {
+    -fx-pref-width: 36;
+    -fx-pref-height: 36;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-alignment: center;
+}
+
+/* The dropdown arrow is dropped entirely so the icon centers like the tool buttons' */
+.design-tool-palette .insert-menu > .arrow-button,
+.design-tool-palette .insert-menu > .arrow-button > .arrow {
+    -fx-padding: 0;
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-shape: "";
+}
+
+.design-tool-palette .insert-menu > .label {
+    -fx-padding: 0;
 }
 
 .tool-button {
-    -fx-background-color: #f2f2f2;
+    -fx-background-color: -ugs-overlay-background;
     -fx-font-size: 1.2em;
     -fx-padding: 6 12 6 6;
 }

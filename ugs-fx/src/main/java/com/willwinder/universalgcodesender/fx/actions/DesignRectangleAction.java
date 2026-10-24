@@ -26,5 +26,6 @@ public class DesignRectangleAction extends AbstractDesignToolAction {
 
     public DesignRectangleAction() {
         super(Tool.RECTANGLE, Localization.getString("platform.designer.rectangle"), ICON_BASE);
+        setDefaultShortcut("R");
     }
 }

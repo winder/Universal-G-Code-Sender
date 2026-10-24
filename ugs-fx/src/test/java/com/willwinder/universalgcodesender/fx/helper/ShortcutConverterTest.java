@@ -53,4 +53,50 @@ public class ShortcutConverterTest {
 
         assertThat(result).isEmpty();
     }
+
+    @Test
+    public void hasCommandModifier_shouldBeTrueForControlMetaOrAlt() {
+        assertThat(ShortcutConverter.hasCommandModifier("CTRL+Z")).isTrue();
+        assertThat(ShortcutConverter.hasCommandModifier("META+SHIFT+Z")).isTrue();
+        assertThat(ShortcutConverter.hasCommandModifier("alt+f4")).isTrue();
+    }
+
+    @Test
+    public void hasCommandModifier_shouldBeFalseForPlainOrShiftedKeys() {
+        assertThat(ShortcutConverter.hasCommandModifier("R")).isFalse();
+        assertThat(ShortcutConverter.hasCommandModifier("SHIFT+R")).isFalse();
+        assertThat(ShortcutConverter.hasCommandModifier("DELETE")).isFalse();
+        assertThat(ShortcutConverter.hasCommandModifier("")).isFalse();
+        assertThat(ShortcutConverter.hasCommandModifier(null)).isFalse();
+    }
+
+    @Test
+    public void toDisplayString_shouldCapitalizeModifiersAndNameTheKey() {
+        String result = ShortcutConverter.toDisplayString("CTRL+SHIFT+Z");
+
+        assertThat(result).isEqualTo("Ctrl+Shift+Z");
+    }
+
+    @Test
+    public void toDisplayString_shouldUseTheKeyCodeName() {
+        String result = ShortcutConverter.toDisplayString("DELETE");
+
+        assertThat(result).isEqualTo("Delete");
+    }
+
+    @Test
+    public void toDisplayString_shouldShowMetaAsCmdOnMac() {
+        String expected = SystemUtils.IS_OS_MAC ? "Cmd+S" : "Meta+S";
+
+        String result = ShortcutConverter.toDisplayString("META+S");
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    public void toDisplayString_shouldReturnEmptyWhenBlank() {
+        String result = ShortcutConverter.toDisplayString("");
+
+        assertThat(result).isEmpty();
+    }
 }

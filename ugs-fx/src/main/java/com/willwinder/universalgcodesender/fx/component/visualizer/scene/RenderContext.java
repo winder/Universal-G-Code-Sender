@@ -84,9 +84,10 @@ public interface RenderContext {
     /**
      * Directs the following draws into a rectangle of the frame with its own view projection
      * and a cleared depth buffer, for insets such as the orientation cube. Must be paired with
-     * {@link #endSubViewport()}.
+     * {@link #endSubViewport()}. The rectangle may start left of or above the frame, in which
+     * case the part outside is clipped while the projection stays as if it were all visible.
      *
-     * @param x              left edge in physical pixels of the frame
+     * @param x              left edge in physical pixels of the frame, possibly negative
      * @param y              top edge in physical pixels of the frame
      * @param width          width in physical pixels
      * @param height         height in physical pixels

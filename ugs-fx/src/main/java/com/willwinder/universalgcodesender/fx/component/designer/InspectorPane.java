@@ -12,8 +12,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
- * The designer side panel with the drawing toolbars, the selected entity's settings and the
- * entity tree. Shown in the right pane while a design workspace is active.
+ * The designer side panel with the selected entity's settings and the entity tree. Shown in the
+ * right pane while a design workspace is active.
  */
 public class InspectorPane extends VBox {
     private final SplitPane inspectorSplit;
@@ -33,11 +33,11 @@ public class InspectorPane extends VBox {
         inspectorSplit.setOrientation(Orientation.VERTICAL);
         VBox.setVgrow(inspectorSplit, Priority.ALWAYS);
 
-        getChildren().addAll(new DesignToolbar(), new DesignAlignToolbar(), new DesignOperationToolbar(), inspectorSplit);
+        getChildren().add(inspectorSplit);
 
         // The sections divider can only be positioned once the pane is in a scene, and the
         // persistence keeps following the divider afterwards even while the pane is collapsed.
-        sceneProperty().addListener((observable, oldScene, newScene) -> {
+        sceneProperty().addListener((_, _, newScene) -> {
             if (newScene != null && !sectionsDividerPersisted) {
                 sectionsDividerPersisted = true;
                 Platform.runLater(() -> SplitPaneDividerPersistence.install(

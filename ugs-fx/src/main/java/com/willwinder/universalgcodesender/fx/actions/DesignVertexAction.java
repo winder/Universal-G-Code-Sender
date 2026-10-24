@@ -29,5 +29,6 @@ public class DesignVertexAction extends AbstractDesignToolAction {
 
     public DesignVertexAction() {
         super(Tool.VERTEX, Localization.getString("platform.designer.vertex"), ICON_BASE);
+        setDefaultShortcut("A");
     }
 }
