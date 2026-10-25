@@ -9,6 +9,7 @@ import com.willwinder.universalgcodesender.utils.Settings;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import org.mockito.Mock;
 import static org.mockito.Mockito.doNothing;
@@ -16,6 +17,11 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -170,8 +176,8 @@ public class SurfaceScannerTest {
         settings.setSafetyHeight(6);
 
         AutoLevelSettings autoLevelSettings = settings.getAutoLevelSettings();
-        autoLevelSettings.setMin(new Position(0,0,0, UnitUtils.Units.MM));
-        autoLevelSettings.setMax(new Position(0,0,0, UnitUtils.Units.MM));
+        autoLevelSettings.setMin(new Position(0,0,-2, UnitUtils.Units.MM));
+        autoLevelSettings.setMax(new Position(1,1,0, UnitUtils.Units.MM));
         autoLevelSettings.setProbeScanFeedRate(500);
 
         when(backendAPI.getSettings()).thenReturn(settings);
@@ -204,8 +210,8 @@ public class SurfaceScannerTest {
         autoLevelSettings.setTouchPlateThickness(10);
 
         when(backendAPI.getSettings()).thenReturn(settings);
-        when(backendAPI.getWorkPosition()).thenReturn(new Position(0, 0, 0, UnitUtils.Units.MM));
-        when(backendAPI.getMachinePosition()).thenReturn(new Position(0, 0, 0, UnitUtils.Units.MM));
+        when(backendAPI.getWorkPosition()).thenReturn(new Position(0, 0, 10, UnitUtils.Units.MM));
+        when(backendAPI.getMachinePosition()).thenReturn(new Position(0, 0, 10, UnitUtils.Units.MM));
 
         ArgumentCaptor<String> sentGcodeCommandCaptor = ArgumentCaptor.forClass(String.class);
         doNothing().when(backendAPI).sendGcodeCommand(anyBoolean(), sentGcodeCommandCaptor.capture());
@@ -230,8 +236,8 @@ public class SurfaceScannerTest {
         autoLevelSettings.setTouchPlateThickness(10);
 
         when(backendAPI.getSettings()).thenReturn(settings);
-        when(backendAPI.getWorkPosition()).thenReturn(new Position(0, 0, 0, UnitUtils.Units.MM));
-        when(backendAPI.getMachinePosition()).thenReturn(new Position(0, 0, 0, UnitUtils.Units.MM));
+        when(backendAPI.getWorkPosition()).thenReturn(new Position(0, 0, 10, UnitUtils.Units.MM));
+        when(backendAPI.getMachinePosition()).thenReturn(new Position(0, 0, 10, UnitUtils.Units.MM));
 
         SurfaceScanner surfaceScanner = new SurfaceScanner(backendAPI);
         surfaceScanner.reset();
@@ -287,6 +293,8 @@ public class SurfaceScannerTest {
         Settings settings = createInchSettings();
         settings.getAutoLevelSettings().setTouchPlateThickness(25.4);
         SurfaceScanner surfaceScanner = createScanner(settings);
+        when(backendAPI.getWorkPosition()).thenReturn(new Position(0, 0, 1, UnitUtils.Units.INCH));
+        when(backendAPI.getMachinePosition()).thenReturn(new Position(0, 0, 1, UnitUtils.Units.INCH));
 
         surfaceScanner.scan();
 
@@ -321,6 +329,94 @@ public class SurfaceScannerTest {
         assertEquals(1, probedPosition.getX(), 0.001);
         assertEquals(0, probedPosition.getY(), 0.001);
         assertEquals(1, probedPosition.getZ(), 0.001);
+    }
+
+    @Test
+    public void scanShouldRejectUnsafeOrUnavailableZBeforeMovement() throws Exception {
+        for (UnitUtils.Units units : new UnitUtils.Units[]{UnitUtils.Units.MM, UnitUtils.Units.INCH}) {
+            clearInvocations(backendAPI);
+            Settings settings = createInchSettings();
+            settings.setPreferredUnits(units);
+            settings.getAutoLevelSettings().setTouchPlateThickness(25.4);
+            SurfaceScanner scanner = createScanner(settings);
+
+            Position[] invalidPositions = {
+                    new Position(0, 0, 50.9, UnitUtils.Units.MM),
+                    new Position(0, 0, 25.3, UnitUtils.Units.MM),
+                    new Position(0, 0, Double.NaN, UnitUtils.Units.MM),
+                    new Position(0, 0, Double.POSITIVE_INFINITY, UnitUtils.Units.MM),
+                    new Position(0, 0, Double.NEGATIVE_INFINITY, UnitUtils.Units.MM),
+                    new Position(0, 0, 1, UnitUtils.Units.UNKNOWN),
+                    null
+            };
+            for (Position position : invalidPositions) {
+                when(backendAPI.getWorkPosition()).thenReturn(position);
+                assertThrows(IllegalStateException.class, scanner::scan);
+                Position next = scanner.getNextProbePoint().get();
+                scanner.handleEvent(new ProbeEvent(new Position(0, 0, 1, UnitUtils.Units.INCH)));
+                assertEquals(next, scanner.getNextProbePoint().get());
+            }
+            verify(backendAPI, never()).sendGcodeCommand(anyBoolean(), anyString());
+            verify(backendAPI, never()).probe(anyString(), anyDouble(), anyDouble(), eq(units));
+            verify(backendAPI, never()).getMachinePosition();
+
+            when(backendAPI.getWorkPosition()).thenReturn(new Position(0, 0, 25.4, UnitUtils.Units.MM));
+            scanner.scan();
+            verify(backendAPI).probe(eq("Z"), anyDouble(), eq(-25.4 * UnitUtils.scaleUnits(UnitUtils.Units.MM, units)), eq(units));
+        }
+    }
+
+    @Test
+    public void scanShouldAcceptEffectiveBoundariesAndInteriorInEitherUnit() throws Exception {
+        for (UnitUtils.Units units : new UnitUtils.Units[]{UnitUtils.Units.MM, UnitUtils.Units.INCH}) {
+            Settings settings = createInchSettings();
+            settings.setPreferredUnits(units);
+            settings.getAutoLevelSettings().setTouchPlateThickness(25.4);
+            for (double z : new double[]{25.4, 38.1, 50.8}) {
+                clearInvocations(backendAPI);
+                SurfaceScanner scanner = createScanner(settings);
+                when(backendAPI.getWorkPosition()).thenReturn(new Position(0, 0, z, UnitUtils.Units.MM));
+                when(backendAPI.getMachinePosition()).thenReturn(new Position(0, 0, z - 10, UnitUtils.Units.MM).getPositionIn(units));
+                scanner.scan();
+                InOrder order = inOrder(backendAPI);
+                String unit = units == UnitUtils.Units.MM ? "G21" : "G20";
+                String feed = units == UnitUtils.Units.MM ? "254" : "10";
+                order.verify(backendAPI).sendGcodeCommand(true, unit + "G90G0Z" + (units == UnitUtils.Units.MM ? "76.2" : "3") + "F" + feed);
+                order.verify(backendAPI).sendGcodeCommand(true, unit + "G90G0X0Y0F" + feed);
+                order.verify(backendAPI).sendGcodeCommand(true, unit + "G90G0Z" + (units == UnitUtils.Units.MM ? "50.8" : "2") + "F" + feed);
+                order.verify(backendAPI).sendGcodeCommand(true, unit + "G90G0X0Y0F" + feed);
+                order.verify(backendAPI).probe("Z", 254 * UnitUtils.scaleUnits(UnitUtils.Units.MM, units),
+                        -25.4 * UnitUtils.scaleUnits(UnitUtils.Units.MM, units), units);
+                scanner.handleEvent(new ProbeEvent(new Position(0, 0, z - 10, UnitUtils.Units.MM)));
+                assertEquals(z - 25.4, scanner.getProbePositionGrid()[0][0].getPositionIn(UnitUtils.Units.MM).getZ(), 0.001);
+            }
+        }
+    }
+
+    @Test
+    public void scanShouldRejectInvalidEffectiveBounds() throws Exception {
+        Settings settings = new Settings();
+        settings.getAutoLevelSettings().setMin(new Position(0, 0, 0, UnitUtils.Units.MM));
+        settings.getAutoLevelSettings().setMax(new Position(0, 0, 0, UnitUtils.Units.MM));
+        SurfaceScanner scanner = createScanner(settings);
+        assertThrows(IllegalStateException.class, scanner::scan);
+        scanner.update(new Position(0, 0, 0, UnitUtils.Units.MM), new Position(1, 1, 2, UnitUtils.Units.MM));
+        for (double thickness : new double[]{Double.NaN, Double.POSITIVE_INFINITY, Double.MAX_VALUE}) {
+            settings.getAutoLevelSettings().setTouchPlateThickness(thickness);
+            assertThrows(IllegalStateException.class, scanner::scan);
+        }
+        scanner.update(new Position(0, 0, Double.NEGATIVE_INFINITY, UnitUtils.Units.MM),
+                new Position(1, 1, Double.POSITIVE_INFINITY, UnitUtils.Units.MM));
+        settings.getAutoLevelSettings().setTouchPlateThickness(0);
+        assertThrows(IllegalStateException.class, scanner::scan);
+        scanner.update(new Position(0, 0, -Double.MAX_VALUE, UnitUtils.Units.MM),
+                new Position(1, 1, Double.MAX_VALUE, UnitUtils.Units.MM));
+        assertThrows(IllegalStateException.class, scanner::scan);
+        verify(backendAPI, never()).sendGcodeCommand(anyBoolean(), anyString());
+        verify(backendAPI, never()).probe(anyString(), anyDouble(), anyDouble(), eq(UnitUtils.Units.MM));
+        scanner.update(new Position(0, 0, 0, UnitUtils.Units.MM), new Position(1, 1, 2, UnitUtils.Units.MM));
+        scanner.scan();
+        verify(backendAPI).probe(eq("Z"), anyDouble(), eq(-2.0), eq(UnitUtils.Units.MM));
     }
 
     private Settings createInchSettings() {

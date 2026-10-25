@@ -194,9 +194,26 @@ public class SurfaceScanner {
      * Begin a scan the surface {@link #handleEvent(ProbeEvent)} must be called to properly progress through the scan.
      */
     public void scan() {
-        isScanning.set(true);
         Position work = backend.getWorkPosition();
-        Position machine = backend.getMachinePosition();
+        if (work == null || work.getUnits() == null || work.getUnits() == Units.UNKNOWN
+                || minXYZ.getUnits() == null || minXYZ.getUnits() == Units.UNKNOWN
+                || maxXYZ.getUnits() == null || maxXYZ.getUnits() == Units.UNKNOWN) {
+            throw new IllegalStateException("Cannot scan without a known work Z position and scan units.");
+        }
+
+        work = work.getPositionIn(minXYZ.getUnits());
+        double minZ = getProbeAreaMinZ();
+        double maxZ = toProbeZ(maxXYZ.getZ());
+        double interval = maxZ - minZ;
+        if (!Double.isFinite(minZ) || !Double.isFinite(maxZ) || !Double.isFinite(interval) || interval <= 0) {
+            throw new IllegalStateException("Cannot scan: the effective probe Z interval must be finite and positive.");
+        }
+        if (!Double.isFinite(work.getZ()) || work.getZ() < minZ || work.getZ() > maxZ) {
+            throw new IllegalStateException("Cannot scan: current work Z must be between " + minZ + " and " + maxZ + " " + minXYZ.getUnits() + ".");
+        }
+
+        isScanning.set(true);
+        Position machine = backend.getMachinePosition().getPositionIn(work.getUnits());
         machineWorkOffset = new Position(work.getUnits());
         machineWorkOffset.x = work.x - machine.x;
         machineWorkOffset.y = work.y - machine.y;

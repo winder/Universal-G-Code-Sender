@@ -47,11 +47,17 @@ public class ProbeServiceTest {
     public void testProbeServiceZ() throws Exception {
         doReturn(true).when(backend).isIdle();
 
-        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 10., 1, 1, 1, 0, 100, 25, 5, 2.4, Units.INCH, G54);
-        testZProbe(pc);
-
-        pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, -10., 1, 1, 1, 0, 100, 25, 5, 2.4, Units.INCH, G54);
-        testZProbe(pc);
+        for (Units units : new Units[]{Units.MM, Units.INCH}) {
+            for (double oldZ : new double[]{-50, 50}) {
+                for (double spacing : new double[]{-10, 10}) {
+                    Mockito.clearInvocations(backend);
+                    Position startPosition = new Position(5, 5, oldZ, units);
+                    doReturn(startPosition).when(backend).getWorkPosition();
+                    ProbeParameters pc = new ProbeParameters(1, startPosition, 10, 10, spacing, 1, 1, 1, 0, 100, 25, 5, 2.4, units, G54);
+                    testZProbe(pc);
+                }
+            }
+        }
     }
 
     private void testZProbe(ProbeParameters pc) throws Exception {
@@ -59,26 +65,32 @@ public class ProbeServiceTest {
 
         ps.performZProbe(pc);
 
+        InOrder order = inOrder(backend);
+        order.verify(backend).sendGcodeCommand(true, "G10 L20 P1 Z0");
+        order.verify(backend).probe("Z", pc.feedRate, pc.zSpacing, pc.units);
+        // Before contact the only command resets the WCS; no rapid to the old zero is allowed.
+        Mockito.verify(backend).sendGcodeCommand(Mockito.anyBoolean(), Mockito.anyString());
+        Mockito.verify(backend).probe(Mockito.anyString(), Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any());
+        order.verifyNoMoreInteractions();
+
         Position probeZ = new Position(5, 5, 3, Units.MM);
         ps.UGSEvent(new ProbeEvent(probeZ));
         ps.UGSEvent(new ProbeEvent(probeZ));
         ps.UGSEvent(new ControllerStateEvent(ControllerState.IDLE, ControllerState.RUN));
 
-        InOrder order = inOrder(backend);
-
-        order.verify(backend, times(1)).probe("Z", pc.feedRate, pc.zSpacing, pc.units);
+        String unit = pc.units == Units.MM ? "G21" : "G20";
         double retractDistance = retractDistance(pc.zSpacing, pc.retractAmount);
         order.verify(backend, times(1))
-                .sendGcodeCommand(true, "G91 G20 G0 Z" + formatter.format(retractDistance));
+                .sendGcodeCommand(true, "G91 " + unit + " G0 Z" + formatter.format(retractDistance));
         order.verify(backend, times(1))
                 .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("Z", pc.feedRateSlow, -(retractDistance * 1.2), pc.units);
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G20 G0 Z0.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 " + unit + " G0 Z0.0");
 
         double zDir = Math.signum(pc.zSpacing) * -1;
         double zProbedOffset = zDir * pc.zOffset;
         Position startPositionInUnits = pc.startPosition.getPositionIn(pc.units);
-        double zPosition =  startPositionInUnits.z - probeZ.getPositionIn(pc.units).z + zProbedOffset;
+        double zPosition = startPositionInUnits.z - probeZ.getPositionIn(pc.units).z + zProbedOffset;
 
         order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P1 Z" + formatter.format(zPosition));
     }
