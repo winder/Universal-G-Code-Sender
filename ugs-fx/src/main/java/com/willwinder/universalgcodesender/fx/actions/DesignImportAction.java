@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import com.willwinder.universalgcodesender.fx.helper.FileChooserHelper;
 import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -64,7 +65,7 @@ public class DesignImportAction extends BaseAction {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Localization.getString("platform.designer.import"));
-        fileChooser.setInitialDirectory(resolveInitialDirectory(settings));
+        fileChooser.setInitialDirectory(FileChooserHelper.resolveInitialDirectory(settings.getLastWorkingDirectory()));
         fileChooser.getExtensionFilters().addAll(createExtensionFilters());
 
         File file = fileChooser.showOpenDialog(owner);
@@ -113,11 +114,6 @@ public class DesignImportAction extends BaseAction {
                 .map(format -> new FileChooser.ExtensionFilter(format.description(),
                         format.extensions().stream().map(extension -> "*." + extension).toList()))
                 .toList();
-    }
-
-    private static File resolveInitialDirectory(Settings settings) {
-        File directory = new File(settings.getLastWorkingDirectory());
-        return directory.isDirectory() ? directory : null;
     }
 
 }
