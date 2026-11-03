@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.fx.actions;
 import com.willwinder.ugs.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
+import com.willwinder.universalgcodesender.fx.helper.FileChooserHelper;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
@@ -108,7 +109,7 @@ public class SaveAction extends BaseAction {
         BackendAPI backend = LookupService.lookup(BackendAPI.class);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Localization.getString("platform.menu.save"));
-        fileChooser.setInitialDirectory(new File(backend.getSettings().getLastWorkingDirectory()));
+        fileChooser.setInitialDirectory(FileChooserHelper.resolveInitialDirectory(backend.getSettings().getLastWorkingDirectory()));
         fileChooser.setInitialFileName("design." + extension);
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UGS design files", "*." + extension));
 

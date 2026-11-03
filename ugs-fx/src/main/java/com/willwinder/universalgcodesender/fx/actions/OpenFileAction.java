@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
+import com.willwinder.universalgcodesender.fx.helper.FileChooserHelper;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -58,7 +59,7 @@ public class OpenFileAction extends BaseAction {
         BackendAPI backend = LookupService.lookup(BackendAPI.class);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
-        fileChooser.setInitialDirectory(new File(backend.getSettings().getLastWorkingDirectory()));
+        fileChooser.setInitialDirectory(FileChooserHelper.resolveInitialDirectory(backend.getSettings().getLastWorkingDirectory()));
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("All supported files", "*.nc", "*.txt", "*.gcode", "*.ngc", "*.ugsd"),
                 new FileChooser.ExtensionFilter("Gcode files", "*.nc", "*.txt", "*.gcode", "*.ngc"),
