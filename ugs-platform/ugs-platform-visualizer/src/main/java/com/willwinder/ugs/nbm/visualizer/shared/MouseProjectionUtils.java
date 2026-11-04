@@ -86,13 +86,11 @@ public class MouseProjectionUtils {
                 new Vector3(wcoordFar[0], wcoordFar[1], wcoordFar[2])};
     }
 
+    /**
+     * Returns the XY plane intersection for mouse coordinates already in drawable pixels.
+     */
     public static Position intersectPointWithXYPlane(GLAutoDrawable drawable,
-            int rawMouseX, int rawMouseY) {
-
-        int[] raw = {rawMouseX, rawMouseY};
-        int[] coords = drawable.getNativeSurface().convertToPixelUnits(raw);
-        int mouseX = coords[0];
-        int mouseY = coords[1];
+            int mouseX, int mouseY) {
 
         Vector3[] mouseRay = getRayFromMouse(drawable, mouseX, mouseY);
 

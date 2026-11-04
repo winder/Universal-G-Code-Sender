@@ -39,7 +39,6 @@ import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 
 import javax.swing.SwingUtilities;
 import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -93,16 +92,15 @@ public class RendererInputHandler implements
     }
 
     /**
-     * Returns the pixel coordinate with the screen scale applied to it.
+     * Returns the pixel coordinate with the event component's display scale applied to it.
      *
-     * @param x the point x
-     * @param y the point y
+     * @param event the mouse event in component coordinates
      * @return a screen pixel coordinate
      */
-    private static Point getScreenPoint(int x, int y) {
-        GraphicsConfiguration graphicsConfiguration = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
-        AffineTransform defaultTransform = graphicsConfiguration.getDefaultTransform();
-        return new Point((int) Math.round(x * defaultTransform.getScaleX()), (int) Math.round(y * defaultTransform.getScaleY()));
+    private static Point getScreenPoint(MouseEvent event) {
+        GraphicsConfiguration graphicsConfiguration = event.getComponent().getGraphicsConfiguration();
+        AffineTransform defaultTransform = graphicsConfiguration == null ? new AffineTransform() : graphicsConfiguration.getDefaultTransform();
+        return new Point((int) Math.round(event.getX() * defaultTransform.getScaleX()), (int) Math.round(event.getY() * defaultTransform.getScaleY()));
     }
 
     private void setFPS(int fps) {
@@ -172,7 +170,7 @@ public class RendererInputHandler implements
 
     @Override
     public void mouseDragged(java.awt.event.MouseEvent e) {
-        Point point = getScreenPoint(e.getX(), e.getY());
+        Point point = getScreenPoint(e);
 
         // Don't rotate if we're making a selection.
         if (selecting) {
@@ -197,7 +195,7 @@ public class RendererInputHandler implements
 
     @Override
     public void mouseMoved(java.awt.event.MouseEvent e) {
-        Point point = getScreenPoint(e.getX(), e.getY());
+        Point point = getScreenPoint(e);
         gcodeRenderer.mouseMoved(point);
     }
 
