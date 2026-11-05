@@ -22,10 +22,12 @@ import java.awt.geom.Point2D;
 import java.util.function.DoubleSupplier;
 
 /**
- * Snaps coordinates to the designer's grid. The grid size comes from the drawing, where the
- * snap to grid actions set it; zero disables snapping.
+ * Snaps coordinates to the designer's grid. The grid size comes from the supplier, in the
+ * application from the snap settings; zero disables snapping.
  */
 public final class Snapper {
+    private static final double EPSILON = 1e-9;
+
     private final DoubleSupplier gridSize;
 
     public Snapper(DoubleSupplier gridSize) {
@@ -45,19 +47,34 @@ public final class Snapper {
     }
 
     /**
-     * The distance a keyboard nudge moves the selection: the grid size, or one millimeter when
-     * snapping is off.
+     * Where a keyboard nudge moves a coordinate: the given number of grid lines in the given
+     * direction, the first step landing on the nearest grid line past the value so a position
+     * off the grid comes onto it. Without a grid it moves a millimeter per step.
+     *
+     * @param value     the coordinate to move
+     * @param direction positive to move up the axis, negative to move down it
+     * @param steps     how many grid lines, or millimeters, to move
      */
-    public double nudgeStep() {
+    public double nudge(double value, int direction, int steps) {
         double grid = gridSize.getAsDouble();
-        return grid > 0 ? grid : 1;
+        double sign = Math.signum(direction);
+        if (grid <= 0) {
+            return value + sign * steps;
+        }
+        // Allow for floating point noise so a value already on a grid line counts as on it.
+        double lines = value / grid;
+        double first = sign > 0 ? Math.floor(lines + EPSILON) + 1 : Math.ceil(lines - EPSILON) - 1;
+        return (first + sign * (steps - 1)) * grid;
     }
 
     /**
-     * Rounds to whole millimeters, or tenths when the user asks for fine movement, then snaps.
+     * Snaps to the grid, or without a grid rounds to whole millimeters, or tenths when the user
+     * asks for fine movement.
      */
     public double snapRounded(double value, boolean fine) {
-        double rounded = fine ? Math.round(value * 10) / 10.0 : Math.round(value);
-        return snap(rounded);
+        if (gridSize.getAsDouble() > 0) {
+            return snap(value);
+        }
+        return fine ? Math.round(value * 10) / 10.0 : Math.round(value);
     }
 }

@@ -23,7 +23,9 @@ import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.cuttable.Point;
 import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -38,9 +40,14 @@ import java.util.function.ToDoubleFunction;
  */
 public final class HandleSet {
     public static final double HANDLE_SIZE_PX = 8;
-    public static final double RESIZE_MARGIN_PX = 6;
     public static final double ROTATE_MARGIN_PX = 16;
+    /**
+     * Below this size on screen the resize handles move outside the frame instead of sitting
+     * centred on it, so they do not cover a small selection.
+     */
+    public static final double MIN_CENTERED_FRAME_PX = 3 * HANDLE_SIZE_PX;
     private static final double HIT_FACTOR = 1.3;
+    private static final double SMALL_FRAME_GAP_PX = 1;
 
     public enum Kind {
         RESIZE, ROTATE
@@ -56,6 +63,15 @@ public final class HandleSet {
         public boolean contains(Point2D point) {
             double reach = size / 2 * HIT_FACTOR;
             return Math.abs(point.getX() - center.getX()) <= reach && Math.abs(point.getY() - center.getY()) <= reach;
+        }
+
+        /**
+         * Whether the other handle is the same control as this one. Handles are recomputed on
+         * every use and their position and size follow the zoom, so they are identified by what
+         * they do rather than by where they are.
+         */
+        public boolean isSameHandle(Handle other) {
+            return other != null && kind == other.kind && anchor == other.anchor;
         }
     }
 
@@ -73,7 +89,7 @@ public final class HandleSet {
      * is, since a point has no size or rotation to change.
      */
     public static List<Handle> handles(SelectionManager selection, double worldUnitsPerPixel) {
-        return handles(selection, point -> worldUnitsPerPixel);
+        return handles(selection, _ -> worldUnitsPerPixel);
     }
 
     /**
@@ -84,14 +100,15 @@ public final class HandleSet {
      */
     public static List<Handle> handles(SelectionManager selection, ToDoubleFunction<Point2D> worldUnitsPerPixelAt) {
         List<Entity> selected = selection.getSelection();
-        if (selected.isEmpty() || (selected.size() == 1 && selected.get(0) instanceof Point)) {
+        if (selected.isEmpty() || (selected.size() == 1 && selected.getFirst() instanceof Point)) {
             return List.of();
         }
-        AffineTransform transform = selection.getTransform();
-        Rectangle2D bounds = selection.getRelativeShape().getBounds2D();
+        Frame frame = frameOf(selection);
+        AffineTransform transform = frame.transform();
+        Rectangle2D bounds = frame.bounds();
         Point2D center = transform.transform(new Point2D.Double(bounds.getCenterX(), bounds.getCenterY()), null);
         double marginScale = worldUnitsPerPixelAt.applyAsDouble(center);
-        double margin = RESIZE_MARGIN_PX * marginScale;
+        double margin = resizeMargin(bounds, marginScale);
         List<Handle> handles = new ArrayList<>();
         for (Anchor anchor : RESIZE_ANCHORS) {
             Point2D offset = handleOffset(anchor, bounds, margin);
@@ -114,13 +131,15 @@ public final class HandleSet {
 
     /**
      * The corners of the selection's bounding frame in design coordinates, in drawing order.
+     * The frame follows the rotation of a single selected item, see {@link #frameOf}.
      */
     public static List<Point2D> frame(SelectionManager selection) {
         if (selection.isEmpty()) {
             return List.of();
         }
-        AffineTransform transform = selection.getTransform();
-        Rectangle2D bounds = selection.getRelativeShape().getBounds2D();
+        Frame frame = frameOf(selection);
+        AffineTransform transform = frame.transform();
+        Rectangle2D bounds = frame.bounds();
         List<Point2D> corners = new ArrayList<>(4);
         corners.add(transform.transform(new Point2D.Double(bounds.getMinX(), bounds.getMinY()), null));
         corners.add(transform.transform(new Point2D.Double(bounds.getMaxX(), bounds.getMinY()), null));
@@ -130,8 +149,97 @@ public final class HandleSet {
     }
 
     /**
-     * Where a resize handle sits relative to the selection's bounds. The handle is placed
-     * opposite its anchor, which is the side that stays put, matching the legacy designer.
+     * Whether a design position lies inside the selection's frame.
+     */
+    public static boolean frameContains(SelectionManager selection, Point2D point) {
+        List<Point2D> corners = frame(selection);
+        if (corners.isEmpty()) {
+            return false;
+        }
+        Path2D path = new Path2D.Double();
+        path.moveTo(corners.getFirst().getX(), corners.getFirst().getY());
+        for (int i = 1; i < corners.size(); i++) {
+            path.lineTo(corners.get(i).getX(), corners.get(i).getY());
+        }
+        path.closePath();
+        return path.contains(point);
+    }
+
+    /**
+     * A box in its own coordinate system and the transform that places it in the design.
+     */
+    record Frame(AffineTransform transform, Rectangle2D bounds) {
+    }
+
+    /**
+     * The selection's frame. A single selected item gets a box turned with its rotation, fitted
+     * tightly around its outline in that rotated system. Several selected items keep the
+     * selection's own, unrotated box.
+     */
+    static Frame frameOf(SelectionManager selection) {
+        if (selection.getChildren().size() != 1) {
+            return new Frame(selection.getTransform(), selection.getRelativeShape().getBounds2D());
+        }
+        // The selection keeps its bounds until one of its entities changes, so the same bounds
+        // object means the frame fitted around the entities is still the same
+        Shape selectionBounds = selection.getShape();
+        double rotation = selection.getRotation();
+        List<Entity> children = selection.getChildren();
+        CachedFrame cached = cachedFrame;
+        if (cached != null && cached.selection() == selection && cached.selectionBounds() == selectionBounds
+                && cached.rotation() == rotation && cached.children().equals(children)) {
+            return cached.frame();
+        }
+        Frame frame = fitFrame(selection, rotation);
+        cachedFrame = new CachedFrame(selection, selectionBounds, rotation, List.copyOf(children), frame);
+        return frame;
+    }
+
+    /**
+     * The last frame fitted around a single selected item and what it was fitted for, as
+     * fitting it transforms every outline of the item and the frame is asked for on every
+     * render and mouse move. Only used on the JavaFX thread.
+     */
+    private record CachedFrame(SelectionManager selection, Shape selectionBounds, double rotation,
+                               List<Entity> children, Frame frame) {
+    }
+
+    private static CachedFrame cachedFrame;
+
+    private static Frame fitFrame(SelectionManager selection, double rotation) {
+        double radians = -Math.toRadians(rotation);
+        AffineTransform toDesign = AffineTransform.getRotateInstance(radians);
+        AffineTransform toFrame = AffineTransform.getRotateInstance(-radians);
+        Rectangle2D bounds = null;
+        for (Entity entity : selection.getSelection()) {
+            Rectangle2D entityBounds = toFrame.createTransformedShape(entity.getShape()).getBounds2D();
+            if (bounds == null) {
+                bounds = entityBounds;
+            } else {
+                bounds.add(entityBounds);
+            }
+        }
+        return new Frame(toDesign, bounds == null ? new Rectangle2D.Double() : bounds);
+    }
+
+    /**
+     * How far outside the frame the resize handles are pushed. Normally none, so they are
+     * centred on the frame. When the frame is too small on screen the handles would cover it
+     * and make it impossible to click or move, so they are pushed out until their reach stops
+     * just short of the frame.
+     */
+    private static double resizeMargin(Rectangle2D bounds, double worldUnitsPerPixel) {
+        double smallestSidePx = Math.min(bounds.getWidth(), bounds.getHeight()) / worldUnitsPerPixel;
+        if (smallestSidePx >= MIN_CENTERED_FRAME_PX) {
+            return 0;
+        }
+        return (HANDLE_SIZE_PX / 2 * HIT_FACTOR + SMALL_FRAME_GAP_PX) * worldUnitsPerPixel;
+    }
+
+    /**
+     * Where a resize handle sits relative to the selection's bounds: on the frame's corner or
+     * edge midpoint opposite its anchor, which is the side that stays put, matching the legacy
+     * designer, pushed outwards by the margin.
      */
     private static Point2D handleOffset(Anchor anchor, Rectangle2D bounds, double margin) {
         double width = bounds.getWidth();

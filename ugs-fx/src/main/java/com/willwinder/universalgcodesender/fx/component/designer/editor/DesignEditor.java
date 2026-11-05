@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -79,12 +80,13 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
     private final Predicate<MouseEvent> claimsPress;
     private final EditorState state = new EditorState();
     private final Map<Tool, EditorTool> tools = new EnumMap<>(Tool.class);
+    private final BooleanSupplier deleteHandler = this::deleteInCurrentTool;
     private final ControllerListener controllerListener = event -> {
         if (event == ControllerEventType.TOOL_SELECTED || event == ControllerEventType.NEW_DRAWING) {
             Platform.runLater(this::syncTool);
         }
     };
-    private final SelectionListener selectionListener = event -> Platform.runLater(this::onSelectionChanged);
+    private final SelectionListener selectionListener = _ -> Platform.runLater(this::onSelectionChanged);
     private final WorkspaceManager.WorkspaceListener workspaceListener = new WorkspaceManager.WorkspaceListener() {
         @Override
         public void onWorkspaceOpened(WorkspaceContext workspace) {
@@ -130,9 +132,11 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
         this.claimsPress = claimsPress;
         WorkspaceManager.getInstance().addListener(workspaceListener);
         bind(WorkspaceManager.getInstance().getActiveWorkspace().orElse(null));
+        DeleteHandlers.add(deleteHandler);
     }
 
     public void dispose() {
+        DeleteHandlers.remove(deleteHandler);
         WorkspaceManager.getInstance().removeListener(workspaceListener);
         bind(null);
     }
@@ -249,6 +253,13 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
         return currentTool != null && currentTool.onKeyPressed(event);
     }
 
+    /**
+     * Lets the current tool delete what it has selected, such as a node in the vertex tool.
+     */
+    private boolean deleteInCurrentTool() {
+        return isActive() && currentTool != null && currentTool.onDelete();
+    }
+
     @Override
     public boolean onContextMenu(PointerEvent event) {
         if (!isActive()) {
@@ -278,20 +289,23 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
     }
 
     /**
-     * Arrow keys move the selection by the snap grid, or a millimeter, ten times that with
-     * Shift, as one undoable move each.
+     * Arrow keys move the selection to the next line of the snap grid, or by a millimeter
+     * without a grid, ten times that with Shift, as one undoable move each. The selection's
+     * bottom left corner is what lands on the grid.
      */
     private boolean nudgeSelection(KeyEvent event) {
         List<Entity> selected = new ArrayList<>(controller.getSelectionManager().getSelection());
         if (selected.isEmpty()) {
             return false;
         }
-        double step = toolContext.snapper().nudgeStep() * (event.isShiftDown() ? 10 : 1);
+        int steps = event.isShiftDown() ? 10 : 1;
+        Snapper snapper = toolContext.snapper();
+        Point2D position = controller.getSelectionManager().getPosition();
         Point2D delta = switch (event.getCode()) {
-            case LEFT -> new Point2D.Double(-step, 0);
-            case RIGHT -> new Point2D.Double(step, 0);
-            case UP -> new Point2D.Double(0, step);
-            case DOWN -> new Point2D.Double(0, -step);
+            case LEFT -> new Point2D.Double(snapper.nudge(position.getX(), -1, steps) - position.getX(), 0);
+            case RIGHT -> new Point2D.Double(snapper.nudge(position.getX(), 1, steps) - position.getX(), 0);
+            case UP -> new Point2D.Double(0, snapper.nudge(position.getY(), 1, steps) - position.getY());
+            case DOWN -> new Point2D.Double(0, snapper.nudge(position.getY(), -1, steps) - position.getY());
             default -> null;
         };
         if (delta == null) {
@@ -323,7 +337,7 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
         }
         controller = ControllerFactory.getController();
         toolContext = new ToolContext(controller, camera, new HitTester(controller),
-                new Snapper(() -> controller.getModel().getSnapToGrid()), state, requestRender, textEditor);
+                new Snapper(() -> VisualizerSettings.getInstance().designSnapGrid()), state, requestRender, textEditor);
         tools.put(Tool.SELECT, new SelectTool(toolContext));
         tools.put(Tool.RECTANGLE, CreateShapeTool.rectangle(toolContext));
         tools.put(Tool.CIRCLE, CreateShapeTool.ellipse(toolContext));
@@ -352,7 +366,7 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
         state.clearTransient();
         state.setHoveredHandle(null);
         state.setHoveredEntity(null);
-        state.setVertices(List.of(), -1);
+        state.setVertices(List.of());
     }
 
     /**

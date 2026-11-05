@@ -53,6 +53,16 @@ public interface EditorTool {
     }
 
     /**
+     * Deletes what the tool has selected within the selected entities, such as a node of a
+     * path, in place of deleting the entities themselves.
+     *
+     * @return true when the tool performed the delete
+     */
+    default boolean onDelete() {
+        return false;
+    }
+
+    /**
      * Called when the tool becomes the current one.
      */
     default void activate() {

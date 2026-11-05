@@ -19,15 +19,19 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.universalgcodesender.fx.actions.CenterCameraAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignToggleSnapAction;
 import com.willwinder.universalgcodesender.fx.actions.ToggleProjectionAction;
+import com.willwinder.universalgcodesender.fx.component.designer.DesignWorkspaceVisibility;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
+import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
+import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
 
 /**
  * A vertical stack of the orientation-related overlay buttons shown beneath the orientation
- * cube in the top-left corner of the {@link VisualizerPane}: the camera projection toggle and the
- * center-on-workspace action.
+ * cube in the top-left corner of the {@link VisualizerPane}: the camera projection toggle, the
+ * center-on-workspace action and, while a design is open, the snap to grid toggle.
  */
 public class OrientationToolbar extends VBox {
 
@@ -42,5 +46,13 @@ public class OrientationToolbar extends VBox {
                         new ActionButton(new ToggleProjectionAction(), VisualizerToolbar.BUTTON_SIZE, false)),
                 VisualizerToolbar.styleButton(
                         new ActionButton(new CenterCameraAction(), VisualizerToolbar.BUTTON_SIZE, false)));
+
+        // The registered instance, so the button shares its state and shortcut with menus.
+        ActionRegistry.getInstance().getAction(DesignToggleSnapAction.class.getCanonicalName())
+                .ifPresent(action -> {
+                    ToggleActionButton snapButton = new ToggleActionButton(action, VisualizerToolbar.BUTTON_SIZE, false);
+                    getChildren().add(VisualizerToolbar.styleButton(snapButton));
+                    DesignWorkspaceVisibility.bind(snapButton);
+                });
     }
 }
