@@ -120,9 +120,6 @@ public final class CreateShapeTool implements EditorTool {
             width = Math.copySign(side, width == 0 ? 1 : width);
             height = Math.copySign(side, height == 0 ? 1 : height);
         }
-        return new Rectangle2D.Double(
-                Math.min(start.getX(), start.getX() + width),
-                Math.min(start.getY(), start.getY() + height),
-                Math.abs(width), Math.abs(height));
+        return MarqueeGesture.rectangle(start, new Point2D.Double(start.getX() + width, start.getY() + height));
     }
 }

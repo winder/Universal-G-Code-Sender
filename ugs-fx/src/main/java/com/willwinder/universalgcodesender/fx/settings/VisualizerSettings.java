@@ -30,6 +30,7 @@ import javafx.beans.property.StringProperty;
 import java.util.prefs.Preferences;
 
 public class VisualizerSettings {
+    public static final double DEFAULT_DESIGN_SNAP_SIZE = 1;
     private static final Preferences preferences = Preferences.userNodeForPackage(VisualizerSettings.class);
     private static final String SHOW_MACHINE_MODEL = "showMachineModel";
     private static final String MACHINE_MODEL = "machineModel";
@@ -64,12 +65,13 @@ public class VisualizerSettings {
     private static final String SHOW_GRID = "showGrid";
     private static final String SHOW_AXES = "showAxes";
     private static final String SHOW_DESIGN = "showDesign";
+    private static final String DESIGN_SNAP_ENABLED = "design.snap.enabled";
+    private static final String DESIGN_SNAP_SIZE = "design.snap.size";
     private static final String SHOW_TOOL = "showTool";
     private static final String SHOW_STOCK = "showStock";
     private static final String COLOR_STOCK = "color.stock";
     private static final String STOCK_DEFAULT_TOOL_ID = "stock.defaultToolId";
     private static final String STOCK_MODE = "stock.mode";
-    private static final String STOCK_DEPTH_COLORING = "stock.depthColoring";
     private static final String COLOR_STOCK_DEEP = "color.stockDeep";
     private static final String STOCK_MIN_X = "stock.minX";
     private static final String STOCK_MIN_Y = "stock.minY";
@@ -126,6 +128,8 @@ public class VisualizerSettings {
     private final BooleanProperty showGrid = new SimpleBooleanProperty(loadBoolean(SHOW_GRID, true));
     private final BooleanProperty showAxes = new SimpleBooleanProperty(loadBoolean(SHOW_AXES, true));
     private final BooleanProperty showDesign = new SimpleBooleanProperty(loadBoolean(SHOW_DESIGN, true));
+    private final BooleanProperty designSnapEnabled = new SimpleBooleanProperty(loadBoolean(DESIGN_SNAP_ENABLED, true));
+    private final DoubleProperty designSnapSize = new SimpleDoubleProperty(loadDouble(DESIGN_SNAP_SIZE, DEFAULT_DESIGN_SNAP_SIZE));
     private final BooleanProperty showTool = new SimpleBooleanProperty(loadBoolean(SHOW_TOOL, true));
     private final BooleanProperty showStock = new SimpleBooleanProperty(loadBoolean(SHOW_STOCK, false));
     private final StringProperty colorStock = new SimpleStringProperty(loadString(COLOR_STOCK, "#C8A96EFF"));
@@ -185,6 +189,8 @@ public class VisualizerSettings {
         stockLength.addListener((obs, oldVal, newVal) -> saveDouble(STOCK_LENGTH, newVal.doubleValue()));
         stockTop.addListener((obs, oldVal, newVal) -> saveDouble(STOCK_TOP, newVal.doubleValue()));
         stockThickness.addListener((obs, oldVal, newVal) -> saveDouble(STOCK_THICKNESS, newVal.doubleValue()));
+        designSnapEnabled.addListener((_, _, newVal) -> saveBoolean(DESIGN_SNAP_ENABLED, newVal));
+        designSnapSize.addListener((_, _, newVal) -> saveDouble(DESIGN_SNAP_SIZE, newVal.doubleValue()));
     }
 
     public static VisualizerSettings getInstance() {
@@ -324,6 +330,29 @@ public class VisualizerSettings {
 
     public BooleanProperty showDesignProperty() {
         return showDesign;
+    }
+
+    /**
+     * Whether moving, resizing and drawing in the designer snaps to the grid.
+     */
+    public BooleanProperty designSnapEnabledProperty() {
+        return designSnapEnabled;
+    }
+
+    /**
+     * The spacing of the designer's snap grid in millimeters.
+     */
+    public DoubleProperty designSnapSizeProperty() {
+        return designSnapSize;
+    }
+
+    /**
+     * The snap grid the designer uses now: the snap size, or zero when snapping is turned off
+     * or the size is not positive.
+     */
+    public double designSnapGrid() {
+        double size = designSnapSize.get();
+        return designSnapEnabled.get() && size > 0 ? size : 0;
     }
 
     public BooleanProperty showToolProperty() {

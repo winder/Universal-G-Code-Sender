@@ -24,6 +24,7 @@ import com.willwinder.ugs.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.DesignModel;
+import com.willwinder.universalgcodesender.fx.component.designer.editor.DeleteHandlers;
 import com.willwinder.universalgcodesender.i18n.Localization;
 
 import java.util.ArrayList;
@@ -40,8 +41,15 @@ public class DesignDeleteAction extends AbstractDesignEditAction implements Sele
         enabledProperty().set(!selectionManager.getChildren().isEmpty());
     }
 
+    /**
+     * Deletes the selected entities, unless the design editor deletes something within them
+     * instead, such as the selected node of a path in the vertex tool.
+     */
     @Override
     protected void performAction() {
+        if (DeleteHandlers.handle()) {
+            return;
+        }
         SelectionManager selectionManager = controller.getSelectionManager();
         List<Entity> selection = selectionManager.getChildren();
         if (!selection.isEmpty()) {

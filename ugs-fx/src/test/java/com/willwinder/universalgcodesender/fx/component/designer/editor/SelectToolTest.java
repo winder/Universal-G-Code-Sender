@@ -1,8 +1,10 @@
 package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
 import com.willwinder.ugs.designer.entities.Anchor;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.logic.Tool;
 import com.willwinder.universalgcodesender.fx.component.visualizer.scene.Camera;
 import com.willwinder.universalgcodesender.fx.component.visualizer.input.PointerEvent;
 import javafx.event.EventType;
@@ -23,7 +25,6 @@ import static org.assertj.core.api.Assertions.within;
 
 public class SelectToolTest {
     private Controller controller;
-    private Camera camera;
     private EditorState state;
     private SelectTool tool;
     private Rectangle rectangle;
@@ -31,7 +32,7 @@ public class SelectToolTest {
     @Before
     public void setUp() {
         controller = EditorTestSupport.freshController();
-        camera = EditorTestSupport.topDownCamera();
+        Camera camera = EditorTestSupport.topDownCamera();
         state = new EditorState();
         tool = new SelectTool(EditorTestSupport.toolContext(controller, camera, state));
         rectangle = new Rectangle(10, 10, 20, 10);
@@ -64,6 +65,34 @@ public class SelectToolTest {
         tool.onReleased(release(13, 13), design(13, 13));
         assertThat(controller.getSelectionManager().getSelection()).containsExactly(inner);
         assertThat(controller.getUndoManager().canUndo()).isFalse();
+    }
+
+    @Test
+    public void doubleClick_onAPathShouldSwitchToTheVertexToolWithThePathSelected() {
+        Path path = new Path();
+        path.moveTo(50, 50);
+        path.lineTo(80, 50);
+        controller.getModel().insertEntity(path);
+
+        tool.onPressed(press(65, 50), design(65, 50));
+        tool.onReleased(release(65, 50), design(65, 50));
+        tool.onPressed(pointer(MouseEvent.MOUSE_PRESSED, 65, 50, false, false, 2), design(65, 50));
+        tool.onReleased(pointer(MouseEvent.MOUSE_RELEASED, 65, 50, false, false, 2), design(65, 50));
+
+        assertThat(controller.getTool()).isEqualTo(Tool.VERTEX);
+        assertThat(controller.getSelectionManager().getSelection()).containsExactly(path);
+        assertThat(controller.getUndoManager().canUndo()).isFalse();
+    }
+
+    @Test
+    public void doubleClick_onAShapeThatIsNotAPathShouldStayInTheSelectTool() {
+        tool.onPressed(press(15, 15), design(15, 15));
+        tool.onReleased(release(15, 15), design(15, 15));
+        tool.onPressed(pointer(MouseEvent.MOUSE_PRESSED, 15, 15, false, false, 2), design(15, 15));
+        tool.onReleased(pointer(MouseEvent.MOUSE_RELEASED, 15, 15, false, false, 2), design(15, 15));
+
+        assertThat(controller.getTool()).isEqualTo(Tool.SELECT);
+        assertThat(controller.getSelectionManager().getSelection()).containsExactly(rectangle);
     }
 
     @Test
@@ -181,6 +210,131 @@ public class SelectToolTest {
 
         controller.getUndoManager().undo();
         assertThat(rectangle.getSize().getWidth()).isCloseTo(20, within(1e-6));
+    }
+
+    @Test
+    public void drag_onAResizeHandleShouldSnapTheDraggedEdgeToTheGridLines() {
+        controller.getModel().setSnapToGrid(0.5);
+        Rectangle offGrid = new Rectangle(50, 50, 10.1, 10);
+        controller.getModel().insertEntity(offGrid);
+        controller.getSelectionManager().setSelection(List.of(offGrid));
+        HandleSet.Handle handle = tool.handles().stream()
+                .filter(h -> h.anchor() == Anchor.LEFT_CENTER)
+                .findFirst().orElseThrow();
+        Point2D start = handle.center();
+
+        // The right edge starts at 60.1; a short drag brings it to the grid line at 60, not 60.6.
+        tool.onPressed(press(start.getX(), start.getY()), start);
+        Point2D end = design(start.getX() + 0.1, start.getY());
+        tool.onDragged(drag(end.getX(), end.getY()), end);
+        tool.onReleased(release(end.getX(), end.getY()), end);
+
+        assertThat(offGrid.getPosition().getX()).isCloseTo(50, within(1e-6));
+        assertThat(offGrid.getSize().getWidth()).isCloseTo(10, within(1e-6));
+    }
+
+    @Test
+    public void drag_onAResizeHandleOfARotatedStraightLineShouldLengthenIt() {
+        Path line = new Path();
+        line.moveTo(50, 50);
+        line.lineTo(70, 50);
+        controller.getModel().insertEntity(line);
+        line.rotate(30);
+        controller.getSelectionManager().setSelection(List.of(line));
+        Point2D center = line.getCenter();
+        HandleSet.Handle handle = tool.handles().stream()
+                .filter(h -> h.anchor() == Anchor.LEFT_CENTER)
+                .findFirst().orElseThrow();
+        Point2D start = handle.center();
+        double length = start.distance(center);
+        Point2D end = design(start.getX() + (start.getX() - center.getX()) / length * 10,
+                start.getY() + (start.getY() - center.getY()) / length * 10);
+
+        tool.onPressed(press(start.getX(), start.getY()), start);
+        tool.onDragged(drag(end.getX(), end.getY()), end);
+        tool.onReleased(release(end.getX(), end.getY()), end);
+
+        java.awt.geom.Rectangle2D bounds = line.getShape().getBounds2D();
+        assertThat(Math.hypot(bounds.getWidth(), bounds.getHeight())).isCloseTo(30, within(1e-6));
+    }
+
+    @Test
+    public void doubleClick_onAResizeHandleOverAPathShouldResizeInsteadOfEditingNodes() {
+        Path path = new Path();
+        path.moveTo(50, 50);
+        path.lineTo(80, 50);
+        path.lineTo(80, 80);
+        controller.getModel().insertEntity(path);
+        controller.getSelectionManager().setSelection(List.of(path));
+        HandleSet.Handle handle = tool.handles().stream()
+                .filter(h -> h.anchor() == Anchor.TOP_RIGHT)
+                .findFirst().orElseThrow();
+        // On the path's corner at (80, 80)
+        Point2D corner = handle.center();
+
+        tool.onPressed(pointer(MouseEvent.MOUSE_PRESSED, corner.getX(), corner.getY(), false, false, 2), corner);
+        tool.onReleased(pointer(MouseEvent.MOUSE_RELEASED, corner.getX(), corner.getY(), false, false, 2), corner);
+
+        assertThat(controller.getTool()).isEqualTo(Tool.SELECT);
+    }
+
+    @Test
+    public void drag_onAResizeHandleOfARotatedItemShouldStretchAlongItsOwnAxesWithoutSkewing() {
+        rectangle.rotate(30);
+        controller.getSelectionManager().setSelection(List.of(rectangle));
+        Point2D center = rectangle.getCenter();
+        List<Point2D> cornersBefore = corners(rectangle);
+        HandleSet.Handle handle = tool.handles().stream()
+                .filter(h -> h.anchor() == Anchor.LEFT_CENTER)
+                .findFirst().orElseThrow();
+        Point2D start = handle.center();
+        // Pull the handle 10 further out along the rectangle's own width axis.
+        double length = start.distance(center);
+        Point2D end = design(start.getX() + (start.getX() - center.getX()) / length * 10,
+                start.getY() + (start.getY() - center.getY()) / length * 10);
+
+        tool.onPressed(press(start.getX(), start.getY()), start);
+        tool.onDragged(drag(end.getX(), end.getY()), end);
+        tool.onReleased(release(end.getX(), end.getY()), end);
+
+        List<Point2D> corners = corners(rectangle);
+        assertThat(corners).hasSize(4);
+        double sideA = corners.get(0).distance(corners.get(1));
+        double sideB = corners.get(1).distance(corners.get(2));
+        double diagonal = corners.get(0).distance(corners.get(2));
+        assertThat(Math.max(sideA, sideB)).isCloseTo(30, within(1e-6));
+        assertThat(Math.min(sideA, sideB)).isCloseTo(10, within(1e-6));
+        // Still a rectangle: the sides meet at a right angle.
+        assertThat(diagonal).isCloseTo(Math.hypot(sideA, sideB), within(1e-6));
+        assertThat(rectangle.getRotation()).isCloseTo(30, within(1e-6));
+        // The anchored left edge stays where it was, so two of the corners have not moved.
+        long unmoved = corners.stream()
+                .filter(corner -> cornersBefore.stream().anyMatch(before -> before.distance(corner) < 1e-6))
+                .count();
+        assertThat(unmoved).isEqualTo(2);
+
+        controller.getUndoManager().undo();
+        List<Point2D> undone = corners(rectangle);
+        for (int i = 0; i < 4; i++) {
+            assertThat(undone.get(i).distance(cornersBefore.get(i))).isLessThan(1e-6);
+        }
+    }
+
+    /**
+     * The distinct corners of the rectangle's outline in drawing order; the path may repeat points.
+     */
+    private static List<Point2D> corners(Rectangle rectangle) {
+        List<Point2D> corners = new java.util.ArrayList<>();
+        double[] coords = new double[6];
+        for (java.awt.geom.PathIterator it = rectangle.getShape().getPathIterator(null); !it.isDone(); it.next()) {
+            if (it.currentSegment(coords) != java.awt.geom.PathIterator.SEG_CLOSE) {
+                Point2D point = new Point2D.Double(coords[0], coords[1]);
+                if (corners.stream().noneMatch(corner -> corner.distance(point) < 1e-9)) {
+                    corners.add(point);
+                }
+            }
+        }
+        return corners;
     }
 
     @Test

@@ -22,11 +22,17 @@ import com.willwinder.universalgcodesender.fx.component.BorderedTitledPane;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.MachineType;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
+import com.willwinder.universalgcodesender.fx.control.UnitTextField;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.fx.stage.StockSettingsStage;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Unit;
+import com.willwinder.universalgcodesender.model.UnitValue;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.WeakChangeListener;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -60,9 +66,15 @@ public class VisualizerSettingsPane extends BorderPane {
         SwitchButton showDesign = new SwitchButton();
         showDesign.selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showDesignProperty());
 
+        SwitchButton snapEnabled = new SwitchButton();
+        snapEnabled.selectedProperty().bindBidirectional(VisualizerSettings.getInstance().designSnapEnabledProperty());
+
         settingsGroup.getChildren().add(new BorderedTitledPane("Design",
                 new VBox(10,
                         new SettingsRow(Localization.getString("platform.visualizer.design"), showDesign),
+                        new SettingsRow(Localization.getString("platform.designer.snapToGrid"),
+                                "Snaps points to the grid when moving, resizing and drawing shapes.", snapEnabled),
+                        new SettingsRow("Snap size", "The spacing of the snap grid.", createSnapSizeField()),
                         createColorSetting("Shape outline color", VisualizerSettings.getInstance().colorDesignShapeOutlineProperty()),
                         createColorSetting("Shape background color", VisualizerSettings.getInstance().colorDesignShapeBackgroundProperty()),
                         createColorSetting("Resize handle color", VisualizerSettings.getInstance().colorDesignResizeProperty()),
@@ -70,6 +82,39 @@ public class VisualizerSettingsPane extends BorderPane {
                         createColorSetting("Move handle color", VisualizerSettings.getInstance().colorDesignMoveProperty())
                 )
         ));
+    }
+
+    /**
+     * A millimeter field for the snap size. Only positive sizes are stored, so the grid is never
+     * left at zero or below while typing.
+     */
+    private static final String SNAP_SIZE_LISTENER = "snapSizeListener";
+
+    private static UnitTextField createSnapSizeField() {
+        DoubleProperty snapSize = VisualizerSettings.getInstance().designSnapSizeProperty();
+        UnitTextField field = new UnitTextField(new UnitValue(Unit.MM, snapSize.get()), Unit.MM);
+        field.unitValueProperty().addListener((_, _, value) -> {
+            double size = value.convertTo(Unit.MM).doubleValue();
+            if (size > 0 && size != snapSize.get()) {
+                snapSize.set(size);
+            }
+        });
+        // The setting outlives this pane, so it only holds on to the field weakly; the field
+        // keeps the listener alive for as long as it exists
+        ChangeListener<Number> showStoredSize = (_, _, value) -> {
+            if (value.doubleValue() != field.getValue()) {
+                field.setValue(value.doubleValue());
+            }
+        };
+        field.getProperties().put(SNAP_SIZE_LISTENER, showStoredSize);
+        snapSize.addListener(new WeakChangeListener<>(showStoredSize));
+        // A size of zero or less is never stored, so show the size that is used again
+        field.focusedProperty().addListener((_, _, focused) -> {
+            if (!focused && field.getValue() != snapSize.get()) {
+                field.setValue(snapSize.get());
+            }
+        });
+        return field;
     }
 
     private void addColorSettings() {
@@ -95,7 +140,7 @@ public class VisualizerSettingsPane extends BorderPane {
         SwitchButton showStock = new SwitchButton();
         showStock.selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showStockProperty());
         Button stockSize = new Button("Stock size…");
-        stockSize.setOnAction(event -> new StockSettingsStage(getScene() == null ? null : getScene().getWindow()).showAndWait());
+        stockSize.setOnAction(_ -> new StockSettingsStage(getScene() == null ? null : getScene().getWindow()).showAndWait());
         settingsGroup.getChildren().add(new BorderedTitledPane("Stock",
                 new VBox(10,
                         new SettingsRow(Localization.getString("platform.visualizer.stock"), Localization.getString("platform.visualizer.stock.desc"), showStock),
@@ -121,7 +166,7 @@ public class VisualizerSettingsPane extends BorderPane {
 
     private void addMachineCombo() {
         ComboBox<MachineType> machineTypeComboBox = new ComboBox<>(FXCollections.observableArrayList(MachineType.values()));
-        machineTypeComboBox.valueProperty().addListener((observable, oldValue, newValue) -> VisualizerSettings.getInstance().machineModelProperty().set(newValue.name()));
+        machineTypeComboBox.valueProperty().addListener((_, _, newValue) -> VisualizerSettings.getInstance().machineModelProperty().set(newValue.name()));
         machineTypeComboBox.setValue(MachineType.fromValue(VisualizerSettings.getInstance().machineModelProperty().orElse(MachineType.UNKNOWN.name()).getValue()));
         machineTypeComboBox.setConverter(new StringConverter<>() {
 
@@ -170,7 +215,7 @@ public class VisualizerSettingsPane extends BorderPane {
     private SettingsRow createColorSetting(String text, StringProperty stringProperty) {
         Color value = stringProperty.map(Color::web).getValue();
         ColorPicker colorPicker = new ColorPicker(value);
-        colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+        colorPicker.valueProperty().addListener((_, _, newValue) -> {
             String value1 = Colors.toWeb(newValue);
             stringProperty.set(value1);
         });

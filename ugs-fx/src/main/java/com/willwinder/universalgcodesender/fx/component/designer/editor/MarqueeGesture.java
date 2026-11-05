@@ -99,7 +99,10 @@ final class MarqueeGesture implements Gesture {
         }
     }
 
-    private static Rectangle2D rectangle(Point2D a, Point2D b) {
+    /**
+     * The rectangle spanned by two opposite corners.
+     */
+    static Rectangle2D rectangle(Point2D a, Point2D b) {
         double x = Math.min(a.getX(), b.getX());
         double y = Math.min(a.getY(), b.getY());
         return new Rectangle2D.Double(x, y, Math.abs(b.getX() - a.getX()), Math.abs(b.getY() - a.getY()));

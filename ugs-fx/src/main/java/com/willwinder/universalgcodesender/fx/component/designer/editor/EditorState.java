@@ -31,12 +31,27 @@ import java.util.List;
  * the handles renderable and the overlay painter read it.
  */
 public final class EditorState {
+    /**
+     * A point of a path being edited, as the vertex tool wants it drawn.
+     *
+     * @param position where the point is, in design coordinates
+     * @param node     the node a curve handle belongs to, drawn as a line to it, or null when
+     *                 this point is a node itself
+     * @param endpoint whether this node is an end of an open path, connected on one side only
+     * @param selected whether this is the selected node
+     * @param hovered  whether the cursor is over this point
+     */
+    public record VertexHandle(Point2D position, Point2D node, boolean endpoint, boolean selected, boolean hovered) {
+        public boolean isCurveHandle() {
+            return node != null;
+        }
+    }
+
     private Rectangle2D rubberBand;
     private Shape preview;
     private HandleSet.Handle hoveredHandle;
     private Entity hoveredEntity;
-    private List<Point2D> vertices = List.of();
-    private int hoveredVertex = -1;
+    private List<VertexHandle> vertices = List.of();
     private String readout;
     private Point2D readoutPosition;
 
@@ -72,17 +87,12 @@ public final class EditorState {
         this.hoveredEntity = hoveredEntity;
     }
 
-    public List<Point2D> vertices() {
+    public List<VertexHandle> vertices() {
         return vertices;
     }
 
-    public int hoveredVertex() {
-        return hoveredVertex;
-    }
-
-    public void setVertices(List<Point2D> vertices, int hoveredVertex) {
+    public void setVertices(List<VertexHandle> vertices) {
         this.vertices = List.copyOf(vertices);
-        this.hoveredVertex = hoveredVertex;
     }
 
     public String readout() {

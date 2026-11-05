@@ -22,11 +22,10 @@ public class SnapperTest {
         Snapper snapper = new Snapper(() -> 0);
 
         assertThat(snapper.snap(12.34)).isEqualTo(12.34);
-        assertThat(snapper.nudgeStep()).isEqualTo(1);
     }
 
     @Test
-    public void snapRounded_shouldRoundToWholeOrTenthMillimetersBeforeSnapping() {
+    public void snapRounded_shouldRoundToWholeOrTenthMillimetersWithoutAGrid() {
         Snapper snapper = new Snapper(() -> 0);
 
         assertThat(snapper.snapRounded(12.34, false)).isEqualTo(12);
@@ -34,7 +33,37 @@ public class SnapperTest {
     }
 
     @Test
-    public void nudgeStep_shouldBeTheGridSizeWhenSnapping() {
-        assertThat(new Snapper(() -> 2.5).nudgeStep()).isEqualTo(2.5);
+    public void snapRounded_shouldSnapToGridLinesFinerThanAMillimeter() {
+        Snapper snapper = new Snapper(() -> 0.5);
+
+        assertThat(snapper.snapRounded(12.6, false)).isEqualTo(12.5);
+        assertThat(snapper.snapRounded(12.6, true)).isEqualTo(12.5);
+    }
+
+    @Test
+    public void nudge_shouldMoveAnOffGridValueOntoTheNextGridLine() {
+        Snapper snapper = new Snapper(() -> 0.5);
+
+        assertThat(snapper.nudge(0.1, 1, 1)).isEqualTo(0.5);
+        assertThat(snapper.nudge(0.1, -1, 1)).isEqualTo(0);
+        assertThat(snapper.nudge(-0.1, -1, 1)).isEqualTo(-0.5);
+    }
+
+    @Test
+    public void nudge_shouldMoveAnOnGridValueByWholeGridSteps() {
+        Snapper snapper = new Snapper(() -> 0.5);
+
+        assertThat(snapper.nudge(1.5, 1, 1)).isEqualTo(2);
+        assertThat(snapper.nudge(1.5, -1, 1)).isEqualTo(1);
+        assertThat(snapper.nudge(1.5, 1, 10)).isEqualTo(6.5);
+        assertThat(snapper.nudge(0.1, 1, 10)).isEqualTo(5);
+    }
+
+    @Test
+    public void nudge_shouldMoveAMillimeterPerStepWithoutAGrid() {
+        Snapper snapper = new Snapper(() -> 0);
+
+        assertThat(snapper.nudge(0.1, 1, 1)).isEqualTo(1.1);
+        assertThat(snapper.nudge(0.1, -1, 10)).isCloseTo(-9.9, org.assertj.core.api.Assertions.within(1e-9));
     }
 }

@@ -19,20 +19,20 @@
 package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
 import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.ugs.designer.entities.cuttable.Text;
-import com.willwinder.ugs.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.logic.Tool;
 import com.willwinder.universalgcodesender.fx.component.visualizer.input.PointerEvent;
 import javafx.scene.Cursor;
 
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * The default tool. A press on a handle resizes or rotates, a press inside the selection moves
- * it, a press anywhere else starts a rubber band or a click selection, and a double click on a
- * text entity opens the text editor. With Shift held the press adds to or removes from the
+ * it, a press anywhere else starts a rubber band or a click selection. A double click on a
+ * text entity opens the text editor, and on a path switches to the vertex tool to edit its nodes. With Shift held the press adds to or removes from the
  * selection instead of moving it, so already selected entities can be deselected one by one.
  */
 public final class SelectTool implements EditorTool {
@@ -46,6 +46,14 @@ public final class SelectTool implements EditorTool {
     @Override
     public void onPressed(PointerEvent event, Point2D design) {
         Optional<HandleSet.Handle> handle = handleAt(design);
+        Optional<Path> doubleClickedPath = event.clickCount() == 2 && handle.isEmpty()
+                ? pathAt(design) : Optional.empty();
+        if (doubleClickedPath.isPresent()) {
+            gesture = null;
+            context.selectTool(Tool.VERTEX);
+            context.selection().setSelection(List.of(doubleClickedPath.get()));
+            return;
+        }
         if (handle.isPresent()) {
             gesture = handle.get().kind() == HandleSet.Kind.ROTATE
                     ? new RotateGesture(context)
@@ -84,7 +92,10 @@ public final class SelectTool implements EditorTool {
         Entity entity = handle == null && !isInsideSelection(design)
                 ? context.hitTester().entityAt(design, context.pickTolerance(design)).orElse(null)
                 : null;
-        if (handle != state.hoveredHandle() || entity != state.hoveredEntity()) {
+        boolean handleChanged = handle == null
+                ? state.hoveredHandle() != null
+                : !handle.isSameHandle(state.hoveredHandle());
+        if (handleChanged || entity != state.hoveredEntity()) {
             state.setHoveredHandle(handle);
             state.setHoveredEntity(entity);
             context.render();
@@ -123,18 +134,19 @@ public final class SelectTool implements EditorTool {
     }
 
     private boolean isInsideSelection(Point2D design) {
-        SelectionManager selection = context.selection();
-        if (selection.isEmpty()) {
-            return false;
-        }
-        Shape shape = selection.getShape();
-        return shape != null && shape.contains(design);
+        return HandleSet.frameContains(context.selection(), design);
     }
 
     private Optional<Text> textAt(Point2D design) {
         return context.hitTester().entityAt(design, context.pickTolerance(design))
                 .filter(Text.class::isInstance)
                 .map(Text.class::cast);
+    }
+
+    private Optional<Path> pathAt(Point2D design) {
+        return context.hitTester().entityAt(design, context.pickTolerance(design))
+                .filter(Path.class::isInstance)
+                .map(Path.class::cast);
     }
 
     /**

@@ -28,9 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Drags the selection. The position follows the cursor in whole millimeters, or tenths with
- * Alt held, and snaps to the grid; Shift constrains the move to the dominant axis. The move is
- * applied live and recorded as one {@link MoveAction} on release.
+ * Drags the selection. The selection's bottom left corner snaps to the grid lines, or without
+ * a grid follows the cursor in whole millimeters, tenths with Alt held; Shift constrains the
+ * move to the dominant axis. The move is applied live and recorded as one {@link MoveAction}
+ * on release.
  */
 final class MoveGesture implements Gesture {
     private final ToolContext context;
