@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.jogamp.opengl.util.AnimatorBase;
+import com.jogamp.opengl.GLAnimatorControl;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
@@ -64,7 +64,7 @@ public class RendererInputHandler implements
     private final int highFps;
     private final int lowFps;
     private final GcodeRenderer gcodeRenderer;
-    private final AnimatorBase animator;
+    private final GLAnimatorControl animator;
     private final BackendAPI backend;
     private final GcodeModel gcodeModel;
     private final SizeDisplay sizeDisplay;
@@ -74,7 +74,7 @@ public class RendererInputHandler implements
     private Position selectionStart = null;
     private Position selectionEnd = null;
 
-    public RendererInputHandler(GcodeRenderer gr, AnimatorBase a, BackendAPI backend, int lowFps, int highFps) {
+    public RendererInputHandler(GcodeRenderer gr, GLAnimatorControl a, BackendAPI backend, int lowFps, int highFps) {
         gcodeRenderer = gr;
         animator = a;
         this.backend = backend;

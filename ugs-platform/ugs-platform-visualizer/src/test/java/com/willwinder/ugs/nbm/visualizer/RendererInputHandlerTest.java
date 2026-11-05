@@ -1,6 +1,6 @@
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.jogamp.opengl.util.AnimatorBase;
+import com.jogamp.opengl.GLAnimatorControl;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -32,7 +32,7 @@ public class RendererInputHandlerTest {
         BackendAPI backend = mock(BackendAPI.class);
         when(backend.getSettings()).thenReturn(mock(Settings.class));
         GcodeRenderer renderer = mock(GcodeRenderer.class);
-        RendererInputHandler target = new RendererInputHandler(renderer, mock(AnimatorBase.class), backend, 1, 60);
+        RendererInputHandler target = new RendererInputHandler(renderer, mock(GLAnimatorControl.class), backend, 1, 60);
 
         target.mouseMoved(new MouseEvent(component, MouseEvent.MOUSE_MOVED, 0, 0,
                 50, 25, 50, 25, 0, false, MouseEvent.NOBUTTON));
