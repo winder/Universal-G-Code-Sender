@@ -159,18 +159,24 @@ public class GrblGcodeWriter implements GcodeWriter {
             case PEN_DOWN -> writePenDown();
 
             case LINE, CWARC, CCWARC -> {
+                // The arc offsets are relative to the start of the arc, so they need to be
+                // formatted before the current position is advanced to the end of the arc
+                String arcOffsets = segment.type.isArc() ? getArcOffsetFormattedGCode(segment) : "";
+                String motion = getPointFormattedGCode(segment, segment.type.isArc()) + arcOffsets;
+                String spindleWord = changesSpeedWhileCutting ? getInlineSpindleSpeedWord(segment, motion) : "";
+
+                // A line to where the tool already is has no coordinates and would be written as an
+                // empty motion command. The feed rate is left unset so the next motion writes it.
+                if (motion.isEmpty() && spindleWord.isEmpty()) {
+                    return;
+                }
+
                 writer.write(segment.type.gcode + " ");
                 if (segment.getFeedSpeed() != null && (!hasFeedRateSet || !segment.getFeedSpeed().equals(currentFeed))) {
                     writer.write("F" + segment.getFeedSpeed() + " ");
                     currentFeed = segment.getFeedSpeed();
                     hasFeedRateSet = true;
                 }
-
-                // The arc offsets are relative to the start of the arc, so they need to be
-                // formatted before the current position is advanced to the end of the arc
-                String arcOffsets = segment.type.isArc() ? getArcOffsetFormattedGCode(segment) : "";
-                String motion = getPointFormattedGCode(segment, segment.type.isArc()) + arcOffsets;
-                String spindleWord = changesSpeedWhileCutting ? getInlineSpindleSpeedWord(segment, motion) : "";
                 writer.write(motion + spindleWord + "\n");
             }
         }

@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.locationtech.jts.geom.GeometryFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -126,7 +127,7 @@ public abstract class AbstractToolPath implements PathGenerator {
 
             coordinateList.forEach(cl -> {
                 if (!cl.isEmpty()) {
-                    addRunToGcodePath(gcodePath, cl, source, coordinateList.get(0) == cl);
+                    addRunToGcodePath(gcodePath, cl, source, coordinateList.getFirst() == cl);
                 }
             });
 
@@ -148,12 +149,12 @@ public abstract class AbstractToolPath implements PathGenerator {
             ramp.segments().forEach(gcodePath::addSegment);
             cutPath = ramp.cutPath();
         } else {
-            addSafeHeightSegmentTo(gcodePath, coordinates.get(0), isFirst);
-            gcodePath.addSegment(SegmentType.POINT, coordinates.get(0));
+            addSafeHeightSegmentTo(gcodePath, coordinates.getFirst(), isFirst);
+            gcodePath.addSegment(SegmentType.POINT, coordinates.getFirst());
         }
 
         toMotionSegments(cutPath, source.getFeedRate()).forEach(gcodePath::addSegment);
-        lastPosition = cutPath.get(cutPath.size() - 1);
+        lastPosition = cutPath.getLast();
     }
 
     /**
@@ -169,13 +170,13 @@ public abstract class AbstractToolPath implements PathGenerator {
      * put a ramp and is plunged into instead.
      */
     private static boolean isConstantDepth(List<PartialPosition> coordinates) {
-        double depth = coordinates.get(0).getZ();
+        double depth = coordinates.getFirst().getZ();
         return coordinates.stream().allMatch(coordinate -> coordinate.hasZ()
                 && Math.abs(coordinate.getZ() - depth) < POSITION_TOLERANCE);
     }
 
     private Optional<RampedPath> toRampedPath(List<PartialPosition> coordinates, Cuttable source) {
-        PartialPosition start = coordinates.get(0);
+        PartialPosition start = coordinates.getFirst();
         if (!supportsRamping() || source.getPlungeType() != PlungeType.LINEAR_RAMP || !start.hasZ() || !isConstantDepth(coordinates)) {
             return Optional.empty();
         }
@@ -198,17 +199,45 @@ public abstract class AbstractToolPath implements PathGenerator {
      * left out, since it has already been reached by plunging down to it.
      */
     protected List<Segment> toMotionSegments(List<PartialPosition> coordinates, int feedRate) {
+        List<PartialPosition> distinctCoordinates = removeConsecutiveDuplicates(coordinates);
         if (settings.getArcFitting() && settings.getFlatnessPrecision() > 0) {
             // Arcs are held to the same precision the geometry was flattened with, so that a single
             // setting describes how far the tool path may stray from the design
             double precision = settings.getFlatnessPrecision();
-            return new ArcFitter(precision, precision).fit(coordinates, feedRate);
+            return new ArcFitter(precision, precision).fit(distinctCoordinates, feedRate);
         }
 
-        return coordinates.stream()
+        return distinctCoordinates.stream()
                 .skip(1)
                 .map(coordinate -> new Segment(SegmentType.LINE, coordinate, null, null, feedRate))
                 .toList();
+    }
+
+    /**
+     * Shapes often repeat a point, for instance a path that has a line segment back to its start
+     * just before it is closed or a point that differs only by floating point rounding. Moving to
+     * where the tool already is would produce a motion command without any coordinates.
+     */
+    private static List<PartialPosition> removeConsecutiveDuplicates(List<PartialPosition> coordinates) {
+        List<PartialPosition> result = new ArrayList<>(coordinates.size());
+        for (PartialPosition coordinate : coordinates) {
+            if (result.isEmpty() || !isSamePosition(result.getLast(), coordinate)) {
+                result.add(coordinate);
+            }
+        }
+        return result;
+    }
+
+    private static boolean isSamePosition(PartialPosition a, PartialPosition b) {
+        for (Axis axis : Axis.values()) {
+            if (a.hasAxis(axis) != b.hasAxis(axis)) {
+                return false;
+            }
+            if (a.hasAxis(axis) && Math.abs(a.getAxis(axis) - b.getAxis(axis)) > POSITION_TOLERANCE) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

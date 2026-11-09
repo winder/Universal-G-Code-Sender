@@ -293,6 +293,29 @@ public class GrblGcodeWriterTest {
     }
 
     @Test
+    public void lineToTheCurrentPositionShouldNotWriteAnEmptyCommand() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.writeSegment(new Segment(SegmentType.MOVE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(0d).setY(0d).build()));
+
+        // Differs from the current position only by floating point rounding
+        writer.writeSegment(new Segment(SegmentType.LINE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(0.00000000000002).setY(0d).build(),
+                null, null, 1_000));
+
+        writer.writeSegment(new Segment(SegmentType.LINE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(10d).setY(0d).build(),
+                null, null, 1_000));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(2, lines.length);
+        assertEquals("G0 X0Y0", lines[0]);
+        assertEquals("G1 F1000 X10", lines[1]);
+    }
+
+    @Test
     public void lineCommandWithFeedAndSpeed() throws IOException {
         StringWriter result = new StringWriter();
         GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
