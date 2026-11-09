@@ -182,7 +182,7 @@ jobs:
 
   build-fx-macosx-x64:
     if: github.repository_owner == 'winder'
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v3
