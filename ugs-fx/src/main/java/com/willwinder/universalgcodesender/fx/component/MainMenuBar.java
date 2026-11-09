@@ -19,8 +19,11 @@
 package com.willwinder.universalgcodesender.fx.component;
 
 import com.willwinder.universalgcodesender.fx.actions.Action;
+import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
+import javafx.application.ColorScheme;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -28,6 +31,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.util.Comparator;
@@ -123,6 +127,10 @@ public class MainMenuBar extends HBox {
         menuItem.disableProperty().bind(action.enabledProperty().not());
         setIcon(menuItem, action.getIcon());
         action.iconProperty().addListener((_, _, newValue) -> setIcon(menuItem, newValue));
+        if (SystemUtils.IS_OS_MAC) {
+            // The native menu follows the system appearance, so re-color the icons when it changes
+            Platform.getPreferences().colorSchemeProperty().addListener((_, _, _) -> setIcon(menuItem, action.getIcon()));
+        }
 
         // Use the menu bar as the event source so actions that resolve the owning window from the
         // event (open, save, settings) keep working when triggered from the menu.
@@ -135,7 +143,19 @@ public class MainMenuBar extends HBox {
             menuItem.setGraphic(null);
             return;
         }
-        SvgLoader.loadImageIcon(icon, ICON_SIZE)
-                .ifPresent(menuItem::setGraphic);
+
+        if (SystemUtils.IS_OS_MAC) {
+            // The native macOS menu bar only uses the raw image and ignores any effects, so the
+            // color needs to be baked into the image and match the system appearance.
+            SvgLoader.loadColoredImageIcon(icon, ICON_SIZE, getSystemMenuIconColor())
+                    .ifPresent(menuItem::setGraphic);
+        } else {
+            SvgLoader.loadImageIcon(icon, ICON_SIZE)
+                    .ifPresent(menuItem::setGraphic);
+        }
+    }
+
+    private static Color getSystemMenuIconColor() {
+        return Platform.getPreferences().getColorScheme() == ColorScheme.DARK ? Colors.WHITEISH : Colors.BLACKISH;
     }
 }

@@ -19,6 +19,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -28,6 +29,26 @@ import java.util.Optional;
 
 public class SvgLoader {
     public static Optional<Image> loadIcon(String icon, int size) {
+        return renderIcon(icon, size).map(awtImage -> SwingFXUtils.toFXImage(awtImage, null));
+    }
+
+    /**
+     * Loads an icon with the given color baked into its pixels. Unlike {@link #loadImageIcon(String, int, Color)},
+     * which tints using an effect, this also works where only the raw image is used, such as in the native
+     * macOS menu bar which ignores any effects on the graphic.
+     */
+    public static Optional<ImageView> loadColoredImageIcon(String icon, int size, Color color) {
+        return renderIcon(icon, size).map(awtImage -> {
+            Graphics2D g2d = awtImage.createGraphics();
+            g2d.setComposite(AlphaComposite.SrcIn);
+            g2d.setColor(new java.awt.Color((float) color.getRed(), (float) color.getGreen(), (float) color.getBlue(), (float) color.getOpacity()));
+            g2d.fillRect(0, 0, awtImage.getWidth(), awtImage.getHeight());
+            g2d.dispose();
+            return new ImageView(SwingFXUtils.toFXImage(awtImage, null));
+        });
+    }
+
+    private static Optional<BufferedImage> renderIcon(String icon, int size) {
         if (StringUtils.isEmpty(icon)) {
             return Optional.empty();
         }
@@ -47,8 +68,7 @@ public class SvgLoader {
         Objects.requireNonNull(svgDocument).renderWithPlatform(NullPlatformSupport.INSTANCE, g2d, new ViewBox(0, 0, size, size));
         g2d.dispose();
 
-
-        return Optional.of(SwingFXUtils.toFXImage(awtImage, null));
+        return Optional.of(awtImage);
     }
 
     public static Optional<ImageView> loadImageIcon(String icon, int size) {
