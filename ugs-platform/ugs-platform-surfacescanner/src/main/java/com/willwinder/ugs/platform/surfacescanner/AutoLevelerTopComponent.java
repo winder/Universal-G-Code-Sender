@@ -140,7 +140,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
         if (autoLevelPreview != null) {
             autoLevelPreview.updateSettings(
                     scanner.getProbeStartPositions(),
-                    scanner.getProbePositionGrid(),
+                    scanner.getScannedPoints(),
                     scanner.getProbeAreaMinZ(),
                     scanner.getTouchPlateThickness()
             );

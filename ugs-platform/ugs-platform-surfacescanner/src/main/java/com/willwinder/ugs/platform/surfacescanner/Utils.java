@@ -116,7 +116,7 @@ public class Utils {
         // Step 3: Adjust Z heights codes based on mesh offsets.
         result.add(
                 new MeshLeveler(autoLevelSettings.getZSurface(),
-                        surfaceScanner.getProbePositionGrid()));
+                        surfaceScanner.getScannedPoints()));
         return result;
     }
 }

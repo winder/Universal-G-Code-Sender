@@ -26,15 +26,12 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.FileOpenDialog;
 import com.willwinder.universalgcodesender.uielements.helpers.FilenameFilterAdapter;
-import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.MathUtils;
 import org.openide.util.ImageUtilities;
 import org.openide.windows.WindowManager;
 
@@ -47,8 +44,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
-import static com.willwinder.ugs.platform.surfacescanner.Utils.getMaxPosition;
-import static com.willwinder.ugs.platform.surfacescanner.Utils.getMinPosition;
 
 public class OpenScannedSurfaceAction extends AbstractAction implements UGSEventListener {
     public static final String ICON_BASE = "com/willwinder/ugs/platform/surfacescanner/icons/open.svg";
@@ -94,10 +89,8 @@ public class OpenScannedSurfaceAction extends AbstractAction implements UGSEvent
         try {
             XyzSurfaceReader surfaceReader = new XyzSurfaceReader();
             List<Position> positions = surfaceReader.read(Files.newInputStream(file.get().toPath()));
-
-            updateSettings(backend.getSettings().getAutoLevelSettings(), positions);
-            updatePoints(positions);
-        } catch (IOException | NumberFormatException ex) {
+            surfaceScanner.setScannedPoints(positions);
+        } catch (IOException | IllegalArgumentException ex) {
             GUIHelpers.displayErrorDialog("Could not read the scanned point file, check the log file for more information.");
             throw new RuntimeException(ex);
         }
@@ -110,30 +103,4 @@ public class OpenScannedSurfaceAction extends AbstractAction implements UGSEvent
         }
     }
 
-    private void updatePoints(List<Position> positions) {
-        Optional<Position> nextProbePoint = surfaceScanner.getNextProbePoint();
-        while (nextProbePoint.isPresent()) {
-            Position probePoint = nextProbePoint.get();
-            Position probedPosition = positions.stream()
-                    .filter(p -> MathUtils.isEqual(p.getX(), probePoint.getX(), 0.01) && MathUtils.isEqual(p.getY(), probePoint.getY(), 0.01))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("The supplied file is missing height data for grid point: " + probePoint));
-
-            surfaceScanner.probeEvent(probedPosition);
-            nextProbePoint = surfaceScanner.getNextProbePoint();
-        }
-    }
-
-    private void updateSettings(AutoLevelSettings autoLevelSettings, List<Position> positions) {
-        Position minPosition = getMinPosition(positions);
-        Position maxPosition = getMaxPosition(positions);
-        autoLevelSettings.setMin(minPosition);
-        autoLevelSettings.setMax(maxPosition);
-
-        double stepResolution = positions.get(1).getY() - positions.get(0).getY();
-        autoLevelSettings.setStepResolution(stepResolution * UnitUtils.scaleUnits(minPosition.getUnits(), UnitUtils.Units.MM));
-
-        surfaceScanner.update(minPosition, maxPosition);
-        surfaceScanner.reset();
-    }
 }
