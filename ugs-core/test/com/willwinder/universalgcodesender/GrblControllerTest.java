@@ -600,7 +600,7 @@ public class GrblControllerTest {
         // 2nd cancel is from a soft reset.
         this.mgc = new MockGrblCommunicator();
         GrblController instance = initializeAndConnectController(VERSION_GRBL_0_8C);
-        instance.setStatusUpdatesEnabled(true);
+        enableStatusUpdatesWithoutPolling(instance);
         List<GcodeCommand> commands = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
             commands.add(instance.createCommand("G0X" + i));
@@ -657,7 +657,7 @@ public class GrblControllerTest {
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.8c)
         this.mgc = new MockGrblCommunicator();
         GrblController instance = initializeAndConnectController(VERSION_GRBL_0_8C);
-        instance.setStatusUpdatesEnabled(true);
+        enableStatusUpdatesWithoutPolling(instance);
         List<GcodeCommand> commands = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
             commands.add(instance.createCommand("G0X" + i));
@@ -688,7 +688,7 @@ public class GrblControllerTest {
     public void cancelSendOnDoorStateShouldCancelCommandAndIssueReset() throws Exception {
         this.mgc = new MockGrblCommunicator();
         GrblController instance = initializeAndConnectController(VERSION_GRBL_1_1F);
-        instance.setStatusUpdatesEnabled(true);
+        enableStatusUpdatesWithoutPolling(instance);
         instance.rawResponseHandler("<Door|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
         mgc.sentBytes.clear();
 
@@ -713,6 +713,17 @@ public class GrblControllerTest {
         assertEquals(0, mgc.numPauseSendCalls);
         assertEquals(4, mgc.sentBytes.size());
         assertEquals(Byte.valueOf(GRBL_RESET_COMMAND), mgc.sentBytes.get(3));
+    }
+
+    /**
+     * Cancelling only watches the machine come to a stop when status updates are enabled. Enabling
+     * them also starts a timer that requests status reports in the background, which would send
+     * status bytes at unpredictable points in the test. The poll interval is made long enough that
+     * the timer never fires while the test runs.
+     */
+    private static void enableStatusUpdatesWithoutPolling(GrblController instance) {
+        instance.setStatusUpdateRate(Integer.MAX_VALUE);
+        instance.setStatusUpdatesEnabled(true);
     }
 
     private void sendStuff(GrblController instance) throws Exception {
