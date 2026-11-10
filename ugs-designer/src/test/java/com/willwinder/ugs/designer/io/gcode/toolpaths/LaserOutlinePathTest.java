@@ -1,5 +1,6 @@
 package com.willwinder.ugs.designer.io.gcode.toolpaths;
 
+import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
@@ -7,7 +8,10 @@ import com.willwinder.ugs.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.Size;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.util.List;
@@ -144,5 +148,41 @@ public class LaserOutlinePathTest {
                 .forEach(s -> assertEquals(Segment.SPINDLE_OFF, s.getSpindleSpeed(), 0.01));
         segments.stream().filter(s -> s.type == SegmentType.LINE)
                 .forEach(s -> assertEquals(5000, s.getSpindleSpeed(), 0.01));
+    }
+
+    @Test
+    public void appendGcodePath_shouldGenerateArcsWithLaserPowerForCircleWhenArcFittingIsEnabled() {
+        Settings settings = new Settings();
+        settings.setMaxSpindleSpeed(10000);
+        settings.setArcFitting(true);
+
+        List<Segment> segments = laserOutlineOfCircle(settings);
+
+        List<Segment> arcs = segments.stream().filter(s -> s.getType().isArc()).toList();
+        assertFalse(arcs.isEmpty());
+        arcs.forEach(arc -> {
+            assertNotNull(arc.getArcCenter());
+            assertEquals(5000, arc.getSpindleSpeed(), 0.01);
+            assertEquals(500, arc.getFeedSpeed(), 0.01);
+        });
+    }
+
+    @Test
+    public void appendGcodePath_shouldGenerateOnlyLinesForCircleWhenArcFittingIsDisabled() {
+        Settings settings = new Settings();
+        settings.setMaxSpindleSpeed(10000);
+        settings.setArcFitting(false);
+
+        List<Segment> segments = laserOutlineOfCircle(settings);
+
+        assertTrue(segments.stream().noneMatch(s -> s.getType().isArc()));
+    }
+
+    private static List<Segment> laserOutlineOfCircle(Settings settings) {
+        Ellipse circle = new Ellipse(0, 0, 40, 40);
+        circle.setFeedRate(500);
+        circle.setSpindleSpeed(50);
+        circle.setPasses(1);
+        return new LaserOutlineToolPath(settings, circle).toGcodePath().getSegments();
     }
 }
