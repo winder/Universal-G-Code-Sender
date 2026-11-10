@@ -52,8 +52,9 @@ public class LaserOutlineToolPath extends AbstractToolPath {
                         .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).build()).toList();
 
                 gcodePath.addSegment(new Segment(SegmentType.MOVE, coordinates.getFirst(), label, Segment.SPINDLE_OFF, null));
-                coordinates.stream().skip(1)
-                        .forEach(c -> gcodePath.addSegment(new Segment(SegmentType.LINE, c, null, laserPower, source.getFeedRate())));
+                toMotionSegments(coordinates, source.getFeedRate()).stream()
+                        .map(segment -> segment.withSpindleSpeed(laserPower))
+                        .forEach(gcodePath::addSegment);
                 label = null;
             }
         }

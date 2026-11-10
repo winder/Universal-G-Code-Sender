@@ -164,4 +164,14 @@ public final class Segment {
     public Integer getFeedSpeed() {
         return feedSpeed;
     }
+
+    /**
+     * Creates a copy of this segment running the spindle, or powering the laser, at the given speed.
+     *
+     * @param spindleSpeed the spindle speed of the copy
+     * @return a copy of this segment with the given spindle speed
+     */
+    public Segment withSpindleSpeed(Integer spindleSpeed) {
+        return new Segment(type, point, label, spindleSpeed, feedSpeed, arcCenter);
+    }
 }
