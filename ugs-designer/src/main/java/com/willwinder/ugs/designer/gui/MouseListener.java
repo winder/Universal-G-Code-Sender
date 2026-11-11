@@ -101,7 +101,9 @@ public class MouseListener extends MouseAdapter {
     }
 
     private void updateCursor() {
-        hoveredControls.stream()
+        // In the order of the controls, so the cursor of the control that gets the press wins
+        controller.getDrawing().getControls().stream()
+                .filter(hoveredControls::contains)
                 .map(Control::getHoverCursor)
                 .filter(Optional::isPresent)
                 .findFirst()
@@ -130,7 +132,7 @@ public class MouseListener extends MouseAdapter {
                 .findFirst()
                 .ifPresent(control -> {
                     selectedControl = control;
-                    control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_PRESSED, startPos, startPos, shiftPressed, ctrlPressed, altPressed));
+                    control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_PRESSED, startPos, startPos, shiftPressed, ctrlPressed, altPressed, m.getClickCount()));
                     controller.repaintDrawing();
                 });
     }
@@ -144,7 +146,7 @@ public class MouseListener extends MouseAdapter {
         boolean altPressed = (m.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
 
         if (selectedControl != null) {
-            selectedControl.onEvent(new MouseEntityEvent(selectedControl, EventType.MOUSE_RELEASED, startPos, lastPos, shiftPressed, ctrlPressed, altPressed));
+            selectedControl.onEvent(new MouseEntityEvent(selectedControl, EventType.MOUSE_RELEASED, startPos, lastPos, shiftPressed, ctrlPressed, altPressed, m.getClickCount()));
             selectedControl = null;
             controller.repaintDrawing();
         }

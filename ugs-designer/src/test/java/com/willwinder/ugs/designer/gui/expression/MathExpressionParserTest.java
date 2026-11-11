@@ -164,4 +164,18 @@ public class MathExpressionParserTest {
         assertRejects("--5");
         assertRejects("+-5");
     }
+
+    @Test
+    public void isExpressionText_shouldAllowAnIncompleteExpression() {
+        boolean result = MathExpressionParser.isExpressionText("-(1.5 + 2) *");
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void isExpressionText_shouldRejectLetters() {
+        boolean result = MathExpressionParser.isExpressionText("3mm");
+
+        assertFalse(result);
+    }
 }

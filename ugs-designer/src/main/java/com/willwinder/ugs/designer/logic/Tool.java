@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2026 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,9 +18,31 @@
  */
 package com.willwinder.ugs.designer.logic;
 
+import com.willwinder.ugs.designer.constraint.Constraint.Kind;
+
+import java.util.Optional;
+
 /**
  * @author Joacim Breiler
  */
 public enum Tool {
-    POINT, CIRCLE, RECTANGLE, LINE, SELECT, INSERT, TEXT, ZOOM, VERTEX
+    POINT, CIRCLE, RECTANGLE, LINE, SELECT, INSERT, TEXT, ZOOM, VERTEX,
+    CONSTRAINT(Kind.DISTANCE), ALIGNMENT(Kind.ALIGNMENT), COINCIDENT(Kind.COINCIDENT), EQUAL_SIZE(Kind.EQUAL_SIZE);
+
+    private final Kind constraintKind;
+
+    Tool() {
+        this(null);
+    }
+
+    Tool(Kind constraintKind) {
+        this.constraintKind = constraintKind;
+    }
+
+    /**
+     * The kind of constraint the tool places, if it is a constraint tool.
+     */
+    public Optional<Kind> constraintKind() {
+        return Optional.ofNullable(constraintKind);
+    }
 }

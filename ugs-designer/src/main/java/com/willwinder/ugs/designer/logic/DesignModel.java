@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.designer.logic;
 
+import com.willwinder.ugs.designer.constraint.ConstraintManager;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.EntityGroup;
@@ -40,6 +41,7 @@ public class DesignModel {
     public static final double DEFAULT_SNAP_TO_GRID = 1;
 
     private final EntityGroup root = new EntityGroup();
+    private final ConstraintManager constraints = new ConstraintManager(root);
     private final Set<DoubleConsumer> snapToGridListeners = new CopyOnWriteArraySet<>();
     private double snapToGrid = DEFAULT_SNAP_TO_GRID;
 
@@ -48,6 +50,13 @@ public class DesignModel {
      */
     public EntityGroup getRootEntity() {
         return root;
+    }
+
+    /**
+     * The constraints between the entities, kept satisfied as the entities change.
+     */
+    public ConstraintManager getConstraintManager() {
+        return constraints;
     }
 
     /**
@@ -72,6 +81,21 @@ public class DesignModel {
             }
         }
         return deepest;
+    }
+
+    /**
+     * The visible shapes that can be picked with the mouse, such as when snapping to their
+     * points, see {@link #isPickable(Entity)}.
+     */
+    public List<Entity> getPickableEntities() {
+        return getEntities().stream().filter(DesignModel::isPickable).toList();
+    }
+
+    /**
+     * Whether the entity is a visible shape rather than a group or a hidden shape.
+     */
+    public static boolean isPickable(Entity entity) {
+        return !(entity instanceof EntityGroup) && !(entity instanceof Cuttable cuttable && cuttable.isHidden());
     }
 
     public List<Entity> getEntitiesAt(Point2D point) {
@@ -102,6 +126,7 @@ public class DesignModel {
     }
 
     public void clear() {
+        constraints.clear();
         root.removeAll();
     }
 

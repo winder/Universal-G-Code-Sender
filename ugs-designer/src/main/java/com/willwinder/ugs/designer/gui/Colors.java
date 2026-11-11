@@ -37,5 +37,8 @@ public class Colors {
     public static final Color BACKGROUND = new Color(246, 246, 246);
     public static final Color CURSOR = new Color(246, 132, 38);
     public static final Color TAB = new Color(122, 161, 228);
+    public static final Color DIMENSION = new Color(217, 96, 59);
+    public static final Color DIMENSION_LABEL = new Color(181, 69, 44);
+    public static final Color DIMENSION_HIGHLIGHT = new Color(47, 98, 184);
 
 }

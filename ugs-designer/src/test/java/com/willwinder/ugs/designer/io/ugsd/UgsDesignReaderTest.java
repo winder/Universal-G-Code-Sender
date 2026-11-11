@@ -11,6 +11,7 @@ import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.ugs.designer.entities.cuttable.PlungeType;
 import com.willwinder.ugs.designer.entities.cuttable.Point;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.constraint.ConstraintManager;
 import com.willwinder.ugs.designer.logic.DesignModel;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.model.Design;
@@ -91,7 +92,7 @@ public class UgsDesignReaderTest {
         Design design = reader.read(IOUtils.toInputStream(data, Charset.defaultCharset())).get();
 
         assertEquals(1, design.getEntities().size());
-        Cuttable readEntity = (Cuttable) design.getEntities().get(0);
+        Cuttable readEntity = (Cuttable) design.getEntities().getFirst();
         assertTrue(readEntity instanceof Rectangle);
         assertEquals(entity.getPosition(), readEntity.getPosition());
         assertEquals(entity.getName(), readEntity.getName());
@@ -111,7 +112,7 @@ public class UgsDesignReaderTest {
         Design design = reader.read(IOUtils.toInputStream(data, Charset.defaultCharset())).get();
 
         assertEquals(1, design.getEntities().size());
-        Cuttable readEntity = (Cuttable) design.getEntities().get(0);
+        Cuttable readEntity = (Cuttable) design.getEntities().getFirst();
         assertTrue(readEntity instanceof Rectangle);
         assertEquals(entity.isHidden(), readEntity.isHidden());
     }
@@ -131,7 +132,7 @@ public class UgsDesignReaderTest {
         UgsDesignReader reader = new UgsDesignReader();
         Design design = reader.read(IOUtils.toInputStream(data, Charset.defaultCharset())).get();
 
-        Cuttable readEntity = (Cuttable) design.getEntities().get(0);
+        Cuttable readEntity = (Cuttable) design.getEntities().getFirst();
         assertTrue(readEntity instanceof Ellipse);
 
         assertEquals(entity.getTransform(), readEntity.getTransform());
@@ -168,7 +169,7 @@ public class UgsDesignReaderTest {
         UgsDesignReader reader = new UgsDesignReader();
         Design design = reader.read(IOUtils.toInputStream(data, Charset.defaultCharset())).get();
 
-        Cuttable readEntity = (Cuttable) design.getEntities().get(0);
+        Cuttable readEntity = (Cuttable) design.getEntities().getFirst();
         assertTrue(readEntity instanceof Path);
         assertEquals(entity.getPosition().getX(), readEntity.getPosition().getX(), 0.1);
         assertEquals(entity.getPosition().getY(), readEntity.getPosition().getY(), 0.1);
@@ -189,7 +190,7 @@ public class UgsDesignReaderTest {
         UgsDesignReader reader = new UgsDesignReader();
         Design design = reader.read(IOUtils.toInputStream(data, Charset.defaultCharset())).get();
 
-        Cuttable readEntity = (Cuttable) design.getEntities().get(0);
+        Cuttable readEntity = (Cuttable) design.getEntities().getFirst();
         assertTrue(readEntity instanceof Group);
         assertEquals(entity.getPosition().getX(), readEntity.getPosition().getX(), 0.1);
         assertEquals(entity.getPosition().getY(), readEntity.getPosition().getY(), 0.1);
@@ -201,8 +202,8 @@ public class UgsDesignReaderTest {
         List<Entity> readGroupEntities = ((Group) readEntity).getChildren();
         assertEquals(1, readGroupEntities.size());
         assertTrue(readGroupEntities.get(0) instanceof Point);
-        assertEquals(point.getPosition().getX(), readGroupEntities.get(0).getPosition().getX(), 0.1);
-        assertEquals(point.getPosition().getY(), readGroupEntities.get(0).getPosition().getY(), 0.1);
+        assertEquals(point.getPosition().getX(), readGroupEntities.getFirst().getPosition().getX(), 0.1);
+        assertEquals(point.getPosition().getY(), readGroupEntities.getFirst().getPosition().getY(), 0.1);
     }
 
     @Test
@@ -245,6 +246,7 @@ public class UgsDesignReaderTest {
         EntityGroup group = new EntityGroup();
         group.addChild(entity);
         when(model.getRootEntity()).thenReturn(group);
+        when(model.getConstraintManager()).thenReturn(new ConstraintManager(group));
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         UgsDesignWriter writer = new UgsDesignWriter();

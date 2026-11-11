@@ -83,6 +83,7 @@ public final class DesignRenderable implements Renderable {
      */
     private static final double DASH_PIXELS = 2;
     private static final float OUTLINE_WIDTH_PX = 1.5f;
+    private static final float DASHED_OUTLINE_WIDTH_PX = 2f;
     private static final float SELECTION_WIDTH_PX = 2.5f;
     private static final float TAB_WIDTH_PX = 2;
     private static final int MAX_TEXTURE_SIZE = 2048;
@@ -230,7 +231,7 @@ public final class DesignRenderable implements Renderable {
                 context.drawTextured(meshes.image(), fillModel, meshes.texture(), 1);
             }
             if (meshes.dashedOutline() != null) {
-                context.drawLines(meshes.dashedOutline(), Mat4.translation(0, 0, OUTLINE_Z), HINT_RGBA, OUTLINE_WIDTH_PX);
+                context.drawLines(meshes.dashedOutline(), Mat4.translation(0, 0, OUTLINE_Z), HINT_RGBA, DASHED_OUTLINE_WIDTH_PX);
             } else {
                 context.drawLines(meshes.outline(), outlineModel, outlineRgba, OUTLINE_WIDTH_PX);
             }

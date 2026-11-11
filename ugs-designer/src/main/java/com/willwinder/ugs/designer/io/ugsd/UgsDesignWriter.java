@@ -2,6 +2,7 @@ package com.willwinder.ugs.designer.io.ugsd;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.willwinder.ugs.designer.constraint.Constraint;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.EntityGroup;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
@@ -14,6 +15,7 @@ import com.willwinder.ugs.designer.entities.cuttable.Text;
 import com.willwinder.ugs.designer.io.AffineTransformSerializer;
 import com.willwinder.ugs.designer.io.DesignWriter;
 import com.willwinder.ugs.designer.io.DesignWriterException;
+import com.willwinder.ugs.designer.io.ugsd.v1.ConstraintV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.CutTypeV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.CuttableEntityV1;
 import com.willwinder.ugs.designer.io.ugsd.v1.DesignV1;
@@ -45,7 +47,9 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Writes the design to a stream or file in the latest design format.
@@ -69,7 +73,12 @@ public class UgsDesignWriter implements DesignWriter {
             DesignV1 design = new DesignV1();
 
             EntityGroup rootEntity = controller.getModel().getRootEntity();
-            design.setEntities(rootEntity.getChildren().stream().map(this::convertToEntity).toList());
+            List<Constraint> constraints = controller.getModel().getConstraintManager().getActiveConstraints();
+            Map<Entity, String> ids = assignIds(constraints);
+            Map<Entity, String> writtenIds = new IdentityHashMap<>();
+            design.setEntities(rootEntity.getChildren().stream().map(entity -> convertToEntity(entity, ids, writtenIds)).toList());
+            List<ConstraintV1> constraintsV1 = convertConstraints(constraints, writtenIds);
+            design.setConstraints(constraintsV1.isEmpty() ? null : constraintsV1);
             design.setTool(controller.getSettings().getCurrentToolSnapshot());
             design.setSettings(SettingsV1.fromInternal(controller.getSettings()));
             IOUtils.write(gson.toJson(design), outputStream, StandardCharsets.UTF_8);
@@ -85,10 +94,30 @@ public class UgsDesignWriter implements DesignWriter {
                 .create();
     }
 
+    private static Map<Entity, String> assignIds(List<Constraint> constraints) {
+        Map<Entity, String> ids = new IdentityHashMap<>();
+        constraints.forEach(constraint -> {
+            ids.computeIfAbsent(constraint.getReference(), _ -> String.valueOf(ids.size() + 1));
+            ids.computeIfAbsent(constraint.getTarget(), _ -> String.valueOf(ids.size() + 1));
+        });
+        return ids;
+    }
+
+    private static List<ConstraintV1> convertConstraints(List<Constraint> constraints, Map<Entity, String> writtenIds) {
+        return constraints.stream()
+                .filter(constraint -> writtenIds.containsKey(constraint.getReference()) && writtenIds.containsKey(constraint.getTarget()))
+                .map(constraint -> ConstraintV1.fromInternal(constraint, writtenIds.get(constraint.getReference()), writtenIds.get(constraint.getTarget())))
+                .toList();
+    }
+
     private EntityV1 convertToEntity(Entity entity) {
+        return convertToEntity(entity, Map.of(), new IdentityHashMap<>());
+    }
+
+    private EntityV1 convertToEntity(Entity entity, Map<Entity, String> ids, Map<Entity, String> writtenIds) {
         EntityV1 result;
         switch (entity) {
-            case EntityGroup entityGroup -> result = parseGroup(entityGroup);
+            case EntityGroup entityGroup -> result = parseGroup(entityGroup, ids, writtenIds);
             case Rectangle rectangle -> result = parseRectangle(rectangle);
             case Ellipse _ -> result = parseEllipse(entity);
             case Path _ -> result = parsePath(entity);
@@ -102,6 +131,12 @@ public class UgsDesignWriter implements DesignWriter {
 
         if (StringUtils.isNotEmpty(entity.getName())) {
             result.setName(entity.getName());
+        }
+
+        String id = ids.get(entity);
+        if (id != null) {
+            result.setId(id);
+            writtenIds.put(entity, id);
         }
 
         if (entity instanceof Cuttable cuttable && result instanceof CuttableEntityV1 cuttableEntity) {
@@ -179,12 +214,11 @@ public class UgsDesignWriter implements DesignWriter {
         return point;
     }
 
-    private EntityV1 parseGroup(EntityGroup entity) {
+    private EntityV1 parseGroup(EntityGroup entity, Map<Entity, String> ids, Map<Entity, String> writtenIds) {
         EntityGroupV1 group = new EntityGroupV1();
         group.setChildren(entity.getChildren().stream()
                 .filter(Cuttable.class::isInstance)
-                .map(Cuttable.class::cast)
-                .map(this::convertToEntity)
+                .map(child -> convertToEntity(child, ids, writtenIds))
                 .toList());
         return group;
     }

@@ -19,6 +19,9 @@
 package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
 import com.willwinder.ugs.designer.actions.UndoManager;
+import com.willwinder.ugs.designer.constraint.Constraint;
+import com.willwinder.ugs.designer.constraint.ConstraintManager;
+import com.willwinder.ugs.designer.constraint.DistanceConstraint;
 import com.willwinder.ugs.designer.entities.cuttable.Text;
 import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.Controller;
@@ -27,18 +30,24 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.scene.Camera;
 import javafx.geometry.Point3D;
 
 import java.awt.geom.Point2D;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
 
 /**
  * What every editor tool works with: the designer controller, the camera for pixel to
  * millimeter conversions, picking, snapping, the shared {@link EditorState} and the callbacks
  * into the visualizer.
  *
- * @param requestRender asks for a new frame after the tool changed something
- * @param textEditor    opens the inline editor for a text entity
+ * @param requestRender  asks for a new frame after the tool changed something
+ * @param textEditor     opens the inline editor for a text entity
+ * @param distanceEditor asks for the distance a constraint should hold and passes it to the
+ *                       given consumer, or does nothing when cancelled
  */
 public record ToolContext(Controller controller, Camera camera, HitTester hitTester, Snapper snapper,
-                          EditorState state, Runnable requestRender, Consumer<Text> textEditor) {
+                          EditorState state, Runnable requestRender, Consumer<Text> textEditor,
+                          BiConsumer<DistanceConstraint, DoubleConsumer> distanceEditor) {
     /** How close to an outline a click may land, in logical pixels. */
     public static final double PICK_TOLERANCE_PX = 4;
 
@@ -50,8 +59,8 @@ public record ToolContext(Controller controller, Camera camera, HitTester hitTes
         return controller.getUndoManager();
     }
 
-    public double worldUnitsPerPixel() {
-        return camera.worldUnitsPerPixel();
+    public ConstraintManager constraintManager() {
+        return controller.getModel().getConstraintManager();
     }
 
     /**
@@ -64,6 +73,14 @@ public record ToolContext(Controller controller, Camera camera, HitTester hitTes
 
     public double pickTolerance(Point2D design) {
         return PICK_TOLERANCE_PX * worldUnitsPerPixelAt(design);
+    }
+
+    /**
+     * The constraint whose dimension is under a design position, within the pick tolerance.
+     */
+    public Optional<Constraint> constraintAt(Point2D design) {
+        return hitTester.constraintAt(design, constraint -> state.isHighlighted(constraint, constraintManager()), pickTolerance(design),
+                worldUnitsPerPixelAt(design));
     }
 
     public void selectTool(Tool tool) {

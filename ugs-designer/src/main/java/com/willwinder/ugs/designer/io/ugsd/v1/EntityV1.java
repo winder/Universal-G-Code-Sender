@@ -35,6 +35,15 @@ public class EntityV1 implements Serializable {
     @Expose
     private EntityTypeV1 type;
 
+    /**
+     * Identifies the entity within the file so constraints can refer to it, only written for
+     * entities that are constrained.
+     */
+    @Expose
+    private String id;
+
+    private transient Entity internal;
+
 
     public EntityV1() {
     }
@@ -55,10 +64,26 @@ public class EntityV1 implements Serializable {
 
     protected void applyCommonAttributes(Entity entity) {
         entity.setName(name);
+        internal = entity;
     }
 
     public Entity toInternal() {
         return new EntityGroup();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * The entity created by the last {@link #toInternal()}, or null if not converted yet.
+     */
+    public Entity getInternal() {
+        return internal;
     }
 
     public String getName() {

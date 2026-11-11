@@ -23,6 +23,8 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -32,7 +34,8 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 
 /**
- * A drop down button factory that creates a drop down button with a popup menu.
+ * A drop down button factory that creates a drop down button with a popup menu. Clicking the
+ * button runs its action, while pressing its arrow, or holding the button down, opens the menu.
  * <p/>
  * Usage:
  * JToggleButton button = DropDownButtonFactory.createDropDownToggleButton(icon, popupMenu);
@@ -72,11 +75,14 @@ public final class DropDownButtonFactory {
         private static final int ARROW_WIDTH = 8;
         private static final int ARROW_HEIGHT = 4;
         private static final int ARROW_MARGIN = 4;
+        private static final int HOLD_MILLIS = 300;
         private final JPopupMenu popupMenu;
+        private final Timer holdTimer = new Timer(HOLD_MILLIS, _ -> openByHold());
         private boolean showingPopup;
 
         private DropDownToggleButton(JPopupMenu popupMenu) {
             this.popupMenu = popupMenu;
+            holdTimer.setRepeats(false);
         }
 
         @Override
@@ -151,7 +157,21 @@ public final class DropDownButtonFactory {
                 e.consume();
                 return;
             }
+            if (popupMenu != null && isEnabled() && SwingUtilities.isLeftMouseButton(e)) {
+                if (e.getID() == MouseEvent.MOUSE_PRESSED) {
+                    holdTimer.restart();
+                } else if (e.getID() == MouseEvent.MOUSE_RELEASED) {
+                    holdTimer.stop();
+                }
+            }
             super.processMouseEvent(e);
+        }
+
+        // Disarmed so releasing the button after holding it down does not run the action as well
+        private void openByHold() {
+            getModel().setArmed(false);
+            getModel().setPressed(false);
+            showPopup();
         }
 
         private boolean isInArrowZone(int x) {

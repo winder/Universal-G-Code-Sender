@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.designer.io.ugsd;
 
+import com.willwinder.ugs.designer.constraint.ConstraintManager;
 import com.willwinder.ugs.designer.entities.EntityGroup;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.logic.DesignModel;
@@ -84,6 +85,7 @@ public class UgsDesignWriterBackwardCompatTest {
         EntityGroup root = new EntityGroup();
         root.addChild(new Rectangle());
         when(model.getRootEntity()).thenReturn(root);
+        when(model.getConstraintManager()).thenReturn(new ConstraintManager(root));
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         new UgsDesignWriter().write(out, controller);

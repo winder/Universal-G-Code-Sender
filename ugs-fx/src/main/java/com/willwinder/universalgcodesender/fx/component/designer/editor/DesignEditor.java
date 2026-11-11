@@ -19,6 +19,10 @@
 package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
 import com.willwinder.ugs.designer.actions.MoveAction;
+import com.willwinder.ugs.designer.constraint.ConstraintListener;
+import com.willwinder.ugs.designer.constraint.ConstraintManager;
+import com.willwinder.ugs.designer.constraint.DimensionLine;
+import com.willwinder.ugs.designer.constraint.DistanceConstraint;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.cuttable.Text;
 import com.willwinder.ugs.designer.entities.selection.SelectionListener;
@@ -32,11 +36,13 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.input.MouseMa
 import com.willwinder.universalgcodesender.fx.component.visualizer.input.PointerEvent;
 import com.willwinder.universalgcodesender.fx.component.visualizer.overlay.OverlayPainter;
 import com.willwinder.universalgcodesender.fx.component.visualizer.scene.Camera;
+import com.willwinder.universalgcodesender.fx.dialog.ConstraintDistanceDialog;
+import com.willwinder.universalgcodesender.fx.helper.WindowHelper;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
-import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings.ModifierKey;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import javafx.application.Platform;
 import javafx.geometry.Point3D;
 import javafx.geometry.VPos;
@@ -59,6 +65,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
 import java.util.function.Predicate;
 
 /**
@@ -87,6 +94,7 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
         }
     };
     private final SelectionListener selectionListener = _ -> Platform.runLater(this::onSelectionChanged);
+    private final ConstraintListener constraintListener = this::onConstraintsChanged;
     private final WorkspaceManager.WorkspaceListener workspaceListener = new WorkspaceManager.WorkspaceListener() {
         @Override
         public void onWorkspaceOpened(WorkspaceContext workspace) {
@@ -271,21 +279,66 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
 
     @Override
     public void paint(GraphicsContext graphics, Camera camera, double width, double height) {
+        if (!isActive()) {
+            return;
+        }
+        paintDimensionLabels(graphics, camera);
         String readout = state.readout();
         Point2D position = state.readoutPosition();
-        if (!isActive() || readout == null || position == null) {
+        if (readout == null || position == null) {
             return;
         }
         camera.project(new Point3D(position.getX(), position.getY(), 0)).ifPresent(pixel -> {
             graphics.setFont(READOUT_FONT);
             graphics.setTextAlign(TextAlignment.LEFT);
             graphics.setTextBaseline(VPos.BOTTOM);
-            double textWidth = readout.length() * 6.5 + 8;
+            double textWidth = DimensionLine.labelWidthPx(readout);
             graphics.setFill(READOUT_BACKGROUND);
-            graphics.fillRoundRect(pixel.getX() + 12, pixel.getY() - 26, textWidth, 18, 4, 4);
+            graphics.fillRoundRect(pixel.getX() + 12, pixel.getY() - 26, textWidth, DimensionLine.LABEL_HEIGHT_PX, 4, 4);
             graphics.setFill(READOUT_COLOR);
             graphics.fillText(readout, pixel.getX() + 16, pixel.getY() - 11);
         });
+    }
+
+    private void paintDimensionLabels(GraphicsContext graphics, Camera camera) {
+        graphics.setFont(READOUT_FONT);
+        graphics.setTextAlign(TextAlignment.CENTER);
+        graphics.setTextBaseline(VPos.CENTER);
+        ConstraintManager constraintManager = controller.getModel().getConstraintManager();
+        for (DimensionLine.Drawn drawn : DimensionLine.allOf(constraintManager.getActiveConstraints(),
+                constraint -> state.isHighlighted(constraint, constraintManager))) {
+            DimensionLine dimension = drawn.dimension();
+            boolean highlighted = drawn.highlighted();
+            if (!dimension.hasLabel()) {
+                continue;
+            }
+            Point2D start = dimension.anchor();
+            double worldPerPixel = camera.worldUnitsPerPixelAt(new Point3D(start.getX(), start.getY(), 0));
+            dimension.labelPositions(worldPerPixel).forEach(position -> camera.project(new Point3D(position.getX(), position.getY(), 0)).ifPresent(pixel -> {
+                double textWidth = dimension.labelWidthPx();
+                double textHeight = DimensionLine.LABEL_HEIGHT_PX;
+                graphics.setFill(READOUT_BACKGROUND);
+                graphics.fillRoundRect(pixel.getX() - textWidth / 2, pixel.getY() - textHeight / 2, textWidth, textHeight, 4, 4);
+                graphics.setFill(highlighted ? DimensionStyle.HIGHLIGHT_COLOR : DimensionStyle.LABEL_COLOR);
+                graphics.fillText(dimension.label(), pixel.getX(), pixel.getY());
+            }));
+        }
+    }
+
+    private void onConstraintsChanged() {
+        if (Platform.isFxApplicationThread()) {
+            requestRender.run();
+        } else {
+            Platform.runLater(requestRender);
+        }
+    }
+
+    // Opened after the mouse event is handled so the gesture finishes before the dialog takes the input.
+    // The editor's window has the focus, as the click that asked for the distance was made in it.
+    private static void editDistance(DistanceConstraint constraint, DoubleConsumer onDistance) {
+        Platform.runLater(() -> new ConstraintDistanceDialog(WindowHelper.resolveWindow(null), Math.abs(constraint.getDistance()))
+                .showAndWaitForDistance()
+                .ifPresent(onDistance::accept));
     }
 
     /**
@@ -337,7 +390,8 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
         }
         controller = ControllerFactory.getController();
         toolContext = new ToolContext(controller, camera, new HitTester(controller),
-                new Snapper(() -> VisualizerSettings.getInstance().designSnapGrid()), state, requestRender, textEditor);
+                new Snapper(() -> VisualizerSettings.getInstance().designSnapGrid()), state, requestRender, textEditor,
+                DesignEditor::editDistance);
         tools.put(Tool.SELECT, new SelectTool(toolContext));
         tools.put(Tool.RECTANGLE, CreateShapeTool.rectangle(toolContext));
         tools.put(Tool.CIRCLE, CreateShapeTool.ellipse(toolContext));
@@ -345,7 +399,11 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
         tools.put(Tool.POINT, new PointTool(toolContext));
         tools.put(Tool.TEXT, new TextTool(toolContext));
         tools.put(Tool.VERTEX, new VertexTool(toolContext));
+        for (Tool tool : Tool.values()) {
+            tool.constraintKind().ifPresent(kind -> tools.put(tool, new ConstraintTool(toolContext, kind)));
+        }
         controller.addListener(controllerListener);
+        controller.getModel().getConstraintManager().addListener(constraintListener);
         controller.getSelectionManager().addSelectionListener(selectionListener);
         syncTool();
     }
@@ -353,6 +411,7 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
     private void unbind() {
         if (controller != null) {
             controller.removeListener(controllerListener);
+            controller.getModel().getConstraintManager().removeListener(constraintListener);
             controller.getSelectionManager().removeSelectionListener(selectionListener);
         }
         if (currentTool != null) {

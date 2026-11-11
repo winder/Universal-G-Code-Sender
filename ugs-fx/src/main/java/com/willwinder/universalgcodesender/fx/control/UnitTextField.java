@@ -18,12 +18,14 @@
  */
 package com.willwinder.universalgcodesender.fx.control;
 
+import com.willwinder.ugs.designer.gui.expression.MathExpressionParser;
 import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitValue;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Skin;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -31,17 +33,17 @@ import javafx.scene.control.TextFormatter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
+import java.util.OptionalDouble;
 import java.util.function.UnaryOperator;
-import java.util.regex.Pattern;
 
 /**
  * A TextField that renders a unit "suffix" on the right side when NOT editing (i.e. not focused),
- * and only accepts numeric input.
+ * and accepts numbers or arithmetic expressions such as {@code 25.4 * 2} or {@code (10 + 4) / 2}.
  * <p>
  * Numeric behavior:
- * - Filters input to a numeric pattern (optionally negative)
- * - Exposes a doubleValueProperty() kept in sync with the text
- * - On focus lost: normalizes/repairs invalid intermediate text ("" / "-" / "." / "-.")
+ * - Filters input to the characters of an expression: digits, '.', '+', '-', '*', '/', parentheses and spaces
+ * - Exposes a doubleValueProperty() kept in sync with the text, evaluating it whenever it is a complete expression
+ * - On Enter and focus lost: replaces the text with its value, or repairs incomplete text such as "" / "-" / "2 *"
  * <p>
  * Styling:
  * - Adds style class: "unit-text-field"
@@ -49,15 +51,12 @@ import java.util.regex.Pattern;
  * - Adds pseudo-class ":showing-unit" when the unit is visible
  */
 public class UnitTextField extends TextField {
-    private static final Pattern NUMERIC = Pattern.compile("^-?\\d*(?:\\.\\d*)?$");
-    private static final Pattern NUMERIC_NON_NEGATIVE = Pattern.compile("^\\d*(?:\\.\\d*)?$");
 
     private final SimpleObjectProperty<Unit> unit = new SimpleObjectProperty<>(this, "unit", Unit.MM);
     private final DoubleProperty doubleValue = new SimpleDoubleProperty(this, "doubleValue", 0.0);
 
     private final DecimalFormat displayFormat = new DecimalFormat("0.###", DecimalFormatSymbols.getInstance(Locale.US));
 
-    private final boolean allowNegative = true;
     private boolean updatingTextFromValue = false;
     private boolean updatingValueFromText = false;
 
@@ -117,8 +116,7 @@ public class UnitTextField extends TextField {
             String next = change.getControlNewText();
             if (next == null || next.isEmpty()) return change; // allow clearing while editing
 
-            Pattern p = allowNegative ? NUMERIC : NUMERIC_NON_NEGATIVE;
-            return p.matcher(next).matches() ? change : null;
+            return MathExpressionParser.isExpressionText(next) ? change : null;
         };
 
         TextFormatter<?> current = getTextFormatter();
@@ -132,12 +130,12 @@ public class UnitTextField extends TextField {
         textProperty().addListener((obs, oldV, newV) -> {
             if (updatingTextFromValue) return;
 
-            Double parsed = parseOrNull(newV);
-            if (parsed == null) return; // intermediate states ("-", ".", "-.") etc.
+            OptionalDouble parsed = NumericExpression.evaluate(newV);
+            if (parsed.isEmpty()) return; // incomplete expressions such as "-" or "2 *"
 
             try {
                 updatingValueFromText = true;
-                setValue(parsed);
+                setValue(parsed.getAsDouble());
             } finally {
                 updatingValueFromText = false;
             }
@@ -158,36 +156,20 @@ public class UnitTextField extends TextField {
             }
         });
 
-        // Normalize on focus lost
-        focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
-            if (Boolean.TRUE.equals(isNowFocused)) return;
-
-            Double parsed = parseOrNull(getText());
-            if (parsed == null) {
-                // revert to last known good value
-                setText(format(getValue()));
-            } else {
-                // normalize formatting (e.g. "01.0" -> "1")
-                setText(format(parsed));
+        focusedProperty().addListener((_, _, isNowFocused) -> {
+            if (!Boolean.TRUE.equals(isNowFocused)) {
+                normalizeText();
             }
         });
+        addEventHandler(ActionEvent.ACTION, _ -> normalizeText());
+    }
+
+    private void normalizeText() {
+        setText(format(NumericExpression.evaluate(getText()).orElse(getValue())));
     }
 
     private String format(double v) {
         return displayFormat.format(v);
-    }
-
-    private static Double parseOrNull(String text) {
-        if (text == null) return null;
-        String t = text.trim();
-        if (t.isEmpty() || "-".equals(t) || ".".equals(t) || "-.".equals(t)) return null;
-
-        try {
-            // We only allow '.' as decimal separator in the filter; parse accordingly.
-            return Double.parseDouble(t);
-        } catch (Exception ignored) {
-            return null;
-        }
     }
 
     @Override

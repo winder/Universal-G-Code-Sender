@@ -35,6 +35,7 @@ public class MouseEntityEvent extends EntityEvent {
     private boolean shiftPressed;
     private boolean altPressed;
     private boolean ctrlPressed;
+    private int clickCount = 1;
 
     public MouseEntityEvent(Entity entity, EventType type, Point2D startMousePosition, Point2D currentMousePosition) {
         super(entity, type);
@@ -47,6 +48,18 @@ public class MouseEntityEvent extends EntityEvent {
         this.shiftPressed = shiftPressed;
         this.altPressed = altPressed;
         this.ctrlPressed = ctrlPressed;
+    }
+
+    public MouseEntityEvent(Control entity, EventType type, Point2D startMousePosition, Point2D currentMousePosition, boolean shiftPressed, boolean ctrlPressed, boolean altPressed, int clickCount) {
+        this(entity, type, startMousePosition, currentMousePosition, shiftPressed, ctrlPressed, altPressed);
+        this.clickCount = clickCount;
+    }
+
+    /**
+     * How many times the mouse was clicked in quick succession, two for a double click.
+     */
+    public int getClickCount() {
+        return clickCount;
     }
 
     public Point2D getCurrentMousePosition() {

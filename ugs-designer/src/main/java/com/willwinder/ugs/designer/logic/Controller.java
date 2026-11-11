@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2023 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,7 +20,13 @@ package com.willwinder.ugs.designer.logic;
 
 import com.google.common.collect.Sets;
 import com.willwinder.ugs.designer.actions.AddAction;
+import com.willwinder.ugs.designer.actions.AddConstraintAction;
+import com.willwinder.ugs.designer.actions.ChangeConstraintDistanceAction;
+import com.willwinder.ugs.designer.actions.RemoveConstraintAction;
 import com.willwinder.ugs.designer.actions.UndoManager;
+import com.willwinder.ugs.designer.constraint.Constraint;
+import com.willwinder.ugs.designer.constraint.ConstraintManager;
+import com.willwinder.ugs.designer.constraint.DistanceConstraint;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.gui.Drawing;
@@ -36,6 +42,7 @@ import java.awt.Cursor;
 import java.awt.Window;
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -54,7 +61,65 @@ public class Controller {
     public Controller(SelectionManager selectionManager, UndoManager undoManager) {
         this.undoManager = undoManager;
         this.selectionManager = selectionManager;
+        model.getConstraintManager().setHeldEntities(selectionManager::getSelection);
+        // Only one kind of thing is selected, so what to edit or delete is never ambiguous
+        selectionManager.addSelectionListener(_ -> model.getConstraintManager().setSelectedConstraint(null));
         setTool(Tool.SELECT);
+    }
+
+    /**
+     * Adds a constraint as one undoable change.
+     */
+    public void addConstraint(Constraint constraint) {
+        AddConstraintAction action = new AddConstraintAction(model.getConstraintManager(), constraint);
+        action.execute();
+        undoManager.addAction(action);
+    }
+
+    /**
+     * Selects the constraint in place of any selected entities.
+     */
+    public void selectConstraint(Constraint constraint) {
+        selectionManager.clearSelection();
+        model.getConstraintManager().setSelectedConstraint(constraint);
+    }
+
+    /**
+     * Changes the distance of a constraint to the entered one as one undoable change, see
+     * {@link DistanceConstraint#distanceFor(double)} for how the entered value is held.
+     */
+    public void changeConstraintDistance(DistanceConstraint constraint, double entered) {
+        constraint.distanceFor(entered)
+                .stream()
+                .filter(distance -> distance != constraint.getDistance())
+                .forEach(distance -> {
+                    ChangeConstraintDistanceAction action = new ChangeConstraintDistanceAction(model.getConstraintManager(), constraint, distance);
+                    action.execute();
+                    undoManager.addAction(action);
+                });
+    }
+
+    /**
+     * Whether there is something selected to delete: entities or a constraint.
+     */
+    public boolean hasDeletableSelection() {
+        return !selectionManager.getChildren().isEmpty() || model.getConstraintManager().getSelectedConstraint().isPresent();
+    }
+
+    /**
+     * Deletes the selected constraint as one undoable change.
+     *
+     * @return whether a constraint was selected and deleted
+     */
+    public boolean deleteSelectedConstraint() {
+        ConstraintManager constraintManager = model.getConstraintManager();
+        Optional<Constraint> selected = constraintManager.getSelectedConstraint();
+        selected.ifPresent(constraint -> {
+            RemoveConstraintAction action = new RemoveConstraintAction(constraintManager, constraint);
+            action.execute();
+            undoManager.addAction(action);
+        });
+        return selected.isPresent();
     }
 
     public void addEntity(Entity s) {
@@ -139,6 +204,7 @@ public class Controller {
     public void setDesign(Design design) {
         newDrawing();
         model.insertEntities(design.getEntities());
+        model.getConstraintManager().setConstraints(design.getConstraints());
         repaintDrawing();
         setTool(Tool.SELECT);
         applyDesignSettings(design);

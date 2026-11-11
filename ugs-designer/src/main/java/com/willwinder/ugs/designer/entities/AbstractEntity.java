@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2024 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -57,6 +57,7 @@ public abstract class AbstractEntity implements Entity {
         applyTransform(AffineTransform.getTranslateInstance(x, y));
     }
 
+    @Override
     public void notifyEvent(EntityEvent entityEvent) {
         listeners.forEach(entityListener -> entityListener.onEvent(entityEvent));
     }
