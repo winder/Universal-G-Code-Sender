@@ -22,6 +22,7 @@ import static com.willwinder.ugs.platform.surfacescanner.Utils.createCommandProc
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessorList;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.utils.AutoLevelArcMode;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.util.Exceptions;
@@ -40,6 +41,7 @@ public class MeshLevelManager {
     private double appliedZSurface = Double.NaN;
     private double appliedStepResolution = Double.NaN;
     private double appliedArcSliceLength = Double.NaN;
+    private AutoLevelArcMode appliedArcMode;
 
     public MeshLevelManager(SurfaceScanner surfaceScanner, BackendAPI backend) {
         this.surfaceScanner = surfaceScanner;
@@ -96,7 +98,8 @@ public class MeshLevelManager {
                 && appliedPoints.equals(points)
                 && appliedZSurface == settings.getZSurface()
                 && appliedStepResolution == settings.getStepResolution()
-                && appliedArcSliceLength == settings.getAutoLevelArcSliceLength();
+                && appliedArcSliceLength == settings.getAutoLevelArcSliceLength()
+                && appliedArcMode == settings.getArcMode();
     }
 
     private void remember(boolean apply, List<Position> points, AutoLevelSettings settings) {
@@ -108,6 +111,7 @@ public class MeshLevelManager {
         appliedZSurface = settings.getZSurface();
         appliedStepResolution = settings.getStepResolution();
         appliedArcSliceLength = settings.getAutoLevelArcSliceLength();
+        appliedArcMode = settings.getArcMode();
     }
 
     private void forgetAppliedSurface() {
@@ -115,5 +119,6 @@ public class MeshLevelManager {
         appliedZSurface = Double.NaN;
         appliedStepResolution = Double.NaN;
         appliedArcSliceLength = Double.NaN;
+        appliedArcMode = null;
     }
 }

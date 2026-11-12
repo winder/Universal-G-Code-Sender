@@ -113,7 +113,8 @@ public class Utils {
                 autoLevelSettings.getAutoLevelArcSliceLength(),
                 autoLevelSettings.getStepResolution() / 4,
                 autoLevelSettings.getZSurface(),
-                surfaceScanner.getScannedPoints()));
+                surfaceScanner.getScannedPoints(),
+                autoLevelSettings.getArcMode()));
         return result;
     }
 }

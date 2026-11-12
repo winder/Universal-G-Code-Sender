@@ -64,6 +64,13 @@ public class CommandProcessorList implements CommandProcessor, Iterable<CommandP
         return "Combines several processors and runs them in sequence";
     }
 
+    @Override
+    public void reset() {
+        for (CommandProcessor processor : commandProcessors) {
+            processor.reset();
+        }
+    }
+
     /**
      * Helper to statically process the next step in a program without modifying the parser.
      */

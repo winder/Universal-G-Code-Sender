@@ -16,41 +16,56 @@
  */
 package com.willwinder.universalgcodesender.gcode.processors;
 
+import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.SplitCommand;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.utils.AutoLevelArcMode;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Expands arcs, splits long moves, and shifts Z to a scanned surface in one pass.
+ * Splits long moves and shifts Z to a scanned surface in one pass.
+ * Arcs are either expanded into line segments or kept, with Z shifted only at the start and end.
  * Plain linear moves are read directly so a program rebuild does not parse each line
  * once per stage.
  */
 public class AutoLevelProcessor implements CommandProcessor {
+    private static final double Z_EPSILON = 1e-6;
+    private static final double POINT_EPSILON_MM = 1e-4;
+
     private final ArcExpander arcExpander;
+    private final AutoLevelArcMode arcMode;
     private final double maxSegmentLength;
     private final double materialSurfaceHeightMM;
     private final List<Position> surfacePoints;
     private final DelaunaySurfaceInterpolator surface;
     private final Units surfaceMeshUnits;
+    private final Position lastLeveledPoint = new Position(Double.NaN, Double.NaN, Double.NaN, Units.MM);
+    private boolean hasLeveledPoint;
     private CommandProcessorList legacy;
 
     public AutoLevelProcessor(double arcTolerance, double maxSegmentLength, double materialSurfaceHeightMM, List<Position> surfacePoints) {
+        this(arcTolerance, maxSegmentLength, materialSurfaceHeightMM, surfacePoints, AutoLevelArcMode.LINE_SEGMENTS);
+    }
+
+    public AutoLevelProcessor(double arcTolerance, double maxSegmentLength, double materialSurfaceHeightMM, List<Position> surfacePoints, AutoLevelArcMode arcMode) {
         if (surfacePoints == null || surfacePoints.isEmpty()) {
             throw new IllegalArgumentException("Surface mesh is required.");
         }
         this.maxSegmentLength = maxSegmentLength;
         this.materialSurfaceHeightMM = materialSurfaceHeightMM;
         this.surfacePoints = List.copyOf(surfacePoints);
+        this.arcMode = arcMode == null ? AutoLevelArcMode.LINE_SEGMENTS : arcMode;
         this.arcExpander = new ArcExpander(true, arcTolerance, GcodePreprocessorUtils.getDecimalFormatter(), true);
         this.surface = new DelaunaySurfaceInterpolator(this.surfacePoints);
         this.surfaceMeshUnits = surface.getUnits();
@@ -64,21 +79,151 @@ public class AutoLevelProcessor implements CommandProcessor {
 
         LinearMove move = LinearMove.tryParse(command, state.currentPoint, state.inAbsoluteMode, state.currentMotionMode);
         if (move != null) {
-            return levelMove(command, state.currentPoint, move.end, move.motion, state.inAbsoluteMode);
+            List<String> leveled = levelMove(command, state.currentPoint, move.end, move.motion, state.inAbsoluteMode);
+            remember(move.end);
+            return leveled;
         }
         if (containsArcWord(command) || state.currentMotionMode == Code.G2 || state.currentMotionMode == Code.G3) {
+            if (arcMode == AutoLevelArcMode.KEEP_ARCS) {
+                return levelArc(command, state);
+            }
             List<String> expanded = arcExpander.processCommand(command, state);
             if (expanded.size() == 1 && command.equals(expanded.get(0))) {
                 return expanded;
             }
             return levelExpanded(expanded, state);
         }
-        return legacy(command, state);
+        List<String> leveled = legacy(command, state);
+        rememberParsedEnd(command, state);
+        return leveled;
+    }
+
+    @Override
+    public void reset() {
+        hasLeveledPoint = false;
+        if (legacy != null) {
+            legacy.reset();
+        }
     }
 
     @Override
     public String getHelp() {
+        if (arcMode == AutoLevelArcMode.KEEP_ARCS) {
+            return "Levels Z to a scanned surface. Arcs are kept and Z is shifted at the start and end.";
+        }
         return "Levels Z to a scanned surface, expanding arcs and splitting long moves in one pass.";
+    }
+
+    /**
+     * Keeps the G2/G3 command, including I/J/K or R. Z at the end is shifted onto the surface.
+     * Z at the start is shifted too, by a linear move, when an earlier leveled move has not
+     * already left the tool there. The controller then changes Z linearly along the arc.
+     */
+    private List<String> levelArc(String command, GcodeState state) throws GcodeParserException {
+        if (state.currentPoint == null) {
+            return Collections.singletonList(command);
+        }
+        GcodeMeta arc = findArc(GcodeParserUtils.processCommand(command, 0, state, true));
+        if (arc == null || arc.point == null) {
+            return Collections.singletonList(command);
+        }
+
+        Position start = state.currentPoint;
+        Position end = arc.point.point();
+        List<String> out = new ArrayList<>();
+        String motion = command;
+        SplitCommand split = GcodePreprocessorUtils.extractMotion(arc.code, command);
+        if (split != null && split.remainder.length() > 0) {
+            out.add(split.remainder);
+            motion = split.extracted;
+        }
+        if (!containsArcWord(motion)) {
+            motion = arc.code + " " + motion;
+        }
+        if (!alreadyLeveled(start)) {
+            String correction = startCorrection(start, state.inAbsoluteMode);
+            if (correction != null) {
+                out.add(correction);
+            }
+        }
+        out.add(applyZ(motion, start, end, state.inAbsoluteMode));
+        remember(end);
+        return out;
+    }
+
+    private static GcodeMeta findArc(List<GcodeMeta> commands) {
+        if (commands == null) {
+            return null;
+        }
+        GcodeMeta arc = null;
+        for (GcodeMeta command : commands) {
+            if (command.point != null && command.point.isArc()) {
+                arc = command;
+            }
+        }
+        return arc;
+    }
+
+    /**
+     * A Z-only feed move that puts the tool on the surface at the arc start.
+     * Returns null when that Z is already the programmed Z.
+     */
+    private String startCorrection(Position start, boolean absolute) {
+        if (!isFinite(start)) {
+            return null;
+        }
+        double offset = zOffsetAt(start);
+        if (!Double.isFinite(offset) || Math.abs(offset) < Z_EPSILON) {
+            return null;
+        }
+        if (absolute) {
+            return applyZ("G1", start, start, true);
+        }
+        return GcodePreprocessorUtils.overridePosition("G1", PartialPosition.builder(start.getUnits()).setZ(offset).build());
+    }
+
+    private void remember(Position programmed) {
+        if (!isFinite(programmed)) {
+            return;
+        }
+        Position millimeters = programmed.getPositionIn(Units.MM);
+        lastLeveledPoint.x = millimeters.x;
+        lastLeveledPoint.y = millimeters.y;
+        lastLeveledPoint.z = millimeters.z;
+        hasLeveledPoint = true;
+    }
+
+    private void rememberParsedEnd(String command, GcodeState state) {
+        try {
+            List<GcodeMeta> metas = GcodeParserUtils.processCommand(command, 0, state, true);
+            if (metas == null) {
+                return;
+            }
+            for (GcodeMeta meta : metas) {
+                if (meta.point != null && meta.point.point() != null) {
+                    remember(meta.point.point());
+                }
+            }
+        } catch (GcodeParserException ignored) {
+            // The command was already emitted. Keep the previous leveled point.
+        }
+    }
+
+    private boolean alreadyLeveled(Position point) {
+        if (!hasLeveledPoint || !isFinite(point)) {
+            return false;
+        }
+        Position millimeters = point.getPositionIn(Units.MM);
+        return Math.abs(millimeters.x - lastLeveledPoint.x) <= POINT_EPSILON_MM
+                && Math.abs(millimeters.y - lastLeveledPoint.y) <= POINT_EPSILON_MM
+                && Math.abs(millimeters.z - lastLeveledPoint.z) <= POINT_EPSILON_MM;
+    }
+
+    private static boolean isFinite(Position point) {
+        return point != null
+                && Double.isFinite(point.getX())
+                && Double.isFinite(point.getY())
+                && Double.isFinite(point.getZ());
     }
 
     private List<String> levelExpanded(List<String> expanded, GcodeState state) {
@@ -138,19 +283,7 @@ public class AutoLevelProcessor implements CommandProcessor {
     }
 
     private String applyZ(String command, Position start, Position end, boolean absolute) {
-        double zPointOffset;
-        if (absolute) {
-            Position position = end.getPositionIn(surfaceMeshUnits);
-            double materialSurfaceHeight = materialSurfaceHeightMM * UnitUtils.scaleUnits(Units.MM, surfaceMeshUnits);
-            zPointOffset = (surface.surfaceHeightAt(position.x, position.y) - materialSurfaceHeight)
-                    * UnitUtils.scaleUnits(surfaceMeshUnits, end.getUnits());
-        } else {
-            Position startInMesh = start.getPositionIn(surfaceMeshUnits);
-            Position endInMesh = end.getPositionIn(surfaceMeshUnits);
-            double startHeight = surface.surfaceHeightAt(startInMesh.x, startInMesh.y);
-            double endHeight = surface.surfaceHeightAt(endInMesh.x, endInMesh.y);
-            zPointOffset = (endHeight - startHeight) * UnitUtils.scaleUnits(surfaceMeshUnits, end.getUnits());
-        }
+        double zPointOffset = absolute ? zOffsetAt(end) : zOffsetAt(end) - zOffsetAt(start);
 
         double newZ = end.getZ() + zPointOffset;
         PartialPosition.Builder overrideZ = PartialPosition.builder(end.getUnits());
@@ -160,6 +293,17 @@ public class AutoLevelProcessor implements CommandProcessor {
             overrideZ.setZ(newZ - start.getZ());
         }
         return GcodePreprocessorUtils.overridePosition(command, overrideZ.build());
+    }
+
+    /**
+     * Surface correction added to a programmed Z, in that point's units.
+     * Zero outside the scanned area.
+     */
+    private double zOffsetAt(Position point) {
+        Position position = point.getPositionIn(surfaceMeshUnits);
+        double materialSurfaceHeight = materialSurfaceHeightMM * UnitUtils.scaleUnits(Units.MM, surfaceMeshUnits);
+        return (surface.surfaceHeightAt(position.x, position.y) - materialSurfaceHeight)
+                * UnitUtils.scaleUnits(surfaceMeshUnits, point.getUnits());
     }
 
     private List<String> legacy(String command, GcodeState state) throws GcodeParserException {
