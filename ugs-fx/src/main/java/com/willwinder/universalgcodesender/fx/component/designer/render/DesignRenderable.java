@@ -187,6 +187,9 @@ public final class DesignRenderable implements Renderable {
         settings.showDesignProperty().addListener(redrawListener);
         settings.colorDesignShapeOutlineProperty().addListener(redrawListener);
         settings.colorDesignShapeBackgroundProperty().addListener(redrawListener);
+        settings.colorDesignConstraintProperty().addListener(redrawListener);
+        settings.colorDesignConstraintLabelProperty().addListener(redrawListener);
+        settings.colorDesignConstraintHighlightProperty().addListener(redrawListener);
         WorkspaceManager.getInstance().addListener(workspaceListener);
         bind(WorkspaceManager.getInstance().getActiveWorkspace().orElse(null));
     }
@@ -198,6 +201,9 @@ public final class DesignRenderable implements Renderable {
         settings.showDesignProperty().removeListener(redrawListener);
         settings.colorDesignShapeOutlineProperty().removeListener(redrawListener);
         settings.colorDesignShapeBackgroundProperty().removeListener(redrawListener);
+        settings.colorDesignConstraintProperty().removeListener(redrawListener);
+        settings.colorDesignConstraintLabelProperty().removeListener(redrawListener);
+        settings.colorDesignConstraintHighlightProperty().removeListener(redrawListener);
         bind(null);
         this.scene = null;
     }

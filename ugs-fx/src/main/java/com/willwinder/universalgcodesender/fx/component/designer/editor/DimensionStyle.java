@@ -20,27 +20,32 @@ package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
 import com.willwinder.ugs.designer.constraint.Constraint;
 import com.willwinder.ugs.designer.constraint.DistanceConstraint;
-import com.willwinder.ugs.designer.gui.Colors;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 
 /**
- * How dimensions look and feel in the editor, in the same colors as in the Swing designer.
+ * How dimensions look and feel in the editor, in the colors chosen in the design settings.
  */
 public final class DimensionStyle {
-    public static final Color COLOR = toFx(Colors.DIMENSION);
-    public static final Color LABEL_COLOR = toFx(Colors.DIMENSION_LABEL);
-
-    /**
-     * The color of a selected or hovered dimension.
-     */
-    public static final Color HIGHLIGHT_COLOR = toFx(Colors.DIMENSION_HIGHLIGHT);
 
     private DimensionStyle() {
     }
 
-    private static Color toFx(java.awt.Color color) {
-        return Color.rgb(color.getRed(), color.getGreen(), color.getBlue());
+    /**
+     * The color of the dimension's lines, or of a selected or hovered dimension.
+     */
+    public static Color color(boolean highlighted) {
+        VisualizerSettings settings = VisualizerSettings.getInstance();
+        return Color.web((highlighted ? settings.colorDesignConstraintHighlightProperty() : settings.colorDesignConstraintProperty()).get());
+    }
+
+    /**
+     * The color of the dimension's label, or of a selected or hovered dimension's.
+     */
+    public static Color labelColor(boolean highlighted) {
+        VisualizerSettings settings = VisualizerSettings.getInstance();
+        return Color.web((highlighted ? settings.colorDesignConstraintHighlightProperty() : settings.colorDesignConstraintLabelProperty()).get());
     }
 
     /**

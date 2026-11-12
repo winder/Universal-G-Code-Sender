@@ -96,9 +96,9 @@ public final class HandlesRenderable implements Renderable {
             ConstraintManager constraintManager = controller.getModel().getConstraintManager();
             DimensionLine.allOf(constraintManager.getActiveConstraints(), constraint -> state.isHighlighted(constraint, constraintManager))
                     .forEach(drawn -> addDimension(dimensionLines, context, drawn.dimension(),
-                            drawn.highlighted() ? DimensionStyle.HIGHLIGHT_COLOR : DimensionStyle.COLOR));
+                            DimensionStyle.color(drawn.highlighted())));
             if (state.previewDimension() != null) {
-                addDimension(dimensionLines, context, state.previewDimension(), DimensionStyle.HIGHLIGHT_COLOR);
+                addDimension(dimensionLines, context, state.previewDimension(), DimensionStyle.color(true));
             }
             if (editor.currentToolType() == Tool.SELECT || editor.currentToolType() == Tool.VERTEX) {
                 addFrame(frameLines, HandleSet.frame(controller.getSelectionManager()));

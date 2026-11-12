@@ -319,7 +319,7 @@ public final class DesignEditor implements InputHandler, OverlayPainter {
                 double textHeight = DimensionLine.LABEL_HEIGHT_PX;
                 graphics.setFill(READOUT_BACKGROUND);
                 graphics.fillRoundRect(pixel.getX() - textWidth / 2, pixel.getY() - textHeight / 2, textWidth, textHeight, 4, 4);
-                graphics.setFill(highlighted ? DimensionStyle.HIGHLIGHT_COLOR : DimensionStyle.LABEL_COLOR);
+                graphics.setFill(DimensionStyle.labelColor(highlighted));
                 graphics.fillText(dimension.label(), pixel.getX(), pixel.getY());
             }));
         }
