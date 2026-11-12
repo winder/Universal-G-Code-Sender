@@ -47,6 +47,7 @@ public class ArcExpander implements CommandProcessor {
     private final boolean convertToLines;
     private final double length;
     private final DecimalFormat df;
+    private final boolean chordTolerance;
 
     @Override
     public String getHelp() {
@@ -60,11 +61,7 @@ public class ArcExpander implements CommandProcessor {
      * @param length the length of each smaller segment.
      */
     public ArcExpander(boolean convertToLines, double length) {
-        this.convertToLines = convertToLines;
-        this.length = length;
-
-        // Setup decimal formatter
-        df = new DecimalFormat("#.#########", Localization.dfs);
+        this(convertToLines, length, new DecimalFormat("#.#########", Localization.dfs), false);
     }
 
     /**
@@ -72,9 +69,20 @@ public class ArcExpander implements CommandProcessor {
      * @param length the length of each smaller segment.
      */
     public ArcExpander(boolean convertToLines, double length, DecimalFormat df) {
+        this(convertToLines, length, df, false);
+    }
+
+    /**
+     * @param convertToLines toggles if smaller lines or arcs are returned.
+     * @param length         segment length, or the maximum chord error when {@code chordTolerance} is set.
+     * @param chordTolerance when true, {@code length} is the maximum sagitta in millimeters. Large arcs then
+     *                       stay as long chords instead of being cut into a fixed tiny step.
+     */
+    public ArcExpander(boolean convertToLines, double length, DecimalFormat df, boolean chordTolerance) {
         this.convertToLines = convertToLines;
         this.length = length;
         this.df = df;
+        this.chordTolerance = chordTolerance;
     }
 
     @Override
@@ -101,9 +109,12 @@ public class ArcExpander implements CommandProcessor {
         Position start = state.currentPoint;
         Position end = arcMeta.point.point();
 
-        List<Position> points = GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                start, end, ps.center(), ps.isClockwise(),
-                ps.getRadius(), 0, this.length, new PlaneFormatter(ps.getPlaneState()));
+        PlaneFormatter plane = new PlaneFormatter(ps.getPlaneState());
+        List<Position> points = chordTolerance
+                ? GcodePreprocessorUtils.generatePointsAlongArcWithTolerance(
+                        start, end, ps.center(), ps.isClockwise(), ps.getRadius(), this.length, plane)
+                : GcodePreprocessorUtils.generatePointsAlongArcBDring(
+                        start, end, ps.center(), ps.isClockwise(), ps.getRadius(), 0, this.length, plane);
 
         if (points.isEmpty()) {
             return results;

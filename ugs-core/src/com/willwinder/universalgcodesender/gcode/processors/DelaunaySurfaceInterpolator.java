@@ -31,6 +31,7 @@ import java.util.List;
 
 /**
  * Interpolates Z across an arbitrary set of surface points using Delaunay triangles.
+ * Point location uses the JTS STRtree, and Z comes from {@code Triangle.interpolateZ}.
  */
 public class DelaunaySurfaceInterpolator {
     public static final String ERROR_NOT_ENOUGH_POINTS = "Need at least three non-collinear surface points.";

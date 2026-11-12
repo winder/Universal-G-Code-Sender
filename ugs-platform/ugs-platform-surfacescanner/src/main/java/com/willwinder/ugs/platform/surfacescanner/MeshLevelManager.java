@@ -21,9 +21,12 @@ package com.willwinder.ugs.platform.surfacescanner;
 import static com.willwinder.ugs.platform.surfacescanner.Utils.createCommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessorList;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.util.Exceptions;
+
+import java.util.List;
 
 /**
  * A mesh leveler manager that handles all required command processors
@@ -33,6 +36,10 @@ public class MeshLevelManager {
     private final SurfaceScanner surfaceScanner;
     private final BackendAPI backend;
     private CommandProcessorList commandProcessorList;
+    private List<Position> appliedPoints = List.of();
+    private double appliedZSurface = Double.NaN;
+    private double appliedStepResolution = Double.NaN;
+    private double appliedArcSliceLength = Double.NaN;
 
     public MeshLevelManager(SurfaceScanner surfaceScanner, BackendAPI backend) {
         this.surfaceScanner = surfaceScanner;
@@ -41,16 +48,28 @@ public class MeshLevelManager {
 
     public void update() {
         AutoLevelSettings autoLevelSettings = backend.getSettings().getAutoLevelSettings();
-        try {
-            clear();
+        boolean apply = surfaceScanner.isValid() && autoLevelSettings.getApplyToGcode();
+        List<Position> points = apply ? surfaceScanner.getScannedPoints() : List.of();
+        if (sameAppliedSurface(apply, points, autoLevelSettings)) {
+            return;
+        }
 
-            if (!surfaceScanner.isValid() || !autoLevelSettings.getApplyToGcode()) {
+        CommandProcessorList previous = commandProcessorList;
+        CommandProcessorList next = null;
+        try {
+            if (apply) {
+                next = createCommandProcessor(autoLevelSettings, surfaceScanner);
+            }
+            if (previous == null && next == null) {
+                remember(apply, points, autoLevelSettings);
                 return;
             }
-
-            commandProcessorList = createCommandProcessor(autoLevelSettings, surfaceScanner);
-            backend.applyCommandProcessor(commandProcessorList);
+            backend.replaceCommandProcessor(previous, next);
+            commandProcessorList = next;
+            remember(apply, points, autoLevelSettings);
         } catch (Exception ex) {
+            commandProcessorList = null;
+            forgetAppliedSurface();
             GUIHelpers.displayErrorDialog(ex.getMessage());
             Exceptions.printStackTrace(ex);
         }
@@ -66,5 +85,35 @@ public class MeshLevelManager {
             }
             commandProcessorList = null;
         }
+        forgetAppliedSurface();
+    }
+
+    private boolean sameAppliedSurface(boolean apply, List<Position> points, AutoLevelSettings settings) {
+        if (!apply) {
+            return commandProcessorList == null;
+        }
+        return commandProcessorList != null
+                && appliedPoints.equals(points)
+                && appliedZSurface == settings.getZSurface()
+                && appliedStepResolution == settings.getStepResolution()
+                && appliedArcSliceLength == settings.getAutoLevelArcSliceLength();
+    }
+
+    private void remember(boolean apply, List<Position> points, AutoLevelSettings settings) {
+        if (!apply) {
+            forgetAppliedSurface();
+            return;
+        }
+        appliedPoints = points;
+        appliedZSurface = settings.getZSurface();
+        appliedStepResolution = settings.getStepResolution();
+        appliedArcSliceLength = settings.getAutoLevelArcSliceLength();
+    }
+
+    private void forgetAppliedSurface() {
+        appliedPoints = List.of();
+        appliedZSurface = Double.NaN;
+        appliedStepResolution = Double.NaN;
+        appliedArcSliceLength = Double.NaN;
     }
 }

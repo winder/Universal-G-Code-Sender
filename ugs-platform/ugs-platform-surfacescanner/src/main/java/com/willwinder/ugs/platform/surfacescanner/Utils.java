@@ -18,11 +18,8 @@
  */
 package com.willwinder.ugs.platform.surfacescanner;
 
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
+import com.willwinder.universalgcodesender.gcode.processors.AutoLevelProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessorList;
-import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
-import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -107,16 +104,16 @@ public class Utils {
     public static CommandProcessorList createCommandProcessor(AutoLevelSettings autoLevelSettings, SurfaceScanner surfaceScanner) {
         CommandProcessorList result = new CommandProcessorList();
 
-        // Step 1: Convert arcs to line segments.
-        result.add(new ArcExpander(true, autoLevelSettings.getAutoLevelArcSliceLength(), GcodePreprocessorUtils.getDecimalFormatter()));
-
-        // Step 2: Line splitter. No line should be longer than some fraction of "resolution"
-        result.add(new LineSplitter(autoLevelSettings.getStepResolution() / 4));
-
-        // Step 3: Adjust Z heights codes based on mesh offsets.
-        result.add(
-                new MeshLeveler(autoLevelSettings.getZSurface(),
-                        surfaceScanner.getScannedPoints()));
+        // Arc tolerance is the maximum chord error, not a fixed step. A 0.01 mm step turns a
+        // normal program into more than a million moves, which is too slow to rebuild when a
+        // probe point is added and too fine to stream at the programmed feed. Long lines are
+        // still split to a quarter of the probe resolution so Z follows changes in slope.
+        // All three happen in one processor so each move is scanned once.
+        result.add(new AutoLevelProcessor(
+                autoLevelSettings.getAutoLevelArcSliceLength(),
+                autoLevelSettings.getStepResolution() / 4,
+                autoLevelSettings.getZSurface(),
+                surfaceScanner.getScannedPoints()));
         return result;
     }
 }
