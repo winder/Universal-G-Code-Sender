@@ -37,7 +37,6 @@ import static org.junit.Assert.fail;
 
 public class AutoLevelProcessorTest {
     private static final double ARC_TOLERANCE = 0.01;
-    private static final double MAX_SEGMENT = 2.5;
 
     @Test
     public void matchesArcSplitAndMeshChain() throws Exception {
@@ -67,7 +66,7 @@ public class AutoLevelProcessorTest {
                 "G1 X1 Y0.5 Z-0.1",
                 "G21");
 
-        assertEquals(level(legacy(points), program), level(new AutoLevelProcessor(ARC_TOLERANCE, MAX_SEGMENT, 0, points), program));
+        assertEquals(level(legacy(points), program), level(new AutoLevelProcessor(ARC_TOLERANCE, 0, points), program));
     }
 
     @Test
@@ -157,6 +156,28 @@ public class AutoLevelProcessorTest {
         assertTrue(out.stream().anyMatch("F80"::equals));
     }
 
+    @Test
+    public void longMoveInsideOneTriangleIsNotSplit() throws Exception {
+        AutoLevelProcessor processor = new AutoLevelProcessor(ARC_TOLERANCE, 0, flatTriangle());
+
+        assertEquals(List.of("G1X8Y1Z1"), processor.processCommand("G1X8Y1", stateAt(1, 1, 0)));
+    }
+
+    @Test
+    public void moveIsSplitWhereTheSurfaceTriangleChanges() throws Exception {
+        AutoLevelProcessor processor = new AutoLevelProcessor(ARC_TOLERANCE, 0, flatTriangle());
+
+        assertEquals(List.of("G1X0Y0Z1", "G1X10Y0Z1", "G1X15Y0Z0"),
+                processor.processCommand("G1X15Y0", stateAt(-5, 0, 0)));
+    }
+
+    private static List<Position> flatTriangle() {
+        return Arrays.asList(
+                new Position(0, 0, 1, Units.MM),
+                new Position(10, 0, 1, Units.MM),
+                new Position(0, 10, 1, Units.MM));
+    }
+
     private static boolean isKeptArc(String line) {
         return line.contains("G2 ") || line.contains("G2X") || line.contains("G3 ") || line.contains("G3X");
     }
@@ -170,7 +191,7 @@ public class AutoLevelProcessorTest {
     }
 
     private static AutoLevelProcessor keep(List<Position> points) {
-        return new AutoLevelProcessor(ARC_TOLERANCE, MAX_SEGMENT, 0, points, AutoLevelArcMode.KEEP_ARCS);
+        return new AutoLevelProcessor(ARC_TOLERANCE, 0, points, AutoLevelArcMode.KEEP_ARCS);
     }
 
     private static GcodeState stateAt(double x, double y, double z) {
@@ -183,7 +204,7 @@ public class AutoLevelProcessorTest {
     private static CommandProcessorList legacy(List<Position> points) {
         CommandProcessorList list = new CommandProcessorList();
         list.add(new ArcExpander(true, ARC_TOLERANCE, GcodePreprocessorUtils.getDecimalFormatter(), true));
-        list.add(new LineSplitter(MAX_SEGMENT));
+        list.add(new LineSplitterTriangleIntersections(new DelaunaySurfaceInterpolator(points)));
         list.add(new MeshLeveler(0, points));
         return list;
     }

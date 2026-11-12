@@ -40,7 +40,7 @@ public class LineSplitterTest {
 
     private static void splitterHarness(
             double splitterLength, Position start, String command, List<String> expected) throws Exception {
-        LineSplitter instance = new LineSplitter(splitterLength);
+        LineSplitterDistance instance = new LineSplitterDistance(splitterLength);
 
         GcodeState state = new GcodeState();
         state.currentPoint = start;
@@ -52,7 +52,7 @@ public class LineSplitterTest {
 
     private static void splitterHarnessRelativeMode(
             double splitterLength, Position start, String command, List<String> expected) throws Exception {
-        LineSplitter instance = new LineSplitter(splitterLength);
+        LineSplitterDistance instance = new LineSplitterDistance(splitterLength);
 
         GcodeState state = new GcodeState();
         state.currentPoint = start;
@@ -146,7 +146,7 @@ public class LineSplitterTest {
     public void testShortLineNoOp() throws Exception {
         System.out.println("testShortLineNoOp");
 
-        LineSplitter instance = new LineSplitter(2);
+        LineSplitterDistance instance = new LineSplitterDistance(2);
 
         GcodeState state = new GcodeState();
         state.currentPoint = new Position(0, 0, 0, MM);
@@ -161,7 +161,7 @@ public class LineSplitterTest {
     public void testModalReturnedFirst() throws Exception {
         System.out.println("testModalReturnedFirst");
 
-        LineSplitter instance = new LineSplitter(1.5);
+        LineSplitterDistance instance = new LineSplitterDistance(1.5);
 
         GcodeState state = new GcodeState();
         state.currentPoint = new Position(0, 0, 0, MM);
@@ -179,7 +179,7 @@ public class LineSplitterTest {
     public void testIgnoreNonLines() throws Exception {
         System.out.println("ignoreNonLines");
 
-        LineSplitter instance = new LineSplitter(1.5);
+        LineSplitterDistance instance = new LineSplitterDistance(1.5);
 
         String command;
 
@@ -211,6 +211,36 @@ public class LineSplitterTest {
         String command = "G1X1";
         List<String> expected = Arrays.asList("G1X0.3333Y0Z0", "G1X0.6667Y0Z0", "G1X1Y0Z0");
         splitterHarness(maxSegmentLength, new Position(0, 0, 0, MM), command, expected);
+    }
+
+    @Test
+    public void moveInsideOneTriangleIsNotSplit() throws Exception {
+        DelaunaySurfaceInterpolator surface = triangle();
+        LineSplitterTriangleIntersections splitter = new LineSplitterTriangleIntersections(surface);
+
+        GcodeState state = new GcodeState();
+        state.currentPoint = new Position(1, 1, 0, MM);
+        state.inAbsoluteMode = true;
+
+        assertEquals(Arrays.asList("G1X4Y2"), splitter.processCommand("G1X4Y2", state));
+    }
+
+    @Test
+    public void moveIsSplitWhereItEntersAndLeavesTheTriangle() throws Exception {
+        LineSplitterTriangleIntersections splitter = new LineSplitterTriangleIntersections(triangle());
+
+        GcodeState state = new GcodeState();
+        state.currentPoint = new Position(-5, 1, 0, MM);
+        state.inAbsoluteMode = true;
+
+        assertEquals(Arrays.asList("G1X0Y1Z0", "G1X9Y1Z0", "G1X15Y1Z0"), splitter.processCommand("G1X15Y1", state));
+    }
+
+    private static DelaunaySurfaceInterpolator triangle() {
+        return new DelaunaySurfaceInterpolator(Arrays.asList(
+                new Position(0, 0, 0, MM),
+                new Position(10, 0, 0, MM),
+                new Position(0, 10, 0, MM)));
     }
 
 }

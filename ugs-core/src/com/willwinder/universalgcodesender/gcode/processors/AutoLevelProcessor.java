@@ -34,7 +34,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Splits long moves and shifts Z to a scanned surface in one pass.
+ * Shifts Z to a scanned surface in one pass. A straight move is split only where it crosses
+ * from one surface triangle into another, so a sparse scan does not chop every line.
  * Arcs are either expanded into line segments or kept, with Z shifted only at the start and end.
  * Plain linear moves are read directly so a program rebuild does not parse each line
  * once per stage.
@@ -45,7 +46,6 @@ public class AutoLevelProcessor implements CommandProcessor {
 
     private final ArcExpander arcExpander;
     private final AutoLevelArcMode arcMode;
-    private final double maxSegmentLength;
     private final double materialSurfaceHeightMM;
     private final List<Position> surfacePoints;
     private final DelaunaySurfaceInterpolator surface;
@@ -54,15 +54,14 @@ public class AutoLevelProcessor implements CommandProcessor {
     private boolean hasLeveledPoint;
     private CommandProcessorList legacy;
 
-    public AutoLevelProcessor(double arcTolerance, double maxSegmentLength, double materialSurfaceHeightMM, List<Position> surfacePoints) {
-        this(arcTolerance, maxSegmentLength, materialSurfaceHeightMM, surfacePoints, AutoLevelArcMode.LINE_SEGMENTS);
+    public AutoLevelProcessor(double arcTolerance, double materialSurfaceHeightMM, List<Position> surfacePoints) {
+        this(arcTolerance, materialSurfaceHeightMM, surfacePoints, AutoLevelArcMode.LINE_SEGMENTS);
     }
 
-    public AutoLevelProcessor(double arcTolerance, double maxSegmentLength, double materialSurfaceHeightMM, List<Position> surfacePoints, AutoLevelArcMode arcMode) {
+    public AutoLevelProcessor(double arcTolerance, double materialSurfaceHeightMM, List<Position> surfacePoints, AutoLevelArcMode arcMode) {
         if (surfacePoints == null || surfacePoints.isEmpty()) {
             throw new IllegalArgumentException("Surface mesh is required.");
         }
-        this.maxSegmentLength = maxSegmentLength;
         this.materialSurfaceHeightMM = materialSurfaceHeightMM;
         this.surfacePoints = List.copyOf(surfacePoints);
         this.arcMode = arcMode == null ? AutoLevelArcMode.LINE_SEGMENTS : arcMode;
@@ -111,7 +110,7 @@ public class AutoLevelProcessor implements CommandProcessor {
         if (arcMode == AutoLevelArcMode.KEEP_ARCS) {
             return "Levels Z to a scanned surface. Arcs are kept and Z is shifted at the start and end.";
         }
-        return "Levels Z to a scanned surface, expanding arcs and splitting long moves in one pass.";
+        return "Levels Z to a scanned surface, expanding arcs and splitting moves where the surface slope changes.";
     }
 
     /**
@@ -242,8 +241,11 @@ public class AutoLevelProcessor implements CommandProcessor {
     }
 
     private List<String> levelMove(String command, Position start, Position end, Code motion, boolean absolute) {
-        double length = start.distanceXYZ(end);
-        if (!(length > maxSegmentLength)) {
+        Position startOnSurface = start.getPositionIn(surfaceMeshUnits);
+        Position endOnSurface = end.getPositionIn(surfaceMeshUnits);
+        List<Double> splits = surface.crossingParameters(
+                startOnSurface.x, startOnSurface.y, endOnSurface.x, endOnSurface.y);
+        if (splits.isEmpty()) {
             return Collections.singletonList(applyZ(command, start, end, absolute));
         }
 
@@ -253,14 +255,11 @@ public class AutoLevelProcessor implements CommandProcessor {
             results.add(split.remainder);
         }
 
-        int numSegments = (int) Math.ceil(length / maxSegmentLength);
-        double segmentLength = length / Math.ceil(length / maxSegmentLength);
         Position current = start;
         // Z is applied to the coordinates as they are written. Formatting rounds those
         // coordinates, and the next segment starts from the rounded point.
         Position parsed = start;
-        for (int i = 1; i < numSegments; i++) {
-            double k = 1 / (length / (i * segmentLength));
+        for (double k : splits) {
             Position next = new Position(
                     start.x + k * (end.x - start.x),
                     start.y + k * (end.y - start.y),
@@ -310,7 +309,7 @@ public class AutoLevelProcessor implements CommandProcessor {
         if (legacy == null) {
             legacy = new CommandProcessorList();
             legacy.add(arcExpander);
-            legacy.add(new LineSplitter(maxSegmentLength));
+            legacy.add(new LineSplitterTriangleIntersections(surface));
             legacy.add(new MeshLeveler(materialSurfaceHeightMM, surfacePoints));
         }
         return legacy.processCommand(command, state);

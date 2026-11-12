@@ -106,12 +106,11 @@ public class Utils {
 
         // Arc tolerance is the maximum chord error, not a fixed step. A 0.01 mm step turns a
         // normal program into more than a million moves, which is too slow to rebuild when a
-        // probe point is added and too fine to stream at the programmed feed. Long lines are
-        // still split to a quarter of the probe resolution so Z follows changes in slope.
-        // All three happen in one processor so each move is scanned once.
+        // probe point is added and too fine to stream at the programmed feed. Straight moves
+        // are split only where they cross into a different surface triangle.
+        // All of this happens in one processor so each move is scanned once.
         result.add(new AutoLevelProcessor(
                 autoLevelSettings.getAutoLevelArcSliceLength(),
-                autoLevelSettings.getStepResolution() / 4,
                 autoLevelSettings.getZSurface(),
                 surfaceScanner.getScannedPoints(),
                 autoLevelSettings.getArcMode()));

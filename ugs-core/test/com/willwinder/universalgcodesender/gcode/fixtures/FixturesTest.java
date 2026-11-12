@@ -6,7 +6,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.EmptyLineRemoverProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
+import com.willwinder.universalgcodesender.gcode.processors.LineSplitterDistance;
 import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.gcode.processors.RunFromProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
@@ -60,7 +60,7 @@ public class FixturesTest {
             GcodeParser gcp = new GcodeParser();
             gcp.addCommandProcessor(new CommentProcessor());
             gcp.addCommandProcessor(new ArcExpander(true, 0.1));
-            gcp.addCommandProcessor(new LineSplitter(1));
+            gcp.addCommandProcessor(new LineSplitterDistance(1));
             return gcp;
         });
     }
@@ -83,7 +83,7 @@ public class FixturesTest {
             gcp.addCommandProcessor(new CommentProcessor());
             gcp.addCommandProcessor(new WhitespaceProcessor());
             gcp.addCommandProcessor(new ArcExpander(true, 0.1, new DecimalFormat("#.####", Localization.dfs)));
-            gcp.addCommandProcessor(new LineSplitter(1));
+            gcp.addCommandProcessor(new LineSplitterDistance(1));
             Position[][] grid = {
                     { new Position(-5,-5,0, MM), new Position(-5,35,0, MM) },
                     { new Position(35,-5,0, MM), new Position(35,35,0, MM) }
@@ -109,7 +109,7 @@ public class FixturesTest {
             GcodeParser gcp = new GcodeParser();
             gcp.addCommandProcessor(new CommentProcessor());
             gcp.addCommandProcessor(new EmptyLineRemoverProcessor());
-            gcp.addCommandProcessor(new LineSplitter(1));
+            gcp.addCommandProcessor(new LineSplitterDistance(1));
             return gcp;
         });
     }
@@ -119,7 +119,7 @@ public class FixturesTest {
         runAllFixturesInPath("./gcode/fixtures/comments/", "Comments", () -> {
             GcodeParser gcp = new GcodeParser();
             gcp.addCommandProcessor(new CommentProcessor());
-            gcp.addCommandProcessor(new LineSplitter(1));
+            gcp.addCommandProcessor(new LineSplitterDistance(1));
             return gcp;
         });
     }
