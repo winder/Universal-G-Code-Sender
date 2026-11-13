@@ -234,7 +234,7 @@ public class ConnectStage extends Stage {
         if (connectionDriver == ConnectionDriver.TCP || connectionDriver == ConnectionDriver.WS) {
             portRateLabel.setText(Localization.getString("mainWindow.swing.portLabel"));
             portRateCombo.setEditable(true);
-            portRateCombo.setItems(FXCollections.observableArrayList("23", "80"));
+            portRateCombo.setItems(FXCollections.observableArrayList("23", "80", "2323"));
             portRateCombo.getSelectionModel().select("23");
             refreshPorts();
         } else {
