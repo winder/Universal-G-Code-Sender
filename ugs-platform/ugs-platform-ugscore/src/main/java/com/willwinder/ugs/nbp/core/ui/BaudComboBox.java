@@ -28,7 +28,7 @@ import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import javax.swing.*;
 
 public class BaudComboBox extends JComboBox<String> implements UGSEventListener {
-    private static final String[] TCP_PORTS = {"23", "80"};
+    private static final String[] TCP_PORTS = {"23", "80", "2323"};
 
     private final transient BackendAPI backend;
 

@@ -1,0 +1,45 @@
+diff --git a/Makefile b/Makefile
+index 9350656..ee94cb5 100644
+--- a/Makefile
++++ b/Makefile
+@@ -29,7 +29,7 @@ GRBL_OVERRIDE_OBJECTS =  ../main.o ../serial.o ../report.o
+ AVR_OBJECTS  = avr/interrupt.o avr/pgmspace.o  avr/io.o  avr/eeprom.o grbl_eeprom_extensions.o
+ 
+ # Simulator Only Objects
+-SIM_OBJECTS = main.o simulator.o serial.o util/delay.o util/floatunsisf.o platform_$(PLATFORM).o system_declares.o
++SIM_OBJECTS = main.o simulator.o serial.o util/delay.o util/floatunsisf.o platform_$(PLATFORM).o
+ 
+ GRBL_SIM_OBJECTS = grbl_interface.o  $(GRBL_BASE_OBJECTS) $(GRBL_OVERRIDE_OBJECTS) $(SIM_OBJECTS) $(AVR_OBJECTS)
+ GRBL_VAL_OBJECTS = validator.o overridden_report.o $(GRBL_BASE_OBJECTS) $(AVR_OBJECTS) system_declares.o
+diff --git a/avr/wdt.h b/avr/wdt.h
+index 4582a82..15a8e4c 100644
+--- a/avr/wdt.h
++++ b/avr/wdt.h
+@@ -20,7 +20,7 @@
+   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
+-#define WDTCSR wdt
++/*#define WDTCSR wdt*/
+ #define WDP0 0
+ #define WDP1 1
+ #define WDP2 2
+@@ -30,4 +30,4 @@
+ #define WDIE 6
+ #define WDIF 7
+ 
+-uint16_t wdt;
++/*uint16_t wdt;*/
+diff --git a/validator.c b/validator.c
+index 0c9988a..8dde9f9 100644
+--- a/validator.c
++++ b/validator.c
+@@ -37,7 +37,7 @@
+ 
+ // Declare system global variable structure
+ system_t sys; 
+-volatile io_sim_t io;
++/*volatile io_sim_t io;*/
+ 
+ 
+ typedef struct arg_vars {
