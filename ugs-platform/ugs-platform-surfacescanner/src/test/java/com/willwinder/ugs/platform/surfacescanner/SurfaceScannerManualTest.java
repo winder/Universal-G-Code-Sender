@@ -17,12 +17,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SurfaceScannerManualTest {
+    private Settings settings;
     private SurfaceScanner scanner;
 
     @Before
     public void setUp() {
         BackendAPI backend = mock(BackendAPI.class);
-        Settings settings = new Settings();
+        settings = new Settings();
         when(backend.getSettings()).thenReturn(settings);
         scanner = new SurfaceScanner(backend);
     }
@@ -40,6 +41,45 @@ public class SurfaceScannerManualTest {
         scanner.captureManualPoint(new Position(0.005, 10, 4, Units.MM));
         assertEquals(3, scanner.getScannedPoints().size());
         assertEquals(4, scanner.getScannedPoints().get(2).getZ(), 0.001);
+    }
+
+    @Test
+    public void manualCaptureShouldSubtractTouchPlateThickness() {
+        settings.getAutoLevelSettings().setTouchPlateThickness(2.5);
+        scanner.captureManualPoint(new Position(1, 2, 10, Units.MM));
+        scanner.captureManualPoint(new Position(1, 2, 12, Units.MM));
+
+        assertEquals(1, scanner.getScannedPoints().size());
+        Position captured = scanner.getScannedPoints().get(0);
+        assertEquals(1, captured.getX(), 0.001);
+        assertEquals(2, captured.getY(), 0.001);
+        assertEquals(9.5, captured.getZ(), 0.001);
+    }
+
+    @Test
+    public void manualCaptureShouldSubtractThicknessInPreferredUnits() {
+        settings.setPreferredUnits(Units.INCH);
+        settings.getAutoLevelSettings().setTouchPlateThickness(25.4);
+        scanner.captureManualPoint(new Position(0, 0, 2, Units.INCH));
+
+        Position captured = scanner.getScannedPoints().get(0);
+        assertEquals(Units.INCH, captured.getUnits());
+        assertEquals(1, captured.getZ(), 0.001);
+    }
+
+    @Test
+    public void rebuildingTheProbeGridShouldKeepSampledPoints() {
+        scanner.captureManualPoint(new Position(0, 0, 1, Units.MM));
+        scanner.captureManualPoint(new Position(10, 0, 2, Units.MM));
+        scanner.captureManualPoint(new Position(0, 10, 3, Units.MM));
+
+        scanner.update(new Position(-5, -5, -1, Units.MM), new Position(30, 30, 4, Units.MM));
+        scanner.reset();
+
+        assertTrue(scanner.isValid());
+        assertEquals(3, scanner.getScannedPoints().size());
+        assertEquals(1, scanner.getScannedPoints().get(0).getZ(), 0.001);
+        assertEquals(-5, scanner.getProbePositionGrid()[0][0].getX(), 0.001);
     }
 
     @Test

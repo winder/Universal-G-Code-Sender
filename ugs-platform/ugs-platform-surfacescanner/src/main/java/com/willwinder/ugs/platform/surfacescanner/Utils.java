@@ -37,23 +37,27 @@ public class Utils {
     public static final JFileChooser fileChooser = new JFileChooser();
 
     /**
-     * Checks if there is probed data present and if so asks the user if it is ok to delete.
-     * If it is ok to delete, the data will be removed
+     * Asks before an action that replaces the sampled surface, then clears those points.
+     * Changing settings or reloading a gcode file is not such an action.
      *
      * @param surfaceScanner the current surface scanner
-     * @return true if there is no probe data
+     * @return true when there is nothing to keep, or the user agreed to replace it
      */
     public static boolean removeProbeData(SurfaceScanner surfaceScanner) {
-        if (!surfaceScanner.isValid()) {
-            return true;
-        }
-
-        if (!shouldEraseProbedData()) {
+        if (!confirmReplaceProbeData(surfaceScanner)) {
             return false;
         }
-
-        surfaceScanner.reset();
+        if (!surfaceScanner.getScannedPoints().isEmpty()) {
+            surfaceScanner.clearManualPoints();
+        }
         return true;
+    }
+
+    /**
+     * @return true when there are no sampled points, or the user agreed to replace them
+     */
+    public static boolean confirmReplaceProbeData(SurfaceScanner surfaceScanner) {
+        return surfaceScanner.getScannedPoints().isEmpty() || shouldEraseProbedData();
     }
 
     private static boolean shouldEraseProbedData() {

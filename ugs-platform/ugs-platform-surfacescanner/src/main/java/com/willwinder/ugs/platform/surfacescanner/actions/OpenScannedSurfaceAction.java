@@ -74,15 +74,15 @@ public class OpenScannedSurfaceAction extends AbstractAction implements UGSEvent
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (!Utils.removeProbeData(surfaceScanner)) {
-            return;
-        }
-
         fileOpenDialog.setFilenameFilter(new FilenameFilterAdapter(new XyzFileFilter()));
         fileOpenDialog.centerOn(WindowManager.getDefault().getMainWindow());
         fileOpenDialog.setVisible(true);
         Optional<File> file = fileOpenDialog.getSelectedFile();
         if (file.isEmpty()) {
+            return;
+        }
+
+        if (!Utils.confirmReplaceProbeData(surfaceScanner)) {
             return;
         }
 

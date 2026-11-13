@@ -20,7 +20,6 @@ package com.willwinder.ugs.platform.surfacescanner.ui;
 
 import com.willwinder.ugs.platform.surfacescanner.MeshLevelManager;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
-import com.willwinder.ugs.platform.surfacescanner.Utils;
 import com.willwinder.ugs.platform.surfacescanner.actions.CaptureSurfacePointAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.ScanSurfaceAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.ToggleApplyToGcodeAction;
@@ -177,13 +176,7 @@ public class AutoLevelerPanel extends JPanel {
             return;
         }
 
-        AutoLevelSettings newSettings = copySettings();
-
-        if (!Utils.removeProbeData(surfaceScanner)) {
-            return;
-        }
-
-        autoLevelSettings.apply(newSettings);
+        autoLevelSettings.apply(copySettings());
         updateSpinnerLimits();
     }
 

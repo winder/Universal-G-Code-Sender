@@ -77,6 +77,24 @@ public class MeshLevelManager {
         }
     }
 
+    /**
+     * Installs the surface processor again after the gcode parser has been reset.
+     * Sampled points are left in place.
+     */
+    public void reapply() {
+        CommandProcessorList previous = commandProcessorList;
+        commandProcessorList = null;
+        forgetAppliedSurface();
+        if (previous != null) {
+            try {
+                backend.removeCommandProcessor(previous);
+            } catch (Exception e) {
+                Exceptions.printStackTrace(e);
+            }
+        }
+        update();
+    }
+
     public void clear() {
         // Remove previously active command processors
         if (commandProcessorList != null) {

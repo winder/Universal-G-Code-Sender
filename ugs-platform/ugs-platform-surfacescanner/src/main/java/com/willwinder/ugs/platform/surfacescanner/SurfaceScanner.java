@@ -96,6 +96,7 @@ public class SurfaceScanner {
             this.maxXYZ = newMax;
         }
 
+        // A new probe grid does not discard points the operator already sampled.
         reset();
     }
 
@@ -181,7 +182,6 @@ public class SurfaceScanner {
             yIndex += yIncrement;
         }
 
-        clearScannedSurface();
         listeners.forEach(SurfaceScannerListener::onScannerUpdate);
     }
 
@@ -221,6 +221,8 @@ public class SurfaceScanner {
             throw new IllegalStateException("Cannot scan: current work Z must be between " + minZ + " and " + maxZ + " " + minXYZ.getUnits() + ".");
         }
 
+        // Rebuild the probe queue for this pass. Points already sampled stay until the pass finishes.
+        reset();
         isScanning.set(true);
         Position machine = backend.getMachinePosition().getPositionIn(work.getUnits());
         machineWorkOffset = new Position(work.getUnits());
@@ -349,6 +351,12 @@ public class SurfaceScanner {
 
     public void captureManualPoint(Position position) {
         Position point = validateManualPoint(position);
+        // The tool is sitting on the touch plate, so Z is plate thickness above the material,
+        // matching an automatic probe.
+        point.setZ(point.getZ() - getTouchPlateThickness());
+        if (!Double.isFinite(point.getZ())) {
+            throw new IllegalArgumentException("A finite work position is required.");
+        }
         int existing = indexOfManualPoint(point);
         if (existing >= 0) {
             scannedPoints.set(existing, point);
@@ -369,6 +377,8 @@ public class SurfaceScanner {
     }
 
     public void clearManualPoints() {
+        // Stop an automatic pass from publishing its grid back into the list.
+        isScanning.set(false);
         clearScannedSurface();
         listeners.forEach(SurfaceScannerListener::onScannerUpdate);
     }

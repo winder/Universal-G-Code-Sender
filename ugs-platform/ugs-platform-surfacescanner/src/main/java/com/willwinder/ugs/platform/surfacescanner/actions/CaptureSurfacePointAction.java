@@ -34,6 +34,7 @@ import java.awt.event.ActionEvent;
 
 /**
  * Records the current work coordinate as a manually sampled surface point.
+ * Touch plate thickness is subtracted from Z, as it is for an automatic probe.
  */
 public class CaptureSurfacePointAction extends AbstractAction implements UGSEventListener {
     public static final String ICON_BASE = "com/willwinder/ugs/platform/surfacescanner/icons/capture.svg";
