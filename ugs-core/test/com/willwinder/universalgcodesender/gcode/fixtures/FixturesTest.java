@@ -3,7 +3,6 @@ package com.willwinder.universalgcodesender.gcode.fixtures;
 import com.google.common.base.Joiner;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DelaunaySurfaceInterpolator;
@@ -123,7 +122,7 @@ public class FixturesTest {
         DelaunaySurfaceInterpolator surface = new DelaunaySurfaceInterpolator(points);
         runAllFixturesInPath("./gcode/fixtures/surface/", "Triangle", () -> {
             GcodeParser gcp = new GcodeParser();
-            gcp.addCommandProcessor(new ArcExpander(true, 0.01, GcodePreprocessorUtils.getDecimalFormatter(), true));
+            gcp.addCommandProcessor(new ArcExpander(true, 0.01, new DecimalFormat("0.####", Localization.dfs), true));
             gcp.addCommandProcessor(new LineSplitterTriangleIntersections(surface));
             gcp.addCommandProcessor(new MeshLeveler(0, points));
             return gcp;
