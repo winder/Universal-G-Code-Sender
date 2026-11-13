@@ -26,23 +26,18 @@ import java.util.Optional;
  * @author Joacim Breiler
  */
 public enum Tool {
-    POINT, CIRCLE, RECTANGLE, LINE, SELECT, INSERT, TEXT, ZOOM, VERTEX,
-    CONSTRAINT(Kind.DISTANCE), ALIGNMENT(Kind.ALIGNMENT), COINCIDENT(Kind.COINCIDENT), EQUAL_SIZE(Kind.EQUAL_SIZE);
-
-    private final Kind constraintKind;
-
-    Tool() {
-        this(null);
-    }
-
-    Tool(Kind constraintKind) {
-        this.constraintKind = constraintKind;
-    }
+    POINT, CIRCLE, RECTANGLE, LINE, SELECT, INSERT, TEXT, ZOOM, VERTEX, CONSTRAINT, ALIGNMENT, COINCIDENT, EQUAL_SIZE;
 
     /**
      * The kind of constraint the tool places, if it is a constraint tool.
      */
     public Optional<Kind> constraintKind() {
-        return Optional.ofNullable(constraintKind);
+        return Optional.ofNullable(switch (this) {
+            case CONSTRAINT -> Kind.DISTANCE;
+            case ALIGNMENT -> Kind.ALIGNMENT;
+            case COINCIDENT -> Kind.COINCIDENT;
+            case EQUAL_SIZE -> Kind.EQUAL_SIZE;
+            default -> null;
+        });
     }
 }

@@ -36,8 +36,8 @@ import java.util.Optional;
 
 /**
  * A constraint between two entities, referring to them by their {@link EntityV1#getId()}. The
- * kind is only written for constraints other than distances, so files without it read as
- * distance constraints, and the target axis only for an equal size between different axes.
+ * kind is always written, and a constraint without one is not read. The target axis is only
+ * written for an equal size between different axes.
  * The axes a constraint between points measures along are written as the angle of its
  * horizontal axis in degrees, and whether they are mirrored only when they are. Files without
  * the angle get the axes a new constraint would.
@@ -59,7 +59,7 @@ public class ConstraintV1 implements Serializable {
         ConstraintV1 result = new ConstraintV1();
         result.referenceId = referenceId;
         result.targetId = targetId;
-        result.kind = constraint.getKind() == Constraint.Kind.DISTANCE ? null : constraint.getKind();
+        result.kind = constraint.getKind();
         switch (constraint) {
             case EqualSizeConstraint equalSize -> {
                 result.referencePoint = ShapePointV1.fromInternal(CenterPoint.INSTANCE);
@@ -103,10 +103,10 @@ public class ConstraintV1 implements Serializable {
         Entity target = entitiesById.get(targetId);
         Optional<ShapePoint> fromPoint = referencePoint == null ? Optional.empty() : referencePoint.toInternal();
         Optional<ShapePoint> toPoint = targetPoint == null ? Optional.empty() : targetPoint.toInternal();
-        if (reference == null || target == null || fromPoint.isEmpty() || toPoint.isEmpty() || axis == null) {
+        if (reference == null || target == null || fromPoint.isEmpty() || toPoint.isEmpty() || axis == null || kind == null) {
             return Optional.empty();
         }
-        Constraint constraint = switch (kind == null ? Constraint.Kind.DISTANCE : kind) {
+        Constraint constraint = switch (kind) {
             case DISTANCE -> new DistanceConstraint(reference, fromPoint.get(), target, toPoint.get(), axis, distance, offset);
             case ALIGNMENT -> Constraint.aligned(reference, fromPoint.get(), target, toPoint.get(), axis);
             case COINCIDENT -> Constraint.coincident(reference, fromPoint.get(), target, toPoint.get());
