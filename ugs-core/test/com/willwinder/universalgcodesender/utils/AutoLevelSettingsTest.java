@@ -1,5 +1,6 @@
 package com.willwinder.universalgcodesender.utils;
 
+import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import org.junit.Test;
@@ -90,6 +91,7 @@ public class AutoLevelSettingsTest {
         autoLevelSettings.setProbeSpeed(9);
         autoLevelSettings.setProbeScanFeedRate(10);
         autoLevelSettings.setAutoLevelArcSliceLength(11);
+        autoLevelSettings.setArcMode(AutoLevelArcMode.KEEP_ARCS);
         autoLevelSettings.setTouchPlateThickness(12);
         autoLevelSettings.setAutoLevelProbeOffset(new Position(13, 14, 15, Units.MM));
 
@@ -107,7 +109,26 @@ public class AutoLevelSettingsTest {
         assertEquals(9, copy.getProbeSpeed(), 0.001);
         assertEquals(10, copy.getProbeScanFeedRate(), 0.001);
         assertEquals(11, copy.getAutoLevelArcSliceLength(), 0.001);
+        assertEquals(AutoLevelArcMode.KEEP_ARCS, copy.getArcMode());
         assertEquals(12, copy.getTouchPlateThickness(), 0.001);
         assertEquals(new Position(13, 14, 15, Units.MM), copy.getAutoLevelProbeOffset());
+    }
+
+    @Test
+    public void missingArcModeDefaultsToLineSegments() {
+        AutoLevelSettings loaded = new Gson().fromJson("{\"probeSpeed\":12}", AutoLevelSettings.class);
+
+        assertEquals(AutoLevelArcMode.LINE_SEGMENTS, loaded.getArcMode());
+        assertEquals(12, loaded.getProbeSpeed(), 0.001);
+    }
+
+    @Test
+    public void arcModeRoundTripsThroughJson() {
+        AutoLevelSettings settings = new AutoLevelSettings();
+        settings.setArcMode(AutoLevelArcMode.KEEP_ARCS);
+
+        AutoLevelSettings loaded = new Gson().fromJson(new Gson().toJson(settings), AutoLevelSettings.class);
+
+        assertEquals(AutoLevelArcMode.KEEP_ARCS, loaded.getArcMode());
     }
 }

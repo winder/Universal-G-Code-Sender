@@ -79,6 +79,11 @@ public class FxBackend extends GUIBackend {
         process("remove a processor", () -> super.removeCommandProcessor(commandProcessor));
     }
 
+    @Override
+    public void replaceCommandProcessor(CommandProcessor previous, CommandProcessor next) throws Exception {
+        process("replace a processor", () -> super.replaceCommandProcessor(previous, next));
+    }
+
     private void process(String description, Processing processing) throws Exception {
         if (Thread.currentThread() == loaderThread) {
             processing.run();

@@ -23,9 +23,16 @@ public class AutoLevelSettings implements Serializable {
      */
     private double touchPlateThickness = 0;
     /**
-     * How long the arcs segments should be expanded in millimeters
+     * How long the arcs segments should be expanded in millimeters.
+     * Used when {@link #arcMode} is {@link AutoLevelArcMode#LINE_SEGMENTS}.
      */
     private double autoLevelArcSliceLength = 0.01;
+
+    /**
+     * Whether arcs are expanded into line segments or kept, with Z shifted only at the ends.
+     * Null when an older settings file is loaded; {@link #getArcMode()} treats that as line segments.
+     */
+    private AutoLevelArcMode arcMode = AutoLevelArcMode.LINE_SEGMENTS;
 
     /**
      * The fast probe scan rate in mm/min
@@ -65,7 +72,7 @@ public class AutoLevelSettings implements Serializable {
     }
 
     public boolean equals(AutoLevelSettings obj) {
-        return this.minX == obj.minX && this.minY == obj.minY && this.minZ == obj.minZ && this.maxX == obj.maxX && this.maxY == obj.maxY && this.maxZ == obj.maxZ && Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) && this.touchPlateThickness == obj.touchPlateThickness && this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength && this.stepResolution == obj.stepResolution && this.probeSpeed == obj.probeSpeed && this.probeScanFeedRate == obj.probeScanFeedRate && this.zRetract == obj.zRetract && this.zSurface == obj.zSurface;
+        return this.minX == obj.minX && this.minY == obj.minY && this.minZ == obj.minZ && this.maxX == obj.maxX && this.maxY == obj.maxY && this.maxZ == obj.maxZ && Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) && this.touchPlateThickness == obj.touchPlateThickness && this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength && this.getArcMode() == obj.getArcMode() && this.stepResolution == obj.stepResolution && this.probeSpeed == obj.probeSpeed && this.probeScanFeedRate == obj.probeScanFeedRate && this.zRetract == obj.zRetract && this.zSurface == obj.zSurface;
     }
 
     public void setSettingChangeListener(SettingChangeListener settingChangeListener) {
@@ -232,6 +239,18 @@ public class AutoLevelSettings implements Serializable {
         }
     }
 
+    public AutoLevelArcMode getArcMode() {
+        return arcMode == null ? AutoLevelArcMode.LINE_SEGMENTS : arcMode;
+    }
+
+    public void setArcMode(AutoLevelArcMode arcMode) {
+        AutoLevelArcMode value = arcMode == null ? AutoLevelArcMode.LINE_SEGMENTS : arcMode;
+        if (this.arcMode != value) {
+            this.arcMode = value;
+            changed();
+        }
+    }
+
     public boolean getApplyToGcode() {
         return applyToGcode;
     }
@@ -248,6 +267,7 @@ public class AutoLevelSettings implements Serializable {
             autoLevelProbeOffset = settings.getAutoLevelProbeOffset();
             touchPlateThickness = settings.getTouchPlateThickness();
             autoLevelArcSliceLength = settings.getAutoLevelArcSliceLength();
+            arcMode = settings.getArcMode();
             probeScanFeedRate = settings.getProbeScanFeedRate();
             probeSpeed = settings.getProbeSpeed();
             stepResolution = settings.getStepResolution();

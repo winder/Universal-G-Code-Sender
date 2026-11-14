@@ -115,6 +115,12 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void removeCommandProcessor(CommandProcessor commandProcessor) throws Exception;
 
     /**
+     * Swaps one command processor for another and rebuilds the loaded program once.
+     * Either processor may be null to only add or only remove.
+     */
+    void replaceCommandProcessor(CommandProcessor previous, CommandProcessor next) throws Exception;
+
+    /**
      * Process the currently loaded gcode file and export it to a file.
      * Intended primarily as "save and export" style preprocessor option.
      * @param f location to export processed gcode

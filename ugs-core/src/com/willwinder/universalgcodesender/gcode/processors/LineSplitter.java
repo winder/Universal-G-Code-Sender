@@ -34,24 +34,22 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Split lines into a series of smaller line segments.
+ * Shared G0/G1 splitting. Subclasses decide where a straight move is cut.
  *
  * @author wwinder
  */
-public class LineSplitter implements CommandProcessor {
-    final double maxSegmentLength;
-
-    /**
-     * @param segmentLength length of longest single line.
-     */
-    public LineSplitter(double segmentLength) {
-        this.maxSegmentLength = segmentLength;
-    }
+public abstract class LineSplitter implements CommandProcessor {
 
     @Override
     public String getHelp() {
         return "Split G0 and G1 commands into multiple commands.";
     }
+
+    /**
+     * Parameters {@code t} in {@code (0, 1)} where the move from {@code start} to {@code end} is cut.
+     * Empty when the move should be left unchanged.
+     */
+    protected abstract List<Double> splitParameters(Position start, Position end);
 
     private Code hasLine(List<GcodeMeta> commands) {
         if (commands == null) return null;
@@ -78,9 +76,6 @@ public class LineSplitter implements CommandProcessor {
         }
 
         SplitCommand sc = GcodePreprocessorUtils.extractMotion(code, commandString);
-        if (sc.remainder.length() > 0) {
-            results.add(sc.remainder);
-        }
 
         GcodeMeta command = Iterables.getLast(commands);
 
@@ -92,37 +87,31 @@ public class LineSplitter implements CommandProcessor {
             return Collections.singletonList(commandString);
         }
 
-        // line length
         Position start = state.currentPoint;
         Position end = command.point.point();
-        Position current = start;
-        double length = start.distanceXYZ(end);
+        List<Double> splits = splitParameters(start, end);
 
-        // Check if line needs splitting.
-        if (length > this.maxSegmentLength) {
-            int numSegments = (int) Math.ceil(length/this.maxSegmentLength);
-            double segmentLength = length / Math.ceil(length / this.maxSegmentLength);
-
-            // Create line segments, stop before the last one which uses the end point.
-            for (int i = 1; i < numSegments; i++) {
-                double k = 1 / (length / (i * segmentLength));
-                double newX = start.x + k * (end.x - start.x);
-                double newY = start.y + k * (end.y - start.y);
-                double newZ = start.z + k * (end.z - start.z);
-
-                Position next = new Position(newX, newY, newZ, start.getUnits());
-                results.add(GcodePreprocessorUtils.generateLineFromPoints(
-                        command.code, current, next, command.state.inAbsoluteMode, null));
-                current = next;
-            }
-
-            // Add the last line point.
-            results.add(GcodePreprocessorUtils.generateLineFromPoints(
-                    command.code, current, end, command.state.inAbsoluteMode, null));
-        } else {
+        // Modal words stay on the original command unless the move is actually split.
+        if (splits.isEmpty()) {
             return Collections.singletonList(commandString);
         }
 
+        if (sc.remainder.length() > 0) {
+            results.add(sc.remainder);
+        }
+        Position current = start;
+        for (double k : splits) {
+            Position next = new Position(
+                    start.x + k * (end.x - start.x),
+                    start.y + k * (end.y - start.y),
+                    start.z + k * (end.z - start.z),
+                    start.getUnits());
+            results.add(GcodePreprocessorUtils.generateLineFromPoints(
+                    command.code, current, next, command.state.inAbsoluteMode, null));
+            current = next;
+        }
+        results.add(GcodePreprocessorUtils.generateLineFromPoints(
+                command.code, current, end, command.state.inAbsoluteMode, null));
         return results;
     }
 }

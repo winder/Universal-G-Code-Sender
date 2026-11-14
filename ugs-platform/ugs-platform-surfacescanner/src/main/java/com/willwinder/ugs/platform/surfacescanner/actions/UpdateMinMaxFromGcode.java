@@ -24,9 +24,11 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 
 import javax.swing.AbstractAction;
@@ -34,7 +36,6 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
 import static com.willwinder.ugs.platform.surfacescanner.Utils.getRoundPosition;
-import static com.willwinder.ugs.platform.surfacescanner.Utils.removeProbeData;
 
 public class UpdateMinMaxFromGcode extends AbstractAction implements UGSEventListener {
 
@@ -63,20 +64,17 @@ public class UpdateMinMaxFromGcode extends AbstractAction implements UGSEventLis
             return;
         }
 
-        if (!removeProbeData(surfaceScanner)) {
-            return;
-        }
-
         Settings.FileStats fs = backend.getSettings().getFileStats();
         Position min = fs.minCoordinate.getPositionIn(backend.getSettings().getPreferredUnits());
         Position max = fs.maxCoordinate.getPositionIn(backend.getSettings().getPreferredUnits());
 
-        // We need to round the positions
-        backend.getSettings().getAutoLevelSettings().setMin(getRoundPosition(min));
-        backend.getSettings().getAutoLevelSettings().setMax(getRoundPosition(max));
-
-        // Reset the scanner
-        surfaceScanner.reset();
+        // The scan region follows the file. Sampled points stay until the user clears them.
+        AutoLevelSettings autoLevelSettings = backend.getSettings().getAutoLevelSettings();
+        autoLevelSettings.setMin(getRoundPosition(min));
+        autoLevelSettings.setMax(getRoundPosition(max));
+        surfaceScanner.update(
+                new Position(autoLevelSettings.getMinX(), autoLevelSettings.getMinY(), autoLevelSettings.getMinZ(), Units.MM),
+                new Position(autoLevelSettings.getMaxX(), autoLevelSettings.getMaxY(), autoLevelSettings.getMaxZ(), Units.MM));
     }
 
     @Override

@@ -29,8 +29,10 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Adjust Z heights based on a provided surface mesh.
@@ -47,11 +49,7 @@ public class MeshLeveler implements CommandProcessor {
     public final static String ERROR_UNEXPECTED_ARC = "The mesh leveler cannot process arcs. Enable the arc expander.";
     public final static String ERROR_MISSING_POINT_DATA = "Internal parser error: missing data. ";
     private final double materialSurfaceHeightMM;
-    private final Position[][] surfaceMesh;
-    private Position lowerLeft;
-    private Position topRight;
-    private final int xLen, yLen;
-    private final double resolution;
+    private final DelaunaySurfaceInterpolator surface;
     private final Units surfaceMeshUnits;
 
     /**
@@ -59,82 +57,29 @@ public class MeshLeveler implements CommandProcessor {
      * @param surfaceMesh             2D array in the format Position[x][y]
      */
     public MeshLeveler(double materialSurfaceHeightMM, Position[][] surfaceMesh) {
-        if (surfaceMesh == null) {
+        this(materialSurfaceHeightMM, flatten(surfaceMesh));
+    }
+
+    /**
+     * @param materialSurfaceHeightMM Z height used in offset.
+     * @param surfacePoints           arbitrary surface samples in one unit system
+     */
+    public MeshLeveler(double materialSurfaceHeightMM, List<Position> surfacePoints) {
+        if (surfacePoints == null || surfacePoints.isEmpty()) {
             throw new IllegalArgumentException("Surface mesh is required.");
         }
-
         this.materialSurfaceHeightMM = materialSurfaceHeightMM;
-        this.yLen = surfaceMesh[0].length;
-        this.xLen = surfaceMesh.length;
-
-        validateMesh(surfaceMesh);
-        this.surfaceMesh = surfaceMesh;
-        this.surfaceMeshUnits = surfaceMesh[0][0].getUnits();
-        this.resolution = Math.max(
-                surfaceMesh[1][0].x - surfaceMesh[0][0].x,
-                surfaceMesh[0][1].y - surfaceMesh[0][0].y);
-
-        recalculateBounds();
+        this.surface = new DelaunaySurfaceInterpolator(surfacePoints);
+        this.surfaceMeshUnits = surface.getUnits();
     }
 
-    private void recalculateBounds() {
-        this.lowerLeft = surfaceMesh[0][0];
-        this.topRight = new Position(this.lowerLeft);
-
-        for (Position[] row : surfaceMesh) {
-            for (Position cell : row) {
-                this.topRight.setX(Math.max(cell.getX(), this.topRight.getX()));
-                this.topRight.setY(Math.max(cell.getY(), this.topRight.getY()));
-            }
+    private static List<Position> flatten(Position[][] surfaceMesh) {
+        if (surfaceMesh == null || surfaceMesh.length == 0 || surfaceMesh[0] == null) {
+            throw new IllegalArgumentException("Surface mesh is required.");
         }
-    }
-
-    private void validateMesh(Position[][] surfaceMesh) {
-        // Validate that points form a rectangular 2D array.
-        for (Position[] arr : surfaceMesh) {
-            if (arr.length != yLen) {
-                throw new IllegalArgumentException(ERROR_MESH_SHAPE);
-            }
-        }
-
-        // Need at least 4 points for bilinear interpolation.
-        if (xLen < 2 || yLen < 2) {
-            throw new IllegalArgumentException(ERROR_NOT_ENOUGH_SAMPLES);
-        }
-
-        // Verify that x points are aligned and y points are ascending.
-        for (int xIdx = 0; xIdx < xLen; xIdx++) {
-            double xCoord = surfaceMesh[xIdx][0].x;
-            double yCoord = surfaceMesh[xIdx][0].y;
-            for (int yIdx = 0; yIdx < yLen; yIdx++) {
-                if (surfaceMesh[xIdx][yIdx].x != xCoord) {
-                    String err = "@ " + xIdx + ", " + yIdx + ": (" + xCoord + " != " + surfaceMesh[xIdx][yIdx].x + ")";
-                    throw new IllegalArgumentException(ERROR_X_ALIGNMENT + err);
-                }
-                if (yCoord > surfaceMesh[xIdx][yIdx].y) {
-                    String err = "@ " + xIdx + ", " + yIdx + ": (" + yCoord + " !<= " + surfaceMesh[xIdx][yIdx].y + ")";
-                    throw new IllegalArgumentException(ERROR_Y_ASCENTION + err);
-                }
-                yCoord = surfaceMesh[xIdx][yIdx].y;
-            }
-        }
-
-        // Verify that y points are aligned and x points are ascending.
-        for (int yIdx = 0; yIdx < yLen; yIdx++) {
-            double xCoord = surfaceMesh[0][yIdx].x;
-            double yCoord = surfaceMesh[0][yIdx].y;
-            for (int xIdx = 0; xIdx < xLen; xIdx++) {
-                if (surfaceMesh[xIdx][yIdx].y != yCoord) {
-                    String err = "@ " + xIdx + ", " + yIdx + ": (" + yCoord + " != " + surfaceMesh[xIdx][yIdx].y + ")";
-                    throw new IllegalArgumentException(ERROR_Y_ALIGNMENT + err);
-                }
-                if (xCoord > surfaceMesh[xIdx][yIdx].x) {
-                    String err = "@ " + xIdx + ", " + yIdx + ": (" + xCoord + " !<= " + surfaceMesh[xIdx][yIdx].x + ")";
-                    throw new IllegalArgumentException(ERROR_X_ASCENTION + err);
-                }
-                xCoord = surfaceMesh[xIdx][yIdx].x;
-            }
-        }
+        return Arrays.stream(surfaceMesh)
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toList());
     }
 
     private boolean ensureJustLines(List<GcodeMeta> commands) throws GcodeParserException {
@@ -212,53 +157,11 @@ public class MeshLeveler implements CommandProcessor {
         return adjustedCommands.build();
     }
 
-    protected Position[][] findBoundingArea(double x, double y) {
-        double xOffset = x - this.lowerLeft.x;
-        double yOffset = y - this.lowerLeft.y;
-
-        int xIdx = (int) ((xOffset == 0) ? 0 : (xOffset / this.resolution));
-        int yIdx = (int) ((yOffset == 0) ? 0 : (yOffset / this.resolution));
-
-        // Clamp bounds
-        xIdx = Math.min(xIdx, this.xLen - 2);
-        yIdx = Math.min(yIdx, this.yLen - 2);
-        xIdx = Math.max(xIdx, 0);
-        yIdx = Math.max(yIdx, 0);
-
-        return new Position[][]{
-                {this.surfaceMesh[xIdx][yIdx], this.surfaceMesh[xIdx][yIdx + 1]},
-                {this.surfaceMesh[xIdx + 1][yIdx], this.surfaceMesh[xIdx + 1][yIdx + 1]}
-        };
-    }
-
     /**
-     * Get the surface height from the mesh and returns it in the surface mesh units.
-     * <p>
-     * Bilinear interpolation:
-     * http://supercomputingblog.com/graphics/coding-bilinear-interpolation/
+     * Get the surface height and return it in the surface mesh units.
      */
     protected double surfaceHeightAt(double x, double y) {
-        // Do not adjust Z outside the probed area
-        if (x < lowerLeft.getX() || x > topRight.getX() || y < lowerLeft.getY() || y > topRight.getY()) {
-            return 0;
-        }
-
-        Position[][] q = findBoundingArea(x, y);
-
-        Position Q11 = q[0][0];
-        Position Q21 = q[1][0];
-        Position Q12 = q[0][1];
-        Position Q22 = q[1][1];
-
-        double x1 = Q11.x;
-        double x2 = Q21.x;
-        double y1 = Q11.y;
-        double y2 = Q12.y;
-
-        double R1 = ((x2 - x) / (x2 - x1)) * Q11.z + ((x - x1) / (x2 - x1)) * Q21.z;
-        double R2 = ((x2 - x) / (x2 - x1)) * Q12.z + ((x - x1) / (x2 - x1)) * Q22.z;
-
-        return ((y2 - y) / (y2 - y1)) * R1 + ((y - y1) / (y2 - y1)) * R2;
+        return surface.surfaceHeightAt(x, y);
     }
 
     @Override

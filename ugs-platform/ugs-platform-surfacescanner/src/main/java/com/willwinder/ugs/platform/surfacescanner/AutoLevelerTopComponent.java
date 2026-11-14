@@ -84,9 +84,10 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
             autoLevelerPanel.setUnits(backend.getSettings().getPreferredUnits());
         } else if (evt instanceof FileStateEvent) {
             FileState fileState = ((FileStateEvent) evt).getFileState();
-            if (fileState == FileState.OPENING_FILE) {
-                // file open clears the backend CommandProcessor list
-                // (despite what the javadoc for applyCommandProcessor would suggest)
+            if (fileState == FileState.OPENING_FILE && meshLevelManager != null) {
+                // Opening or reloading a file resets the gcode parser and drops the surface
+                // processor. Install it again from the points that are already sampled.
+                meshLevelManager.reapply();
                 updatePreview();
             }
         } else if (evt instanceof ControllerStatusEvent) {
@@ -140,7 +141,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
         if (autoLevelPreview != null) {
             autoLevelPreview.updateSettings(
                     scanner.getProbeStartPositions(),
-                    scanner.getProbePositionGrid(),
+                    scanner.getScannedPoints(),
                     scanner.getProbeAreaMinZ(),
                     scanner.getTouchPlateThickness()
             );
@@ -166,7 +167,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
         // Update the settings
         backend.getSettings().getAutoLevelSettings().apply(autoLevelerPanel.getSettings());
         scanner.update(autoLevelerPanel.getMinPosition(), autoLevelerPanel.getMaxPosition());
-        scanner.reset();
         updatePreview();
     }
 

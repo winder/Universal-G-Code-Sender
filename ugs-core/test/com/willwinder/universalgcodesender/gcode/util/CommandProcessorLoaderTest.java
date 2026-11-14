@@ -151,6 +151,6 @@ public class CommandProcessorLoaderTest {
         assertEquals(CommandLengthProcessor.class, processors.get(6).getClass());
         assertEquals(WhitespaceProcessor.class, processors.get(7).getClass());
         assertEquals(SpindleOnDweller.class, processors.get(8).getClass());
-        assertEquals(LineSplitter.class, processors.get(9).getClass());
+        assertEquals(LineSplitterDistance.class, processors.get(9).getClass());
     }
 }

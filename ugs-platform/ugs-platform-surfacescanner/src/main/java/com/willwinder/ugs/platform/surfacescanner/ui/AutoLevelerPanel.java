@@ -20,7 +20,7 @@ package com.willwinder.ugs.platform.surfacescanner.ui;
 
 import com.willwinder.ugs.platform.surfacescanner.MeshLevelManager;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
-import com.willwinder.ugs.platform.surfacescanner.Utils;
+import com.willwinder.ugs.platform.surfacescanner.actions.CaptureSurfacePointAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.ScanSurfaceAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.ToggleApplyToGcodeAction;
 import com.willwinder.ugs.platform.surfacescanner.actions.TogglePreviewAction;
@@ -40,7 +40,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import java.util.Set;
@@ -62,6 +65,7 @@ public class AutoLevelerPanel extends JPanel {
     private PercentSpinner zRetract;
     private UnitSpinner zSurface;
     private boolean updatingControls = false;
+    private JTable manualPointTable;
 
     public AutoLevelerPanel(SurfaceScanner surfaceScanner, MeshLevelManager meshLevelManager, AutoLevelPreview autoLevelPreview, AutoLevelSettings autoLevelSettings, UnitUtils.Units units) {
         this.surfaceScanner = surfaceScanner;
@@ -130,7 +134,19 @@ public class AutoLevelerPanel extends JPanel {
         JPanel jPanel3 = new JPanel(new MigLayout("fill"));
         jPanel3.add(new JLabel(" "), "growx, spanx, wrap");
         jPanel3.add(new JButton(new ScanSurfaceAction(surfaceScanner)), "growx, wrap");
-        jPanel3.add(new JLabel(" "), "growx, spanx, wrap");
+        jPanel3.add(new JSeparator(), "growx, gaptop 12, gapbottom 12, wrap");
+        jPanel3.add(new JButton(new CaptureSurfacePointAction(surfaceScanner)), "growx, wrap");
+        manualPointTable = new JTable(new ManualPointTableModel(surfaceScanner));
+        manualPointTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        manualPointTable.setFillsViewportHeight(true);
+        jPanel3.add(new JScrollPane(manualPointTable), "grow, h 90, wrap");
+        JButton removePoint = new JButton(Localization.getString("autoleveler.panel.remove-point"));
+        removePoint.addActionListener(e -> surfaceScanner.removeManualPoint(manualPointTable.getSelectedRow()));
+        jPanel3.add(removePoint, "growx, split 2");
+        JButton clearPoints = new JButton(Localization.getString("autoleveler.panel.clear-points"));
+        clearPoints.addActionListener(e -> surfaceScanner.clearManualPoints());
+        jPanel3.add(clearPoints, "growx, wrap");
+        jPanel3.add(new JLabel(Localization.getString("autoleveler.panel.manual-status")), "growx, wrap");
         jPanel3.add(new JCheckBox(new TogglePreviewAction(autoLevelPreview)), "growx, wrap");
         jPanel3.add(new JCheckBox(new ToggleTouchPlateAction(autoLevelPreview)), "growx, wrap");
         jPanel3.add(new JCheckBox(new ToggleApplyToGcodeAction(meshLevelManager)), "growx, wrap");
@@ -160,13 +176,7 @@ public class AutoLevelerPanel extends JPanel {
             return;
         }
 
-        AutoLevelSettings newSettings = copySettings();
-
-        if (!Utils.removeProbeData(surfaceScanner)) {
-            return;
-        }
-
-        autoLevelSettings.apply(newSettings);
+        autoLevelSettings.apply(copySettings());
         updateSpinnerLimits();
     }
 
@@ -240,6 +250,9 @@ public class AutoLevelerPanel extends JPanel {
 
     @Override
     public void setEnabled(boolean enabled) {
+        if (manualPointTable != null) {
+            manualPointTable.setEnabled(enabled);
+        }
         stepResolution.setEnabled(enabled);
         zRetract.setEnabled(enabled);
         xMin.setEnabled(enabled);
