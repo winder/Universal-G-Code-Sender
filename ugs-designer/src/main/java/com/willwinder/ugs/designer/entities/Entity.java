@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2024 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -63,6 +63,14 @@ public interface Entity {
      * @param entityListener a listener that will receive events
      */
     void addListener(EntityListener entityListener);
+
+    /**
+     * Notifies the listeners of the entity, such as when it has been changed through
+     * {@link #applyTransform(AffineTransform)} which does not notify by itself
+     *
+     * @param entityEvent the event to send
+     */
+    void notifyEvent(EntityEvent entityEvent);
 
     /**
      * Removes an entity listener that no longer will notified on entity events

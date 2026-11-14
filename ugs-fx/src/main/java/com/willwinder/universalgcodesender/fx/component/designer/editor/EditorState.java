@@ -18,6 +18,10 @@
  */
 package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
+import com.willwinder.ugs.designer.constraint.Constraint;
+import com.willwinder.ugs.designer.constraint.ConstraintManager;
+import com.willwinder.ugs.designer.constraint.ConstraintPlacement;
+import com.willwinder.ugs.designer.constraint.DimensionLine;
 import com.willwinder.ugs.designer.entities.Entity;
 
 import java.awt.Shape;
@@ -52,6 +56,9 @@ public final class EditorState {
     private HandleSet.Handle hoveredHandle;
     private Entity hoveredEntity;
     private List<VertexHandle> vertices = List.of();
+    private List<ConstraintPlacement.Marker> snapMarkers = List.of();
+    private Constraint hoveredConstraint;
+    private DimensionLine previewDimension;
     private String readout;
     private Point2D readoutPosition;
 
@@ -95,6 +102,40 @@ public final class EditorState {
         this.vertices = List.copyOf(vertices);
     }
 
+    public List<ConstraintPlacement.Marker> snapMarkers() {
+        return snapMarkers;
+    }
+
+    public void setSnapMarkers(List<ConstraintPlacement.Marker> snapMarkers) {
+        this.snapMarkers = List.copyOf(snapMarkers);
+    }
+
+    public Constraint hoveredConstraint() {
+        return hoveredConstraint;
+    }
+
+    /**
+     * Whether the constraint's dimension is drawn highlighted, as it is when selected or hovered.
+     */
+    public boolean isHighlighted(Constraint constraint, ConstraintManager constraintManager) {
+        return constraint == hoveredConstraint || constraintManager.getSelectedConstraint().orElse(null) == constraint;
+    }
+
+    public void setHoveredConstraint(Constraint hoveredConstraint) {
+        this.hoveredConstraint = hoveredConstraint;
+    }
+
+    public DimensionLine previewDimension() {
+        return previewDimension;
+    }
+
+    /**
+     * Shows the dimension of a constraint being placed, drawn with its arrows. Pass null to hide it.
+     */
+    public void setPreviewDimension(DimensionLine previewDimension) {
+        this.previewDimension = previewDimension;
+    }
+
     public String readout() {
         return readout;
     }
@@ -118,6 +159,7 @@ public final class EditorState {
     public void clearTransient() {
         rubberBand = null;
         preview = null;
+        previewDimension = null;
         readout = null;
         readoutPosition = null;
     }

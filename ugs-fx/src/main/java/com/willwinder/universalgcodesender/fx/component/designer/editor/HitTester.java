@@ -18,9 +18,10 @@
  */
 package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
+import com.willwinder.ugs.designer.constraint.Constraint;
+import com.willwinder.ugs.designer.constraint.DimensionLine;
+import com.willwinder.ugs.designer.constraint.ShapeSnapping;
 import com.willwinder.ugs.designer.entities.Entity;
-import com.willwinder.ugs.designer.entities.EntityGroup;
-import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.logic.Controller;
 
 import java.awt.BasicStroke;
@@ -30,6 +31,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Finds the design entities under a point or inside a rectangle, in design coordinates.
@@ -56,7 +58,7 @@ public final class HitTester {
     public List<Entity> entitiesAt(Point2D point, double tolerance) {
         return candidates().stream()
                 .filter(entity -> hits(entity, point, tolerance))
-                .sorted(Comparator.comparingDouble(HitTester::area))
+                .sorted(Comparator.comparingDouble(ShapeSnapping::area))
                 .toList();
     }
 
@@ -69,11 +71,27 @@ public final class HitTester {
                 .toList();
     }
 
+    /**
+     * The best point of a visible entity's shape near the point, see {@link ShapeSnapping#snapAt}.
+     */
+    public Optional<ShapeSnapping.Snap> snapAt(Point2D point, double tolerance) {
+        return ShapeSnapping.snapAt(candidates(), point, tolerance);
+    }
+
+    /**
+     * The constraint whose label is under the point or whose dimension line is closest to it,
+     * within {@code tolerance} millimeters, the dimensions drawn as they are on screen.
+     *
+     * @param highlighted        the constraints drawn highlighted, as the selected and hovered ones
+     * @param worldUnitsPerPixel the size of a pixel, as the labels are sized in pixels
+     */
+    public Optional<Constraint> constraintAt(Point2D point, Predicate<Constraint> highlighted, double tolerance, double worldUnitsPerPixel) {
+        return DimensionLine.constraintAt(controller.getModel().getConstraintManager().getActiveConstraints(), highlighted, point, tolerance,
+                worldUnitsPerPixel);
+    }
+
     private List<Entity> candidates() {
-        return controller.getModel().getEntities().stream()
-                .filter(entity -> !(entity instanceof EntityGroup))
-                .filter(entity -> !(entity instanceof Cuttable cuttable && cuttable.isHidden()))
-                .toList();
+        return controller.getModel().getPickableEntities();
     }
 
     private static boolean hits(Entity entity, Point2D point, double tolerance) {
@@ -91,8 +109,4 @@ public final class HitTester {
         return outline.contains(point);
     }
 
-    private static double area(Entity entity) {
-        Rectangle2D bounds = entity.getBounds();
-        return bounds == null ? Double.MAX_VALUE : bounds.getWidth() * bounds.getHeight();
-    }
 }

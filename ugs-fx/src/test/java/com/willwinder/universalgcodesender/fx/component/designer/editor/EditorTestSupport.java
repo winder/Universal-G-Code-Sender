@@ -1,5 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
+import com.willwinder.ugs.designer.constraint.DistanceConstraint;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.designer.logic.Tool;
@@ -13,6 +14,8 @@ import javafx.scene.input.MouseEvent;
 
 import java.awt.geom.Point2D;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.DoubleConsumer;
 
 /**
  * Shared set up for the editor tests: a fresh drawing on the designer's controller, a camera
@@ -40,10 +43,16 @@ final class EditorTestSupport {
     }
 
     static ToolContext toolContext(Controller controller, Camera camera, EditorState state) {
+        return toolContext(controller, camera, state, (_, _) -> {
+        });
+    }
+
+    static ToolContext toolContext(Controller controller, Camera camera, EditorState state,
+                                   BiConsumer<DistanceConstraint, DoubleConsumer> distanceEditor) {
         return new ToolContext(controller, camera, new HitTester(controller),
                 new Snapper(() -> controller.getModel().getSnapToGrid()), state, () -> {
-        }, text -> {
-        });
+        }, _ -> {
+        }, distanceEditor);
     }
 
     static Point2D design(double x, double y) {

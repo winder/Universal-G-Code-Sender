@@ -18,8 +18,12 @@
  */
 package com.willwinder.universalgcodesender.fx.component.designer.render;
 
+import com.willwinder.ugs.designer.constraint.ConstraintManager;
+import com.willwinder.ugs.designer.constraint.ConstraintPlacement;
+import com.willwinder.ugs.designer.constraint.DimensionLine;
 import com.willwinder.ugs.designer.logic.Tool;
 import com.willwinder.universalgcodesender.fx.component.designer.editor.DesignEditor;
+import com.willwinder.universalgcodesender.fx.component.designer.editor.DimensionStyle;
 import com.willwinder.universalgcodesender.fx.component.designer.editor.EditorState;
 import com.willwinder.universalgcodesender.fx.component.designer.editor.HandleSet;
 import com.willwinder.universalgcodesender.fx.component.designer.editor.VertexTool;
@@ -60,6 +64,7 @@ public final class HandlesRenderable implements Renderable {
     private static final int ROTATE_HANDLE_SIDES = 12;
     private static final double HOVER_TINT = 0.25;
     private static final double HOVER_BRIGHTNESS = 1.15;
+    private static final double SNAP_MARKER_PX = 7;
 
     private final DesignEditor editor;
     private final Map<Color, List<Float>> trianglesByColor = new LinkedHashMap<>();
@@ -85,8 +90,16 @@ public final class HandlesRenderable implements Renderable {
         LineMeshBuilder frameLines = new LineMeshBuilder(64);
         LineMeshBuilder curveHandleLines = new LineMeshBuilder(8);
         LineMeshBuilder vertexOutlines = new LineMeshBuilder(64);
+        LineMeshBuilder dimensionLines = new LineMeshBuilder(32);
 
         editor.controller().ifPresent(controller -> {
+            ConstraintManager constraintManager = controller.getModel().getConstraintManager();
+            DimensionLine.allOf(constraintManager.getActiveConstraints(), constraint -> state.isHighlighted(constraint, constraintManager))
+                    .forEach(drawn -> addDimension(dimensionLines, context, drawn.dimension(),
+                            DimensionStyle.color(drawn.highlighted())));
+            if (state.previewDimension() != null) {
+                addDimension(dimensionLines, context, state.previewDimension(), DimensionStyle.color(true));
+            }
             if (editor.currentToolType() == Tool.SELECT || editor.currentToolType() == Tool.VERTEX) {
                 addFrame(frameLines, HandleSet.frame(controller.getSelectionManager()));
             }
@@ -95,6 +108,7 @@ public final class HandlesRenderable implements Renderable {
             addHandle(frameLines, handle, handle.isSameHandle(state.hoveredHandle()));
         }
         addVertices(state, context, curveHandleLines, vertexOutlines);
+        addSnapMarkers(state, context, vertexOutlines);
         if (state.rubberBand() != null) {
             addTriangles(RUBBER_BAND_FILL, rectangleTriangles(state.rubberBand()));
             addOutline(frameLines, state.rubberBand(), FRAME_COLOR);
@@ -103,6 +117,7 @@ public final class HandlesRenderable implements Renderable {
         List<MeshHandle> meshes = new ArrayList<>();
         // Lines to the curve handles go below the vertices so they do not cross their fill.
         drawLines(context, meshes, curveHandleLines, 1);
+        drawLines(context, meshes, dimensionLines, 1);
         for (Map.Entry<Color, List<Float>> batch : trianglesByColor.entrySet()) {
             MeshHandle mesh = context.upload(toArray(batch.getValue()), VertexLayout.MESH);
             meshes.add(mesh);
@@ -119,6 +134,34 @@ public final class HandlesRenderable implements Renderable {
             }
         }
         meshes.forEach(context::release);
+    }
+
+    private void addDimension(LineMeshBuilder lines, RenderContext context, DimensionLine dimension, Color color) {
+        Point2D start = dimension.anchor();
+        double worldPerPixel = context.camera().worldUnitsPerPixelAt(new Point3D(start.getX(), start.getY(), 0));
+        dimension.lines(worldPerPixel).forEach(line -> addLine(lines, line[0], line[1], color));
+        dimension.arrowheads(worldPerPixel).forEach(triangle -> {
+            float[] vertices = new float[3 * SceneMeshes.FLOATS_PER_VERTEX];
+            int offset = 0;
+            for (Point2D corner : triangle) {
+                offset = writeVertex(vertices, offset, corner.getX(), corner.getY());
+            }
+            addTriangles(color, vertices);
+        });
+    }
+
+    private static void addLine(LineMeshBuilder lines, Point2D from, Point2D to, Color color) {
+        lines.add(from.getX(), from.getY(), 0, to.getX(), to.getY(), 0, color);
+    }
+
+    private void addSnapMarkers(EditorState state, RenderContext context, LineMeshBuilder outlines) {
+        for (ConstraintPlacement.Marker marker : state.snapMarkers()) {
+            Point2D position = marker.position();
+            double worldPerPixel = context.camera().worldUnitsPerPixelAt(new Point3D(position.getX(), position.getY(), 0));
+            double radius = SNAP_MARKER_PX * worldPerPixel / 2 * Math.sqrt(2);
+            addTriangles(marker.highlighted() ? FRAME_COLOR : VERTEX_FILL, polygonTriangles(position, radius, 4));
+            addPolygonOutline(outlines, position, radius, 4, FRAME_COLOR);
+        }
     }
 
     private static void addFrame(LineMeshBuilder builder, List<Point2D> corners) {

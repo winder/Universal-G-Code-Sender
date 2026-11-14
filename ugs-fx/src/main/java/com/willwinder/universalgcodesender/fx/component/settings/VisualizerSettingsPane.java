@@ -79,7 +79,10 @@ public class VisualizerSettingsPane extends BorderPane {
                         createColorSetting("Shape background color", VisualizerSettings.getInstance().colorDesignShapeBackgroundProperty()),
                         createColorSetting("Resize handle color", VisualizerSettings.getInstance().colorDesignResizeProperty()),
                         createColorSetting("Rotation handle color", VisualizerSettings.getInstance().colorDesignRotationProperty()),
-                        createColorSetting("Move handle color", VisualizerSettings.getInstance().colorDesignMoveProperty())
+                        createColorSetting("Move handle color", VisualizerSettings.getInstance().colorDesignMoveProperty()),
+                        createColorSetting(Localization.getString("designer.constraint.color"), VisualizerSettings.getInstance().colorDesignConstraintProperty()),
+                        createColorSetting(Localization.getString("designer.constraint.color.label"), VisualizerSettings.getInstance().colorDesignConstraintLabelProperty()),
+                        createColorSetting(Localization.getString("designer.constraint.color.highlight"), VisualizerSettings.getInstance().colorDesignConstraintHighlightProperty())
                 )
         ));
     }

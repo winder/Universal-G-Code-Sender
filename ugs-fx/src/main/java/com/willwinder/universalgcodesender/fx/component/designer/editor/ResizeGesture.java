@@ -20,7 +20,6 @@ package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
 import com.willwinder.ugs.designer.actions.ResizeAction;
 import com.willwinder.ugs.designer.actions.UndoableAction;
-import com.willwinder.ugs.designer.entities.AbstractEntity;
 import com.willwinder.ugs.designer.entities.Anchor;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.EntityEvent;
@@ -315,9 +314,7 @@ final class ResizeGesture implements Gesture {
     }
 
     private static void notifyResized(Entity entity) {
-        if (entity instanceof AbstractEntity abstractEntity) {
-            abstractEntity.notifyEvent(new EntityEvent(entity, EventType.RESIZED));
-        }
+        entity.notifyEvent(new EntityEvent(entity, EventType.RESIZED));
     }
 
     /**

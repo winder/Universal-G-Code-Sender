@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
+import com.willwinder.ugs.designer.constraint.Constraint;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.ugs.designer.entities.cuttable.Text;
@@ -34,6 +35,9 @@ import java.util.Optional;
  * it, a press anywhere else starts a rubber band or a click selection. A double click on a
  * text entity opens the text editor, and on a path switches to the vertex tool to edit its nodes. With Shift held the press adds to or removes from the
  * selection instead of moving it, so already selected entities can be deselected one by one.
+ * <p>
+ * A press on the dimension of a constraint selects it and drags it, and a double click on it
+ * edits its distance.
  */
 public final class SelectTool implements EditorTool {
     private final ToolContext context;
@@ -46,6 +50,13 @@ public final class SelectTool implements EditorTool {
     @Override
     public void onPressed(PointerEvent event, Point2D design) {
         Optional<HandleSet.Handle> handle = handleAt(design);
+        Optional<Constraint> constraint = handle.isEmpty() ? context.constraintAt(design) : Optional.empty();
+        if (constraint.isPresent()) {
+            gesture = new DimensionDragGesture(context, constraint.get());
+            gesture.begin(event, design);
+            return;
+        }
+        context.constraintManager().setSelectedConstraint(null);
         Optional<Path> doubleClickedPath = event.clickCount() == 2 && handle.isEmpty()
                 ? pathAt(design) : Optional.empty();
         if (doubleClickedPath.isPresent()) {
@@ -89,15 +100,17 @@ public final class SelectTool implements EditorTool {
     public void onMoved(PointerEvent event, Point2D design) {
         EditorState state = context.state();
         HandleSet.Handle handle = handleAt(design).orElse(null);
-        Entity entity = handle == null && !isInsideSelection(design)
+        Constraint constraint = handle == null ? context.constraintAt(design).orElse(null) : null;
+        Entity entity = handle == null && constraint == null && !isInsideSelection(design)
                 ? context.hitTester().entityAt(design, context.pickTolerance(design)).orElse(null)
                 : null;
         boolean handleChanged = handle == null
                 ? state.hoveredHandle() != null
                 : !handle.isSameHandle(state.hoveredHandle());
-        if (handleChanged || entity != state.hoveredEntity()) {
+        if (handleChanged || entity != state.hoveredEntity() || constraint != state.hoveredConstraint()) {
             state.setHoveredHandle(handle);
             state.setHoveredEntity(entity);
+            state.setHoveredConstraint(constraint);
             context.render();
         }
     }
@@ -107,6 +120,10 @@ public final class SelectTool implements EditorTool {
         Optional<HandleSet.Handle> handle = handleAt(design);
         if (handle.isPresent()) {
             return Optional.of(cursorFor(handle.get()));
+        }
+        Optional<Constraint> constraint = context.constraintAt(design);
+        if (constraint.isPresent()) {
+            return Optional.of(DimensionStyle.dragCursor(constraint.get()));
         }
         if (!event.isShiftDown() && isInsideSelection(design)) {
             return Optional.of(Cursor.MOVE);
@@ -123,6 +140,7 @@ public final class SelectTool implements EditorTool {
         context.state().clearTransient();
         context.state().setHoveredHandle(null);
         context.state().setHoveredEntity(null);
+        context.state().setHoveredConstraint(null);
     }
 
     public List<HandleSet.Handle> handles() {

@@ -19,8 +19,12 @@
 package com.willwinder.universalgcodesender.fx.component.designer;
 
 import com.willwinder.universalgcodesender.fx.actions.Action;
+import com.willwinder.universalgcodesender.fx.actions.DesignAlignmentAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignCircleAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignClipartAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignCoincidentAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignEqualSizeAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignConstraintAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignImportAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignLineAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignPointAction;
@@ -31,6 +35,7 @@ import com.willwinder.universalgcodesender.fx.actions.DesignTraceImageAction;
 import com.willwinder.universalgcodesender.fx.actions.DesignVertexAction;
 import com.willwinder.universalgcodesender.fx.control.ActionMenuItem;
 import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
+import com.willwinder.universalgcodesender.fx.control.ToolGroupButton;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
@@ -48,8 +53,9 @@ import java.util.stream.Stream;
 
 /**
  * The drawing tools, floating along the left edge of the visualizer while a design workspace is
- * open: the select and vertex tools, the shape tools and an insert menu for files, clipart and
- * traced images. The tool buttons stay highlighted while their tool is active in the designer.
+ * open: the select, vertex and constraint tools, the shape tools and an insert menu for files,
+ * clipart and traced images. The tool buttons stay highlighted while their tool is active in the
+ * designer.
  */
 public class DesignToolPalette extends VBox {
     private static final double SPACING = 2;
@@ -66,6 +72,8 @@ public class DesignToolPalette extends VBox {
         setAlignment(Pos.CENTER);
 
         addTools(List.of(DesignSelectAction.class, DesignVertexAction.class));
+        addToolGroup(List.of(DesignConstraintAction.class, DesignAlignmentAction.class, DesignCoincidentAction.class,
+                DesignEqualSizeAction.class));
         addDivider();
         addTools(List.of(DesignRectangleAction.class, DesignCircleAction.class, DesignPointAction.class,
                 DesignTextAction.class, DesignLineAction.class));
@@ -80,6 +88,16 @@ public class DesignToolPalette extends VBox {
                 .map(DesignToolPalette::action)
                 .flatMap(Optional::stream)
                 .forEach(action -> getChildren().add(new ToggleActionButton(action, iconSize, false)));
+    }
+
+    private void addToolGroup(List<Class<? extends Action>> actionClasses) {
+        List<Action> actions = actionClasses.stream()
+                .map(DesignToolPalette::action)
+                .flatMap(Optional::stream)
+                .toList();
+        if (!actions.isEmpty()) {
+            getChildren().add(new ToolGroupButton(actions, iconSize));
+        }
     }
 
     private void addDivider() {

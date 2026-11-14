@@ -1,12 +1,17 @@
 package com.willwinder.universalgcodesender.fx.component.designer.editor;
 
+import com.willwinder.ugs.designer.constraint.Axis;
+import com.willwinder.ugs.designer.constraint.DistanceConstraint;
+import com.willwinder.ugs.designer.constraint.ShapePoint;
+import com.willwinder.ugs.designer.constraint.ShapeSnapping;
 import com.willwinder.ugs.designer.entities.Anchor;
+import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.Tool;
-import com.willwinder.universalgcodesender.fx.component.visualizer.scene.Camera;
 import com.willwinder.universalgcodesender.fx.component.visualizer.input.PointerEvent;
+import com.willwinder.universalgcodesender.fx.component.visualizer.scene.Camera;
 import javafx.event.EventType;
 import javafx.scene.input.MouseEvent;
 import org.junit.Before;
@@ -375,5 +380,109 @@ public class SelectToolTest {
 
     private static PointerEvent shiftPointer(EventType<MouseEvent> type, double x, double y) {
         return pointer(type, x, y, true, false, 1);
+    }
+
+    @Test
+    public void click_onADimensionShouldSelectItInPlaceOfTheSelectedEntities() {
+        DistanceConstraint constraint = addDimensionAbove();
+        controller.getSelectionManager().setSelection(List.of(rectangle));
+
+        tool.onPressed(press(40, 30), design(40, 30));
+        tool.onReleased(release(40, 30), design(40, 30));
+
+        assertThat(controller.getModel().getConstraintManager().getSelectedConstraint()).contains(constraint);
+        assertThat(controller.getSelectionManager().getSelection()).isEmpty();
+    }
+
+    @Test
+    public void click_besideADimensionShouldDeselectIt() {
+        addDimensionAbove();
+        tool.onPressed(press(40, 30), design(40, 30));
+        tool.onReleased(release(40, 30), design(40, 30));
+
+        tool.onPressed(press(15, 15), design(15, 15));
+        tool.onReleased(release(15, 15), design(15, 15));
+
+        assertThat(controller.getModel().getConstraintManager().getSelectedConstraint()).isEmpty();
+        assertThat(controller.getSelectionManager().getSelection()).containsExactly(rectangle);
+    }
+
+    @Test
+    public void drag_onADimensionShouldMoveItAcrossItsAxis() {
+        DistanceConstraint constraint = addDimensionAbove();
+
+        tool.onPressed(press(40, 30), design(40, 30));
+        tool.onDragged(drag(45, 38), design(45, 38));
+        tool.onReleased(release(45, 38), design(45, 38));
+
+        assertThat(constraint.getOffset()).isCloseTo(23, within(1e-6));
+        assertThat(rectangle.getPosition().getX()).isCloseTo(10, within(1e-6));
+    }
+
+    @Test
+    public void drag_onADimensionShouldBeUndoable() {
+        DistanceConstraint constraint = addDimensionAbove();
+        tool.onPressed(press(40, 30), design(40, 30));
+        tool.onDragged(drag(40, 38), design(40, 38));
+        tool.onReleased(release(40, 38), design(40, 38));
+
+        controller.getUndoManager().undo();
+
+        assertThat(constraint.getOffset()).isCloseTo(15, within(1e-6));
+    }
+
+    @Test
+    public void doubleClick_onADimensionShouldEditItsDistance() {
+        DistanceConstraint constraint = addDimensionAbove();
+        SelectTool editingTool = new SelectTool(EditorTestSupport.toolContext(controller,
+                EditorTestSupport.topDownCamera(), state, (_, onDistance) -> onDistance.accept(5)));
+
+        editingTool.onPressed(pointer(MouseEvent.MOUSE_PRESSED, 40, 30, false, false, 2), design(40, 30));
+        editingTool.onReleased(pointer(MouseEvent.MOUSE_RELEASED, 40, 30, false, false, 2), design(40, 30));
+
+        assertThat(constraint.getDistance()).isCloseTo(5, within(1e-6));
+    }
+
+    @Test
+    public void onDragged_shouldMoveTheReferenceAlongWhenTheTargetIsMoved() {
+        DistanceConstraint constraint = addDimensionAbove();
+        Entity target = constraint.getTarget();
+        controller.getSelectionManager().setSelection(List.of(target));
+
+        tool.onPressed(press(55, 15), design(55, 15));
+        tool.onDragged(drag(60, 15), design(60, 15));
+        tool.onReleased(release(60, 15), design(60, 15));
+
+        assertThat(target.getPosition().getX()).isCloseTo(55, within(1e-6));
+        assertThat(rectangle.getPosition().getX()).isCloseTo(15, within(1e-6));
+    }
+
+    @Test
+    public void onDragged_shouldMoveBothConstrainedEntitiesWhenBothAreSelected() {
+        DistanceConstraint constraint = addDimensionAbove();
+        Entity target = constraint.getTarget();
+        controller.getSelectionManager().setSelection(List.of(rectangle, target));
+
+        tool.onPressed(press(55, 15), design(55, 15));
+        tool.onDragged(drag(60, 15), design(60, 15));
+        tool.onReleased(release(60, 15), design(60, 15));
+
+        assertThat(target.getPosition().getX()).isCloseTo(55, within(1e-6));
+        assertThat(rectangle.getPosition().getX()).isCloseTo(15, within(1e-6));
+    }
+
+    // A horizontal dimension from the rectangle's right edge to a second rectangle, drawn along y = 30
+    private DistanceConstraint addDimensionAbove() {
+        Rectangle other = new Rectangle(50, 10, 10, 10);
+        controller.getModel().insertEntity(other);
+        DistanceConstraint constraint = DistanceConstraint.measured(rectangle, at(rectangle, Anchor.BOTTOM_RIGHT), other,
+                at(other, Anchor.BOTTOM_LEFT), Axis.HORIZONTAL, 15);
+        controller.getModel().getConstraintManager().add(constraint);
+        controller.getUndoManager().clear();
+        return constraint;
+    }
+
+    private static ShapePoint at(Entity entity, Anchor anchor) {
+        return ShapeSnapping.pointAt(entity, entity.getPosition(anchor));
     }
 }

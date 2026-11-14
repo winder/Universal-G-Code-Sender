@@ -22,11 +22,13 @@ import com.willwinder.ugs.designer.Throttler;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.EntityGroup;
 import com.willwinder.ugs.designer.entities.controls.Control;
+import com.willwinder.ugs.designer.entities.controls.CreateConstraintControl;
 import com.willwinder.ugs.designer.entities.controls.CreateEllipseControl;
 import com.willwinder.ugs.designer.entities.controls.CreateLineControl;
 import com.willwinder.ugs.designer.entities.controls.CreatePointControl;
 import com.willwinder.ugs.designer.entities.controls.CreateRectangleControl;
 import com.willwinder.ugs.designer.entities.controls.CreateTextControl;
+import com.willwinder.ugs.designer.entities.controls.DimensionControl;
 import com.willwinder.ugs.designer.entities.controls.EditTextControl;
 import com.willwinder.ugs.designer.entities.controls.GridControl;
 import com.willwinder.ugs.designer.entities.controls.HighlightModelControl;
@@ -98,6 +100,8 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         globalRoot.addChild(controlsRoot);
         controlsRoot.addChild(new ResizeControlGroup(controller));
         controlsRoot.addChild(new HighlightModelControl(controller));
+        CreateConstraintControl createConstraintControl = new CreateConstraintControl(controller);
+        controlsRoot.addChild(new DimensionControl(controller, createConstraintControl));
         controlsRoot.addChild(new MoveControl(controller));
         controlsRoot.addChild(new RotationControl(controller));
         controlsRoot.addChild(new SelectionControl(controller));
@@ -109,6 +113,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         controlsRoot.addChild(new EditTextControl(controller));
         controlsRoot.addChild(new ZoomControl(controller));
         controlsRoot.addChild(new VertexControlGroup(controller));
+        controlsRoot.addChild(createConstraintControl);
 
         setFocusable(true);
         setBackground(Colors.BACKGROUND);

@@ -34,6 +34,23 @@ public final class MathExpressionParser {
     private MathExpressionParser() {
     }
 
+    /**
+     * Whether the text only has characters an expression may have, so it could become one while
+     * it is being typed.
+     */
+    public static boolean isExpressionText(String text) {
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            boolean allowed = (c >= '0' && c <= '9')
+                    || c == '.' || c == '+' || c == '-' || c == '*' || c == '/'
+                    || c == '(' || c == ')' || c == ' ';
+            if (!allowed) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static OptionalDouble tryEvaluate(String text) {
         if (text == null) {
             return OptionalDouble.empty();
@@ -42,14 +59,8 @@ public final class MathExpressionParser {
         if (trimmed.isEmpty()) {
             return OptionalDouble.empty();
         }
-        for (int i = 0; i < trimmed.length(); i++) {
-            char c = trimmed.charAt(i);
-            boolean ok = (c >= '0' && c <= '9')
-                    || c == '.' || c == '+' || c == '-' || c == '*' || c == '/'
-                    || c == '(' || c == ')' || c == ' ';
-            if (!ok) {
-                return OptionalDouble.empty();
-            }
+        if (!isExpressionText(trimmed)) {
+            return OptionalDouble.empty();
         }
         try {
             Parser p = new Parser(trimmed);

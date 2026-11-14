@@ -33,7 +33,8 @@ import java.util.List;
 
 /**
  * DeleteAction implements a single action where all Entities in a given
- * Selection are removed from a Drawing.
+ * Selection are removed from a Drawing, or the selected constraint when a
+ * constraint is selected.
  *
  * @author Joacim Breiler
  */
@@ -57,11 +58,17 @@ public class DeleteAction extends AbstractDesignAction implements SelectionListe
 
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
-        setEnabled(!selectionManager.getChildren().isEmpty());
+        controller.getModel().getConstraintManager().addListener(this::updateEnabled);
+        updateEnabled();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (controller.deleteSelectedConstraint()) {
+            controller.repaintDrawing();
+            return;
+        }
+
         SelectionManager selectionManager = controller.getSelectionManager();
         List<Entity> selection = selectionManager.getChildren();
         if (!selection.isEmpty()) {
@@ -74,8 +81,11 @@ public class DeleteAction extends AbstractDesignAction implements SelectionListe
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
-        SelectionManager selectionManager = controller.getSelectionManager();
-        setEnabled(!selectionManager.getChildren().isEmpty());
+        updateEnabled();
+    }
+
+    private void updateEnabled() {
+        setEnabled(controller.hasDeletableSelection());
     }
 
     /**

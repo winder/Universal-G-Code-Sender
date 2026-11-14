@@ -50,6 +50,9 @@ public class VisualizerSettings {
     private static final String COLOR_DESIGN_MOVE = "color.design.move";
     private static final String COLOR_DESIGN_SHAPE_OUTLINE = "color.design.shapeOutline";
     private static final String COLOR_DESIGN_SHAPE_BACKGROUND = "color.design.shapeBackground";
+    private static final String COLOR_DESIGN_CONSTRAINT = "color.design.constraint";
+    private static final String COLOR_DESIGN_CONSTRAINT_LABEL = "color.design.constraintLabel";
+    private static final String COLOR_DESIGN_CONSTRAINT_HIGHLIGHT = "color.design.constraintHighlight";
 
     private static final String MOUSE_INVERT_ZOOM = "mouse.invertZoom";
     private static final String MOUSE_INVERT_ROTATION = "mouse.invertRotation";
@@ -113,6 +116,9 @@ public class VisualizerSettings {
     private final StringProperty colorDesignMove = new SimpleStringProperty(loadString(COLOR_DESIGN_MOVE, "#4F9EB0FF"));
     private final StringProperty colorDesignShapeOutline = new SimpleStringProperty(loadString(COLOR_DESIGN_SHAPE_OUTLINE, "#4F9EB0FF"));
     private final StringProperty colorDesignShapeBackground = new SimpleStringProperty(loadString(COLOR_DESIGN_SHAPE_BACKGROUND, "#FFFFFFE5"));
+    private final StringProperty colorDesignConstraint = new SimpleStringProperty(loadString(COLOR_DESIGN_CONSTRAINT, "#B31A1AFF"));
+    private final StringProperty colorDesignConstraintLabel = new SimpleStringProperty(loadString(COLOR_DESIGN_CONSTRAINT_LABEL, "#990000FF"));
+    private final StringProperty colorDesignConstraintHighlight = new SimpleStringProperty(loadString(COLOR_DESIGN_CONSTRAINT_HIGHLIGHT, "#2F62B8FF"));
 
     private final BooleanProperty invertZoom = new SimpleBooleanProperty(loadBoolean(MOUSE_INVERT_ZOOM, false));
     private final BooleanProperty invertRotation = new SimpleBooleanProperty(loadBoolean(MOUSE_INVERT_ROTATION, false));
@@ -162,6 +168,9 @@ public class VisualizerSettings {
         colorDesignMove.addListener((obs, oldVal, newVal) -> saveString(COLOR_DESIGN_MOVE, newVal));
         colorDesignShapeOutline.addListener((obs, oldVal, newVal) -> saveString(COLOR_DESIGN_SHAPE_OUTLINE, newVal));
         colorDesignShapeBackground.addListener((obs, oldVal, newVal) -> saveString(COLOR_DESIGN_SHAPE_BACKGROUND, newVal));
+        colorDesignConstraint.addListener((_, _, newVal) -> saveString(COLOR_DESIGN_CONSTRAINT, newVal));
+        colorDesignConstraintLabel.addListener((_, _, newVal) -> saveString(COLOR_DESIGN_CONSTRAINT_LABEL, newVal));
+        colorDesignConstraintHighlight.addListener((_, _, newVal) -> saveString(COLOR_DESIGN_CONSTRAINT_HIGHLIGHT, newVal));
 
         invertZoom.addListener((obs, oldVal, newVal) -> saveBoolean(MOUSE_INVERT_ZOOM, newVal));
         invertRotation.addListener((obs, oldVal, newVal) -> saveBoolean(MOUSE_INVERT_ROTATION, newVal));
@@ -267,6 +276,27 @@ public class VisualizerSettings {
 
     public StringProperty colorDesignShapeBackgroundProperty() {
         return colorDesignShapeBackground;
+    }
+
+    /**
+     * The color of the dimensions and markers of constraints in the design.
+     */
+    public StringProperty colorDesignConstraintProperty() {
+        return colorDesignConstraint;
+    }
+
+    /**
+     * The color of the distance labels of constraints in the design.
+     */
+    public StringProperty colorDesignConstraintLabelProperty() {
+        return colorDesignConstraintLabel;
+    }
+
+    /**
+     * The color of a selected or hovered constraint in the design.
+     */
+    public StringProperty colorDesignConstraintHighlightProperty() {
+        return colorDesignConstraintHighlight;
     }
 
     public StringProperty machineModelProperty() {

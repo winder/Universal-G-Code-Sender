@@ -46,7 +46,7 @@ public class EntityGroupV1 extends EntityV1 {
     public Entity toInternal() {
         Group entityGroup = new Group();
         children.stream().map(EntityV1::toInternal).forEach(entityGroup::addChild);
-        entityGroup.setName(getName());
+        applyCommonAttributes(entityGroup);
         return entityGroup;
     }
 }

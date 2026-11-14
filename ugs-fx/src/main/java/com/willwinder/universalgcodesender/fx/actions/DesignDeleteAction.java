@@ -38,15 +38,19 @@ public class DesignDeleteAction extends AbstractDesignEditAction implements Sele
         setDefaultShortcut("DELETE");
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
-        enabledProperty().set(!selectionManager.getChildren().isEmpty());
+        controller.getModel().getConstraintManager().addListener(() -> setEnabledLater(hasSomethingToDelete()));
+        enabledProperty().set(hasSomethingToDelete());
     }
 
     /**
-     * Deletes the selected entities, unless the design editor deletes something within them
-     * instead, such as the selected node of a path in the vertex tool.
+     * Deletes the selected constraint or the selected entities, unless the design editor deletes
+     * something within them instead, such as the selected node of a path in the vertex tool.
      */
     @Override
     protected void performAction() {
+        if (controller.deleteSelectedConstraint()) {
+            return;
+        }
         if (DeleteHandlers.handle()) {
             return;
         }
@@ -62,7 +66,11 @@ public class DesignDeleteAction extends AbstractDesignEditAction implements Sele
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
-        setEnabledLater(!controller.getSelectionManager().getChildren().isEmpty());
+        setEnabledLater(hasSomethingToDelete());
+    }
+
+    private boolean hasSomethingToDelete() {
+        return controller.hasDeletableSelection();
     }
 
     /**

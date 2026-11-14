@@ -183,8 +183,9 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         }
 
         float strokeWidth = 1.5f / (float) drawing.getScale();
+        float dashedStrokeWidth = 2f / (float) drawing.getScale();
         float dashWidth = 2f / (float) drawing.getScale();
-        BasicStroke dashedStroke = new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0);
+        BasicStroke dashedStroke = new BasicStroke(dashedStrokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0);
 
         Shape shape = getShape();
         if (getCutType() == CutType.NONE) {

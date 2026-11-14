@@ -47,13 +47,17 @@ import com.willwinder.ugs.designer.actions.SnapToGridTwoAction;
 import com.willwinder.ugs.designer.actions.StitchAction;
 import com.willwinder.ugs.designer.actions.SubtractAction;
 import com.willwinder.ugs.designer.actions.ToggleHidden;
+import com.willwinder.ugs.designer.actions.ToolAlignmentAction;
 import com.willwinder.ugs.designer.actions.ToolClipartAction;
+import com.willwinder.ugs.designer.actions.ToolCoincidentAction;
+import com.willwinder.ugs.designer.actions.ToolEqualSizeAction;
 import com.willwinder.ugs.designer.actions.ToolDrawCircleAction;
 import com.willwinder.ugs.designer.actions.ToolDrawLineAction;
 import com.willwinder.ugs.designer.actions.ToolDrawPointAction;
 import com.willwinder.ugs.designer.actions.ToolDrawRectangleAction;
 import com.willwinder.ugs.designer.actions.ToolDrawTextAction;
 import com.willwinder.ugs.designer.actions.ToolImportAction;
+import com.willwinder.ugs.designer.actions.ToolConstraintAction;
 import com.willwinder.ugs.designer.actions.ToolSelectAction;
 import com.willwinder.ugs.designer.actions.ToolVertextAction;
 import com.willwinder.ugs.designer.actions.ToolZoomAction;
@@ -61,6 +65,7 @@ import com.willwinder.ugs.designer.actions.TraceImageAction;
 import com.willwinder.ugs.designer.actions.UnionAction;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerEventType;
+import com.willwinder.ugs.designer.logic.Tool;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.Action;
@@ -71,6 +76,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import java.awt.event.ActionListener;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Joacim Breiler
@@ -96,6 +104,14 @@ public class ToolBox extends ToolBar {
         vertex.setText("");
         vertex.setToolTipText("Manipulate vector points");
         add(vertex);
+
+        Map<Tool, Action> constraintActions = new LinkedHashMap<>();
+        constraintActions.put(Tool.CONSTRAINT, new ToolConstraintAction());
+        constraintActions.put(Tool.ALIGNMENT, new ToolAlignmentAction());
+        constraintActions.put(Tool.COINCIDENT, new ToolCoincidentAction());
+        constraintActions.put(Tool.EQUAL_SIZE, new ToolEqualSizeAction());
+        JToggleButton constraint = createConstraintDropDownButton(List.copyOf(constraintActions.values()));
+        add(constraint);
 
         add(createToolDropDownButton());
 
@@ -177,6 +193,7 @@ public class ToolBox extends ToolBar {
         ButtonGroup buttons = new ButtonGroup();
         buttons.add(select);
         buttons.add(vertex);
+        buttons.add(constraint);
         buttons.add(toolDropDownButton);
         buttons.add(zoom);
 
@@ -191,6 +208,13 @@ public class ToolBox extends ToolBar {
                         break;
                     case VERTEX:
                         vertex.setSelected(true);
+                        break;
+                    case CONSTRAINT:
+                    case ALIGNMENT:
+                    case COINCIDENT:
+                    case EQUAL_SIZE:
+                        constraint.setAction(constraintActions.get(controller.getTool()));
+                        constraint.setSelected(true);
                         break;
                     case POINT:
                     case RECTANGLE:
@@ -261,6 +285,14 @@ public class ToolBox extends ToolBar {
         jogDropDownButton = DropDownButtonFactory.createDropDownToggleButton(SvgIconLoader.loadImageIcon(JogMachineToCenterAction.SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null), popupMenu);
         jogDropDownButton.setAction(toolDrawRectangleAction);
         return jogDropDownButton;
+    }
+
+    // Shows the constraint tool used last, which the tool selection listener keeps up to date
+    private JToggleButton createConstraintDropDownButton(List<Action> actions) {
+        JPopupMenu popupMenu = new JPopupMenu();
+        actions.forEach(action -> addDropDownAction(popupMenu, action, null));
+        Action first = actions.getFirst();
+        return DropDownButtonFactory.createDropDownToggleButton((Icon) first.getValue(Action.LARGE_ICON_KEY), popupMenu, first);
     }
 
     private JToggleButton createToolDropDownButton() {

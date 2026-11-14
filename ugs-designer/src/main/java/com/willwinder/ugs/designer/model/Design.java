@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.designer.model;
 
+import com.willwinder.ugs.designer.constraint.Constraint;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
 
@@ -29,6 +30,7 @@ import java.util.List;
  */
 public class Design {
     private List<Entity> entities = Collections.emptyList();
+    private List<Constraint> constraints = Collections.emptyList();
     private ToolDefinition toolSnapshot;
     private Settings settings;
 
@@ -38,6 +40,14 @@ public class Design {
 
     public void setEntities(List<Entity> entities) {
         this.entities = entities;
+    }
+
+    public List<Constraint> getConstraints() {
+        return constraints;
+    }
+
+    public void setConstraints(List<Constraint> constraints) {
+        this.constraints = constraints;
     }
 
     public ToolDefinition getToolSnapshot() {
