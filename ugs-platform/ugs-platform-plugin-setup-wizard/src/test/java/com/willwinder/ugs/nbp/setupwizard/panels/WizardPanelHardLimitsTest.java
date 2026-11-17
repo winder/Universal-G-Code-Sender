@@ -78,6 +78,8 @@ public class WizardPanelHardLimitsTest {
 
         invokeRefreshComponents();
         awaitVisible("labelLimitX0");
+        // Wait for a later dual-endstop update; awaiting only labelLimitX0 can finish mid-refresh.
+        awaitVisible("labelLimitX1");
 
         assertThat(component("labelLimitX").isVisible()).isFalse();
         assertThat(component("labelLimitX0").isVisible()).isTrue();
