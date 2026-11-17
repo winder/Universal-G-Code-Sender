@@ -24,7 +24,7 @@ import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcess
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
+import com.willwinder.universalgcodesender.gcode.processors.LineSplitterDistance;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
@@ -318,7 +318,7 @@ public class GcodeParserTest {
         GcodeParser gcp = new GcodeParser();
         gcp.addCommandProcessor(new CommentProcessor());
         gcp.addCommandProcessor(new ArcExpander(true, 0.1, new DecimalFormat("#.####", Localization.dfs)));
-        gcp.addCommandProcessor(new LineSplitter(1));
+        gcp.addCommandProcessor(new LineSplitterDistance(1));
         Position[][] grid = {
             { new Position(-5,-5,0, MM), new Position(-5,35,0, MM) },
             { new Position(35,-5,0, MM), new Position(35,35,0, MM) }

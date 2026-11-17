@@ -5,8 +5,10 @@ import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.DelaunaySurfaceInterpolator;
 import com.willwinder.universalgcodesender.gcode.processors.EmptyLineRemoverProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
+import com.willwinder.universalgcodesender.gcode.processors.LineSplitterDistance;
+import com.willwinder.universalgcodesender.gcode.processors.LineSplitterTriangleIntersections;
 import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.gcode.processors.RunFromProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
@@ -60,7 +62,7 @@ public class FixturesTest {
             GcodeParser gcp = new GcodeParser();
             gcp.addCommandProcessor(new CommentProcessor());
             gcp.addCommandProcessor(new ArcExpander(true, 0.1));
-            gcp.addCommandProcessor(new LineSplitter(1));
+            gcp.addCommandProcessor(new LineSplitterDistance(1));
             return gcp;
         });
     }
@@ -83,7 +85,7 @@ public class FixturesTest {
             gcp.addCommandProcessor(new CommentProcessor());
             gcp.addCommandProcessor(new WhitespaceProcessor());
             gcp.addCommandProcessor(new ArcExpander(true, 0.1, new DecimalFormat("#.####", Localization.dfs)));
-            gcp.addCommandProcessor(new LineSplitter(1));
+            gcp.addCommandProcessor(new LineSplitterDistance(1));
             Position[][] grid = {
                     { new Position(-5,-5,0, MM), new Position(-5,35,0, MM) },
                     { new Position(35,-5,0, MM), new Position(35,35,0, MM) }
@@ -109,7 +111,20 @@ public class FixturesTest {
             GcodeParser gcp = new GcodeParser();
             gcp.addCommandProcessor(new CommentProcessor());
             gcp.addCommandProcessor(new EmptyLineRemoverProcessor());
-            gcp.addCommandProcessor(new LineSplitter(1));
+            gcp.addCommandProcessor(new LineSplitterDistance(1));
+            return gcp;
+        });
+    }
+
+    @Test
+    public void testTriangleIntersectionFixtures() throws Exception {
+        List<Position> points = readXyz("gcode/fixtures/surface/testMesh.xyz");
+        DelaunaySurfaceInterpolator surface = new DelaunaySurfaceInterpolator(points);
+        runAllFixturesInPath("./gcode/fixtures/surface/", "Triangle", () -> {
+            GcodeParser gcp = new GcodeParser();
+            gcp.addCommandProcessor(new ArcExpander(true, 0.01, new DecimalFormat("0.####", Localization.dfs), true));
+            gcp.addCommandProcessor(new LineSplitterTriangleIntersections(surface));
+            gcp.addCommandProcessor(new MeshLeveler(0, points));
             return gcp;
         });
     }
@@ -119,7 +134,7 @@ public class FixturesTest {
         runAllFixturesInPath("./gcode/fixtures/comments/", "Comments", () -> {
             GcodeParser gcp = new GcodeParser();
             gcp.addCommandProcessor(new CommentProcessor());
-            gcp.addCommandProcessor(new LineSplitter(1));
+            gcp.addCommandProcessor(new LineSplitterDistance(1));
             return gcp;
         });
     }
@@ -229,6 +244,26 @@ public class FixturesTest {
         resourceFile.close();
     }
 
+
+    private List<Position> readXyz(String resource) throws IOException {
+        List<Position> points = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getResourceAsStream(resource), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty()) {
+                    continue;
+                }
+                String[] parts = trimmed.split("\\s+");
+                points.add(new Position(
+                        Double.parseDouble(parts[0]),
+                        Double.parseDouble(parts[1]),
+                        Double.parseDouble(parts[2]),
+                        MM));
+            }
+        }
+        return points;
+    }
 
     // some helper functions to iterate over resource files
     private List<String> getResourceFiles(String path) throws IOException {
