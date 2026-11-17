@@ -8,6 +8,7 @@
             <file name="editor_secondary.wsmode" url="editor_secondaryWsmode.xml"/>
             <file name="output.wsmode" url="outputWsmode.xml"/>
             <file name="top_left.wsmode" url="top_leftWsmode.xml"/>
+            <file name="top_right.wsmode" url="top_rightWsmode.xml"/>
         </folder>
     </folder>
 </filesystem>

@@ -42,11 +42,12 @@ import org.openide.modules.OnStart;
 import org.openide.windows.TopComponent;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 
 @TopComponent.Description(preferredID = "AutoLevelerTopComponent")
-@TopComponent.Registration(mode = Mode.OUTPUT, openAtStartup = false)
+@TopComponent.Registration(mode = Mode.RIGHT_TOP, openAtStartup = false)
 @ActionID(category = AutoLevelerTopComponent.AutoLevelerCategory, id = AutoLevelerTopComponent.AutoLevelerActionId)
 @ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(
@@ -65,6 +66,12 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
 
     public AutoLevelerTopComponent() {
         setName(AutoLevelerTitle);
+        // The window system will not restore a dock smaller than this minimum.
+        // The content can be squeezed narrower than its natural minimum, so keep
+        // this small or a narrowed panel opens wider on the next start.
+        setMinimumSize(new Dimension(50, 50));
+        // First open defaults to a tall side dock; the layout is optimized for portrait.
+        setPreferredSize(new Dimension(150, 480));
     }
 
     @Override
@@ -84,9 +91,10 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
             autoLevelerPanel.setUnits(backend.getSettings().getPreferredUnits());
         } else if (evt instanceof FileStateEvent) {
             FileState fileState = ((FileStateEvent) evt).getFileState();
-            if (fileState == FileState.OPENING_FILE) {
-                // file open clears the backend CommandProcessor list
-                // (despite what the javadoc for applyCommandProcessor would suggest)
+            if (fileState == FileState.OPENING_FILE && meshLevelManager != null) {
+                // Opening or reloading a file resets the gcode parser and drops the surface
+                // processor. Install it again from the points that are already sampled.
+                meshLevelManager.reapply();
                 updatePreview();
             }
         } else if (evt instanceof ControllerStatusEvent) {
@@ -140,7 +148,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
         if (autoLevelPreview != null) {
             autoLevelPreview.updateSettings(
                     scanner.getProbeStartPositions(),
-                    scanner.getProbePositionGrid(),
+                    scanner.getScannedPoints(),
                     scanner.getProbeAreaMinZ(),
                     scanner.getTouchPlateThickness()
             );
@@ -166,7 +174,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
         // Update the settings
         backend.getSettings().getAutoLevelSettings().apply(autoLevelerPanel.getSettings());
         scanner.update(autoLevelerPanel.getMinPosition(), autoLevelerPanel.getMaxPosition());
-        scanner.reset();
         updatePreview();
     }
 
