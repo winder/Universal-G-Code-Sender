@@ -219,6 +219,31 @@ public class ArcExpanderTest {
     }
 
     @Test
+    public void chordToleranceKeepsLargeArcsCoarse() throws GcodeParserException {
+        GcodeState state = new GcodeState();
+        state.currentPoint = new Position(0, 0, 0, MM);
+        state.plane = XY;
+
+        // Half circle, radius 50. A 0.05 mm segment length would emit thousands of lines.
+        ArcExpander instance = new ArcExpander(true, 0.05, new java.text.DecimalFormat("#.#########", Localization.dfs), true);
+        List<String> result = instance.processCommand("G2 X100 Y0 I50 J0", state);
+
+        assertThat(result.size()).isBetween(20, 80);
+        Position center = new Position(50, 0, 0, MM);
+        Position previous = state.currentPoint;
+        for (String line : result) {
+            Matcher matcher = LINE_COORDS.matcher(line);
+            assertThat(matcher.find()).isTrue();
+            Position point = new Position(Double.parseDouble(matcher.group(1)), Double.parseDouble(matcher.group(2)), 0, MM);
+            double midX = (previous.x + point.x) / 2d;
+            double midY = (previous.y + point.y) / 2d;
+            double sagitta = 50d - Math.hypot(midX - center.x, midY - center.y);
+            assertThat(sagitta).isLessThanOrEqualTo(0.05 + 1e-6);
+            previous = point;
+        }
+    }
+
+    @Test
     public void verifyFeedRateAddedFromCurrentState() throws GcodeParserException {
         GcodeState gcodeState = new GcodeState();
         gcodeState.currentPoint = new Position(0, 0, 0, MM);
