@@ -31,7 +31,7 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.stream.DoubleStream;
 
 /**
@@ -44,7 +44,7 @@ public class AutoLevelPreview extends Renderable {
     private final GLUT glut;
 
     private ImmutableCollection<Position> positions;
-    private Position[][] grid = null;
+    private List<Position[]> triangles = List.of();
     private double touchPlateThickness = 0;
     private double probeAreaMinZ = 0;
     private boolean touchPlateVisible = VisualizerOptions.getBooleanOption(TOUCH_PLATE_VISIBLE_OPTION, true);
@@ -98,16 +98,26 @@ public class AutoLevelPreview extends Renderable {
 
     public void updateSettings(
             ImmutableCollection<Position> positions,
-            final Position[][] grid,
+            final List<Position> surfacePoints,
             double probeAreaMinZ,
             double touchPlateThickness) {
         this.probeAreaMinZ = probeAreaMinZ;
         this.touchPlateThickness = touchPlateThickness;
-        if (positions != null && !positions.isEmpty()) {
+        if (surfacePoints != null && !surfacePoints.isEmpty()) {
+            this.positions = com.google.common.collect.ImmutableList.copyOf(surfacePoints);
+        } else if (positions != null && !positions.isEmpty()) {
             this.positions = positions;
-            this.grid = grid;
-            updateMinMaxZ();
+        } else {
+            this.positions = null;
         }
+        try {
+            this.triangles = surfacePoints == null || surfacePoints.size() < 3
+                    ? List.of()
+                    : new com.willwinder.universalgcodesender.gcode.processors.DelaunaySurfaceInterpolator(surfacePoints).getTriangles();
+        } catch (IllegalArgumentException e) {
+            this.triangles = List.of();
+        }
+        updateMinMaxZ(surfacePoints);
     }
 
     @Override
@@ -212,7 +222,7 @@ public class AutoLevelPreview extends Renderable {
     }
 
     private void drawProbedSurface(GL2 gl) {
-        if (this.grid == null) {
+        if (this.triangles == null || this.triangles.isEmpty()) {
             return;
         }
 
@@ -230,60 +240,21 @@ public class AutoLevelPreview extends Renderable {
         */
 
         gl.glBegin(GL2.GL_TRIANGLES);
-        int xLen = this.grid.length;
-        for (int x = 0; x < xLen - 1; x++) {
-            if (this.grid[x] == null || this.grid[x + 1] == null) {
-                continue;
-            }
-
-            for (int y = 0; y < this.grid[x].length - 1; y++) {
-                Position pos1 = this.grid[x][y];
-                Position pos2 = this.grid[x + 1][y];
-                Position pos3 = this.grid[x][y + 1];
-                Position pos4 = this.grid[x + 1][y + 1];
-
-                // Bottom left of quad
-                if (pos1 != null && pos2 != null && pos3 != null) {
-                    setColorForZ(gl, pos1.z);
-                    gl.glVertex3d(pos1.x, pos1.y, pos1.z); // Left Of Triangle (Front)
-
-                    setColorForZ(gl, pos3.z);
-                    gl.glVertex3d(pos3.x, pos3.y, pos3.z); // Top Of Triangle (Front)
-
-                    setColorForZ(gl, pos2.z);
-                    gl.glVertex3d(pos2.x, pos2.y, pos2.z); // Right Of Triangle (Front)
-                }
-                // Top right of quad
-                if (pos2 != null && pos3 != null && pos4 != null) {
-                    setColorForZ(gl, pos4.z);
-                    gl.glVertex3d(pos4.x, pos4.y, pos4.z); // Right Of Triangle (Front)
-
-                    setColorForZ(gl, pos3.z);
-                    gl.glVertex3d(pos3.x, pos3.y, pos3.z); // Top Of Triangle (Front)
-
-                    setColorForZ(gl, pos2.z);
-                    gl.glVertex3d(pos2.x, pos2.y, pos2.z); // Left Of Triangle (Front)
-                }
+        for (Position[] triangle : triangles) {
+            for (Position point : triangle) {
+                setColorForZ(gl, point.z);
+                gl.glVertex3d(point.x, point.y, point.z);
             }
         }
-
         gl.glEnd();
     }
 
-    private void updateMinMaxZ() {
-        // Figure out the min/max scanned points
-        minZ = getGridZStream()
-                .min()
-                .orElse(0);
-
-        maxZ = getGridZStream()
-                .max()
-                .orElse(0);
-    }
-
-    private DoubleStream getGridZStream() {
-        return Arrays.stream(grid).flatMap(Arrays::stream)
+    private void updateMinMaxZ(List<Position> surfacePoints) {
+        DoubleStream zValues = surfacePoints == null ? DoubleStream.empty() : surfacePoints.stream()
                 .mapToDouble(CNCPoint::getZ)
-                .filter(z -> !Double.isNaN(z));
+                .filter(Double::isFinite);
+        double[] values = zValues.toArray();
+        minZ = java.util.Arrays.stream(values).min().orElse(0);
+        maxZ = java.util.Arrays.stream(values).max().orElse(0);
     }
 }

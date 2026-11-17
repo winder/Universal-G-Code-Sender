@@ -26,10 +26,14 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.ProbeEvent;
+import com.willwinder.universalgcodesender.gcode.processors.DelaunaySurfaceInterpolator;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
+import com.willwinder.universalgcodesender.utils.MathUtils;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,6 +58,8 @@ public class SurfaceScanner {
     private Position machineWorkOffset = new Position(Units.MM);
 
     private final AtomicBoolean isScanning = new AtomicBoolean(false);
+    private final List<Position> scannedPoints = new ArrayList<>();
+    private boolean scannedSurfaceValid = false;
 
     public SurfaceScanner(BackendAPI backend) {
         this.backend = backend;
@@ -90,6 +96,7 @@ public class SurfaceScanner {
             this.maxXYZ = newMax;
         }
 
+        // A new probe grid does not discard points the operator already sampled.
         reset();
     }
 
@@ -113,7 +120,6 @@ public class SurfaceScanner {
         probeEvent(toMaterialPosition(probePosition));
 
         if (pendingPositions.isEmpty()) {
-            // The probing is done!
             moveToSafeStartPoint(probePosition);
         } else {
             double retractedZ = retract(probePosition.getZ());
@@ -187,6 +193,9 @@ public class SurfaceScanner {
         expectedProbePosition.setX(expectedProbePosition.getX() + settingsOffset.getX());
         expectedProbePosition.setY(expectedProbePosition.getY() + settingsOffset.getY());
         expectedProbePosition.setZ(probedPosition.getZ() + settingsOffset.getZ());
+        if (pendingPositions.isEmpty()) {
+            publishAutomaticSurface();
+        }
         listeners.forEach(SurfaceScannerListener::onScannerUpdate);
     }
 
@@ -212,6 +221,8 @@ public class SurfaceScanner {
             throw new IllegalStateException("Cannot scan: current work Z must be between " + minZ + " and " + maxZ + " " + minXYZ.getUnits() + ".");
         }
 
+        // Rebuild the probe queue for this pass. Points already sampled stay until the pass finishes.
+        reset();
         isScanning.set(true);
         Position machine = backend.getMachinePosition().getPositionIn(work.getUnits());
         machineWorkOffset = new Position(work.getUnits());
@@ -338,6 +349,55 @@ public class SurfaceScanner {
         listeners.forEach(SurfaceScannerListener::onScannerUpdate);
     }
 
+    public void captureManualPoint(Position position) {
+        Position point = validateManualPoint(position);
+        // The tool is sitting on the touch plate, so Z is plate thickness above the material,
+        // matching an automatic probe.
+        point.setZ(point.getZ() - getTouchPlateThickness());
+        if (!Double.isFinite(point.getZ())) {
+            throw new IllegalArgumentException("A finite work position is required.");
+        }
+        int existing = indexOfManualPoint(point);
+        if (existing >= 0) {
+            scannedPoints.set(existing, point);
+        } else {
+            scannedPoints.add(point);
+        }
+        updateScannedSurfaceValidity();
+        listeners.forEach(SurfaceScannerListener::onScannerUpdate);
+    }
+
+    public void removeManualPoint(int index) {
+        if (index < 0 || index >= scannedPoints.size()) {
+            return;
+        }
+        scannedPoints.remove(index);
+        updateScannedSurfaceValidity();
+        listeners.forEach(SurfaceScannerListener::onScannerUpdate);
+    }
+
+    public void clearManualPoints() {
+        // Stop an automatic pass from publishing its grid back into the list.
+        isScanning.set(false);
+        clearScannedSurface();
+        listeners.forEach(SurfaceScannerListener::onScannerUpdate);
+    }
+
+    public void setScannedPoints(List<Position> points) {
+        scannedPoints.clear();
+        if (points != null) {
+            for (Position point : points) {
+                scannedPoints.add(validateManualPoint(point));
+            }
+        }
+        updateScannedSurfaceValidity();
+        listeners.forEach(SurfaceScannerListener::onScannerUpdate);
+    }
+
+    public List<Position> getScannedPoints() {
+        return List.copyOf(scannedPoints);
+    }
+
     public ImmutableList<Position> getProbeStartPositions() {
         ImmutableList.Builder<Position> builder = ImmutableList.builder();
         double z = toProbeZ(maxXYZ.getZ());
@@ -363,7 +423,52 @@ public class SurfaceScanner {
     }
 
     public boolean isValid() {
-        return probePositionGrid.length > 0 && pendingPositions.isEmpty();
+        return scannedSurfaceValid;
+    }
+
+    private void publishAutomaticSurface() {
+        scannedPoints.clear();
+        for (Position[] column : probePositionGrid) {
+            for (Position point : column) {
+                if (Double.isFinite(point.getZ())) {
+                    scannedPoints.add(new Position(point));
+                }
+            }
+        }
+        updateScannedSurfaceValidity();
+    }
+
+    private void updateScannedSurfaceValidity() {
+        try {
+            new DelaunaySurfaceInterpolator(scannedPoints);
+            scannedSurfaceValid = true;
+        } catch (IllegalArgumentException e) {
+            scannedSurfaceValid = false;
+        }
+    }
+
+    private void clearScannedSurface() {
+        scannedPoints.clear();
+        scannedSurfaceValid = false;
+    }
+
+    private int indexOfManualPoint(Position point) {
+        for (int i = 0; i < scannedPoints.size(); i++) {
+            Position existing = scannedPoints.get(i).getPositionIn(point.getUnits());
+            if (MathUtils.isEqual(existing.getX(), point.getX(), 0.01)
+                    && MathUtils.isEqual(existing.getY(), point.getY(), 0.01)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private Position validateManualPoint(Position position) {
+        if (position == null || position.getUnits() == null || position.getUnits() == Units.UNKNOWN
+                || !Double.isFinite(position.getX()) || !Double.isFinite(position.getY()) || !Double.isFinite(position.getZ())) {
+            throw new IllegalArgumentException("A finite work position is required.");
+        }
+        return new Position(position.getPositionIn(getPreferredUnits()));
     }
 
     public void addListener(SurfaceScannerListener listener) {
