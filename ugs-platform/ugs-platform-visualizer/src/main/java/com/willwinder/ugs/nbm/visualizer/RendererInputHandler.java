@@ -363,6 +363,8 @@ public class RendererInputHandler implements
     }
 
     public void dispose() {
-        gcodeRenderer.dispose();
+        gcodeRenderer.removeRenderable(gcodeModel);
+        gcodeRenderer.removeRenderable(sizeDisplay);
+        gcodeRenderer.removeRenderable(selection);
     }
 }

@@ -463,9 +463,11 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
 
     public void dispose() {
         logger.log(Level.INFO, "Disposing OpenGL context.");
-        getRenderables()
-                .forEach(this::removeRenderable);
-        initRenderables();
+        // Do not clear registered renderables. Closing the Visualizer destroys the
+        // OpenGL context and recreates it when the window is opened again; plugins
+        // such as AutoLeveler, Probe, and the editor highlight expect their
+        // renderables to remain registered across that cycle. Renderables that own
+        // GL resources are re-initialized in init() on the new context.
     }
 
     private void initRenderables() {
