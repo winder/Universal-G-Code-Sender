@@ -474,4 +474,8 @@ public class SurfaceScanner {
     public void addListener(SurfaceScannerListener listener) {
         listeners.add(listener);
     }
+
+    public void removeListener(SurfaceScannerListener listener) {
+        listeners.remove(listener);
+    }
 }

@@ -103,21 +103,23 @@ public class AutoLevelPreview extends Renderable {
             double touchPlateThickness) {
         this.probeAreaMinZ = probeAreaMinZ;
         this.touchPlateThickness = touchPlateThickness;
-        if (surfacePoints != null && !surfacePoints.isEmpty()) {
+        boolean hasSurface = surfacePoints != null && surfacePoints.size() >= 3;
+        if (hasSurface) {
             this.positions = com.google.common.collect.ImmutableList.copyOf(surfacePoints);
         } else if (positions != null && !positions.isEmpty()) {
+            // No sampled surface yet: show the planned probe grid only.
             this.positions = positions;
         } else {
             this.positions = null;
         }
         try {
-            this.triangles = surfacePoints == null || surfacePoints.size() < 3
-                    ? List.of()
-                    : new com.willwinder.universalgcodesender.gcode.processors.DelaunaySurfaceInterpolator(surfacePoints).getTriangles();
+            this.triangles = hasSurface
+                    ? new com.willwinder.universalgcodesender.gcode.processors.DelaunaySurfaceInterpolator(surfacePoints).getTriangles()
+                    : List.of();
         } catch (IllegalArgumentException e) {
             this.triangles = List.of();
         }
-        updateMinMaxZ(surfacePoints);
+        updateMinMaxZ(hasSurface ? surfacePoints : List.of());
     }
 
     @Override

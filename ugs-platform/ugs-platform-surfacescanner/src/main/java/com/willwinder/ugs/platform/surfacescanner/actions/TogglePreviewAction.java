@@ -19,7 +19,6 @@
 package com.willwinder.ugs.platform.surfacescanner.actions;
 
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
-import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import org.openide.util.ImageUtilities;
 
@@ -53,14 +52,6 @@ public class TogglePreviewAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        SwingUtilities.invokeLater(() -> {
-            boolean enabled = !renderable.isEnabled();
-            renderable.setEnabled(enabled);
-            // Re-register when enabling so the preview still appears if the
-            // Visualizer was closed and reopened while AutoLeveler stayed open.
-            if (enabled) {
-                RenderableUtils.registerRenderable(renderable);
-            }
-        });
+        SwingUtilities.invokeLater(() -> renderable.setEnabled(!renderable.isEnabled()));
     }
 }

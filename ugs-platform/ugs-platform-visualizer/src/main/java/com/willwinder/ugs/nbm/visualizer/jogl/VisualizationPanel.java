@@ -75,18 +75,7 @@ public class VisualizationPanel extends JPanel {
     public void removeNotify() {
         super.removeNotify();
         LOGGER.log(Level.INFO, "Component closed, panel = " + panel);
-
-        if (rih != null) {
-            backend.removeUGSEventListener(rih);
-            // Unregister this panel's renderables so a reopened Visualizer can
-            // register a fresh set without leaving duplicates behind.
-            rih.dispose();
-            rih = null;
-        }
-
-        if (panel == null) {
-            return;
-        }
+        if (panel == null) return;
 
         remove(panel);
 
@@ -96,6 +85,8 @@ public class VisualizationPanel extends JPanel {
         panel = null;
 
         LOGGER.info("Done destroying");
+
+        backend.removeUGSEventListener(rih);
     }
 
     private GLJPanel makeWindow() throws GLException {
