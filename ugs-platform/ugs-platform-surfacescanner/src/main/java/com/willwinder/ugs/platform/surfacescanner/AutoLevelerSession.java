@@ -46,4 +46,14 @@ public class AutoLevelerSession {
     public synchronized MeshLevelManager getMeshLevelManager() {
         return meshLevelManager;
     }
+
+    /**
+     * True when Apply to Gcode is enabled and the sampled surface is valid.
+     */
+    public synchronized boolean isCorrectionActive(BackendAPI backend) {
+        if (scanner == null || backend == null) {
+            return false;
+        }
+        return backend.getSettings().getAutoLevelSettings().getApplyToGcode() && scanner.isValid();
+    }
 }
