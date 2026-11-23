@@ -53,12 +53,21 @@ public class DrawingScrollContainer extends JPanel implements MouseWheelListener
         setDrawing(controller.getDrawing());
 
         MouseListener mouseListener = new MouseListener(controller);
+        mouseListener.setPanHandler(this::pan);
         controller.getDrawing().addMouseListener(mouseListener);
         controller.getDrawing().addMouseMotionListener(mouseListener);
         controller.getDrawing().addMouseWheelListener(this);
 
         KeyboardListener keyboardListener = new KeyboardListener(controller, mouseListener);
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                if (e.getID() == KeyEvent.KEY_PRESSED && e.getComponent() == controller.getDrawing()) {
+                    mouseListener.setPanModifierPressed(true);
+                } else if (e.getID() == KeyEvent.KEY_RELEASED) {
+                    mouseListener.setPanModifierPressed(false);
+                }
+            }
+
             if (e.getID() == KeyEvent.KEY_PRESSED) {
                 keyboardListener.keyPressed(e);
             } else if (e.getID() == KeyEvent.KEY_RELEASED) {
@@ -178,6 +187,17 @@ public class DrawingScrollContainer extends JPanel implements MouseWheelListener
 
         horizontalScrollBar.setValue((int) Math.round(newPosPxX));
         verticalScrollBar.setValue((int) Math.round(-newPosPxY));
+    }
+
+    /**
+     * Pans the view so that the drawing follows a mouse movement of the given delta in screen pixels
+     *
+     * @param dx the horizontal movement in pixels (positive is to the right)
+     * @param dy the vertical movement in pixels (positive is downwards)
+     */
+    public void pan(int dx, int dy) {
+        horizontalScrollBar.setValue(horizontalScrollBar.getValue() - dx);
+        verticalScrollBar.setValue(verticalScrollBar.getValue() - dy);
     }
 
     private void setScrollbarPercent(JScrollBar scrollBar, double percent) {
