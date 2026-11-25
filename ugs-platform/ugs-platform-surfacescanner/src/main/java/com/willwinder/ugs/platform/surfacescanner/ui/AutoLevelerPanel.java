@@ -43,6 +43,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
+import java.awt.Container;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -99,7 +100,7 @@ public class AutoLevelerPanel extends JPanel {
         JLabel zRetractLabel = new JLabel(Localization.getString("autoleveler.panel.z-retract") + ':', SwingConstants.RIGHT);
 
         JPanel jPanel1 = new JPanel();
-        jPanel1.setLayout(new MigLayout("fill", "[shrink][80:80, sg 1][80:80, sg 1]"));
+        jPanel1.setLayout(new MigLayout("fill, insets 0, novisualpadding", "[][grow, sg coord][grow, sg coord]"));
 
         jPanel1.add(minLabel, "skip");
         jPanel1.add(maxLabel, "wrap");
@@ -118,7 +119,7 @@ public class AutoLevelerPanel extends JPanel {
         jPanel1.add(new JButton(new UpdateMinMaxFromGcode(surfaceScanner)), "skip, spanx 2, growx");
 
         JPanel jPanel2 = new JPanel();
-        jPanel2.setLayout(new MigLayout("fill", "[shrink][80:80, sg1]"));
+        jPanel2.setLayout(new MigLayout("fill, insets 0", "[][grow]"));
         jPanel2.add(new JLabel(" "), "growx, spanx, wrap");
         jPanel2.add(resolutionLabel, "growx");
         jPanel2.add(stepResolution, "growx, wrap");
@@ -127,7 +128,8 @@ public class AutoLevelerPanel extends JPanel {
         jPanel2.add(zRetractLabel, "growx");
         jPanel2.add(zRetract, "growx, wrap");
 
-        JPanel jPanel3 = new JPanel(new MigLayout("fill"));
+        JPanel jPanel3 = new JPanel(new MigLayout("fill, insets 0"));
+        jPanel3.add(new JSeparator(SwingConstants.VERTICAL), "dock west, gapright related");
         jPanel3.add(new JLabel(" "), "growx, spanx, wrap");
         jPanel3.add(new JButton(new ScanSurfaceAction(surfaceScanner)), "growx, wrap");
         jPanel3.add(new JLabel(" "), "growx, spanx, wrap");
@@ -135,11 +137,29 @@ public class AutoLevelerPanel extends JPanel {
         jPanel3.add(new JCheckBox(new ToggleTouchPlateAction(autoLevelPreview)), "growx, wrap");
         jPanel3.add(new JCheckBox(new ToggleApplyToGcodeAction(meshLevelManager)), "growx, wrap");
 
-        setLayout(new MigLayout("fill"));
+        setLayout(new MigLayout("insets 6px, gapx 6px") {
+            private int columns = 3;
+
+            @Override
+            public void layoutContainer(Container parent) {
+                int available = parent.getWidth() - parent.getInsets().left - parent.getInsets().right - 12;
+                int inputWidth = jPanel1.getPreferredSize().width + 6 + jPanel2.getPreferredSize().width;
+                int fittingColumns = 3;
+                if (available < inputWidth) {
+                    fittingColumns = 1;
+                } else if (available < inputWidth + 6 + jPanel3.getPreferredSize().width) {
+                    fittingColumns = 2;
+                }
+                if (columns != fittingColumns) {
+                    columns = fittingColumns;
+                    setLayoutConstraints("insets 6px, gapx 6px, wrap " + columns);
+                }
+                super.layoutContainer(parent);
+            }
+        });
 
         add(jPanel1, "growx, center, top");
         add(jPanel2, "growx, center, top");
-        add(new JSeparator(SwingConstants.VERTICAL), "center, growy");
         add(jPanel3, "growx, center, top");
     }
 
