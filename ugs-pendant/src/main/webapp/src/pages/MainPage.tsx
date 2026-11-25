@@ -1,6 +1,7 @@
 import { Col, Container, Nav, Navbar, Row } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faDrawPolygon,
   faFile,
   faRobot,
   faRunning,
@@ -51,6 +52,19 @@ const Menu = ({ className }: { className?: string }) => {
           <FontAwesomeIcon icon={faFile} size="lg" />
           <br />
           Run file
+        </Nav.Link>
+      </Nav.Item>
+      <Nav.Item>
+        <Nav.Link
+          as={Link}
+          eventKey="/visualizer"
+          to="/visualizer"
+          active={location.pathname.startsWith("/visualizer")}
+          className="navLink"
+        >
+          <FontAwesomeIcon icon={faDrawPolygon} size="lg" />
+          <br />
+          Visualizer
         </Nav.Link>
       </Nav.Item>
       <Nav.Item>

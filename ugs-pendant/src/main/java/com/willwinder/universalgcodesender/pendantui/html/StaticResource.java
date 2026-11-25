@@ -47,6 +47,12 @@ public class StaticResource {
             mimeType = "text/css";
         } else if (path.endsWith(".ttf")) {
             mimeType = "font/ttf";
+        } else if (path.endsWith(".svg")) {
+            mimeType = "image/svg+xml";
+        } else if (path.endsWith(".png")) {
+            mimeType = "image/png";
+        } else if (path.endsWith(".woff2")) {
+            mimeType = "font/woff2";
         }
         return mimeType;
     }
@@ -57,7 +63,7 @@ public class StaticResource {
     }
 
     @GET
-    @Path("{path:(jog|macros|run|console)$}")
+    @Path("{path:(jog|macros|run|console|visualizer)$}")
     public Response getSubPage() {
         return getStaticResource("");
     }
@@ -79,7 +85,7 @@ public class StaticResource {
     }
 
     @GET
-    @Path("{path:.*\\.(jpg|gif|html|js|css|ico|ttf)$}")
+    @Path("{path:.*\\.(jpg|gif|png|svg|html|js|css|ico|ttf|woff2?)$}")
     public Response getStaticResource(@PathParam("path") String path) {
         if (path.equalsIgnoreCase("")) {
             path = "index.html";

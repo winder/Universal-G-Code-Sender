@@ -21,6 +21,7 @@ import { pause, send, stop } from "../services/files";
 import "./RunPanel.scss";
 import OpenFileModal from "./OpenFileModal";
 import DroPanel from "./DroPanel";
+import VisualizerPanel from "./VisualizerPanel";
 
 const getProgressVariant = (state: string) => {
   if (state === "HOLD") {
@@ -163,6 +164,11 @@ const RunPanel = () => {
               </Col>
             )}
           </Row>
+        </Col>
+      </Row>
+      <Row className="mt-3">
+        <Col>
+          <VisualizerPanel compact />
         </Col>
       </Row>
     </Container>

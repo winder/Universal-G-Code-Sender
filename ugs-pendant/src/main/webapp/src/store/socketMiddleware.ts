@@ -42,7 +42,8 @@ export const socketMiddleware: ThunkMiddleware<RootState, Action, void> =
         }
 
         const socket = new Socket();
-        socket.connect("ws://" + location.host + "/ws/v1/events");
+        const wsProtocol = location.protocol === "https:" ? "wss://" : "ws://";
+        socket.connect(wsProtocol + location.host + "/ws/v1/events");
 
         socket.on("open", () => {
             console.log("Established connection");

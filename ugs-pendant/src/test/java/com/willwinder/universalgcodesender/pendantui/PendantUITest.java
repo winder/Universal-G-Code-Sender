@@ -29,7 +29,7 @@ public class PendantUITest {
 	public void testGetUrl() {
         String test = pendantUI.getUrlList().get(0).getUrlString();
 
-        assertTrue(test.startsWith("http://"));
+        assertTrue(test.startsWith("https://"));
         assertTrue(test.contains("8080"));
 	}
 }

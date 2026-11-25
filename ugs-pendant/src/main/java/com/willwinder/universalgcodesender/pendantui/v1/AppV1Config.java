@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.ExceptionMapper;
 import com.willwinder.universalgcodesender.pendantui.ObjectMapperProvider;
 import com.willwinder.universalgcodesender.pendantui.html.StaticResource;
+import com.willwinder.universalgcodesender.pendantui.v1.resources.AuthResource;
 import com.willwinder.universalgcodesender.pendantui.v1.resources.CustomOpenApiResource;
 import com.willwinder.universalgcodesender.pendantui.v1.resources.FilesResource;
 import com.willwinder.universalgcodesender.pendantui.v1.resources.MachineResource;
@@ -29,6 +30,7 @@ import com.willwinder.universalgcodesender.pendantui.v1.resources.MacrosResource
 import com.willwinder.universalgcodesender.pendantui.v1.resources.SettingsResource;
 import com.willwinder.universalgcodesender.pendantui.v1.resources.StatusResource;
 import com.willwinder.universalgcodesender.pendantui.v1.resources.TextResource;
+import com.willwinder.universalgcodesender.pendantui.v1.resources.VisualizerResource;
 import com.willwinder.universalgcodesender.services.JogService;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -37,6 +39,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 public class AppV1Config extends ResourceConfig {
     public AppV1Config(BackendAPI backendAPI, JogService jogService) {
 
+        register(AuthResource.class);
+        register(VisualizerResource.class);
         register(StatusResource.class);
         register(MachineResource.class);
         register(TextResource.class);
