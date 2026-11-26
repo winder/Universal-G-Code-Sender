@@ -23,7 +23,9 @@ import com.willwinder.ugs.designer.entities.EventType;
 import com.willwinder.ugs.designer.entities.controls.Control;
 import com.willwinder.ugs.designer.logic.Controller;
 
-import java.awt.*;
+import javax.swing.SwingUtilities;
+import java.awt.Cursor;
+import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -31,6 +33,7 @@ import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 /**
  * MouseListener listens to the mouse events in a drawing and modifies the
@@ -48,6 +51,22 @@ public class MouseListener extends MouseAdapter {
     private Control selectedControl;
 
     /**
+     * Callback that pans the view by a delta given in screen pixels (dx, dy)
+     */
+    private BiConsumer<Integer, Integer> panHandler = (dx, dy) -> {
+    };
+
+    /**
+     * If the pan modifier key (space) is currently held down
+     */
+    private boolean panModifierPressed;
+
+    /**
+     * The last mouse position in screen coordinates while panning, null if not panning
+     */
+    private Point panLastPoint;
+
+    /**
      * Constructs a new MouseListener
      *
      * @param controller the DrawingController through which the modifications will be
@@ -57,9 +76,52 @@ public class MouseListener extends MouseAdapter {
         this.controller = controller;
     }
 
+    /**
+     * Sets the handler that will be called with the delta movement in screen pixels when panning the view
+     *
+     * @param panHandler the pan handler
+     */
+    public void setPanHandler(BiConsumer<Integer, Integer> panHandler) {
+        this.panHandler = panHandler;
+    }
+
+    /**
+     * Sets if the pan modifier key (space) is pressed. While pressed, dragging with the
+     * left mouse button will pan the view instead of interacting with the entities.
+     *
+     * @param pressed true if the modifier is pressed
+     */
+    public void setPanModifierPressed(boolean pressed) {
+        if (this.panModifierPressed != pressed) {
+            this.panModifierPressed = pressed;
+            if (!isPanning()) {
+                updateCursor();
+            }
+        }
+    }
+
+    public boolean isPanning() {
+        return panLastPoint != null;
+    }
+
+    private boolean isPanTrigger(MouseEvent m) {
+        return SwingUtilities.isMiddleMouseButton(m) || (panModifierPressed && SwingUtilities.isLeftMouseButton(m));
+    }
+
     @Override
     public void mouseDragged(MouseEvent m) {
         controller.getDrawing().requestFocus();
+        if (isPanning()) {
+            Point point = m.getPoint();
+            int dx = point.x - panLastPoint.x;
+            int dy = point.y - panLastPoint.y;
+            panLastPoint = point;
+            if (dx != 0 || dy != 0) {
+                panHandler.accept(dx, dy);
+            }
+            return;
+        }
+
         lastPos = toRelativePoint(m);
         boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
         boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
@@ -101,6 +163,11 @@ public class MouseListener extends MouseAdapter {
     }
 
     private void updateCursor() {
+        if (panModifierPressed) {
+            controller.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            return;
+        }
+
         // In the order of the controls, so the cursor of the control that gets the press wins
         controller.getDrawing().getControls().stream()
                 .filter(hoveredControls::contains)
@@ -122,6 +189,16 @@ public class MouseListener extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent m) {
         controller.getDrawing().requestFocus();
+        if (isPanning()) {
+            return;
+        }
+
+        if (isPanTrigger(m)) {
+            panLastPoint = m.getPoint();
+            controller.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+            return;
+        }
+
         startPos = toRelativePoint(m);
         boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
         boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
@@ -140,6 +217,12 @@ public class MouseListener extends MouseAdapter {
     @Override
     public void mouseReleased(MouseEvent m) {
         controller.getDrawing().requestFocus();
+        if (isPanning()) {
+            panLastPoint = null;
+            updateCursor();
+            return;
+        }
+
         lastPos = toRelativePoint(m);
         boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
         boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
