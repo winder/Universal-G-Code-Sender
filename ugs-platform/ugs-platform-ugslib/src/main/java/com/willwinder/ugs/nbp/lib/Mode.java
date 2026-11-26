@@ -29,4 +29,5 @@ public class Mode {
     public static final String OUTPUT = "output";
     public static final String LEFT_TOP = "top_left";
     public static final String LEFT_BOTTOM = "bottom_left";
+    public static final String RIGHT_TOP = "top_right";
 }

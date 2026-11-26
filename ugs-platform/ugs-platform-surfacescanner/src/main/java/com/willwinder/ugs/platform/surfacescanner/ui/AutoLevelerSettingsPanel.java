@@ -25,12 +25,18 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
+import com.willwinder.universalgcodesender.utils.AutoLevelArcMode;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import java.awt.Component;
 
 /**
  *
@@ -40,6 +46,7 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
     private final UnitSpinnerRow probeFeedRate = new UnitSpinnerRow(Localization.getString("probe.feed-rate"), 0d);
     private final UnitSpinnerRow probeScanFeedRate = new UnitSpinnerRow(Localization.getString("probe.scan-rate"), 0d);
     private final UnitSpinnerRow arcSegmentLength = new UnitSpinnerRow(Localization.getString("autoleveler.option.arc-segment-length"), 0.001d);
+    private final JComboBox<AutoLevelArcMode> arcMode = new JComboBox<>(AutoLevelArcMode.values());
     private final UnitSpinnerRow plateThickness = new UnitSpinnerRow(Localization.getString("probe.plate-thickness"), 0d);
     private final UnitSpinnerRow xOffset = new UnitSpinnerRow(Localization.getString("autoleveler.option.offset-x"), null);
     private final UnitSpinnerRow yOffset = new UnitSpinnerRow(Localization.getString("autoleveler.option.offset-y"), null);
@@ -49,6 +56,23 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
 
     public AutoLevelerSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
+        arcMode.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof AutoLevelArcMode) {
+                    setText(Localization.getString(((AutoLevelArcMode) value).getLabelKey()));
+                }
+                return this;
+            }
+        });
+        arcMode.setToolTipText(Localization.getString("autoleveler.option.arc-mode.tooltip"));
+        arcMode.addActionListener(e -> {
+            if (!updatingComponents) {
+                updateArcSegmentLengthEnabled();
+                change();
+            }
+        });
     }
 
     @Override
@@ -72,10 +96,6 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
             probeScanFeedRate.setValue(autoLevelSettings.getProbeScanFeedRate(), Unit.MM_PER_MINUTE);
             add(probeScanFeedRate);
 
-            arcSegmentLength.setUnits(lengthUnit);
-            arcSegmentLength.setValue(autoLevelSettings.getAutoLevelArcSliceLength(), Unit.MM);
-            add(arcSegmentLength);
-
             plateThickness.setUnits(lengthUnit);
             plateThickness.setValue(autoLevelSettings.getTouchPlateThickness(), Unit.MM);
             add(plateThickness);
@@ -93,6 +113,12 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
             zOffset.setUnits(lengthUnit);
             zOffset.setValue(probeOffset.getZ(), Unit.MM);
             add(zOffset);
+
+            arcMode.setSelectedItem(autoLevelSettings.getArcMode());
+            arcSegmentLength.setUnits(lengthUnit);
+            arcSegmentLength.setValue(autoLevelSettings.getAutoLevelArcSliceLength(), Unit.MM);
+            updateArcSegmentLengthEnabled();
+            add(arcSection(), "gaptop 8, growx");
         } finally {
             updatingComponents = false;
         }
@@ -103,6 +129,7 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
         AutoLevelSettings values = new AutoLevelSettings(settings.getAutoLevelSettings());
         values.setProbeSpeed(probeFeedRate.getValue(Unit.MM_PER_MINUTE));
         values.setProbeScanFeedRate(probeScanFeedRate.getValue(Unit.MM_PER_MINUTE));
+        values.setArcMode((AutoLevelArcMode) arcMode.getSelectedItem());
         values.setAutoLevelArcSliceLength(arcSegmentLength.getValue(Unit.MM));
         values.setTouchPlateThickness(plateThickness.getValue(Unit.MM));
         values.setAutoLevelProbeOffset(new Position(
@@ -122,6 +149,18 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
     public void restoreDefaults() {
     }
 
+    private void updateArcSegmentLengthEnabled() {
+        arcSegmentLength.setRowEnabled(arcMode.getSelectedItem() != AutoLevelArcMode.KEEP_ARCS);
+    }
+
+    private JPanel arcSection() {
+        JPanel section = new JPanel(new MigLayout("insets 2 6 6 6, wrap 1, gapy 6", "[grow,fill]"));
+        section.setBorder(BorderFactory.createTitledBorder(Localization.getString("autoleveler.option.arc-mode")));
+        section.add(arcMode, "growx");
+        section.add(arcSegmentLength);
+        return section;
+    }
+
     private class UnitSpinnerRow extends JPanel {
         private final UnitSpinner spinner;
 
@@ -136,6 +175,13 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
             setLayout(new MigLayout("insets 0, wrap 2"));
             add(spinner, "w 150");
             add(new JLabel(text));
+        }
+
+        private void setRowEnabled(boolean enabled) {
+            spinner.setEnabled(enabled);
+            for (Component child : getComponents()) {
+                child.setEnabled(enabled);
+            }
         }
 
         private void setUnits(Unit units) {

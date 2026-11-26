@@ -89,7 +89,7 @@ public class MeshLevelerTest {
     @Test
     public void testNotEnoughPoints() {
         expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectMessage(MeshLeveler.ERROR_NOT_ENOUGH_SAMPLES);
+        expectedEx.expectMessage(DelaunaySurfaceInterpolator.ERROR_NOT_ENOUGH_POINTS);
 
         Position[][] grid = {
                 {new Position(MM)},
@@ -102,7 +102,7 @@ public class MeshLevelerTest {
     @Test
     public void testNonRectangularGrid() {
         expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectMessage(MeshLeveler.ERROR_MESH_SHAPE);
+        expectedEx.expectMessage(DelaunaySurfaceInterpolator.ERROR_DUPLICATE_POINT);
 
         Position[][] grid = {
                 {new Position(MM), new Position(MM)},
@@ -113,55 +113,48 @@ public class MeshLevelerTest {
     }
 
     @Test
-    public void testXAlignment() {
+    public void testDuplicatePoint() {
         expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectMessage(MeshLeveler.ERROR_X_ALIGNMENT);
+        expectedEx.expectMessage(DelaunaySurfaceInterpolator.ERROR_DUPLICATE_POINT);
+
+        List<Position> points = List.of(
+                new Position(0, 0, 0, MM),
+                new Position(1, 0, 1, MM),
+                new Position(0, 1, 1, MM),
+                new Position(0, 0, 2, MM));
+        new MeshLeveler(0.0, points);
+    }
+
+    @Test
+    public void testCollinearPoints() {
+        expectedEx.expect(IllegalArgumentException.class);
+        expectedEx.expectMessage(DelaunaySurfaceInterpolator.ERROR_NOT_ENOUGH_POINTS);
 
         Position[][] grid = {
-                {new Position(0, 0, 0, MM), new Position(1, 0, 0, MM)},
-                {new Position(10, 1, 0, MM), new Position(1, 1, 0, MM)}
+                {new Position(0, 0, 0, MM), new Position(1, 0, 1, MM)},
+                {new Position(2, 0, 2, MM), new Position(3, 0, 3, MM)}
         };
 
         new MeshLeveler(0.0, grid);
     }
 
     @Test
-    public void testYAlignment() {
-        expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectMessage(MeshLeveler.ERROR_Y_ALIGNMENT);
+    public void testScatteredTriangleInterpolation() {
+        List<Position> points = List.of(
+                new Position(0, 0, 0, MM),
+                new Position(10, 0, 10, MM),
+                new Position(0, 10, 10, MM));
+        MeshLeveler ml = new MeshLeveler(0.0, points);
 
-        Position[][] grid = {
-                {new Position(0, 0, 0, MM), new Position(0, 0, 0, MM)},
-                {new Position(1, 0, 0, MM), new Position(1, 1, 0, MM)}
-        };
+        GcodeState state = new GcodeState();
+        state.currentPoint = new Position(0, 0, 0, MM);
+        state.inAbsoluteMode = true;
 
-        new MeshLeveler(0.0, grid);
-    }
-
-    @Test
-    public void testXAscention() {
-        expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectMessage(MeshLeveler.ERROR_X_ASCENTION);
-
-        Position[][] grid = {
-                {new Position(10, 0, 0, MM), new Position(10, 10, 0, MM)},
-                {new Position(0, 0, 0, MM), new Position(0, 10, 0, MM)}
-        };
-
-        new MeshLeveler(0.0, grid);
-    }
-
-    @Test
-    public void testYAscention() {
-        expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectMessage(MeshLeveler.ERROR_Y_ASCENTION);
-
-        Position[][] grid = {
-                {new Position(0, 10, 0, MM), new Position(0, 0, 0, MM)},
-                {new Position(10, 0, 0, MM), new Position(10, 10, 0, MM)}
-        };
-
-        new MeshLeveler(0.0, grid);
+        sendCommandExpectResult(ml, state, "G1X0Y0", "G1X0Y0Z0");
+        sendCommandExpectResult(ml, state, "G1X5Y0", "G1X5Y0Z5");
+        sendCommandExpectResult(ml, state, "G1X0Y5", "G1X0Y5Z5");
+        sendCommandExpectResult(ml, state, "G1X2Y2", "G1X2Y2Z4");
+        sendCommandExpectResult(ml, state, "G1X6Y6", "G1X6Y6Z0");
     }
 
     @Test

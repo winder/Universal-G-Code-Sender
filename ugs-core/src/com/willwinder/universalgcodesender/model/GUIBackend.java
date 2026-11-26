@@ -485,6 +485,20 @@ public class GUIBackend implements BackendAPI {
     }
 
     @Override
+    public void replaceCommandProcessor(CommandProcessor previous, CommandProcessor next) throws Exception {
+        logger.log(Level.INFO, "Replacing command processor");
+        if (previous != null) {
+            gcp.removeCommandProcessor(previous);
+        }
+        if (next != null) {
+            gcp.addCommandProcessor(next);
+        }
+        if (gcodeFile != null) {
+            processGcodeFile();
+        }
+    }
+
+    @Override
     public File getGcodeFile() {
         logger.log(Level.FINEST, "Getting gcode file.");
         return this.gcodeFile;

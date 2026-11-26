@@ -36,10 +36,17 @@ public class PercentSpinner extends JSpinner {
     public PercentSpinner(double value) {
         spinnerNumberModel = new SpinnerNumberModel(value, 0, 1, 0.01d);
         setModel(spinnerNumberModel);
+        setShowAbbreviation(true);
+    }
+
+    /**
+     * Controls whether the percent sign is shown after the value.
+     */
+    public void setShowAbbreviation(boolean showAbbreviation) {
         JSpinner.NumberEditor numberEditor = new JSpinner.NumberEditor(this);
         numberEditor.getTextField().setFormatterFactory(new DefaultFormatterFactory(
-                new TextFieldUnitFormatter(Unit.PERCENT, 1),
-                new TextFieldUnitFormatter(Unit.PERCENT, 1),
+                new TextFieldUnitFormatter(Unit.PERCENT, 1, showAbbreviation),
+                new TextFieldUnitFormatter(Unit.PERCENT, 1, showAbbreviation),
                 new TextFieldUnitFormatter(Unit.PERCENT, 1, false)));
         numberEditor.getTextField().setHorizontalAlignment(SwingConstants.LEFT);
         setEditor(numberEditor);

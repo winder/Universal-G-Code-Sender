@@ -30,7 +30,7 @@ import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.EmptyLineRemoverProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
+import com.willwinder.universalgcodesender.gcode.processors.LineSplitterDistance;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
 import com.willwinder.universalgcodesender.gcode.processors.SpindleOnDweller;
@@ -258,7 +258,7 @@ public class CommandProcessorLoader {
                 double duration = pc.args.get("duration").getAsDouble();
                 yield Optional.of(new SpindleOnDweller(duration));
             }
-            case "LineSplitter" -> Optional.of(new LineSplitter(pc.args.get("segmentLengthMM").getAsDouble()));
+            case "LineSplitter" -> Optional.of(new LineSplitterDistance(pc.args.get("segmentLengthMM").getAsDouble()));
             case "BacklashCompensator" -> {
                 Position backlash = new Position(
                         getDouble(pc.args, "backlashXMM", 0),

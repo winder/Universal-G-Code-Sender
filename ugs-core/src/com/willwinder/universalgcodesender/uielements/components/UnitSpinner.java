@@ -35,6 +35,7 @@ public class UnitSpinner extends JSpinner {
 
     private final SpinnerNumberModel spinnerNumberModel;
     private Unit units;
+    private boolean showAbbreviation = true;
 
     public UnitSpinner(double value, Unit units) {
         this(value, units, null, null, 0.01d);
@@ -58,8 +59,8 @@ public class UnitSpinner extends JSpinner {
 
         NumberEditor numberEditor = new NumberEditor(this);
         numberEditor.getTextField().setFormatterFactory(new DefaultFormatterFactory(
-                new TextFieldUnitFormatter(units, 3),
-                new TextFieldUnitFormatter(units, 3),
+                new TextFieldUnitFormatter(units, 3, showAbbreviation),
+                new TextFieldUnitFormatter(units, 3, showAbbreviation),
                 new TextFieldUnitFormatter(units, 3, false)));
         numberEditor.getTextField().setHorizontalAlignment(SwingConstants.LEFT);
         setEditor(numberEditor);
@@ -67,6 +68,17 @@ public class UnitSpinner extends JSpinner {
 
     public Unit getUnits() {
         return units;
+    }
+
+    /**
+     * Controls whether the unit abbreviation is shown after the value.
+     * The value is still stored and converted in {@link #getUnits()}.
+     */
+    public void setShowAbbreviation(boolean showAbbreviation) {
+        this.showAbbreviation = showAbbreviation;
+        if (units != null) {
+            setUnits(units);
+        }
     }
 
     public double getDoubleValue() {

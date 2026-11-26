@@ -18,11 +18,8 @@
  */
 package com.willwinder.ugs.platform.surfacescanner;
 
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
+import com.willwinder.universalgcodesender.gcode.processors.AutoLevelProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessorList;
-import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
-import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -40,23 +37,27 @@ public class Utils {
     public static final JFileChooser fileChooser = new JFileChooser();
 
     /**
-     * Checks if there is probed data present and if so asks the user if it is ok to delete.
-     * If it is ok to delete, the data will be removed
+     * Asks before an action that replaces the sampled surface, then clears those points.
+     * Changing settings or reloading a gcode file is not such an action.
      *
      * @param surfaceScanner the current surface scanner
-     * @return true if there is no probe data
+     * @return true when there is nothing to keep, or the user agreed to replace it
      */
     public static boolean removeProbeData(SurfaceScanner surfaceScanner) {
-        if (!surfaceScanner.isValid()) {
-            return true;
-        }
-
-        if (!shouldEraseProbedData()) {
+        if (!confirmReplaceProbeData(surfaceScanner)) {
             return false;
         }
-
-        surfaceScanner.reset();
+        if (!surfaceScanner.getScannedPoints().isEmpty()) {
+            surfaceScanner.clearManualPoints();
+        }
         return true;
+    }
+
+    /**
+     * @return true when there are no sampled points, or the user agreed to replace them
+     */
+    public static boolean confirmReplaceProbeData(SurfaceScanner surfaceScanner) {
+        return surfaceScanner.getScannedPoints().isEmpty() || shouldEraseProbedData();
     }
 
     private static boolean shouldEraseProbedData() {
@@ -107,16 +108,16 @@ public class Utils {
     public static CommandProcessorList createCommandProcessor(AutoLevelSettings autoLevelSettings, SurfaceScanner surfaceScanner) {
         CommandProcessorList result = new CommandProcessorList();
 
-        // Step 1: Convert arcs to line segments.
-        result.add(new ArcExpander(true, autoLevelSettings.getAutoLevelArcSliceLength(), GcodePreprocessorUtils.getDecimalFormatter()));
-
-        // Step 2: Line splitter. No line should be longer than some fraction of "resolution"
-        result.add(new LineSplitter(autoLevelSettings.getStepResolution() / 4));
-
-        // Step 3: Adjust Z heights codes based on mesh offsets.
-        result.add(
-                new MeshLeveler(autoLevelSettings.getZSurface(),
-                        surfaceScanner.getProbePositionGrid()));
+        // Arc tolerance is the maximum chord error, not a fixed step. A 0.01 mm step turns a
+        // normal program into more than a million moves, which is too slow to rebuild when a
+        // probe point is added and too fine to stream at the programmed feed. Straight moves
+        // are split only where they cross into a different surface triangle.
+        // All of this happens in one processor so each move is scanned once.
+        result.add(new AutoLevelProcessor(
+                autoLevelSettings.getAutoLevelArcSliceLength(),
+                autoLevelSettings.getZSurface(),
+                surfaceScanner.getScannedPoints(),
+                autoLevelSettings.getArcMode()));
         return result;
     }
 }

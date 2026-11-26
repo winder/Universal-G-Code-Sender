@@ -65,6 +65,7 @@ public class ClearScannedSurfaceAction extends AbstractAction implements UGSEven
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        surfaceScanner.clearManualPoints();
         surfaceScanner.reset();
     }
 

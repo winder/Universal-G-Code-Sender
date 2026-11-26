@@ -79,13 +79,9 @@ public class SaveScannedSurfaceAction extends AbstractAction {
             return;
         }
 
-        Position[][] grid = surfaceScanner.getProbePositionGrid();
-
         StringBuilder output = new StringBuilder();
-        for (Position[] row : grid) {
-            for (Position cell : row) {
-                output.append(cell.getX()).append(" ").append(cell.getY()).append(" ").append(cell.getZ()).append("\n");
-            }
+        for (Position point : surfaceScanner.getScannedPoints()) {
+            output.append(point.getX()).append(" ").append(point.getY()).append(" ").append(point.getZ()).append("\n");
         }
         try {
             IOUtils.write(output, Files.newOutputStream(selectedFile.get().toPath()), Charset.defaultCharset());
