@@ -4,7 +4,6 @@ on: [pull_request]
 
 jobs:
   build-and-test:
-    if: github.repository_owner == 'winder'
     runs-on: ubuntu-24.04
 
     steps:

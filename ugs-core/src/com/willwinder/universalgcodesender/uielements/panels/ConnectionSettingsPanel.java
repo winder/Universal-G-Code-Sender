@@ -62,6 +62,18 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     private final Checkbox autoStartPendant = new Checkbox(
             Localization.getString("sender.autostartpendant"));
     private final JTextField pendantPort = new JTextField();
+    private final Checkbox pendantUseHttps = new Checkbox("Enable HTTPS / WSS for Web Pendant");
+    private final Checkbox pendantAuthEnabled = new Checkbox("Require Login & Password for Web Pendant");
+    private final JTextField pendantUsername = new JTextField();
+    private final JPasswordField pendantPassword = new JPasswordField();
+    private final JTextField pendantKeystorePath = new JTextField();
+    private final JPasswordField pendantKeystorePassword = new JPasswordField();
+    private final Spinner pendantSessionTimeoutMinutes = new Spinner(
+            "Web Session Timeout (minutes)",
+            new SpinnerNumberModel(1440, 5, 43200, 30));
+    private final Spinner pendantToolpathMaxSegments = new Spinner(
+            "Web Visualizer Max Segments",
+            new SpinnerNumberModel(50000, 1000, 500000, 5000));
     private final JComboBox<Language> languageCombo = new JComboBox<>(AvailableLanguages.getAvailableLanguages().toArray(new Language[0]));
     private final JComboBox<String> connectionDriver = new JComboBox<>(ConnectionDriver.getPrettyNames());
     private final JTextField workspaceDirectory = new JTextField();
@@ -100,6 +112,14 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setShowNightlyWarning(showNightlyWarning.getValue());
         settings.setAutoStartPendant(autoStartPendant.getValue());
         settings.setPendantPort(Integer.parseInt(pendantPort.getText()));
+        settings.setPendantUseHttps(pendantUseHttps.getValue());
+        settings.setPendantAuthEnabled(pendantAuthEnabled.getValue());
+        settings.setPendantUsername(pendantUsername.getText().trim());
+        settings.setPendantPassword(new String(pendantPassword.getPassword()));
+        settings.setPendantKeystorePath(pendantKeystorePath.getText().trim());
+        settings.setPendantKeystorePassword(new String(pendantKeystorePassword.getPassword()));
+        settings.setPendantSessionTimeoutMinutes((int) pendantSessionTimeoutMinutes.getValue());
+        settings.setPendantToolpathMaxSegments((int) pendantToolpathMaxSegments.getValue());
         settings.setLanguage(((Language) languageCombo.getSelectedItem()).getLanguageCode());
         settings.setConnectionDriver(ConnectionDriver.prettyNameToEnum(connectionDriver.getSelectedItem().toString()));
         settings.setWorkspaceDirectory(workspaceDirectory.getText());
@@ -152,6 +172,34 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         pendantPort.setText(String.valueOf(s.getPendantPort()));
         add(new JLabel(Localization.getString("settings.pendantPort")), "gapleft 56");
         add(pendantPort, "grow, wrap");
+
+        pendantUseHttps.setSelected(s.isPendantUseHttps());
+        add(pendantUseHttps, "spanx, wrap");
+
+        pendantAuthEnabled.setSelected(s.isPendantAuthEnabled());
+        add(pendantAuthEnabled, "spanx, wrap");
+
+        pendantUsername.setText(s.getPendantUsername());
+        add(new JLabel("Web Pendant Login"), "gapleft 56");
+        add(pendantUsername, "grow, wrap");
+
+        pendantPassword.setText(s.getPendantPassword());
+        add(new JLabel("Web Pendant Password"), "gapleft 56");
+        add(pendantPassword, "grow, wrap");
+
+        pendantKeystorePath.setText(s.getPendantKeystorePath());
+        add(new JLabel("SSL Keystore Path (optional)"), "gapleft 56");
+        add(pendantKeystorePath, "grow, wrap");
+
+        pendantKeystorePassword.setText(s.getPendantKeystorePassword());
+        add(new JLabel("SSL Keystore Password"), "gapleft 56");
+        add(pendantKeystorePassword, "grow, wrap");
+
+        pendantSessionTimeoutMinutes.setValue(s.getPendantSessionTimeoutMinutes());
+        add(pendantSessionTimeoutMinutes, "spanx, wrap");
+
+        pendantToolpathMaxSegments.setValue(s.getPendantToolpathMaxSegments());
+        add(pendantToolpathMaxSegments, "spanx, wrap");
 
         for (int i = 0; i < languageCombo.getItemCount(); i++) {
             Language l = languageCombo.getItemAt(i);

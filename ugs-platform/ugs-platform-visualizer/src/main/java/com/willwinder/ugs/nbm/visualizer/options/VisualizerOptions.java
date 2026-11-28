@@ -38,6 +38,7 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
     public static String VISUALIZER_OPTION_TOOL = "platform.visualizer.tool";
     public static String VISUALIZER_OPTION_TOOL_DESC = "platform.visualizer.tool.desc";
     public static String VISUALIZER_OPTION_TOOL_COLOR = "platform.visualizer.color.tool";
+    public static String VISUALIZER_OPTION_TOOL_SIZE = "platform.visualizer.tool.size";
 
     // GcodeModel renderable
     public static String VISUALIZER_OPTION_MODEL = "platform.visualizer.model";
@@ -117,6 +118,7 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
         // Tool renderable
         add(getOption(VISUALIZER_OPTION_TOOL, Localization.getString(VISUALIZER_OPTION_TOOL_DESC), true));
         add(getOption(VISUALIZER_OPTION_TOOL_COLOR, "", new Color(237,255,0)));
+        add(getOption(VISUALIZER_OPTION_TOOL_SIZE, "Tool marker scale (0.1 - 2.0)", 0.4));
 
         // GcodeModel renderable
         add(getOption(VISUALIZER_OPTION_MODEL, Localization.getString(VISUALIZER_OPTION_MODEL_DESC), true));

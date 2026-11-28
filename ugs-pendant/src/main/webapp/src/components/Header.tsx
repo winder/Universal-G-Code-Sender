@@ -1,6 +1,7 @@
 import {
   faPlugCircleXmark,
   faRefresh,
+  faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
@@ -10,7 +11,13 @@ import { disconnect, softReset } from "../services/machine";
 import AccessoryState from "./AccessoryState";
 import ControllerState from "./ControllerState";
 
-const Header = () => {
+interface HeaderProps {
+  authEnabled?: boolean;
+  authenticated?: boolean;
+  onLogout?: () => void;
+}
+
+const Header = ({ authEnabled, authenticated, onLogout }: HeaderProps) => {
   const [activeKey, setActiveKey] = useState("/home");
   const isConnected = useAppSelector((state) => state.socket.isConnected);
   const status = useAppSelector((state) => state.status);
@@ -57,6 +64,14 @@ const Header = () => {
 
             <Button variant="danger" onClick={() => disconnect()}>
               <FontAwesomeIcon icon={faPlugCircleXmark} />
+            </Button>
+          </Nav.Item>
+        )}
+
+        {authEnabled && authenticated && onLogout && (
+          <Nav.Item className="ms-2">
+            <Button variant="outline-light" onClick={onLogout} title="Logout">
+              <FontAwesomeIcon icon={faRightFromBracket} />
             </Button>
           </Nav.Item>
         )}

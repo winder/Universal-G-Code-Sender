@@ -25,6 +25,7 @@ import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL_COLOR;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL_SIZE;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
 
@@ -38,6 +39,7 @@ public final class Tool extends Renderable {
     private GLU glu;
     GLUquadric gq;
     Color toolColor;
+    double toolSize = 0.4;
 
     public Tool(String title) {
         super(11, title, VISUALIZER_OPTION_TOOL);
@@ -48,6 +50,10 @@ public final class Tool extends Renderable {
     public void reloadPreferences(VisualizerOptions vo) {
         super.reloadPreferences(vo);
         toolColor = vo.getOptionForKey(VISUALIZER_OPTION_TOOL_COLOR).value;
+        toolSize = VisualizerOptions.getDoubleOption(VISUALIZER_OPTION_TOOL_SIZE, 0.4);
+        if (toolSize <= 0.05) {
+            toolSize = 0.4;
+        }
     }
 
     @Override
@@ -89,9 +95,12 @@ public final class Tool extends Renderable {
 
             gl.glColor4fv(VisualizerOptions.colorToFloatArray(toolColor), 0);
             glu.gluQuadricNormals(gq, GLU.GLU_SMOOTH);
-            glu.gluCylinder(gq, 0f, .03f, .2, 16, 1);
-            gl.glTranslated(0, 0, 0.2);
-            glu.gluCylinder(gq, 0.03f, .0f, .01, 16, 1);
+            float radius = (float) (0.03f * toolSize);
+            double height = 0.2 * toolSize;
+            double capHeight = 0.01 * toolSize;
+            glu.gluCylinder(gq, 0f, radius, height, 16, 1);
+            gl.glTranslated(0, 0, height);
+            glu.gluCylinder(gq, radius, 0f, capHeight, 16, 1);
         gl.glPopMatrix();
     }
 }

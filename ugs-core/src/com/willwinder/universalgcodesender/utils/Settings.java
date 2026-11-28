@@ -93,6 +93,14 @@ public class Settings {
     private boolean showSerialPortWarning = true;
     private boolean autoStartPendant = false;
     private int pendantPort = 8080;
+    private boolean pendantUseHttps = true;
+    private boolean pendantAuthEnabled = true;
+    private String pendantUsername = "admin";
+    private String pendantPassword = "admin";
+    private String pendantKeystorePath = "";
+    private String pendantKeystorePassword = "ugs-pendant";
+    private int pendantSessionTimeoutMinutes = 1440;
+    private int pendantToolpathMaxSegments = 50000;
 
     private final AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
 
@@ -567,6 +575,78 @@ public class Settings {
 
     public void setPendantPort(int pendantPort) {
         this.pendantPort = pendantPort;
+        changed();
+    }
+
+    public boolean isPendantUseHttps() {
+        return pendantUseHttps;
+    }
+
+    public void setPendantUseHttps(boolean pendantUseHttps) {
+        this.pendantUseHttps = pendantUseHttps;
+        changed();
+    }
+
+    public boolean isPendantAuthEnabled() {
+        return pendantAuthEnabled;
+    }
+
+    public void setPendantAuthEnabled(boolean pendantAuthEnabled) {
+        this.pendantAuthEnabled = pendantAuthEnabled;
+        changed();
+    }
+
+    public String getPendantUsername() {
+        return pendantUsername != null ? pendantUsername : "admin";
+    }
+
+    public void setPendantUsername(String pendantUsername) {
+        this.pendantUsername = pendantUsername;
+        changed();
+    }
+
+    public String getPendantPassword() {
+        return pendantPassword != null ? pendantPassword : "admin";
+    }
+
+    public void setPendantPassword(String pendantPassword) {
+        this.pendantPassword = pendantPassword;
+        changed();
+    }
+
+    public String getPendantKeystorePath() {
+        return pendantKeystorePath != null ? pendantKeystorePath : "";
+    }
+
+    public void setPendantKeystorePath(String pendantKeystorePath) {
+        this.pendantKeystorePath = pendantKeystorePath;
+        changed();
+    }
+
+    public String getPendantKeystorePassword() {
+        return pendantKeystorePassword != null ? pendantKeystorePassword : "ugs-pendant";
+    }
+
+    public void setPendantKeystorePassword(String pendantKeystorePassword) {
+        this.pendantKeystorePassword = pendantKeystorePassword;
+        changed();
+    }
+
+    public int getPendantSessionTimeoutMinutes() {
+        return pendantSessionTimeoutMinutes > 0 ? pendantSessionTimeoutMinutes : 1440;
+    }
+
+    public void setPendantSessionTimeoutMinutes(int pendantSessionTimeoutMinutes) {
+        this.pendantSessionTimeoutMinutes = pendantSessionTimeoutMinutes;
+        changed();
+    }
+
+    public int getPendantToolpathMaxSegments() {
+        return pendantToolpathMaxSegments > 0 ? pendantToolpathMaxSegments : 50000;
+    }
+
+    public void setPendantToolpathMaxSegments(int pendantToolpathMaxSegments) {
+        this.pendantToolpathMaxSegments = pendantToolpathMaxSegments;
         changed();
     }
 
